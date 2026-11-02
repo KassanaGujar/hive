@@ -16,17 +16,19 @@
 - Beta is Windows-only (user answer); Mac/Linux targets stay in the builder config but untested.
 - Free hosted tier IS included (user answer). Name "Hive" kept as placeholder.
 
-## Status by milestone (code written for ALL features; verification status noted)
-- [x] M0 Foundations — monorepo, typed IPC, store, secrets, updater wiring, builder config. (CI workflow: TODO)
-- [x] M1 Workspace + Run — VERIFIED in the running app: explorer, Monaco tabs, PowerShell terminal (node-pty),
-      Run on static HTML → built-in server → Preview tab shows the page.
-- [x] M2 Model store + AI chat — hw scan/ollama/catalog verified via IPC; llama3.2 detected + catalog-matched.
-- [x] M3 Agents — VERIFIED: integration test (real git worktrees, scripted models) + a REAL run with llama3.2:3b
-      (plan → 6 tasks in worktrees → lead reviews/rounds → merged → final merge; branches cleaned).
-      Added file-ownership task merging + owned-file context for small models after that run.
-- [~] M4 Collaboration — relay + provider E2E tested (2 clients, encryption, offline, invites). UI two-instance test: next.
-- [~] M5 Planning room — logic unit-tested; UI written, not yet clicked through.
-- [~] M6 Setup wizard renders (verified); download page, CI workflow, relay-hosting doc: TODO.
+## Status by milestone (all features written; verification noted)
+- [x] M0 Foundations — monorepo, typed IPC, SQLite (node:sqlite) store VERIFIED in packaged app, secrets,
+      updater wiring, CI workflow (.github/workflows/release.yml — not yet run on GitHub).
+- [x] M1 Workspace + Run — VERIFIED: explorer, Monaco, PowerShell terminal, Run static HTML → Preview.
+- [x] M2 Model store + AI chat — hw/ollama/catalog verified; llama3.2 detected. Free-online key test not
+      exercised (needs a real free key from the user).
+- [x] M3 Agents — VERIFIED: integration test (real worktrees) + REAL run with llama3.2:3b end to end.
+- [x] M4 Collaboration — VERIFIED with two app instances: host shares (local relay), friend joins, files
+      sync both ways (friend→host 1.0 s, host→friend 0.5 s), feed shows teammate edits with diffs,
+      teammate terminal mirror visible.
+- [x] M5 Planning room — VERIFIED: two people chatting, Planner auto-ran with llama3.2 and added traced items.
+- [x] M6 Installer — VERIFIED: `npx electron-builder --win` → release/0.1.0/Hive-Setup-0.1.0.exe (126 MB);
+      packaged app runs (catalog, sqlite, node-pty OK). Download page in site/. Relay hosting doc written.
 
 ## How to test the app (what Claude does)
 - Build: `cd apps/desktop && npx electron-vite build`
@@ -36,15 +38,18 @@
 - `window.hive.invoke(channel, ...args)` is available in the page for IPC-level checks.
 
 ## Next up
-1. Two-instance collab test through the UI (host shares via Team panel, friend joins).
-2. Planning room click-through with a real model.
-3. Download page (site/), GitHub Actions release workflow, docs/relay-hosting.md, README.
-4. Re-run real agent test after the ownership change.
+1. User decisions: GitHub repo/username (fill REPLACE_WITH_GITHUB_USER + DEFAULT_CATALOG_URL), relay host
+   (see docs/relay-hosting.md), app icon.
+2. Not yet click-tested: setup wizard steps 2–3 on a clean VM, code-only invite join through the dialog,
+   AI chat accept/reject diff, git panel commit, viewer role, kick, free-online key paste.
+3. Small-model quality: Planner misses decisions/questions with 3B; consider stronger default for Architect.
+4. Playwright e2e tests (PRD testing plan) — not started.
 
 ## Known gaps / ideas
 - Catalog URL + electron-builder `publish.owner` use placeholders (REPLACE_WITH_GITHUB_USER / Beanman).
 - No app icon yet (build/icon.ico).
+- FIXED: Chromium's scrollIntoView now returns a Promise → never return it from useEffect.
 - Viewer role is enforced by the relay for doc updates; editor UI is read-only for viewers.
 
 ## Log
-- 2026-11-02: repo initialised; core packages; main process; renderer; app builds and runs; real agent run OK.
+- 2026-11-02: repo initialised; core packages; main process; renderer; app builds and runs; real agent run OK; collab + planning verified with 2 instances; installer builds.

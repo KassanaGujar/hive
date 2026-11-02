@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hive — free AI coding with friends</title>
+<meta name="description" content="Hive is a free desktop app where a team of free AI models builds software with you and your friends." />
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --line: #dcdfe5; --fg: #1c1f26; --muted: #5d6575; --accent: #e09a00; --accent-fg: #1c1400;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161b; --panel: #1b1e24; --line: #2e333c; --fg: #e3e6ec; --muted: #9aa2b1; --accent: #f5b400; --accent-fg: #1c1400; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 16px 80px; }
+  .hero { display: flex; gap: 18px; align-items: center; margin-bottom: 18px; }
+  .logo { font-size: 56px; line-height: 1; }
+  h1 { font-size: 40px; margin: 0; letter-spacing: -0.02em; }
+  .tag { color: var(--muted); margin: 4px 0 0; font-size: 18px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 8px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); text-decoration: none; font-weight: 600; }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; font-size: 17px; padding: 14px 22px; }
+  .btn:hover { filter: brightness(1.06); }
+  .small { color: var(--muted); font-size: 14px; }
+  h2 { font-size: 22px; margin: 48px 0 14px; }
+  ol.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  ol.steps li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-weight: 700; }
+  .smartscreen { margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; max-width: 420px; font-size: 13px; }
+  .smartscreen .bar { background: #0b5cad; color: #fff; padding: 10px 12px; font-weight: 600; }
+  .smartscreen .body { padding: 10px 12px; background: var(--bg); }
+  .smartscreen .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .smartscreen .fake { padding: 4px 10px; border: 1px solid var(--line); border-radius: 4px; }
+  .smartscreen .fake.hl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card b { display: block; margin-bottom: 4px; }
+  code { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 14px; }
+  footer { margin-top: 56px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div class="logo" aria-hidden="true">🐝</div>
+    <div>
+      <h1>Hive</h1>
+      <p class="tag">Free AI coding with your friends. A team of free AI models plans, writes and reviews code while you all edit together.</p>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <a class="btn primary" id="dl-win" href="#">⬇ Download for Windows</a>
+    <a class="btn" id="dl-mac" href="#">macOS (beta)</a>
+    <a class="btn" id="dl-linux" href="#">Linux AppImage (beta)</a>
+  </div>
+  <p class="small" id="version">Free forever. No account. Works offline with local models.</p>
+
+  <h2>First launch in 3 steps</h2>
+  <ol class="steps">
+    <li><span class="num">1</span><div><b>Run the installer.</b> Double-click <code>Hive-Setup.exe</code>. It installs just for you — no admin password.</div></li>
+    <li><span class="num">2</span><div><b>Windows may warn you.</b> Hive isn't code-signed yet, so SmartScreen says “Windows protected your PC”. Click <b>More info</b>, then <b>Run anyway</b>.
+      <div class="smartscreen" aria-label="Illustration of the SmartScreen dialog">
+        <div class="bar">Windows protected your PC</div>
+        <div class="body">Microsoft Defender SmartScreen prevented an unrecognized app from starting…<br/>App: Hive-Setup.exe<br/>Publisher: Unknown publisher
+          <div class="row"><span class="fake hl">Run anyway</span><span class="fake">Don't run</span></div>
+        </div>
+      </div>
+    </div></li>
+    <li><span class="num">3</span><div><b>Follow the setup wizard.</b> Hive checks your PC, installs git and Ollama for you, and downloads a free AI model that fits. Then start a project or paste your friend's invite code.</div></li>
+  </ol>
+
+  <h2>What you get</h2>
+  <div class="grid">
+    <div class="card"><b>A real code editor</b>Files, tabs, split view, search, git and a real terminal — VS Code-style.</div>
+    <div class="card"><b>An AI team</b>The strongest model plans and reviews; smaller ones write code, each in its own git branch.</div>
+    <div class="card"><b>Live with friends</b>Edit together, see cursors and every change in a timeline. End-to-end encrypted.</div>
+    <div class="card"><b>Planning room</b>Pitch ideas in chat; the AI keeps a living plan and hands tasks to the agents.</div>
+    <div class="card"><b>One-click Run</b>Web pages, Node, Python and more — with a built-in preview.</div>
+    <div class="card"><b>Zero cost</b>Only free models: local ones via Ollama, or free online tiers if your PC is small.</div>
+  </div>
+
+  <footer>Made by friends, for friends. Problems? Tell whoever sent you this link.</footer>
+</main>
+<script>
+  // Point the buttons at the latest GitHub release assets.
+  const REPO = 'REPLACE_WITH_GITHUB_USER/hive'
+  const latest = `https://github.com/${REPO}/releases/latest`
+  for (const id of ['dl-win', 'dl-mac', 'dl-linux']) document.getElementById(id).href = latest
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((rel) => {
+      const find = (re) => rel.assets.find((a) => re.test(a.name))?.browser_download_url
+      const win = find(/\.exe$/), mac = find(/\.dmg$/), linux = find(/\.AppImage$/)
+      if (win) document.getElementById('dl-win').href = win
+      if (mac) document.getElementById('dl-mac').href = mac
+      if (linux) document.getElementById('dl-linux').href = linux
+      document.getElementById('version').textContent = `Version ${rel.tag_name.replace(/^v/, '')} · free forever · no account`
+    })
+    .catch(() => {})
+  if (/Mac/i.test(navigator.platform)) document.getElementById('dl-mac').classList.add('primary')
+</script>
+</body>
+</html>
