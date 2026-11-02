@@ -62,7 +62,7 @@ export class HiveProvider {
     this.setStatus('connecting')
     let ws: WebSocket
     try {
-      ws = new WebSocket(this.opts.relayUrl)
+      ws = new WebSocket(withParam(this.opts.relayUrl, 'room', this.opts.roomId))
     } catch (e: any) {
       this.fail(e?.message ?? 'Bad relay URL')
       return
@@ -226,7 +226,7 @@ export class HiveProvider {
   /** Look up a code-only invite on a relay without joining a room. */
   static async fetchInvite(relayUrl: string, code: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(relayUrl)
+      const ws = new WebSocket(withParam(relayUrl, 'invite', '1'))
       const timer = setTimeout(() => {
         ws.close()
         reject(new Error('Could not reach the relay'))
@@ -246,4 +246,11 @@ export class HiveProvider {
       }
     })
   }
+}
+
+/** Relays route by query string (Cloudflare picks the room's Durable Object from it). */
+export function withParam(url: string, key: string, value: string) {
+  const u = new URL(url)
+  u.searchParams.set(key, value)
+  return u.toString()
 }

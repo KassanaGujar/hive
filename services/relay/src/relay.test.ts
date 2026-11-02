@@ -5,11 +5,13 @@ import { startRelay, type RelayHandle } from './relay'
 
 let relay: RelayHandle
 let url: string
+// RELAY_URL=ws://127.0.0.1:8787 runs the same tests against the Cloudflare relay (wrangler dev).
 beforeAll(async () => {
+  if (process.env.RELAY_URL) return void (url = process.env.RELAY_URL)
   relay = await startRelay({ port: 0, log: () => {} })
   url = `ws://127.0.0.1:${relay.port}`
 })
-afterAll(async () => relay.close())
+afterAll(async () => relay?.close())
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function until(fn: () => boolean, ms = 3000) {

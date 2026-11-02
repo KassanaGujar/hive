@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": { "types": ["node"], "lib": ["ES2023", "DOM"] },
-  "include": ["packages/*/src/**/*.ts", "services/*/src/**/*.ts"]
+  "include": ["packages/*/src/**/*.ts", "services/relay/src/**/*.ts"]
 }

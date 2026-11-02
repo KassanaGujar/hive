@@ -3,7 +3,7 @@ export * from './ipc'
 
 export const DEFAULT_RELAY_URL = 'ws://localhost:4455'
 export const DEFAULT_CATALOG_URL =
-  'https://raw.githubusercontent.com/Beanman/hive/main/catalog/catalog.json'
+  'https://raw.githubusercontent.com/KassanaGujar/hive/main/catalog/catalog.json'
 
 export function uid(prefix = ''): string {
   const rand = Math.random().toString(36).slice(2, 10)

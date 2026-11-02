@@ -5,6 +5,7 @@ import type { Catalog, CatalogEntry, Hardware } from '@hive/shared'
 import { AVATARS, COLORS, fmtGB, invoke } from '../lib/api'
 import { useStore } from '../store'
 import { refreshModels } from '../lib/actions'
+import icon from '../assets/icon.png'
 
 type Step = 'profile' | 'machine' | 'model' | 'done'
 
@@ -25,7 +26,7 @@ export function SetupWizard() {
     <div className="flex h-full items-center justify-center bg-bg">
       <div className="card w-[560px] p-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="text-3xl">🐝</div>
+          <img src={icon} alt="" className="h-12 w-12" />
           <div>
             <div className="text-[18px] font-bold">Welcome to Hive</div>
             <div className="text-muted">Free AI coding with your friends. Setup takes a few minutes.</div>

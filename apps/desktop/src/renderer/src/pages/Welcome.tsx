@@ -1,5 +1,6 @@
 import { FolderOpen, FolderPlus, Users } from 'lucide-react'
 import { useStore } from '../store'
+import icon from '../assets/icon.png'
 import { newProjectFlow, openFolderFlow, openProject } from '../lib/actions'
 
 export function Welcome({ onJoin }: { onJoin: () => void }) {
@@ -10,7 +11,7 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
     <div className="flex h-full items-center justify-center bg-bg">
       <div className="w-[520px]">
         <div className="mb-8 flex items-center gap-3">
-          <div className="text-4xl">🐝</div>
+          <img src={icon} alt="" className="h-14 w-14" />
           <div>
             <div className="text-[22px] font-bold">Hive</div>
             <div className="text-muted">

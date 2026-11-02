@@ -38,8 +38,10 @@
 - `window.hive.invoke(channel, ...args)` is available in the page for IPC-level checks.
 
 ## Next up
-1. User decisions: GitHub repo/username (fill REPLACE_WITH_GITHUB_USER + DEFAULT_CATALOG_URL), relay host
-   (see docs/relay-hosting.md), app icon.
+1. GitHub = KassanaGujar/hive (placeholders filled; repo NOT created yet — ask before creating/pushing).
+   Relay = Cloudflare Worker (services/relay-cf, tested locally with wrangler dev). Needs `wrangler login`
+   + `wrangler deploy` by the user, then set DEFAULT_RELAY_URL to the wss://…workers.dev URL.
+   Icon = tools/make-icon.mjs → apps/desktop/build/icon.png (honeycomb clipart).
 2. Not yet click-tested: setup wizard steps 2–3 on a clean VM, code-only invite join through the dialog,
    AI chat accept/reject diff, git panel commit, viewer role, kick, free-online key paste.
 3. Small-model quality: Planner misses decisions/questions with 3B; consider stronger default for Architect.

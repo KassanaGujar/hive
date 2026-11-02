@@ -36,6 +36,6 @@ linux:
   artifactName: Hive-${version}.${ext}
 publish:
   provider: github
-  owner: REPLACE_WITH_GITHUB_USER
+  owner: KassanaGujar
   repo: hive
   releaseType: release

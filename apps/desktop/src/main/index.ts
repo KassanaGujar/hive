@@ -56,6 +56,7 @@ function createWindow() {
     title: 'Hive',
     backgroundColor: dark ? '#14161b' : '#ffffff',
     autoHideMenuBar: true,
+    icon: app.isPackaged ? undefined : path.join(__dirname, '../../build/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,

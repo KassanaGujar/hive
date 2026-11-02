@@ -3,7 +3,7 @@
   "productName": "Hive",
   "version": "0.1.0",
   "description": "Free AI coding app for friends: a team of free models builds software together.",
-  "author": "Beanman",
+  "author": "KassanaGujar",
   "license": "MIT",
   "private": true,
   "main": "out/main/index.js",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

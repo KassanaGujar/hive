@@ -7,6 +7,7 @@ import { languageFor } from '@hive/editor'
 import { ModelStore } from '../pages/ModelStore'
 import { PlanningRoom } from '../pages/PlanningRoom'
 import { session } from '../collab/session'
+import icon from '../assets/icon.png'
 
 export function EditorArea() {
   const groups = useStore((s) => s.groups)
@@ -26,7 +27,7 @@ export function EditorArea() {
 function Empty() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 text-muted">
-      <div className="text-4xl opacity-60">🐝</div>
+      <img src={icon} alt="" className="h-16 w-16 opacity-60" />
       <div>Open a file from the Explorer, or ask the Agents to build something.</div>
       <div className="text-[11px]">F5 runs the project · Ctrl+Shift+F searches · Ctrl+` toggles the terminal</div>
     </div>

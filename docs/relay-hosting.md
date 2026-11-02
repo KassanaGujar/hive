@@ -10,12 +10,26 @@ It needs a public WebSocket URL that friends on other networks can reach. Option
 | **Render free web service** | Free | Sleeps after ~15 min idle; ~30–60 s cold start | Connect repo, Docker, Dockerfile path `services/relay/Dockerfile` | Free disk is ephemeral → room logs vanish on restart. Clients re-upload state when they reconnect, so it still works, but late joiners need someone online. |
 | **Oracle Cloud Always Free VM** | Free | Yes | More work (VM, Docker, TLS via Caddy) | Most robust free option; sign-up needs a card for verification. |
 
-## Recommendation (my call)
+## Decision: Cloudflare Workers + Durable Objects (`services/relay-cf`)
 
-1. **Friend beta: your PC + Cloudflare quick tunnel.** Zero accounts, works today, and you're the host
-   who's online when the team works anyway. Hive's offline queue covers short gaps.
-2. **If friends want to work while your PC is off:** move the same Docker image to Fly.io (with a volume)
-   — no code changes, just paste the new `wss://` URL into Hive's Team panel.
+Goal (from the owner): Google Docs-style — anyone can open the project and edit **any time**, even when
+the host's PC is off. That needs an always-on server, and Cloudflare's free plan provides one:
+
+- One SQLite-backed Durable Object per project room stores the encrypted update log.
+- Hibernating WebSockets → idle rooms cost nothing; keep-alive pings are auto-answered.
+- Same protocol as the Node relay; verified with the shared test suite (`RELAY_URL=ws://127.0.0.1:8787`).
+- Free-plan limits (requests/day, storage) are far above what 2–10 friends generate.
+
+Deploy once (needs a free Cloudflare account):
+
+```bash
+cd services/relay-cf
+npx wrangler login      # opens the browser to authorise
+npx wrangler deploy     # prints https://hive-relay.<your-subdomain>.workers.dev
+```
+
+Then set `DEFAULT_RELAY_URL` in `packages/shared/src/index.ts` to `wss://hive-relay.<your-subdomain>.workers.dev`
+and release. The Node relay (`services/relay`, and "Host the relay on this PC" in the app) stays as a fallback.
 
 ## Running it
 

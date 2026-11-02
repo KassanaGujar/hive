@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Hive — free AI coding with friends</title>
+<link rel="icon" type="image/png" href="favicon.png" />
 <meta name="description" content="Hive is a free desktop app where a team of free AI models builds software with you and your friends." />
 <style>
   :root {
@@ -44,7 +45,7 @@
 <body>
 <main>
   <div class="hero">
-    <div class="logo" aria-hidden="true">🐝</div>
+    <img class="logo" src="icon.png" alt="" width="72" height="72" />
     <div>
       <h1>Hive</h1>
       <p class="tag">Free AI coding with your friends. A team of free AI models plans, writes and reviews code while you all edit together.</p>
@@ -86,7 +87,7 @@
 </main>
 <script>
   // Point the buttons at the latest GitHub release assets.
-  const REPO = 'REPLACE_WITH_GITHUB_USER/hive'
+  const REPO = 'KassanaGujar/hive'
   const latest = `https://github.com/${REPO}/releases/latest`
   for (const id of ['dl-win', 'dl-mac', 'dl-linux']) document.getElementById(id).href = latest
   fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
