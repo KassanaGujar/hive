@@ -8,6 +8,7 @@
     "paths": {
       "@hive/shared": ["packages/shared/src/index.ts"],
       "@hive/models": ["packages/models/src/index.ts"],
+      "@hive/agents/prompts": ["packages/agents/src/prompts.ts"],
       "@hive/agents": ["packages/agents/src/index.ts"],
       "@hive/collab": ["packages/collab/src/index.ts"],
       "@hive/editor": ["packages/editor/src/index.ts"],

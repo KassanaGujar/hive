@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 const root = resolve(__dirname, '../..')
 const alias = {
+  '@hive/agents/prompts': resolve(root, 'packages/agents/src/prompts.ts'),
   '@hive/shared': resolve(root, 'packages/shared/src/index.ts'),
   '@hive/models': resolve(root, 'packages/models/src/index.ts'),
   '@hive/agents': resolve(root, 'packages/agents/src/index.ts'),
@@ -24,7 +25,14 @@ export default defineConfig({
     build: { externalizeDeps: true }
   },
   renderer: {
-    resolve: { alias: { ...alias, '@': resolve(__dirname, 'src/renderer/src') } },
+    resolve: {
+      alias: {
+        ...alias,
+        '@': resolve(__dirname, 'src/renderer/src'),
+        // y-monaco imports Monaco's pre-0.50 internal path; point it at the same module.
+        'monaco-editor/esm/vs/editor/editor.api.js': resolve(root, 'node_modules/monaco-editor/esm/vs/editor/editor.api.js')
+      }
+    },
     plugins: [react(), tailwindcss()],
     worker: { format: 'es' }
   }

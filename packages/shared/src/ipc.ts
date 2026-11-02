@@ -42,7 +42,7 @@ export interface IpcContract {
 
   // project / files
   'project:open': (dir: string) => { root: string; tree: FileNode[] }
-  'project:create': (parentDir: string, name: string) => string
+  'project:create': (parentDir: string, name: string, opts?: { empty?: boolean }) => string
   'project:current': () => string | null
   'fs:tree': () => FileNode[]
   'fs:read': (rel: string) => string

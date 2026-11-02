@@ -72,12 +72,12 @@ export async function openProject(dir: string) {
   return { root: resolved, tree: await tree() }
 }
 
-export async function createProject(parent: string, name: string) {
+export async function createProject(parent: string, name: string, empty = false) {
   const safe = name.trim().replace(/[<>:"/\\|?*]+/g, '-') || 'my-project'
   const dir = path.join(parent, safe)
   if (existsSync(dir)) throw new Error(`A folder named "${safe}" already exists there.`)
   await fs.mkdir(dir, { recursive: true })
-  await fs.writeFile(
+  if (!empty) await fs.writeFile(
     path.join(dir, 'README.md'),
     `# ${safe}\n\nMade with Hive. Open the Agents panel and describe what to build, or start coding.\n`
   )

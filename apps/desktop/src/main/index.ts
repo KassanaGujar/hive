@@ -15,8 +15,11 @@ import { initUpdater, checkForUpdates, installUpdate } from './updater'
 import { addFeed, listFeed } from './feed'
 import { startLocalRelay, stopLocalRelay, localRelayStatus } from './relayHost'
 
+// Separate profile for tests / a second local instance (e.g. HIVE_USER_DATA=./tmp-profile).
+if (process.env.HIVE_USER_DATA) app.setPath('userData', path.resolve(process.env.HIVE_USER_DATA))
+
 // Single instance + hive:// invite links.
-if (!app.requestSingleInstanceLock()) app.quit()
+if (!process.env.HIVE_USER_DATA && !app.requestSingleInstanceLock()) app.quit()
 if (process.defaultApp && process.argv.length >= 2) {
   app.setAsDefaultProtocolClient('hive', process.execPath, [path.resolve(process.argv[1])])
 } else app.setAsDefaultProtocolClient('hive')
@@ -143,7 +146,7 @@ function registerHandlers() {
     restoreRuns()
     return r
   })
-  handle('project:create', (parent, name) => project.createProject(parent, name))
+  handle('project:create', (parent, name, o) => project.createProject(parent, name, o?.empty))
   handle('project:current', () => project.currentProject())
   handle('fs:tree', () => project.tree())
   handle('fs:read', (rel) => project.readFile(rel))
