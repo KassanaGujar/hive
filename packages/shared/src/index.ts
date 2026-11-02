@@ -1,7 +1,7 @@
 export * from './types'
 export * from './ipc'
 
-export const DEFAULT_RELAY_URL = 'ws://localhost:4455'
+export const DEFAULT_RELAY_URL = 'wss://hive-relay.kassanagujar.workers.dev'
 export const DEFAULT_CATALOG_URL =
   'https://raw.githubusercontent.com/KassanaGujar/hive/main/catalog/catalog.json'
 
