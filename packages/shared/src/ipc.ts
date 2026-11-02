@@ -32,6 +32,10 @@ export interface IpcContract {
   'secrets:delete': (key: string) => void
   'dialog:openFolder': () => string | null
   'shell:openExternal': (url: string) => void
+  'shell:openPath': (absPath: string) => void
+  'relay:startLocal': () => { port: number; urls: string[] }
+  'relay:stopLocal': () => void
+  'relay:status': () => { running: boolean; port?: number; urls: string[] }
   'notify': (title: string, body: string) => void
   'updater:check': () => { available: boolean; version?: string; error?: string }
   'updater:install': () => void
@@ -71,6 +75,7 @@ export interface IpcContract {
   'run:stop': () => RunState
   'run:restart': () => RunState
   'run:state': () => RunState
+  'run:preview': (url: string) => void
 
   // models
   'hw:scan': () => Hardware
@@ -128,6 +133,8 @@ export interface IpcEvents {
   'agents:approval': ApprovalRequest
   'feed:event': FeedEvent
   'updater:ready': { version: string }
+  'app:openInvite': { link: string }
+  'menu:action': { action: string }
 }
 
 export type IpcChannel = keyof IpcContract

@@ -1,0 +1,41 @@
+appId: app.hive.desktop
+productName: Hive
+directories:
+  output: release/${version}
+  buildResources: build
+files:
+  - out/**
+  - package.json
+asarUnpack:
+  - node_modules/@lydell/**
+extraResources:
+  - from: ../../catalog/catalog.json
+    to: catalog.json
+protocols:
+  - name: Hive invite
+    schemes: [hive]
+win:
+  target: [nsis]
+  artifactName: Hive-Setup-${version}.${ext}
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Hive
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+mac:
+  target: [dmg]
+  category: public.app-category.developer-tools
+  artifactName: Hive-${version}-${arch}.${ext}
+linux:
+  target: [AppImage]
+  category: Development
+  artifactName: Hive-${version}.${ext}
+publish:
+  provider: github
+  owner: REPLACE_WITH_GITHUB_USER
+  repo: hive
+  releaseType: release

@@ -26,7 +26,18 @@
 - [ ] M6 Setup wizard, download page, CI (F1)
 
 ## Next up
-- Scaffold M0.
+- Renderer UI (apps/desktop/src/renderer): layout, explorer, Monaco, terminal, git, run, model store,
+  AI chat, agents board, collab (invite/join/feed/chat), planning room, setup wizard.
+- Then: typecheck + `npm run build`, launch with `npm run dev`, fix issues.
+- Then: CI workflow, download page (site/), docs/relay-hosting.md.
+
+## Done so far
+- packages/shared (types + typed IPC contract), packages/models (catalog filter, fit labels, ranking,
+  OpenAI-compatible streaming client + JSON tool fallback), packages/editor (project detection),
+  packages/agents (policy, scheduler, guard, sandboxed tools, Orchestrator), packages/collab (E2E crypto,
+  invites, protocol, plan doc logic, feed, HiveProvider), services/relay (+ Dockerfile). 43 tests pass.
+- apps/desktop main process: store (node:sqlite), secrets, project/fs, terminal (node-pty), git (+GitOps),
+  runner, ollama manager, hardware, models, agents host, setup (git via winget), updater, embedded relay.
 
 ## Log
-- 2026-11-02: repo initialised.
+- 2026-11-02: repo initialised; core packages committed; main process written.

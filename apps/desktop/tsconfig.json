@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@hive/shared": ["packages/shared/src/index.ts"],
+      "@hive/models": ["packages/models/src/index.ts"],
+      "@hive/agents": ["packages/agents/src/index.ts"],
+      "@hive/collab": ["packages/collab/src/index.ts"],
+      "@hive/editor": ["packages/editor/src/index.ts"],
+      "@hive/relay": ["services/relay/src/relay.ts"],
+      "@/*": ["apps/desktop/src/renderer/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "electron.vite.config.ts"]
+}
