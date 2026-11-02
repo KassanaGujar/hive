@@ -1,0 +1,19 @@
+{
+  "name": "hive-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/*", "packages/*", "services/*"],
+  "scripts": {
+    "dev": "npm run dev -w @hive/desktop",
+    "build": "npm run build -w @hive/desktop",
+    "dist": "npm run dist -w @hive/desktop",
+    "relay": "npm run start -w @hive/relay",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @hive/desktop"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.0",
+    "typescript": "~5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

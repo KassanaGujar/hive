@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "baseUrl": ".",
+    "paths": {
+      "@hive/shared": ["packages/shared/src/index.ts"],
+      "@hive/models": ["packages/models/src/index.ts"],
+      "@hive/agents": ["packages/agents/src/index.ts"],
+      "@hive/collab": ["packages/collab/src/index.ts"],
+      "@hive/editor": ["packages/editor/src/index.ts"]
+    }
+  }
+}

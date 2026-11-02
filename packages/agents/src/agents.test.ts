@@ -1,0 +1,108 @@
+import { describe, expect, it } from 'vitest'
+import type { AgentTask, InstalledModel } from '@hive/shared'
+import { classifyCommand } from './policy'
+import { normalizePlan, planToTasks, readyTasks, starvedTasks, topoOrder } from './scheduler'
+import { ResourceGuard } from './guard'
+import { safeResolve } from './tools'
+import path from 'node:path'
+
+describe('command policy', () => {
+  const v = (c: string) => classifyCommand(c).action
+  it('allows ordinary build commands', () => {
+    expect(v('node index.js')).toBe('allow')
+    expect(v('python main.py')).toBe('allow')
+    expect(v('npm run build')).toBe('allow')
+    expect(v('rm -rf dist')).toBe('allow')
+    expect(v('ls')).toBe('allow')
+  })
+  it('holds installs, network and push for approval', () => {
+    expect(v('npm install express')).toBe('approve')
+    expect(v('pip install flask')).toBe('approve')
+    expect(v('curl https://x.y')).toBe('approve')
+    expect(v('git push origin main')).toBe('approve')
+    expect(v('Invoke-WebRequest https://x')).toBe('approve')
+  })
+  it('holds deletes outside the worktree', () => {
+    expect(v('rm -rf ../other')).toBe('approve')
+    expect(v('Remove-Item C:\\Users\\me\\file.txt')).toBe('approve')
+    expect(v('del ..\\x')).toBe('approve')
+  })
+  it('blocks catastrophic commands', () => {
+    expect(v('rm -rf /')).toBe('block')
+    expect(v('format C:')).toBe('block')
+    expect(v('shutdown /s')).toBe('block')
+  })
+})
+
+describe('scheduler', () => {
+  const plan = normalizePlan('g', {
+    tasks: [
+      { id: 'html', title: 'HTML', dependsOn: [] },
+      { id: 'css', title: 'CSS', dependsOn: ['html'] },
+      { id: 'js', title: 'JS', dependsOn: ['html', 'css'] }
+    ]
+  })
+  it('normalises ids and deps', () => {
+    expect(plan.tasks.map((t) => t.id)).toEqual(['html', 'css', 'js'])
+    expect(plan.tasks[2].dependsOn).toEqual(['html', 'css'])
+  })
+  it('only starts tasks whose deps are merged', () => {
+    const tasks = planToTasks('r', plan)
+    expect(readyTasks(tasks).map((t) => t.id)).toEqual(['html'])
+    tasks[0].status = 'merged'
+    expect(readyTasks(tasks).map((t) => t.id)).toEqual(['css'])
+  })
+  it('cancels tasks whose dependency failed', () => {
+    const tasks = planToTasks('r', plan)
+    tasks[0].status = 'failed'
+    expect(starvedTasks(tasks).map((t) => t.id)).toEqual(['css', 'js'])
+  })
+  it('breaks cycles and falls back to a single task', () => {
+    const p = normalizePlan('g', { tasks: [{ id: 'a', title: 'A', dependsOn: ['b'] }, { id: 'b', title: 'B', dependsOn: ['a'] }] })
+    expect(() => topoOrder(p.tasks)).not.toThrow()
+    expect(normalizePlan('build it', null).tasks).toHaveLength(1)
+  })
+  it('accepts numeric dependency references', () => {
+    const p = normalizePlan('g', { tasks: [{ title: 'First' }, { title: 'Second', dependsOn: [1] }] })
+    expect(p.tasks[1].dependsOn).toEqual([p.tasks[0].id])
+  })
+})
+
+const m = (id: string, sizeGB: number): InstalledModel => ({ id, name: id, source: 'ollama', model: id, tier: 'worker', codingScore: 50, sizeGB, minRamGB: 8, contextTokens: 8192 })
+
+describe('resource guard', () => {
+  it('queues a second big model until the first is released', async () => {
+    const g = new ResourceGuard(() => 10)
+    const r1 = await g.acquire(m('a', 6))
+    let got = false
+    const p = g.acquire(m('b', 6)).then((r) => {
+      got = true
+      return r
+    })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(got).toBe(false)
+    r1()
+    const r2 = await p
+    expect(got).toBe(true)
+    r2()
+  })
+  it('lets small models share', async () => {
+    const g = new ResourceGuard(() => 10)
+    const a = await g.acquire(m('a', 2))
+    const b = await g.acquire(m('b', 2))
+    a()
+    b()
+  })
+})
+
+describe('sandbox paths', () => {
+  const root = path.resolve('/tmp/proj')
+  it('refuses escapes', () => {
+    expect(() => safeResolve(root, '../x')).toThrow()
+    expect(() => safeResolve(root, 'a/../../x')).toThrow()
+    expect(safeResolve(root, '/src/a.js')).toBe(path.join(root, 'src', 'a.js'))
+  })
+})
+
+// keep the type import used
+export type _T = AgentTask

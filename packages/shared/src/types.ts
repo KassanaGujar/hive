@@ -1,0 +1,297 @@
+// Shared domain types used by main, renderer, packages and the relay.
+
+export type Tier = 'top' | 'lead' | 'worker'
+export type ModelSource = 'ollama' | 'openrouter' | 'groq' | 'hf'
+
+export interface CatalogEntry {
+  id: string
+  name: string
+  family: string
+  source: ModelSource
+  /** Ollama pull name, e.g. "qwen2.5-coder:7b" */
+  pullName?: string
+  /** Model id at a hosted endpoint, e.g. "qwen/qwen3-coder:free" */
+  endpointModel?: string
+  sizeGB: number
+  minRamGB: number
+  minVramGB: number
+  contextTokens: number
+  tier: Tier
+  codingScore: number
+  /** Required. Entries without free: true are ignored. */
+  free: true
+  keyUrl?: string
+  description?: string
+}
+
+export interface Catalog {
+  version: number
+  updated: string
+  providers: Record<Exclude<ModelSource, 'ollama'>, HostedProvider>
+  models: CatalogEntry[]
+}
+
+export interface HostedProvider {
+  name: string
+  baseUrl: string
+  keyUrl: string
+  /** Endpoint that lists models; used to test a pasted key. */
+  testPath: string
+}
+
+export type FitLabel = 'runs-well' | 'slow' | 'too-big'
+
+export interface Hardware {
+  totalRamGB: number
+  freeRamGB: number
+  gpuName: string | null
+  vramGB: number
+  freeDiskGB: number
+  cpuCores: number
+  platform: NodeJS.Platform | string
+}
+
+/** A model the user can actually call right now. */
+export interface InstalledModel {
+  id: string // catalog id, or "ollama:<name>" for models not in the catalog
+  name: string
+  source: ModelSource
+  model: string // name passed to the chat endpoint
+  tier: Tier
+  codingScore: number
+  sizeGB: number
+  minRamGB: number
+  contextTokens: number
+}
+
+export interface PullProgress {
+  pullName: string
+  status: string
+  completed: number
+  total: number
+  state: 'downloading' | 'paused' | 'done' | 'error' | 'cancelled'
+  error?: string
+}
+
+// ---------- chat / model layer ----------
+
+export type Role = 'system' | 'user' | 'assistant' | 'tool'
+
+export interface ToolCall {
+  id: string
+  name: string
+  arguments: Record<string, unknown>
+}
+
+export interface ChatMessage {
+  role: Role
+  content: string
+  toolCalls?: ToolCall[]
+  toolCallId?: string
+  name?: string
+}
+
+export interface ToolSpec {
+  name: string
+  description: string
+  parameters: Record<string, unknown> // JSON schema
+}
+
+export interface ChatChunk {
+  text?: string
+  toolCalls?: ToolCall[]
+  done?: boolean
+  tokensPerSec?: number
+}
+
+// ---------- feed ----------
+
+export type FeedKind =
+  | 'file.created'
+  | 'file.edited'
+  | 'file.renamed'
+  | 'file.deleted'
+  | 'git.commit'
+  | 'agent.merge'
+  | 'agent.task'
+  | 'run.started'
+  | 'run.failed'
+  | 'run.stopped'
+  | 'member.joined'
+  | 'member.left'
+  | 'plan.updated'
+
+export interface FeedEvent {
+  id: string
+  at: number
+  actor: string
+  actorType: 'person' | 'agent'
+  kind: FeedKind
+  files: string[]
+  diffRef?: string
+  /** Short unified diff preview (truncated). */
+  diff?: string
+  summary: string
+  syncedLate?: boolean
+}
+
+// ---------- agents ----------
+
+export type AgentRole = 'architect' | 'lead' | 'worker'
+
+export type TaskStatus =
+  | 'pending'
+  | 'ready'
+  | 'running'
+  | 'review'
+  | 'changes-requested'
+  | 'approved'
+  | 'merged'
+  | 'failed'
+  | 'blocked'
+  | 'cancelled'
+
+export interface PlanTask {
+  id: string
+  title: string
+  description: string
+  files: string[]
+  dependsOn: string[]
+  owner?: string // agent name
+  acceptance?: string
+}
+
+export interface AgentPlan {
+  goal: string
+  summary: string
+  tasks: PlanTask[]
+}
+
+export interface AgentTask extends PlanTask {
+  runId: string
+  status: TaskStatus
+  attempts: number
+  branch?: string
+  worktree?: string
+  model?: string
+  reviewNotes?: string
+  diff?: string
+  log: string[]
+}
+
+export interface AgentInfo {
+  name: string
+  role: AgentRole
+  modelId: string
+  modelName: string
+  status: 'idle' | 'thinking' | 'working' | 'waiting' | 'paused' | 'stopped'
+  currentTaskId?: string
+  tokensPerSec?: number
+}
+
+export type RunPhase =
+  | 'planning'
+  | 'awaiting-plan-approval'
+  | 'working'
+  | 'merging'
+  | 'awaiting-merge-approval'
+  | 'done'
+  | 'failed'
+  | 'cancelled'
+
+export interface AgentRun {
+  id: string
+  goal: string
+  phase: RunPhase
+  plan?: AgentPlan
+  tasks: AgentTask[]
+  agents: AgentInfo[]
+  baseBranch: string
+  integrationBranch?: string
+  error?: string
+  createdAt: number
+}
+
+export interface ApprovalRequest {
+  id: string
+  runId: string
+  agent: string
+  taskId: string
+  command: string
+  reason: string
+}
+
+// ---------- run code ----------
+
+export interface RunConfig {
+  kind: string
+  command: string
+  cwd: string
+  env?: Record<string, string>
+  port?: number
+  /** For static html: served by Hive's built-in server */
+  staticDir?: string
+  requires?: { tool: string; downloadUrl: string }
+}
+
+export interface RunState {
+  status: 'idle' | 'running' | 'exited' | 'failed'
+  config?: RunConfig
+  terminalId?: string
+  previewUrl?: string
+  exitCode?: number
+  message?: string
+}
+
+// ---------- git ----------
+
+export interface GitStatus {
+  isRepo: boolean
+  branch: string
+  branches: string[]
+  files: { path: string; index: string; workingDir: string }[]
+  ahead: number
+  behind: number
+}
+
+export interface GitCommit {
+  hash: string
+  date: string
+  message: string
+  author: string
+}
+
+// ---------- files ----------
+
+export interface FileNode {
+  name: string
+  path: string // relative, forward slashes
+  type: 'file' | 'dir'
+  children?: FileNode[]
+}
+
+export interface SearchMatch {
+  path: string
+  line: number
+  col: number
+  text: string
+}
+
+// ---------- settings ----------
+
+export interface Profile {
+  name: string
+  avatar: string // emoji
+  color: string
+}
+
+export interface Settings {
+  profile: Profile | null
+  theme: 'dark' | 'light'
+  setupComplete: boolean
+  recentProjects: string[]
+  tierOverrides: Record<string, Tier>
+  relayUrl: string
+  catalogUrl: string
+  autosave: boolean
+}

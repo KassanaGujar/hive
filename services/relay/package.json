@@ -1,0 +1,17 @@
+{
+  "name": "@hive/relay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hive collaboration relay: forwards end-to-end encrypted Yjs updates.",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/relay.cjs",
+    "start": "npm run build && node dist/relay.cjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12",
+    "esbuild": "^0.25.0"
+  }
+}
