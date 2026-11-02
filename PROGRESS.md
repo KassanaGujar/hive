@@ -16,28 +16,35 @@
 - Beta is Windows-only (user answer); Mac/Linux targets stay in the builder config but untested.
 - Free hosted tier IS included (user answer). Name "Hive" kept as placeholder.
 
-## Status by milestone
-- [ ] M0 Foundations
-- [ ] M1 Workspace + Run (F3, F4)
-- [ ] M2 Model store + AI chat (F2)
-- [ ] M3 Agent hierarchy (F5)
-- [ ] M4 Collaboration (F6)
-- [ ] M5 Planning room (F7)
-- [ ] M6 Setup wizard, download page, CI (F1)
+## Status by milestone (code written for ALL features; verification status noted)
+- [x] M0 Foundations — monorepo, typed IPC, store, secrets, updater wiring, builder config. (CI workflow: TODO)
+- [x] M1 Workspace + Run — VERIFIED in the running app: explorer, Monaco tabs, PowerShell terminal (node-pty),
+      Run on static HTML → built-in server → Preview tab shows the page.
+- [x] M2 Model store + AI chat — hw scan/ollama/catalog verified via IPC; llama3.2 detected + catalog-matched.
+- [x] M3 Agents — VERIFIED: integration test (real git worktrees, scripted models) + a REAL run with llama3.2:3b
+      (plan → 6 tasks in worktrees → lead reviews/rounds → merged → final merge; branches cleaned).
+      Added file-ownership task merging + owned-file context for small models after that run.
+- [~] M4 Collaboration — relay + provider E2E tested (2 clients, encryption, offline, invites). UI two-instance test: next.
+- [~] M5 Planning room — logic unit-tested; UI written, not yet clicked through.
+- [~] M6 Setup wizard renders (verified); download page, CI workflow, relay-hosting doc: TODO.
+
+## How to test the app (what Claude does)
+- Build: `cd apps/desktop && npx electron-vite build`
+- Run isolated: `HIVE_USER_DATA=<scratch>/profile1 npx electron . --remote-debugging-port=9333`
+- Drive it with a CDP script (eval JS / screenshot) — see git history for scratch `cdp.mjs` idea:
+  connect to http://127.0.0.1:9333/json → Runtime.evaluate / Page.captureScreenshot.
+- `window.hive.invoke(channel, ...args)` is available in the page for IPC-level checks.
 
 ## Next up
-- Renderer UI (apps/desktop/src/renderer): layout, explorer, Monaco, terminal, git, run, model store,
-  AI chat, agents board, collab (invite/join/feed/chat), planning room, setup wizard.
-- Then: typecheck + `npm run build`, launch with `npm run dev`, fix issues.
-- Then: CI workflow, download page (site/), docs/relay-hosting.md.
+1. Two-instance collab test through the UI (host shares via Team panel, friend joins).
+2. Planning room click-through with a real model.
+3. Download page (site/), GitHub Actions release workflow, docs/relay-hosting.md, README.
+4. Re-run real agent test after the ownership change.
 
-## Done so far
-- packages/shared (types + typed IPC contract), packages/models (catalog filter, fit labels, ranking,
-  OpenAI-compatible streaming client + JSON tool fallback), packages/editor (project detection),
-  packages/agents (policy, scheduler, guard, sandboxed tools, Orchestrator), packages/collab (E2E crypto,
-  invites, protocol, plan doc logic, feed, HiveProvider), services/relay (+ Dockerfile). 43 tests pass.
-- apps/desktop main process: store (node:sqlite), secrets, project/fs, terminal (node-pty), git (+GitOps),
-  runner, ollama manager, hardware, models, agents host, setup (git via winget), updater, embedded relay.
+## Known gaps / ideas
+- Catalog URL + electron-builder `publish.owner` use placeholders (REPLACE_WITH_GITHUB_USER / Beanman).
+- No app icon yet (build/icon.ico).
+- Viewer role is enforced by the relay for doc updates; editor UI is read-only for viewers.
 
 ## Log
-- 2026-11-02: repo initialised; core packages committed; main process written.
+- 2026-11-02: repo initialised; core packages; main process; renderer; app builds and runs; real agent run OK.

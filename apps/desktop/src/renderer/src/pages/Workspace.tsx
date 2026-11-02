@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Bot, Boxes, Files, GitBranch, History, LayoutList, MessageSquare, Moon, Play, RotateCw, Search, Square, Sun, Users } from 'lucide-react'
 import { useStore, type RightPanel, type SidePanel } from '../store'
 import { invoke, on } from '../lib/api'
-import { closeProject, newProjectFlow, openFolderFlow, openModelStore, openPlanning, openPreview, runProject } from '../lib/actions'
+import { closeProject, newProjectFlow, openFolderFlow, openModelStore, openPlanning, openPreview, refreshModels, runProject } from '../lib/actions'
 import { Explorer } from '../components/Explorer'
 import { SearchPanel } from '../components/SearchPanel'
 import { GitPanel } from '../components/GitPanel'
@@ -38,7 +38,11 @@ export function Workspace() {
       }
     }
     window.addEventListener('keydown', key)
+    // Ollama can be slow to answer right after launch; keep the model list fresh.
+    refreshModels()
+    const poll = setInterval(() => document.hasFocus() && refreshModels(), 20000)
     return () => {
+      clearInterval(poll)
       off()
       window.removeEventListener('keydown', key)
     }

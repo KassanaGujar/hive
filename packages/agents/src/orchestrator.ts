@@ -13,7 +13,7 @@ import type {
 } from '@hive/shared'
 import { rankTeam, extractJson, stripThinking } from '@hive/models'
 import { classifyCommand } from './policy'
-import { allSettled, normalizePlan, planToTasks, readyTasks, starvedTasks } from './scheduler'
+import { allSettled, enforceFileOwnership, normalizePlan, planToTasks, readyTasks, starvedTasks } from './scheduler'
 import { architectPlanPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
@@ -145,7 +145,7 @@ export class Orchestrator {
       ])
       raw = extractJson(res.text)
     }
-    const plan = normalizePlan(run.goal, raw)
+    const plan = enforceFileOwnership(normalizePlan(run.goal, raw))
     // Round-robin owners across worker agents when the architect didn't pick valid ones.
     plan.tasks.forEach((t, i) => {
       if (!t.owner || !workers.includes(t.owner)) t.owner = workers[i % workers.length]
@@ -264,8 +264,9 @@ export class Orchestrator {
     notes?: string
   ): Promise<string> {
     const files = (await listFiles(wt, '.', 300)).join('\n')
+    const owned = await ownedFileContents(wt, task.files)
     const messages: ChatMessage[] = [
-      { role: 'system', content: workerSystemPrompt(task, files, notes) },
+      { role: 'system', content: workerSystemPrompt(task, files, notes) + owned },
       { role: 'user', content: notes ? 'Apply the reviewer notes, then call report_done.' : 'Start the task.' }
     ]
     let nudges = 0
@@ -544,6 +545,17 @@ export class Orchestrator {
     this.log(ctl, 'architect', undefined, reason)
     this.emit(ctl)
   }
+}
+
+/** Current contents of the task's files, so small models edit instead of overwriting blindly. */
+async function ownedFileContents(root: string, files: string[]): Promise<string> {
+  let out = ''
+  for (const f of files.slice(0, 6)) {
+    const r = await executeTool({ root, runCommand: async () => '' }, 'read_file', { path: f })
+    if (r.output.startsWith('Error')) continue
+    out += `\n\nCurrent ${f}:\n\`\`\`\n${r.output.slice(0, 6000)}\n\`\`\``
+  }
+  return out ? `\n\nThese files already exist. Keep what works and build on it; write the COMPLETE file when you change it.${out}` : ''
 }
 
 function summarizeArgs(args: Record<string, unknown>): string {

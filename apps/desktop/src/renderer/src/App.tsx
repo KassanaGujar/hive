@@ -54,7 +54,7 @@ export function App() {
   // Reopen the last project on launch.
   useEffect(() => {
     if (settings?.setupComplete && !root && settings.recentProjects[0] && !sessionStorage.getItem('hive.closedProject')) {
-      openProject(settings.recentProjects[0]).catch(() => {})
+      openProject(settings.recentProjects[0]).catch((e) => useStore.getState().toast(`Couldn't reopen the last project: ${e.message}`, 'error'))
     }
   }, [settings?.setupComplete])
 

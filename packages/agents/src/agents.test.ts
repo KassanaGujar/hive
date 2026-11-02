@@ -106,3 +106,25 @@ describe('sandbox paths', () => {
 
 // keep the type import used
 export type _T = AgentTask
+
+import { enforceFileOwnership } from './scheduler'
+describe('file ownership', () => {
+  it('merges tasks that touch the same file and re-points deps', () => {
+    const p = enforceFileOwnership(
+      normalizePlan('g', {
+        tasks: [
+          { id: 'a', title: 'HTML', files: ['index.html'] },
+          { id: 'b', title: 'CSS in html', files: ['index.html'], dependsOn: ['a'] },
+          { id: 'c', title: 'JS', files: ['app.js'], dependsOn: ['b'] }
+        ]
+      })
+    )
+    expect(p.tasks.map((t) => t.id)).toEqual(['a', 'c'])
+    expect(p.tasks[0].description).toContain('CSS in html')
+    expect(p.tasks[1].dependsOn).toEqual(['a'])
+  })
+  it('leaves independent tasks alone', () => {
+    const plan = normalizePlan('g', { tasks: [{ id: 'a', title: 'A', files: ['a.js'] }, { id: 'b', title: 'B', files: ['b.js'] }] })
+    expect(enforceFileOwnership(plan)).toBe(plan)
+  })
+})

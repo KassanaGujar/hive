@@ -65,8 +65,13 @@ export function setHostedConnected(id: string, on: boolean) {
 
 function matchCatalog(name: string): CatalogEntry | undefined {
   const c = getCatalog().models.filter((m) => m.source === 'ollama')
-  const base = name.replace(/:latest$/, '')
-  return c.find((m) => m.pullName === name || m.pullName === base) ?? c.find((m) => base.startsWith(m.pullName!.split(':')[0] + ':' + (m.pullName!.split(':')[1] ?? '')))
+  const exact = c.find((m) => m.pullName === name)
+  if (exact) return exact
+  // "llama3.2:latest" → the catalog's default size for that family ("llama3.2:3b").
+  const [repo, tag] = name.split(':')
+  if (!tag || tag === 'latest') return c.find((m) => m.pullName!.split(':')[0] === repo)
+  // "qwen2.5-coder:7b-instruct-q4_K_M" → "qwen2.5-coder:7b"
+  return c.find((m) => name.startsWith(m.pullName! + '-'))
 }
 
 /** Everything the user can call right now: downloaded Ollama models + connected free hosted ones. */

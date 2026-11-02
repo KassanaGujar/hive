@@ -12,7 +12,7 @@ export function handle<C extends IpcChannel>(channel: C, fn: Handler<C>) {
       return { ok: true, value: await (fn as (...a: unknown[]) => unknown)(...args) }
     } catch (err) {
       const e = err as Error
-      console.error(`[ipc] ${channel} failed:`, e)
+      if ((e as NodeJS.ErrnoException)?.code !== 'ENOENT') console.error(`[ipc] ${channel} failed:`, e)
       return { ok: false, error: e?.message ?? String(err) }
     }
   })

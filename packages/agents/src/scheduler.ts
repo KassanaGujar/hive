@@ -107,3 +107,43 @@ export function normalizePlan(goal: string, raw: any): AgentPlan {
 export function planToTasks(runId: string, plan: AgentPlan): AgentTask[] {
   return plan.tasks.map((t) => ({ ...t, runId, status: 'pending' as TaskStatus, attempts: 0, log: [] }))
 }
+
+/**
+ * File ownership: tasks that touch the same file are merged into one task, so two agents never
+ * edit the same file in parallel (and later tasks don't overwrite earlier ones). Dependencies are
+ * re-pointed to the merged task.
+ */
+const NL = String.fromCharCode(10)
+
+export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
+  const parent = new Map(plan.tasks.map((t) => [t.id, t.id]))
+  const find = (x: string): string => (parent.get(x) === x ? x : find(parent.get(x)!))
+  const owner = new Map<string, string>()
+  for (const t of plan.tasks) {
+    for (const f of t.files.map((x) => x.replace(/^\.?\//, '').toLowerCase())) {
+      const o = owner.get(f)
+      if (o) parent.set(find(t.id), find(o))
+      else owner.set(f, t.id)
+    }
+  }
+  const groups = new Map<string, PlanTask[]>()
+  for (const t of plan.tasks) {
+    const r = find(t.id)
+    groups.set(r, [...(groups.get(r) ?? []), t])
+  }
+  if (groups.size === plan.tasks.length) return plan
+  const tasks: PlanTask[] = []
+  for (const [root, list] of groups) {
+    const first = list[0]
+    tasks.push({
+      id: root,
+      title: list.length === 1 ? first.title : list.map((t) => t.title).join('; ').slice(0, 120),
+      description: list.length === 1 ? first.description : list.map((t, i) => `${i + 1}. ${t.title}: ${t.description}`).join(NL),
+      files: [...new Set(list.flatMap((t) => t.files))],
+      dependsOn: [...new Set(list.flatMap((t) => t.dependsOn).map(find))].filter((d) => d !== root),
+      owner: first.owner,
+      acceptance: list.map((t) => t.acceptance).filter(Boolean).join(' ') || undefined
+    })
+  }
+  return { ...plan, tasks }
+}

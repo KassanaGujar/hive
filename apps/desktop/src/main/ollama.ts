@@ -95,7 +95,7 @@ export async function install(): Promise<{ ok: boolean; message: string }> {
 
 export async function listLocal(): Promise<{ name: string; size: number }[]> {
   try {
-    const j = await fetchJson(`${OLLAMA_URL}/api/tags`)
+    const j = await fetchJson(`${OLLAMA_URL}/api/tags`, { timeoutMs: 15000 })
     return (j.models ?? []).map((m: any) => ({ name: m.name as string, size: m.size as number }))
   } catch {
     return []
