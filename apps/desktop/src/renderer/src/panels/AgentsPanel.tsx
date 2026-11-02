@@ -173,7 +173,9 @@ function TeamView({ team, onChange }: { team: Team; onChange: () => void }) {
 function RunView({ run, logs, models, guard }: { run: AgentRun; logs: string[]; models: InstalledModel[]; guard: (p: Promise<unknown>) => void }) {
   const logEnd = useRef<HTMLDivElement>(null)
   const [showLog, setShowLog] = useState(true)
-  useEffect(() => logEnd.current?.scrollIntoView({ block: 'end' }), [logs.length])
+  useEffect(() => {
+    logEnd.current?.scrollIntoView({ block: 'end' })
+  }, [logs.length])
   const active = !['done', 'failed', 'cancelled'].includes(run.phase)
 
   return (

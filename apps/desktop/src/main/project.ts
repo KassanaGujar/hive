@@ -98,6 +98,7 @@ export async function tree(): Promise<FileNode[]> {
     const out: FileNode[] = []
     for (const e of entries) {
       if (count++ > MAX_TREE_NODES) break
+      if (e.name === '.hive' || e.name === '.git') continue // Hive/git internals
       const p = path.join(dir, e.name)
       const rel = toPosix(path.relative(r, p))
       if (e.isDirectory()) {

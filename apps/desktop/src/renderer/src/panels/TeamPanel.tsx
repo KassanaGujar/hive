@@ -178,7 +178,9 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
       s.parts.chat.unobserve(notify)
     }
   }, [s, channel])
-  useEffect(() => end.current?.scrollIntoView({ block: 'end' }), [msgs.length])
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'end' })
+  }, [msgs.length])
 
   const mention = useMemo(() => /@(\w*)$/.exec(text)?.[1], [text])
   const suggestions = mention !== undefined ? members.filter((m) => m.name.toLowerCase().startsWith(mention.toLowerCase())).slice(0, 5) : []

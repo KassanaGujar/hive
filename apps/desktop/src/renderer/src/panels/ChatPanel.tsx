@@ -65,7 +65,9 @@ export function ChatPanel() {
   const streamIdRef = useRef<string | null>(null)
   streamIdRef.current = streamId
 
-  useEffect(() => end.current?.scrollIntoView({ block: 'end' }), [msgs])
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'end' })
+  }, [msgs])
 
   const send = async () => {
     const text = input.trim()
