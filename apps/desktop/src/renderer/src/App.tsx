@@ -38,8 +38,13 @@ export function App() {
         s.toast(`${req.agent} needs your OK to run a command`, 'info')
       }),
       on('app:openInvite', ({ link }) => setJoinLink(link)),
-      on('updater:ready', ({ version }) =>
-        useStore.getState().toast(`Hive ${version} is ready.`, 'ok', { label: 'Restart now', run: () => invoke('updater:install') })
+      on('updater:ready', ({ version, manual }) =>
+        manual
+          ? useStore.getState().toast(`Hive ${version} is out.`, 'ok', {
+              label: 'Download it',
+              run: () => invoke('shell:openExternal', 'https://github.com/KassanaGujar/hive/releases/latest')
+            })
+          : useStore.getState().toast(`Hive ${version} is ready.`, 'ok', { label: 'Restart now', run: () => invoke('updater:install') })
       )
     ]
     return () => offs.forEach((f) => f())

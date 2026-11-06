@@ -103,7 +103,21 @@ export function killTerminal(id: string) {
     } catch {
       t.p.kill()
     }
-  } else t.p.kill()
+  } else {
+    // A pty child leads its own process group: signal the group so dev servers die too.
+    try {
+      process.kill(-t.p.pid, 'SIGTERM')
+      setTimeout(() => {
+        try {
+          process.kill(-t.p.pid, 'SIGKILL')
+        } catch {
+          /* already gone */
+        }
+      }, 1500)
+    } catch {
+      t.p.kill()
+    }
+  }
 }
 
 export function terminalBuffer(id: string) {
@@ -118,7 +132,9 @@ export function killAllTerminals() {
 export function execCapture(cwd: string, command: string, timeoutMs: number, signal?: AbortSignal): Promise<{ code: number; output: string }> {
   return new Promise((resolve) => {
     const { file, args } = shellCommandArgs(command)
-    const child = spawnChild(file, args, { cwd, env: { ...process.env, CI: '1', FORCE_COLOR: '0' }, windowsHide: true })
+    const unix = process.platform !== 'win32'
+    // detached on unix → own process group, so a timeout/stop kills everything it started
+    const child = spawnChild(file, args, { cwd, env: { ...process.env, CI: '1', FORCE_COLOR: '0' }, windowsHide: true, detached: unix })
     let output = ''
     const add = (d: Buffer) => {
       output = (output + d.toString()).slice(-60000)
@@ -127,7 +143,13 @@ export function execCapture(cwd: string, command: string, timeoutMs: number, sig
     child.stderr.on('data', add)
     const kill = () => {
       if (process.platform === 'win32' && child.pid) spawnChild('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' })
-      else child.kill('SIGKILL')
+      else if (child.pid) {
+        try {
+          process.kill(-child.pid, 'SIGKILL')
+        } catch {
+          child.kill('SIGKILL')
+        }
+      }
     }
     const timer = setTimeout(() => {
       output += `\n[Hive] Command timed out after ${Math.round(timeoutMs / 60000)} minutes and was stopped.`

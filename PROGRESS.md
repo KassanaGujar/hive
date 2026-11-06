@@ -13,7 +13,10 @@
   updates (AES-GCM, key lives in the invite link `#fragment`), so the relay never sees plaintext.
   y-websocket's server can't do E2E (it must read the doc), hence custom.
 - Relay hosting is still open (user: "compare options first") — see `docs/relay-hosting.md`.
-- Beta is Windows-only (user answer); Mac/Linux targets stay in the builder config but untested.
+- Beta targets Windows AND macOS (user changed this 2026-11-05). Mac: login-shell PATH fix, silent
+  Ollama.app install to ~/Applications, Apple Silicon unified-memory fit, process-group kills, ad-hoc
+  signing (afterPack), arm64+x64 dmg/zip, manual update prompt (unsigned apps can't self-update).
+  Mac builds come from CI (macos-latest) — NOT yet run or tested on a real Mac.
 - Free hosted tier IS included (user answer). Name "Hive" kept as placeholder.
 
 ## Status by milestone (all features written; verification noted)
@@ -38,6 +41,7 @@
 - `window.hive.invoke(channel, ...args)` is available in the page for IPC-level checks.
 
 ## Next up
+0. Push repo + tag so CI builds the Mac dmg; test on a real Mac (setup wizard, Run, terminal, agents).
 1. GitHub = KassanaGujar/hive (placeholders filled; repo NOT created yet — ask before creating/pushing).
    Relay = Cloudflare Worker (services/relay-cf, tested locally with wrangler dev). Needs `wrangler login`
    + `wrangler deploy` by the user, then set DEFAULT_RELAY_URL to the wss://…workers.dev URL.

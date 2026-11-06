@@ -34,7 +34,11 @@ export function getModel(path: string, content?: string): monaco.editor.ITextMod
   const uri = uriFor(path)
   const existing = monaco.editor.getModel(uri)
   if (existing) return existing
-  return monaco.editor.createModel(content ?? '', languageFor(path), uri)
+  const model = monaco.editor.createModel(content ?? '', languageFor(path), uri)
+  // Same line endings for Windows and Mac teammates: LF unless the file already uses CRLF.
+  const CRLF = String.fromCharCode(13, 10)
+  if (!(content ?? '').includes(CRLF)) model.setEOL(monaco.editor.EndOfLineSequence.LF)
+  return model
 }
 
 export function disposeModel(path: string) {

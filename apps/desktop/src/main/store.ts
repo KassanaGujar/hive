@@ -147,13 +147,22 @@ const DEFAULT_SETTINGS: Settings = {
 }
 
 export function getSettings(): Settings {
-  return { ...DEFAULT_SETTINGS, ...store.get<Partial<Settings>>('settings', {}) }
+  const stored = store.get<Partial<Settings>>('settings', {})
+  if (stored.relayUrl === 'ws://localhost:4455') delete stored.relayUrl // pre-Cloudflare default
+  return { ...DEFAULT_SETTINGS, ...stored }
 }
 
 export function setSettings(patch: Partial<Settings>): Settings {
-  const next = { ...getSettings(), ...patch }
+  // Store only what the user changed, so new defaults (e.g. the relay URL) reach existing installs.
+  const stored = store.get<Partial<Settings>>('settings', {})
+  const next: Partial<Settings> = { ...stored, ...patch }
+  for (const k of Object.keys(next) as (keyof Settings)[]) {
+    if (JSON.stringify(next[k]) === JSON.stringify(DEFAULT_SETTINGS[k])) delete next[k]
+  }
+  // Old builds saved the localhost relay as if chosen; treat it as "not set".
+  if (next.relayUrl === 'ws://localhost:4455' && !patch.relayUrl) delete next.relayUrl
   store.set('settings', next)
-  return next
+  return { ...DEFAULT_SETTINGS, ...next }
 }
 
 // ---------- secrets (free API keys), encrypted with the OS keychain ----------

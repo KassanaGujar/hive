@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { spawn } from 'node:child_process'
 import { existsSync, createWriteStream } from 'node:fs'
-import { unlink } from 'node:fs/promises'
+import { mkdir, unlink } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
@@ -13,6 +13,8 @@ import { whichSync, clearWhichCache } from './terminal'
 
 export const OLLAMA_URL = 'http://127.0.0.1:11434'
 
+const MAC_APPS = ['/Applications/Ollama.app', path.join(os.homedir(), 'Applications/Ollama.app')]
+
 const pulls = new Map<string, PullProgress>()
 const controllers = new Map<string, AbortController>()
 
@@ -23,7 +25,7 @@ function ollamaExe(): string | null {
     process.platform === 'win32'
       ? [path.join(process.env.LOCALAPPDATA ?? '', 'Programs', 'Ollama', 'ollama.exe')]
       : process.platform === 'darwin'
-        ? ['/Applications/Ollama.app/Contents/Resources/ollama', '/usr/local/bin/ollama']
+        ? [...MAC_APPS.map((a) => path.join(a, 'Contents/Resources/ollama')), '/usr/local/bin/ollama', '/opt/homebrew/bin/ollama']
         : ['/usr/local/bin/ollama', '/usr/bin/ollama']
   return candidates.find((c) => existsSync(c)) ?? null
 }
@@ -53,7 +55,11 @@ export async function start(): Promise<boolean> {
   if ((await status()).running) return true
   const exe = ollamaExe()
   if (!exe) return false
-  const child = spawn(exe, ['serve'], { detached: true, stdio: 'ignore', windowsHide: true })
+  const macApp = process.platform === 'darwin' ? MAC_APPS.find((a) => existsSync(a)) : undefined
+  // On Mac, launching the app starts its server and menu-bar icon the normal way.
+  const child = macApp
+    ? spawn('open', ['-g', '-a', macApp], { detached: true, stdio: 'ignore' })
+    : spawn(exe, ['serve'], { detached: true, stdio: 'ignore', windowsHide: true })
   child.unref()
   for (let i = 0; i < 40; i++) {
     await new Promise((r) => setTimeout(r, 250))
@@ -65,14 +71,9 @@ export async function start(): Promise<boolean> {
 /** Silent per-user install. Windows: official OllamaSetup.exe with /VERYSILENT (Inno Setup). */
 export async function install(): Promise<{ ok: boolean; message: string }> {
   if (ollamaExe()) return { ok: true, message: 'Ollama is already installed.' }
+  if (process.platform === 'darwin') return installMac()
   if (process.platform !== 'win32') {
-    return {
-      ok: false,
-      message:
-        process.platform === 'darwin'
-          ? 'Download Ollama for Mac from https://ollama.com/download, open it once, then come back.'
-          : 'Install Ollama with: curl -fsSL https://ollama.com/install.sh | sh  — then come back.'
-    }
+    return { ok: false, message: 'Install Ollama with: curl -fsSL https://ollama.com/install.sh | sh  — then come back.' }
   }
   const file = path.join(app.getPath('temp'), 'OllamaSetup.exe')
   try {
@@ -87,6 +88,30 @@ export async function install(): Promise<{ ok: boolean; message: string }> {
     clearWhichCache()
     await unlink(file).catch(() => {})
     await start()
+    return { ok: true, message: 'Ollama installed.' }
+  } catch (e) {
+    return { ok: false, message: `Could not install Ollama automatically (${(e as Error).message}). Get it from https://ollama.com/download` }
+  }
+}
+
+/** Mac: official Ollama.app zip → ~/Applications (no admin password), then launch it. */
+async function installMac(): Promise<{ ok: boolean; message: string }> {
+  const dir = path.join(os.homedir(), 'Applications')
+  const zip = path.join(app.getPath('temp'), 'Ollama-darwin.zip')
+  try {
+    const res = await fetch('https://ollama.com/download/Ollama-darwin.zip')
+    if (!res.ok || !res.body) throw new Error(`download failed (${res.status})`)
+    await pipeline(Readable.fromWeb(res.body as any), createWriteStream(zip))
+    await mkdir(dir, { recursive: true })
+    await new Promise<void>((resolve, reject) => {
+      // ditto keeps the app bundle's symlinks and code signature intact
+      const p = spawn('ditto', ['-xk', zip, dir])
+      p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`unzip failed (${code})`))))
+      p.on('error', reject)
+    })
+    await unlink(zip).catch(() => {})
+    clearWhichCache()
+    if (!(await start())) throw new Error('Ollama was installed but did not start')
     return { ok: true, message: 'Ollama installed.' }
   } catch (e) {
     return { ok: false, message: `Could not install Ollama automatically (${(e as Error).message}). Get it from https://ollama.com/download` }

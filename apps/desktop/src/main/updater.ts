@@ -7,9 +7,12 @@ const { autoUpdater } = electronUpdater
 /** Checks GitHub Releases on launch, downloads in the background, installs on restart. */
 export function initUpdater() {
   if (!app.isPackaged) return
-  autoUpdater.autoDownload = true
-  autoUpdater.autoInstallOnAppQuit = true
+  // macOS only lets signed apps replace themselves; unsigned Mac builds get a download prompt instead.
+  const manual = process.platform === 'darwin'
+  autoUpdater.autoDownload = !manual
+  autoUpdater.autoInstallOnAppQuit = !manual
   autoUpdater.on('update-downloaded', (info) => emit('updater:ready', { version: info.version }))
+  if (manual) autoUpdater.on('update-available', (info) => emit('updater:ready', { version: info.version, manual: true }))
   autoUpdater.on('error', (e) => console.warn('[updater]', e?.message))
   setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 3000)
 }

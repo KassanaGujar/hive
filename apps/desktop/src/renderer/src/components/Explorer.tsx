@@ -74,7 +74,7 @@ export function Explorer() {
 
   const deleteItem = (node: FileNode) =>
     guard(async () => {
-      if (!confirm(`Move "${node.path}" to the Recycle Bin?`)) return
+      if (!confirm(`Move "${node.path}" to the ${navigator.userAgent.includes('Mac') ? 'Trash' : 'Recycle Bin'}?`)) return
       await invoke('fs:delete', node.path)
       feed('file.deleted', [node.path])
       useStore.getState().closeTab(`file:${node.path}`)

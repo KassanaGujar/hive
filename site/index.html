@@ -54,13 +54,19 @@
 
   <div class="buttons">
     <a class="btn primary" id="dl-win" href="#">⬇ Download for Windows</a>
-    <a class="btn" id="dl-mac" href="#">macOS (beta)</a>
-    <a class="btn" id="dl-linux" href="#">Linux AppImage (beta)</a>
+    <a class="btn" id="dl-mac" href="#">Mac — Apple Silicon (M1–M4)</a>
+    <a class="btn" id="dl-mac-intel" href="#">Mac — Intel</a>
+    <a class="btn" id="dl-linux" href="#">Linux (beta)</a>
   </div>
   <p class="small" id="version">Free forever. No account. Works offline with local models.</p>
 
-  <h2>First launch in 3 steps</h2>
-  <ol class="steps">
+  <h2 id="guide-title">First launch in 3 steps</h2>
+  <ol class="steps" id="guide-mac" hidden>
+    <li><span class="num">1</span><div><b>Open the download.</b> Double-click <code>Hive-…-mac-arm64.dmg</code> (or <code>x64</code> on Intel Macs) and drag <b>Hive</b> into <b>Applications</b>. Not sure which chip you have?  → About This Mac: “Apple M…” means Apple Silicon.</div></li>
+    <li><span class="num">2</span><div><b>macOS will block it the first time.</b> Hive isn't notarized by Apple yet. Open Hive once and click <b>Done</b> on the warning. Then open <b>System Settings → Privacy &amp; Security</b>, scroll down, and click <b>Open Anyway</b> next to “Hive was blocked”. Confirm with your password. You only do this once.</div></li>
+    <li><span class="num">3</span><div><b>Follow the setup wizard.</b> Hive installs Ollama for you and downloads a free AI model that fits your Mac. If macOS asks to install “command line developer tools” (for git), click <b>Install</b>, then press <b>Check again</b> in Hive.</div></li>
+  </ol>
+  <ol class="steps" id="guide-win">
     <li><span class="num">1</span><div><b>Run the installer.</b> Double-click <code>Hive-Setup.exe</code>. It installs just for you — no admin password.</div></li>
     <li><span class="num">2</span><div><b>Windows may warn you.</b> Hive isn't code-signed yet, so SmartScreen says “Windows protected your PC”. Click <b>More info</b>, then <b>Run anyway</b>.
       <div class="smartscreen" aria-label="Illustration of the SmartScreen dialog">
@@ -89,19 +95,28 @@
   // Point the buttons at the latest GitHub release assets.
   const REPO = 'KassanaGujar/hive'
   const latest = `https://github.com/${REPO}/releases/latest`
-  for (const id of ['dl-win', 'dl-mac', 'dl-linux']) document.getElementById(id).href = latest
+  for (const id of ['dl-win', 'dl-mac', 'dl-mac-intel', 'dl-linux']) document.getElementById(id).href = latest
   fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((rel) => {
       const find = (re) => rel.assets.find((a) => re.test(a.name))?.browser_download_url
-      const win = find(/\.exe$/), mac = find(/\.dmg$/), linux = find(/\.AppImage$/)
+      const win = find(/\.exe$/), mac = find(/mac-arm64\.dmg$/), macIntel = find(/mac-x64\.dmg$/), linux = find(/\.AppImage$/)
       if (win) document.getElementById('dl-win').href = win
       if (mac) document.getElementById('dl-mac').href = mac
+      if (macIntel) document.getElementById('dl-mac-intel').href = macIntel
       if (linux) document.getElementById('dl-linux').href = linux
       document.getElementById('version').textContent = `Version ${rel.tag_name.replace(/^v/, '')} · free forever · no account`
     })
     .catch(() => {})
-  if (/Mac/i.test(navigator.platform)) document.getElementById('dl-mac').classList.add('primary')
+  // Mac visitors: Mac buttons first and the Mac first-launch guide.
+  if (/Mac/i.test(navigator.platform) || /Macintosh/.test(navigator.userAgent)) {
+    const win = document.getElementById('dl-win')
+    win.classList.remove('primary')
+    document.getElementById('dl-mac').classList.add('primary')
+    win.parentElement.append(win)
+    document.getElementById('guide-mac').hidden = false
+    document.getElementById('guide-win').hidden = true
+  }
 </script>
 </body>
 </html>

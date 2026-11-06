@@ -112,6 +112,14 @@ function MachineStep({ onNext }: { onNext: () => void }) {
   const [ollama, setOllama] = useState<Check>('checking')
   const [msg, setMsg] = useState('')
 
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => {
+    setMsg('')
+    setGit('checking')
+    setOllama('checking')
+    setAttempt((n) => n + 1)
+  }
+
   useEffect(() => {
     invoke('hw:scan').then(setHw)
     ;(async () => {
@@ -137,7 +145,7 @@ function MachineStep({ onNext }: { onNext: () => void }) {
         if (!r.ok) setMsg((m) => (m ? m + '\n' : '') + r.message)
       }
     })()
-  }, [])
+  }, [attempt])
 
   const row = (label: string, state: Check, detail?: string) => (
     <div className="flex items-center gap-3 rounded-md bg-panel2 px-3 py-2">
@@ -168,9 +176,14 @@ function MachineStep({ onNext }: { onNext: () => void }) {
       {msg && <div className="whitespace-pre-wrap rounded-md border border-warn/40 p-2 text-[12px] text-warn">{msg}</div>}
       <div className="flex justify-end gap-2">
         {(git === 'failed' || ollama === 'failed') && (
-          <button className="btn" onClick={onNext}>
-            Skip for now
-          </button>
+          <>
+            <button className="btn" onClick={retry}>
+              Check again
+            </button>
+            <button className="btn" onClick={onNext}>
+              Skip for now
+            </button>
+          </>
         )}
         <button className="btn-primary" disabled={git !== 'ok' || ollama !== 'ok'} onClick={onNext}>
           Next

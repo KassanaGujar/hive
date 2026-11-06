@@ -107,7 +107,7 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
     const editor = monaco.editor.create(el.current!, {
       automaticLayout: true,
       fontSize: 13,
-      fontFamily: "'Cascadia Code', Consolas, monospace",
+      fontFamily: "'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace",
       minimap: { enabled: true, scale: 1 },
       scrollBeyondLastLine: false,
       smoothScrolling: true,

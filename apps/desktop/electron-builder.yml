@@ -8,6 +8,9 @@ files:
   - package.json
 asarUnpack:
   - node_modules/@lydell/**
+# node-pty ships prebuilt binaries per OS/chip; nothing needs compiling.
+npmRebuild: false
+afterPack: build/afterPack.cjs
 extraResources:
   - from: ../../catalog/catalog.json
     to: catalog.json
@@ -27,9 +30,20 @@ nsis:
   runAfterFinish: true
   deleteAppDataOnUninstall: false
 mac:
-  target: [dmg]
+  # Separate downloads for Apple Silicon (M1–M4) and Intel Macs.
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
   category: public.app-category.developer-tools
-  artifactName: Hive-${version}-${arch}.${ext}
+  artifactName: Hive-${version}-mac-${arch}.${ext}
+  # Unsigned beta: skip Developer ID signing; afterPack applies an ad-hoc signature instead.
+  identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+dmg:
+  title: Hive ${version}
 linux:
   target: [AppImage]
   category: Development

@@ -132,7 +132,7 @@ export interface IpcEvents {
   'agents:log': { runId: string; agent: string; taskId?: string; line: string }
   'agents:approval': ApprovalRequest
   'feed:event': FeedEvent
-  'updater:ready': { version: string }
+  'updater:ready': { version: string; manual?: boolean }
   'app:openInvite': { link: string }
   'menu:action': { action: string }
 }

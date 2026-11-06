@@ -7,6 +7,12 @@ let cachedGpu: { name: string | null; vramGB: number } | null = null
 
 async function gpu() {
   if (cachedGpu) return cachedGpu
+  // Apple Silicon: the GPU shares system RAM (unified memory); Metal can use ~70% of it for models.
+  if (process.platform === 'darwin' && process.arch === 'arm64') {
+    const chip = os.cpus()[0]?.model?.trim() || 'Apple Silicon'
+    cachedGpu = { name: `${chip} (unified memory)`, vramGB: Math.floor((os.totalmem() / 1024 ** 3) * 0.7) }
+    return cachedGpu
+  }
   try {
     const g = await si.graphics()
     // Pick the controller with the most VRAM (skips integrated GPUs on laptops with dGPUs).

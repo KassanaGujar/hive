@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, Menu, Notification, shell } from 'electron'
 import path from 'node:path'
 import { handle, emit } from './ipc'
+import { fixPath } from './shellEnv'
 import { initStore, getSettings, setSettings, secrets } from './store'
 import * as project from './project'
 import * as term from './terminal'
@@ -14,6 +15,9 @@ import { gitStatus, installGit } from './setup'
 import { initUpdater, checkForUpdates, installUpdate } from './updater'
 import { addFeed, listFeed } from './feed'
 import { startLocalRelay, stopLocalRelay, localRelayStatus } from './relayHost'
+
+// Mac/Linux: get the login shell's PATH so node, python3, ollama etc. are found.
+fixPath()
 
 // Separate profile for tests / a second local instance (e.g. HIVE_USER_DATA=./tmp-profile).
 if (process.env.HIVE_USER_DATA) app.setPath('userData', path.resolve(process.env.HIVE_USER_DATA))

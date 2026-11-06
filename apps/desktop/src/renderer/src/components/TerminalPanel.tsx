@@ -59,7 +59,7 @@ function getInstance(id: string, readOnly = false) {
   let inst = instances.get(id)
   if (inst) return inst
   const dark = useStore.getState().settings?.theme !== 'light'
-  const term = new Terminal({ fontFamily: "'Cascadia Mono', Consolas, monospace", fontSize: 13, cursorBlink: !readOnly, disableStdin: readOnly, theme: themeFor(dark), scrollback: 5000, allowProposedApi: true })
+  const term = new Terminal({ fontFamily: "'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace", fontSize: 13, cursorBlink: !readOnly, disableStdin: readOnly, theme: themeFor(dark), scrollback: 5000, allowProposedApi: true })
   const fit = new FitAddon()
   term.loadAddon(fit)
   term.loadAddon(new WebLinksAddon((_e, uri) => invoke('shell:openExternal', uri)))
