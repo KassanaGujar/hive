@@ -102,3 +102,18 @@ describe('tool name aliases', () => {
     expect(c?.arguments).toEqual({ path: 'a.css', content: 'x' })
   })
 })
+
+import { parseLenient } from './client'
+describe('small-model tool calls seen in the Snake test', () => {
+  const tools = ['write_file', 'report_done'].map((name) => ({ name, description: '', parameters: {} }))
+  it('maps invented write tool names like create_index_html', () => {
+    expect(canonicalToolName('create_index_html', tools)).toBe('write_file')
+  })
+  it('parses tool JSON with raw newlines inside strings, after leading junk', () => {
+    const text = '}  {   "name": "write_file",   "parameters": {     "file": "style.css",     "content": "body {\n  color: #fff;\n}"   } }'
+    const c = parseJsonToolCall(text, tools)
+    expect(c?.name).toBe('write_file')
+    expect(c?.arguments).toEqual({ file: 'style.css', content: 'body {\n  color: #fff;\n}' })
+    expect(parseLenient('{"a":"x\ny"}')).toEqual({ a: 'x\ny' })
+  })
+})

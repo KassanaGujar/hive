@@ -80,7 +80,43 @@ export function canonicalToolName(name: string, tools: ToolSpec[]): string {
   const n = name.toLowerCase().replace(/[\s-]+/g, '_')
   if (known.has(n)) return n
   for (const [real, aliases] of Object.entries(TOOL_ALIASES)) if (known.has(real) && aliases.includes(n)) return real
+  // "create_index_html", "write_game_js", "save_style" → write_file
+  if (known.has('write_file') && /^(create|write|save|make|update|edit|generate)_/.test(n)) return 'write_file'
   return name
+}
+
+/**
+ * JSON.parse that tolerates what small models emit inside strings: raw newlines/tabs (must be
+ * escaped in JSON). Only control characters inside string literals are touched.
+ */
+export function parseLenient(s: string): any {
+  try {
+    return JSON.parse(s)
+  } catch {
+    let out = ''
+    let inStr = false
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i]
+      if (inStr) {
+        if (ch === '\\') {
+          out += ch + (s[i + 1] ?? '')
+          i++
+          continue
+        }
+        if (ch === '"') inStr = false
+        else if (ch === '\n') {
+          out += '\\n'
+          continue
+        } else if (ch === '\r') continue
+        else if (ch === '\t') {
+          out += '\\t'
+          continue
+        }
+      } else if (ch === '"') inStr = true
+      out += ch
+    }
+    return JSON.parse(out)
+  }
 }
 
 /** Pull a {"tool": ..., "arguments": ...} object out of free text. */
@@ -90,12 +126,13 @@ export function parseJsonToolCall(text: string, tools: ToolSpec[]): ToolCall | n
   const fence = /```(?:json)?\s*([\s\S]*?)```/g
   let m: RegExpExecArray | null
   while ((m = fence.exec(text))) candidates.push(m[1])
-  // Bare object fallback: first {...} balanced span.
+  // Bare object fallback: the first {...} span, plus every span that starts like a tool call.
   const start = text.indexOf('{')
   if (start >= 0) candidates.push(balanced(text, start))
+  for (const mm of text.matchAll(/\{\s*"(?:name|tool|function)"\s*:/g)) candidates.push(balanced(text, mm.index!))
   for (const c of candidates) {
     try {
-      const obj = JSON.parse(c.trim())
+      const obj = parseLenient(c.trim())
       const raw = obj.tool ?? obj.name ?? obj.function
       const name = typeof raw === 'string' ? canonicalToolName(raw, tools) : raw
       if (typeof name === 'string' && names.has(name)) {

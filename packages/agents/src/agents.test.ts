@@ -195,3 +195,24 @@ describe('router runs disjoint tasks at once', () => {
     expect(p.tasks[2].description).toContain('- score.js: Score')
   })
 })
+
+import { normalizeWriteArgs } from './tools'
+import { fileFromReply, withRetry } from './orchestrator'
+describe('worker robustness (Snake test failures)', () => {
+  it('accepts write_file argument-name variants and defaults the path for one-file tasks', () => {
+    expect(normalizeWriteArgs({ file: 'style.css', content: 'x' })).toEqual({ path: 'style.css', content: 'x' })
+    expect(normalizeWriteArgs({ f: 'a.js', code: '```js\nlet a\n```' })).toEqual({ path: 'a.js', content: 'let a' })
+    expect(normalizeWriteArgs({ content: 'only content' }, 'index.html')).toEqual({ path: 'index.html', content: 'only content' })
+  })
+  it('takes a pasted code block / raw HTML as the file for a one-file task', () => {
+    expect(fileFromReply('Here is game.js:\n```javascript\nconst canvas = document.getElementById("c")\n```', 'game.js')).toContain('getElementById')
+    expect(fileFromReply('<!DOCTYPE html><html><body>hi there friends</body></html> done', 'index.html')).toBe('<!DOCTYPE html><html><body>hi there friends</body></html>')
+    expect(fileFromReply('I finished the task.', 'game.js')).toBeNull()
+  })
+  it('retries transient model errors like "fetch failed", not real ones', async () => {
+    let n = 0
+    const ok = await withRetry(async () => (++n < 2 ? Promise.reject(new Error('fetch failed')) : 'ok'), new AbortController().signal, undefined, 3)
+    expect(ok).toBe('ok')
+    await expect(withRetry(async () => Promise.reject(new Error('Model request failed (400): bad')), new AbortController().signal)).rejects.toThrow('400')
+  }, 15000)
+})

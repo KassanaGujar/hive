@@ -102,6 +102,26 @@ export interface ToolContext {
   root: string
   runCommand(command: string): Promise<string>
   onWrite?(rel: string): void
+  /** The task's only file, used when a model forgets to say which file it is writing. */
+  defaultPath?: string
+}
+
+const PATH_KEYS = ['path', 'file', 'filename', 'file_path', 'filepath', 'file_name', 'name', 'f', 'target']
+const CONTENT_KEYS = ['content', 'contents', 'text', 'code', 'data', 'body', 'source', 'file_content']
+
+/** Small models vary argument names ({"file": …, "code": …}); map them to path/content. */
+export function normalizeWriteArgs(args: Record<string, any>, defaultPath?: string): { path?: string; content?: string } {
+  const pick = (keys: string[]) => keys.map((k) => args?.[k]).find((v) => typeof v === 'string' && v.length > 0)
+  let content = pick(CONTENT_KEYS)
+  const p = PATH_KEYS.map((k) => args?.[k]).find((v) => typeof v === 'string' && v.length > 0 && v.length < 260 && v !== content)
+  if (typeof content === 'string') content = stripFence(content)
+  return { path: p ?? defaultPath, content }
+}
+
+/** A model sometimes wraps file content in a markdown fence or a <script> wrapper meant for chat. */
+function stripFence(s: string): string {
+  const m = /^\s*```[\w.-]*\s*\n([\s\S]*?)\n?```\s*$/.exec(s)
+  return m ? m[1] : s
 }
 
 export interface ToolResult {
@@ -121,12 +141,14 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
         return { output: text.length > 30000 ? text.slice(0, 30000) + '\n…(truncated)' : text }
       }
       case 'write_file': {
-        if (typeof args.content !== 'string') return { output: 'Error: content must be a string' }
-        const abs = safeResolve(ctx.root, args.path)
+        const w = normalizeWriteArgs(args, ctx.defaultPath)
+        if (typeof w.content !== 'string') return { output: 'Error: write_file needs "path" and "content" (the full file text)' }
+        if (!w.path) return { output: 'Error: write_file needs "path" (which file to write)' }
+        const abs = safeResolve(ctx.root, w.path)
         await fs.mkdir(path.dirname(abs), { recursive: true })
-        await fs.writeFile(abs, args.content, 'utf8')
-        ctx.onWrite?.(String(args.path))
-        return { output: `Wrote ${args.path} (${args.content.length} chars)` }
+        await fs.writeFile(abs, w.content, 'utf8')
+        ctx.onWrite?.(w.path)
+        return { output: `Wrote ${w.path} (${w.content.length} chars)` }
       }
       case 'search': {
         const hits = await searchFiles(ctx.root, String(args.query ?? ''))

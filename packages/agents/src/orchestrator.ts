@@ -300,6 +300,15 @@ ${ctl.prd.slice(0, 3000)}` : '')
       const text = stripThinking(res.text)
       messages.push({ role: 'assistant', content: text, toolCalls: res.toolCalls })
       if (!res.toolCalls?.length) {
+        // A one-file task answered with the file itself (code block / raw HTML) instead of a tool call.
+        const pasted = task.files.length === 1 ? fileFromReply(text, task.files[0]) : null
+        if (pasted) {
+          await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: task.files[0], content: pasted })
+          writes++
+          this.log(ctl, worker.name, task.id, `→ write_file ${task.files[0]} (from the code in its reply)`)
+          messages.push({ role: 'user', content: `Saved that as ${task.files[0]}. If it is complete, call report_done; otherwise write the full file again.` })
+          continue
+        }
         if (++nudges > 3) return text.slice(0, 500) || 'Finished.'
         messages.push({ role: 'user', content: 'Use the tools to do the work (write_file etc). When finished, call report_done.' })
         continue
@@ -309,7 +318,8 @@ ${ctl.prd.slice(0, 3000)}` : '')
         const result = await executeTool(
           {
             root: wt,
-            runCommand: (cmd) => this.runCommand(ctl, worker.name, task, wt, cmd)
+            runCommand: (cmd) => this.runCommand(ctl, worker.name, task, wt, cmd),
+            defaultPath: task.files.length === 1 ? task.files[0] : undefined
           },
           call.name,
           call.arguments
@@ -529,7 +539,9 @@ ${ctl.prd.slice(0, 3000)}` : '')
     const release = await this.guard.acquire(model, ctl.abort.signal)
     try {
       this.setAgent(ctl, agent, { status: agent === 'architect' || agent.startsWith('lead') ? 'thinking' : 'working' })
-      const res = await this.host.chat(model, messages, tools, { signal: ctl.abort.signal })
+      const res = await withRetry(() => this.host.chat(model, messages, tools, { signal: ctl.abort.signal }), ctl.abort.signal, (e, n) =>
+        this.log(ctl, agent, taskId, `model request failed (${(e as Error).message}); retrying ${n}/3…`)
+      )
       if (res.tokensPerSec) this.setAgent(ctl, agent, { tokensPerSec: res.tokensPerSec })
       const visible = stripThinking(res.text).trim()
       if (visible) this.log(ctl, agent, taskId, visible.length > 600 ? visible.slice(0, 600) + '…' : visible)
@@ -597,6 +609,35 @@ export function routeTasks(tasks: { owner?: string; dependsOn: string[] }[], wor
       load.set(t.owner!, load.get(t.owner!)! + 1)
     }
   }
+}
+
+/**
+ * Local models serve parallel agents from one queue; a queued request can outlive fetch's header
+ * timeout or hit a dropped connection. Retry those (not real errors like 400s) with backoff.
+ */
+export async function withRetry<T>(fn: () => Promise<T>, signal: AbortSignal, onRetry?: (e: unknown, n: number) => void, tries = 3): Promise<T> {
+  for (let n = 1; ; n++) {
+    try {
+      return await fn()
+    } catch (e) {
+      const msg = String((e as Error)?.message ?? e) + String((e as { cause?: { code?: string } })?.cause?.code ?? '')
+      const transient = /fetch failed|ECONNRESET|ECONNREFUSED|socket|terminated|UND_ERR|timeout|\(5\d\d\)/i.test(msg)
+      if (signal.aborted || !transient || n > tries) throw e
+      onRetry?.(e, n)
+      await new Promise((r) => setTimeout(r, 2000 * n))
+    }
+  }
+}
+
+/** The file content in a reply that pasted it instead of calling write_file. */
+export function fileFromReply(text: string, file: string): string | null {
+  const ext = file.split('.').pop()!.toLowerCase()
+  const lang: Record<string, string[]> = { html: ['html', 'htm'], js: ['javascript', 'js'], css: ['css'], py: ['python', 'py'], json: ['json'], ts: ['typescript', 'ts'] }
+  const blocks = [...text.matchAll(/```([\w.+-]*)\s*\n([\s\S]*?)```/g)].map((m) => ({ tag: m[1].toLowerCase(), body: m[2] }))
+  const match = blocks.find((b) => b.tag === file.toLowerCase() || (lang[ext] ?? [ext]).includes(b.tag)) ?? (blocks.length === 1 ? blocks[0] : undefined)
+  if (match && match.body.trim().length > 20) return match.body
+  if (ext === 'html' && /^\s*(<!doctype html|<html)/i.test(text) && /<\/html>/i.test(text)) return text.slice(text.search(/<!doctype html|<html/i), text.search(/<\/html>/i) + 7)
+  return null
 }
 
 /** Current contents of the task's files, so small models edit instead of overwriting blindly. */
