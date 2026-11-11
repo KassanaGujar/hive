@@ -187,3 +187,26 @@ export function splitForParallelism(plan: AgentPlan, workers: number): AgentPlan
   }
   return tasks.length === plan.tasks.length ? plan : { ...plan, tasks }
 }
+
+/**
+ * Router rule: tasks own disjoint files (see enforceFileOwnership), so ordering between them only
+ * exists to share names. Replace those dependencies with an explicit team contract — every task sees
+ * which agent-task writes which file — and run them all at once. The page owner loads every asset.
+ */
+export function parallelizeWithContract(plan: AgentPlan): AgentPlan {
+  if (plan.tasks.length < 2) return plan
+  const contract = plan.tasks.map((t) => `- ${t.files.join(', ') || '(no files)'}: ${t.title}`).join(NL)
+  const assets = plan.tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f))
+  const tasks = plan.tasks.map((t) => {
+    if (t.description.includes('Team contract')) return { ...t, dependsOn: [] }
+    const page = t.files.find((f) => /\.html?$/i.test(f))
+    const others = assets.filter((a) => !t.files.includes(a))
+    const wiring = page && others.length && !t.description.includes('must load') ? `${NL}${page} must load: ${others.join(', ')} (CSS via <link rel="stylesheet">, JS via <script src> at the end of <body>, in this order).` : ''
+    return {
+      ...t,
+      dependsOn: [],
+      description: `${t.description}${wiring}${NL}Team contract — these files are written AT THE SAME TIME by other agents; use these exact names and share globals/ids consistently:${NL}${contract}`
+    }
+  })
+  return { ...plan, tasks }
+}

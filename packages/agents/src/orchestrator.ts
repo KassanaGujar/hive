@@ -13,7 +13,7 @@ import type {
 } from '@hive/shared'
 import { rankTeam, extractJson, stripThinking } from '@hive/models'
 import { classifyCommand } from './policy'
-import { allSettled, enforceFileOwnership, normalizePlan, planToTasks, readyTasks, splitForParallelism, starvedTasks } from './scheduler'
+import { allSettled, enforceFileOwnership, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, splitForParallelism, starvedTasks } from './scheduler'
 import { architectPlanPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
@@ -153,7 +153,7 @@ ${ctl.prd.slice(0, 8000)}`
       ])
       raw = extractJson(res.text)
     }
-    const plan = splitForParallelism(enforceFileOwnership(normalizePlan(run.goal, raw)), workers.length)
+    const plan = parallelizeWithContract(splitForParallelism(enforceFileOwnership(normalizePlan(run.goal, raw)), workers.length))
     routeTasks(plan.tasks, workers)
     for (const t of plan.tasks) this.log(ctl, 'architect', undefined, `Router: "${t.title}" → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
     run.plan = plan

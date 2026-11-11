@@ -178,3 +178,20 @@ describe('router splits work for idle workers', () => {
     expect(splitForParallelism(plan, 2)).toBe(plan)
   })
 })
+
+import { parallelizeWithContract } from './scheduler'
+describe('router runs disjoint tasks at once', () => {
+  it('drops chained deps and adds a team contract + page wiring', () => {
+    const plan = normalizePlan('snake', {
+      tasks: [
+        { id: 'loop', title: 'Game loop', files: ['game.js', 'index.html'] },
+        { id: 'score', title: 'Score', files: ['score.js'], dependsOn: ['loop'] },
+        { id: 'theme', title: 'Theme', files: ['style.css'], dependsOn: ['loop', 'score'] }
+      ]
+    })
+    const p = parallelizeWithContract(plan)
+    expect(p.tasks.every((t) => t.dependsOn.length === 0)).toBe(true)
+    expect(p.tasks[0].description).toContain('index.html must load: score.js, style.css')
+    expect(p.tasks[2].description).toContain('- score.js: Score')
+  })
+})
