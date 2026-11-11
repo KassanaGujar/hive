@@ -1,5 +1,8 @@
 appId: app.hive.desktop
 productName: Hive
+# Friendly install folder (%LOCALAPPDATA%\Programs\hive) instead of the workspace package name.
+extraMetadata:
+  name: hive
 directories:
   output: release/${version}
   buildResources: build

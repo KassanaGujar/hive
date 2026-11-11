@@ -51,9 +51,13 @@
 3. Small-model quality: Planner misses decisions/questions with 3B; consider stronger default for Architect.
 4. Playwright e2e tests (PRD testing plan) — not started.
 
+## Stress test (2026-11-10) — see docs/stress-test.md
+- Collab on live Cloudflare relay: 10 concurrent typists converge; p95 latency 65 ms; churn safe; 6 MB join 1.6 s.
+- FIXED: concurrent agent git ops collided (6/8 tasks failed) → GitOps writes serialised.
+- FIXED: search/hash now read files in parallel (5x faster). Install folder now %LOCALAPPDATA%\Programs\hive.
+- Installer verified by real silent install + launch from desktop shortcut.
+
 ## Known gaps / ideas
-- Catalog URL + electron-builder `publish.owner` use placeholders (REPLACE_WITH_GITHUB_USER / Beanman).
-- No app icon yet (build/icon.ico).
 - FIXED: Chromium's scrollIntoView now returns a Promise → never return it from useEffect.
 - Viewer role is enforced by the relay for doc updates; editor UI is read-only for viewers.
 

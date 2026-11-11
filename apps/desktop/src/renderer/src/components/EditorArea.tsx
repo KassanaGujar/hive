@@ -55,7 +55,12 @@ function TabBar({ group }: { group: number }) {
             className={`group flex cursor-pointer items-center gap-2 border-r border-line px-3 text-[12px] ${active ? `bg-bg ${focused ? 'text-fg' : 'text-muted'}` : 'text-muted hover:text-fg'}`}
             title={t.kind === 'file' ? t.path : t.title}
           >
-            <span className="max-w-48 truncate">{t.title}</span>
+            <span className="max-w-48 truncate">
+              {t.title}
+              {t.kind === 'file' && g.tabs.some((o) => o !== id && tabs[o]?.title === t.title) && (
+                <span className="ml-1 text-[10px] text-muted">{t.path.split('/').slice(-3, -1).join('/')}</span>
+              )}
+            </span>
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={() => closeTab(id)}

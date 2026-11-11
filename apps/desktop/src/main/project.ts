@@ -174,43 +174,61 @@ export async function listTextFiles(limit = 5000): Promise<string[]> {
   return out
 }
 
+/** Run fn over items with at most `limit` in flight (file I/O is much faster in parallel). */
+async function pool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length)
+  let next = 0
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (next < items.length) {
+        const i = next++
+        out[i] = await fn(items[i])
+      }
+    })
+  )
+  return out
+}
+
+async function readSmall(rel: string, max: number): Promise<string | null> {
+  try {
+    const p = abs(rel)
+    const st = await fs.stat(p)
+    if (st.size > max) return null
+    return await fs.readFile(p, 'utf8')
+  } catch {
+    return null
+  }
+}
+
 export async function search(query: string, opts: { regex?: boolean; caseSensitive?: boolean } = {}): Promise<SearchMatch[]> {
   if (!query) return []
-  const flags = opts.caseSensitive ? 'g' : 'gi'
+  const flags = opts.caseSensitive ? '' : 'i'
   const re = new RegExp(opts.regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags)
-  const results: SearchMatch[] = []
-  for (const rel of await listTextFiles()) {
-    let text: string
-    try {
-      const st = await fs.stat(abs(rel))
-      if (st.size > 1024 * 1024) continue
-      text = await fs.readFile(abs(rel), 'utf8')
-    } catch {
-      continue
-    }
+  const files = await listTextFiles()
+  const perFile = await pool(files, 32, async (rel) => {
+    const text = await readSmall(rel, 1024 * 1024)
+    if (text === null || !re.test(text)) return []
+    const hits: SearchMatch[] = []
     const lines = text.split('\n')
-    for (let i = 0; i < lines.length; i++) {
-      re.lastIndex = 0
+    for (let i = 0; i < lines.length && hits.length < 200; i++) {
       const m = re.exec(lines[i])
-      if (m) {
-        results.push({ path: rel, line: i + 1, col: m.index + 1, text: lines[i].slice(0, 300) })
-        if (results.length >= 2000) return results
-      }
+      if (m) hits.push({ path: rel, line: i + 1, col: m.index + 1, text: lines[i].slice(0, 300) })
     }
-  }
-  return results
+    return hits
+  })
+  return perFile.flat().slice(0, 2000)
 }
 
 /** sha256 of every shared text file; used for the join-time full-tree check. */
 export async function hashTree(): Promise<Record<string, string>> {
+  const files = await listTextFiles()
+  const hashes = await pool(files, 32, async (rel) => {
+    const text = await readSmall(rel, 512 * 1024)
+    return text === null ? null : createHash('sha256').update(text).digest('hex')
+  })
   const out: Record<string, string> = {}
-  for (const rel of await listTextFiles()) {
-    try {
-      const buf = await fs.readFile(abs(rel))
-      if (buf.length <= 512 * 1024) out[rel] = createHash('sha256').update(buf.toString('utf8')).digest('hex')
-    } catch {
-      /* skip */
-    }
-  }
+  files.forEach((rel, i) => {
+    if (hashes[i]) out[rel] = hashes[i]!
+  })
   return out
 }

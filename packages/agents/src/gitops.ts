@@ -32,7 +32,7 @@ export async function ensureIdentity(g: SimpleGit, name: string) {
 
 export function createGitOps(identityName: () => string = () => 'Hive user'): GitOps {
   const ensureIdentity_ = (g: SimpleGit) => ensureIdentity(g, identityName())
-  return {
+  const ops: GitOps = {
     async ensureRepo(root) {
       const g = git(root)
       if (!existsSync(path.join(root, '.git'))) await g.init(['-b', 'main'])
@@ -96,5 +96,22 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
     async deleteBranch(root, branch) {
       await git(root).deleteLocalBranch(branch, true)
     }
+  }
+  // Worktrees share one repository, and git takes repo-wide locks (index.lock, refs, worktree admin
+  // files). Agents finishing together would collide, so every operation that writes runs one at a time.
+  let queue: Promise<unknown> = Promise.resolve()
+  const serial = <A extends unknown[], R>(fn: (...a: A) => Promise<R>) => (...a: A): Promise<R> => {
+    const run = queue.then(() => fn(...a))
+    queue = run.catch(() => {})
+    return run
+  }
+  return {
+    ensureRepo: serial(ops.ensureRepo),
+    addWorktree: serial(ops.addWorktree),
+    removeWorktree: serial(ops.removeWorktree),
+    commitAll: serial(ops.commitAll),
+    merge: serial(ops.merge),
+    deleteBranch: serial(ops.deleteBranch),
+    diff: ops.diff // read-only
   }
 }

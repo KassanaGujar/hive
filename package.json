@@ -9,6 +9,7 @@
     "dist": "npm run dist -w @hive/desktop",
     "relay": "npm run start -w @hive/relay",
     "test": "vitest run",
+    "stress": "vitest run --config vitest.stress.mts",
     "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @hive/desktop"
   },
   "devDependencies": {

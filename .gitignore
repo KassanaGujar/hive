@@ -8,3 +8,4 @@ release/
 .env
 relay-data/
 .wrangler/
+stress-report.txt
