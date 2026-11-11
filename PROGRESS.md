@@ -1,5 +1,35 @@
 # Hive — build progress (resume file)
 
+## 🔖 BOOKMARK — paused 2026-11-10 23:18 (resume here)
+**Task in progress:** user's test — "3 AI working at once to make Snake. Passes if each person talks and
+asks for the snake game, the AI makes the planning doc/PRD/MVP, then a router tells each what to do."
+
+**How to run it:** `tools/e2e/e2e-snake.mjs` (copy of the driver; needs `tools/e2e/cdp.mjs` style helpers inline).
+1. `cd apps/desktop && npx electron-vite build`
+2. Launch 3 instances (Sam 9351 / Kim 9352 / Ari 9353) with `HIVE_USER_DATA=<scratch>/profile-<name>`
+   and `--remote-debugging-port=<port>`, empty folders `<scratch>/snake`, `<scratch>/kim`, `<scratch>/ari`.
+3. `node tools/e2e/e2e-snake.mjs <scratch>` → log in `<scratch>/e2e-snake-log.txt`, screenshots `snake-*.png`.
+
+**Status of pass criteria (last run, 23:15):**
+- [x] 3 people join live over the Cloudflare relay ("Live · 3 online")
+- [x] each person asks for Snake in the Planning room; host sees all 3
+- [x] Planner writes PRD/MVP: goal + 4 features + 4 tasks, 9 items traced to chat messages
+- [x] Send to agents → router assigns tasks → **3 workers active at once** (bee/wasp/ant) ✅
+- [ ] NOT YET VERIFIED after the latest router change: all tasks merge, files sync to Kim+Ari,
+      index.html loads every file it references, Kim presses Run and the game actually plays.
+      (Previous run with sequential deps: merged + synced + ran, but page was blank because the 3B model
+      wrote index.html referencing a game.js nobody wrote → fixed by split-by-file + missing-file check.)
+
+**Next steps:** rerun the E2E to the end; if the page is blank, inspect the generated files — likely
+llama3.2:3b quality (one-file-per-worker should help). Consider recommending qwen2.5-coder:7b (needs the
+user's OK to download ~4.7 GB). Then report results to the user.
+
+**Fixes made during this test (all committed, 53 unit tests pass):** Planner always writes goal+tasks (MVP pass);
+3 workers by default; router (routeTasks, splitForParallelism, parallelizeWithContract); file ownership splits
+shared files; tool-name aliases (create_file→write_file); refuse "done" with no writes; never merge empty work;
+missing-file check before review; PLAN.md syncs to teammates; file tree refreshes after synced files land.
+
+
 > If a session ends mid-build, read this file first, then `git log --oneline`, then continue
 > from "Next up". The full product spec is in `docs/PRD.md`.
 
