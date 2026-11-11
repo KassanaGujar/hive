@@ -162,3 +162,19 @@ describe('file ownership keeps parallel work parallel', () => {
     expect(p.tasks[1].description).toContain('do not edit them')
   })
 })
+
+import { splitForParallelism } from './scheduler'
+describe('router splits work for idle workers', () => {
+  it('turns one 3-file task into 3 parallel per-file tasks with a shared contract', () => {
+    const plan = normalizePlan('snake', { tasks: [{ id: 'snake', title: 'Snake game', description: 'canvas id "game"', files: ['index.html', 'game.js', 'style.css'] }] })
+    const p = splitForParallelism(plan, 3)
+    expect(p.tasks.map((t) => t.files[0])).toEqual(['index.html', 'game.js', 'style.css'])
+    expect(p.tasks.every((t) => t.dependsOn.length === 0)).toBe(true)
+    expect(p.tasks[0].description).toContain('index.html must load: game.js, style.css')
+    expect(p.tasks[1].description).toContain('You write ONLY game.js')
+  })
+  it('leaves plans alone when every worker already has a task', () => {
+    const plan = normalizePlan('g', { tasks: [{ id: 'a', title: 'A', files: ['a.js', 'b.js'] }, { id: 'c', title: 'C', files: ['c.js'] }] })
+    expect(splitForParallelism(plan, 2)).toBe(plan)
+  })
+})

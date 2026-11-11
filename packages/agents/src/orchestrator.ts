@@ -13,7 +13,7 @@ import type {
 } from '@hive/shared'
 import { rankTeam, extractJson, stripThinking } from '@hive/models'
 import { classifyCommand } from './policy'
-import { allSettled, enforceFileOwnership, normalizePlan, planToTasks, readyTasks, starvedTasks } from './scheduler'
+import { allSettled, enforceFileOwnership, normalizePlan, planToTasks, readyTasks, splitForParallelism, starvedTasks } from './scheduler'
 import { architectPlanPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
@@ -153,7 +153,7 @@ ${ctl.prd.slice(0, 8000)}`
       ])
       raw = extractJson(res.text)
     }
-    const plan = enforceFileOwnership(normalizePlan(run.goal, raw))
+    const plan = splitForParallelism(enforceFileOwnership(normalizePlan(run.goal, raw)), workers.length)
     routeTasks(plan.tasks, workers)
     for (const t of plan.tasks) this.log(ctl, 'architect', undefined, `Router: "${t.title}" → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
     run.plan = plan
@@ -244,7 +244,11 @@ ${ctl.prd.slice(0, 8000)}`
       task.diff = await this.host.git.diff(wt, ctl.run.integrationBranch!, 'HEAD')
       task.status = 'review'
       this.emit(ctl)
-      const review = await this.review(ctl, task)
+      // Deterministic check before any AI review: the task's own files must exist.
+      const missing = (await Promise.all(task.files.map(async (f) => ((await executeTool({ root: wt, runCommand: async () => '' }, 'read_file', { path: f })).output.startsWith('Error') ? f : null)))).filter(Boolean)
+      const review = missing.length
+        ? { approved: false, notes: `These files are missing — create them with write_file: ${missing.join(', ')}` }
+        : await this.review(ctl, task)
       if (review.approved) {
         task.reviewNotes = review.notes
         break

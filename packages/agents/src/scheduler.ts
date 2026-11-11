@@ -159,3 +159,31 @@ export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
   }
   return { ...plan, tasks }
 }
+
+/**
+ * Router rule: when there are more idle workers than tasks, split multi-file tasks one file per
+ * worker so the team actually works in parallel. Every piece gets the shared contract (all file
+ * names, what is built at the same time); the page owner is told to load the others. Tasks that
+ * depended on the original depend on all of its pieces.
+ */
+export function splitForParallelism(plan: AgentPlan, workers: number): AgentPlan {
+  let tasks = [...plan.tasks]
+  while (tasks.length < workers) {
+    const big = [...tasks].sort((a, b) => b.files.length - a.files.length)[0]
+    if (!big || big.files.length < 2) break
+    const files = big.files
+    const contract = `${NL}This is one part of "${big.title}". It is split across agents by file, all built at the same time: ${files.join(', ')}. Use exactly these file names; keep element ids, function names and data shapes consistent with the description above.`
+    const parts: PlanTask[] = files.map((f) => ({
+      id: `${big.id}-${f.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`.slice(0, 60),
+      title: `${big.title.slice(0, 80)} — ${f}`,
+      description: `${big.description}${contract}${NL}You write ONLY ${f}.` + (/\.html?$/i.test(f) ? ` ${f} must load: ${files.filter((x) => /\.(js|mjs|css)$/i.test(x)).join(', ') || '(no other assets)'} (CSS with <link rel="stylesheet">, JS with <script src> at the end of <body>).` : ''),
+      files: [f],
+      dependsOn: [...big.dependsOn],
+      owner: undefined,
+      acceptance: `${f} exists and implements its part of: ${big.acceptance ?? big.title}`
+    }))
+    tasks = tasks.flatMap((t) => (t === big ? parts : [t]))
+    for (const t of tasks) if (t.dependsOn.includes(big.id)) t.dependsOn = [...t.dependsOn.filter((d) => d !== big.id), ...parts.map((p) => p.id)]
+  }
+  return tasks.length === plan.tasks.length ? plan : { ...plan, tasks }
+}

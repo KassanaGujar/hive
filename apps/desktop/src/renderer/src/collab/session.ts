@@ -269,7 +269,7 @@ export class ProjectSession {
           delete this.synced[key]
         }
       }
-      if (tr.origin !== 'disk') invoke('fs:tree').then((tree) => useStore.getState().set({ tree }))
+      // the tree refreshes after scheduleWrite puts new files on disk (see scheduleWrite)
     })
     this.parts.files.observeDeep((events, tr) => {
       if (!this.shared) return
@@ -293,7 +293,9 @@ export class ProjectSession {
         const t = this.parts.files.get(path)
         if (!t) return
         const text = t.toString()
+        const isNew = !(path in this.synced)
         await invoke('fs:write', path, text).catch((e) => console.warn('write', path, e))
+        if (isNew) invoke('fs:tree').then((tree) => useStore.getState().set({ tree }))
         this.synced[path] = await sha256Hex(text)
         this.saveSynced()
       }, 250)
