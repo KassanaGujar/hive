@@ -61,6 +61,28 @@ export function toolPrompt(tools: ToolSpec[]): string {
   ].join('\n')
 }
 
+/**
+ * Small models often invent near-miss tool names ("create_file", "run", "finish"). Map common ones to
+ * the real tool when it exists; otherwise return the name unchanged.
+ */
+const TOOL_ALIASES: Record<string, string[]> = {
+  write_file: ['create_file', 'save_file', 'write', 'edit_file', 'update_file', 'writefile', 'file_write', 'create'],
+  read_file: ['read', 'open_file', 'cat', 'view_file', 'readfile', 'file_read'],
+  list_files: ['list', 'ls', 'list_dir', 'list_directory', 'dir', 'files'],
+  search: ['grep', 'find', 'search_files', 'search_code'],
+  run_command: ['run', 'exec', 'execute', 'shell', 'bash', 'command', 'terminal', 'execute_command'],
+  report_done: ['done', 'finish', 'complete', 'task_complete', 'submit', 'finish_task']
+}
+
+export function canonicalToolName(name: string, tools: ToolSpec[]): string {
+  const known = new Set(tools.map((t) => t.name))
+  if (known.has(name)) return name
+  const n = name.toLowerCase().replace(/[\s-]+/g, '_')
+  if (known.has(n)) return n
+  for (const [real, aliases] of Object.entries(TOOL_ALIASES)) if (known.has(real) && aliases.includes(n)) return real
+  return name
+}
+
 /** Pull a {"tool": ..., "arguments": ...} object out of free text. */
 export function parseJsonToolCall(text: string, tools: ToolSpec[]): ToolCall | null {
   const names = new Set(tools.map((t) => t.name))
@@ -74,7 +96,8 @@ export function parseJsonToolCall(text: string, tools: ToolSpec[]): ToolCall | n
   for (const c of candidates) {
     try {
       const obj = JSON.parse(c.trim())
-      const name = obj.tool ?? obj.name ?? obj.function
+      const raw = obj.tool ?? obj.name ?? obj.function
+      const name = typeof raw === 'string' ? canonicalToolName(raw, tools) : raw
       if (typeof name === 'string' && names.has(name)) {
         const args = obj.arguments ?? obj.args ?? obj.parameters ?? {}
         return {
@@ -236,11 +259,12 @@ async function* streamOnce(
 
   let toolCalls: ToolCall[] = [...partial.values()]
     .filter((p) => p.name)
-    .map((p) => ({ id: p.id, name: p.name, arguments: safeJson(p.args || '{}') }))
+    .map((p) => ({ id: p.id, name: canonicalToolName(p.name, tools), arguments: safeJson(p.args || '{}') }))
   // Some models answer with JSON in text even when native tools were offered.
-  if (!toolCalls.length && tools.length) {
+  // Small models sometimes do both: a write as JSON text plus a native "done" call — run the text one first.
+  if (tools.length) {
     const parsed = parseJsonToolCall(fullText, tools)
-    if (parsed) toolCalls = [parsed]
+    if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
   }
   yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
 }

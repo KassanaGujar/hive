@@ -21,6 +21,8 @@ import { ResourceGuard } from './guard'
 export const MAX_STEPS = 40
 export const MAX_REVIEW_ROUNDS = 3
 export const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
+/** Worker agents per run, even with one model installed (they share it). */
+export const DEFAULT_WORKERS = 3
 
 export interface ChatResult {
   text: string
@@ -68,6 +70,8 @@ interface RunCtl {
   team: { architect: InstalledModel; leads: InstalledModel[]; workers: InstalledModel[] }
   workerPool: { name: string; model: InstalledModel; busy: boolean }[]
   intWorktree?: string
+  /** The team's plan doc (PRD/MVP) from the Planning room, if the run came from there. */
+  prd?: string
   waiters: Map<string, (ok: boolean) => void>
 }
 
@@ -99,13 +103,13 @@ export class Orchestrator {
     return rankTeam(this.host.models(), this.host.tierOverrides())
   }
 
-  async start(goal: string, presetTasks?: { title: string; description: string }[]): Promise<string> {
+  async start(goal: string, presetTasks?: { title: string; description: string }[], prd?: string): Promise<string> {
     const t = this.team()
     if (!t.architect) throw new Error('No models installed. Download a model in the Model store first.')
     const team = { architect: t.architect, leads: t.leads, workers: t.workers }
     const id = `run-${Date.now().toString(36)}`
-    // Always at least 2 worker agents (they share models when few are installed).
-    const nWorkers = Math.max(2, team.workers.length)
+    // At least DEFAULT_WORKERS agents work in parallel (they share models when few are installed).
+    const nWorkers = Math.max(DEFAULT_WORKERS, team.workers.length)
     const workerPool = Array.from({ length: nWorkers }, (_, i) => ({
       name: WORKER_NAMES[i % WORKER_NAMES.length] + (i >= WORKER_NAMES.length ? `-${i}` : ''),
       model: team.workers[i % team.workers.length],
@@ -117,7 +121,7 @@ export class Orchestrator {
       ...workerPool.map((w) => ({ name: w.name, role: 'worker' as const, modelId: w.model.id, modelName: w.model.name, status: 'idle' as const }))
     ]
     const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now() }
-    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, waiters: new Map() }
+    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, waiters: new Map(), prd }
     this.runs.set(id, ctl)
     this.emit(ctl)
     this.plan(ctl, presetTasks).catch((e) => this.fail(ctl, e))
@@ -131,6 +135,10 @@ export class Orchestrator {
     const files = (await listFiles(this.host.projectRoot(), '.', 300)).join('\n')
     const workers = ctl.workerPool.map((w) => w.name)
     let prompt = architectPlanPrompt(run.goal, files, workers)
+    if (ctl.prd) prompt += `
+
+The team's plan document (PRD / MVP) — build exactly this:
+${ctl.prd.slice(0, 8000)}`
     if (presetTasks?.length) {
       prompt += `\n\nThe team already wrote this task list in their plan doc. Turn it into the plan (keep their intent, add files, deps and acceptance):\n${presetTasks
         .map((t, i) => `${i + 1}. ${t.title}${t.description ? ' — ' + t.description : ''}`)
@@ -146,10 +154,8 @@ export class Orchestrator {
       raw = extractJson(res.text)
     }
     const plan = enforceFileOwnership(normalizePlan(run.goal, raw))
-    // Round-robin owners across worker agents when the architect didn't pick valid ones.
-    plan.tasks.forEach((t, i) => {
-      if (!t.owner || !workers.includes(t.owner)) t.owner = workers[i % workers.length]
-    })
+    routeTasks(plan.tasks, workers)
+    for (const t of plan.tasks) this.log(ctl, 'architect', undefined, `Router: "${t.title}" → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
     run.plan = plan
     run.tasks = planToTasks(run.id, plan)
     run.phase = 'awaiting-plan-approval'
@@ -251,6 +257,13 @@ export class Orchestrator {
         this.log(ctl, 'lead', task.id, `Max ${MAX_REVIEW_ROUNDS} review rounds reached; passing it on with notes for your final check.`)
       }
     }
+    if (!task.diff?.trim()) {
+      // Never merge empty work; dependants get cancelled and the user sees why.
+      task.status = 'failed'
+      this.log(ctl, 'lead', task.id, 'No files were produced after all review rounds — task failed.')
+      this.emit(ctl)
+      return
+    }
     task.status = 'approved'
     this.emit(ctl)
     await this.mergeTask(ctl, task)
@@ -264,12 +277,17 @@ export class Orchestrator {
     notes?: string
   ): Promise<string> {
     const files = (await listFiles(wt, '.', 300)).join('\n')
-    const owned = await ownedFileContents(wt, task.files)
+    const owned = (await ownedFileContents(wt, task.files)) + (ctl.prd ? `
+
+The team's plan (PRD) for context:
+${ctl.prd.slice(0, 3000)}` : '')
     const messages: ChatMessage[] = [
       { role: 'system', content: workerSystemPrompt(task, files, notes) + owned },
       { role: 'user', content: notes ? 'Apply the reviewer notes, then call report_done.' : 'Start the task.' }
     ]
     let nudges = 0
+    let writes = 0
+    let refusedDone = 0
     for (let step = 1; step <= MAX_STEPS; step++) {
       await this.waitWhilePaused(ctl, worker.name)
       if (ctl.abort.signal.aborted) throw new Error('Run stopped')
@@ -292,6 +310,18 @@ export class Orchestrator {
           call.name,
           call.arguments
         )
+        if (call.name === 'write_file' && !result.output.startsWith('Error')) writes++
+        if (result.done && writes === 0 && refusedDone++ < 2) {
+          // "Done" without writing anything: send it back instead of wasting a review round.
+          this.log(ctl, worker.name, task.id, '✗ said done without writing any files — asked to write them')
+          messages.push({
+            role: 'tool',
+            content: `Not done: you have not written any files yet. Call write_file with the full content of ${task.files.join(', ') || 'your files'}, then report_done.`,
+            toolCallId: call.id,
+            name: call.name
+          })
+          continue
+        }
         if (result.done) {
           this.log(ctl, worker.name, task.id, `✓ done: ${result.done.summary}`)
           return result.done.summary
@@ -544,6 +574,24 @@ export class Orchestrator {
     this.cleanup(ctl, deleteBranches).catch(() => {})
     this.log(ctl, 'architect', undefined, reason)
     this.emit(ctl)
+  }
+}
+
+/**
+ * The router: give every worker agent its own work. Valid owners picked by the Architect are kept
+ * unless that would leave other workers idle; tasks that can start right away are spread first.
+ */
+export function routeTasks(tasks: { owner?: string; dependsOn: string[] }[], workers: string[]) {
+  const load = new Map(workers.map((w) => [w, 0]))
+  const ready = tasks.filter((t) => t.dependsOn.length === 0)
+  const later = tasks.filter((t) => t.dependsOn.length > 0)
+  for (const group of [ready, later]) {
+    for (const t of group) {
+      const min = Math.min(...load.values())
+      const keep = t.owner && load.has(t.owner) && load.get(t.owner)! === min
+      if (!keep) t.owner = [...load.entries()].find(([, n]) => n === min)![0]
+      load.set(t.owner!, load.get(t.owner!)! + 1)
+    }
   }
 }
 

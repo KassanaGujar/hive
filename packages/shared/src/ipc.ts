@@ -98,7 +98,7 @@ export interface IpcContract {
   'chat:once': (modelId: string, messages: ChatMessage[]) => string
 
   // agents
-  'agents:start': (goal: string, plan?: { title: string; description: string }[]) => string
+  'agents:start': (goal: string, plan?: { title: string; description: string }[], prd?: string) => string
   'agents:runs': () => AgentRun[]
   'agents:approvePlan': (runId: string, approved: boolean) => void
   'agents:approveMerge': (runId: string, approved: boolean) => void

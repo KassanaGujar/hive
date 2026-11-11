@@ -206,7 +206,7 @@ function registerHandlers() {
   handle('chat:once', (id, msgs) => models.chatOnceById(id, msgs))
 
   // agents
-  handle('agents:start', (goal, plan) => startAgents(goal, plan))
+  handle('agents:start', (goal, plan, prd) => startAgents(goal, plan, prd))
   handle('agents:runs', () => orchestrator.list())
   handle('agents:approvePlan', (id, ok) => orchestrator.approvePlan(id, ok))
   handle('agents:approveMerge', (id, ok) => orchestrator.approveMerge(id, ok))

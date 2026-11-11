@@ -10,7 +10,7 @@ export class ResourceGuard {
   private loaded = new Map<string, { gb: number; users: number }>()
   private queue: { model: InstalledModel; resolve: () => void; signal?: AbortSignal }[] = []
   /** Calls to one model run one-at-a-time-ish: Ollama queues beyond its own parallel limit. */
-  maxPerModel = 2
+  maxPerModel = 3
 
   constructor(private budgetGB: () => number) {}
 

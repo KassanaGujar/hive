@@ -12,9 +12,12 @@ ${fileList || '(empty project)'}
 Workers available: ${workerNames.join(', ')}
 
 Rules:
-- 1 to 6 tasks. Fewer is better for small projects.
-- Give each task the files it creates or edits. Avoid two tasks editing the same file.
-- Use dependsOn (task ids) so a task that needs another's files runs after it.
+- 1 to 6 tasks. Fewer is better for small projects. Each task owns different files.
+- Workers run AT THE SAME TIME, so make tasks independent: leave dependsOn empty unless a task truly
+  cannot be written without another task's finished file.
+- Agree the shared contract up front and repeat it in EVERY task description: file names, element ids,
+  function names, how files include each other (e.g. index.html loads style.css and game.js; canvas id "game").
+- Use each worker at most once if there are enough tasks.
 - Write acceptance as one sentence a reviewer can check by reading the diff.
 - Keep it simple and runnable: prefer plain HTML/CSS/JS or the language already used.
 
@@ -72,4 +75,19 @@ Reply with ONLY JSON:
    "text": "...", "owner": "name (tasks only)", "status": "todo|doing|done (tasks only)",
    "sources": ["message id", ...]}
 ]}`
+}
+
+/** PRD/MVP pass: turn the team's chat into a goal and a short buildable task list. */
+export function mvpPrompt(chat: string, features: string[]): string {
+  return `Turn this team discussion into the MVP for a small app.
+
+Team chat:
+${chat}
+
+Features noted so far:
+${features.map((f) => `- ${f}`).join('\n') || '(none)'}
+
+Reply with ONLY JSON:
+{"goal": "one sentence: what we are building and for whom",
+ "tasks": ["3 to 5 concrete build tasks, each a short imperative sentence"]}`
 }

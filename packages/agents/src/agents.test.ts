@@ -128,3 +128,37 @@ describe('file ownership', () => {
     expect(enforceFileOwnership(plan)).toBe(plan)
   })
 })
+
+import { routeTasks } from './orchestrator'
+describe('router', () => {
+  it('spreads ready tasks across all workers before doubling up', () => {
+    const tasks = [
+      { owner: 'bee', dependsOn: [] as string[] },
+      { owner: 'bee', dependsOn: [] as string[] },
+      { owner: 'bee', dependsOn: [] as string[] },
+      { owner: 'bee', dependsOn: ['x'] }
+    ]
+    routeTasks(tasks, ['bee', 'wasp', 'ant'])
+    expect(tasks.slice(0, 3).map((t) => t.owner).sort()).toEqual(['ant', 'bee', 'wasp'])
+    expect(tasks[3].owner).toBeDefined()
+  })
+})
+
+describe('file ownership keeps parallel work parallel', () => {
+  it('splits a shared index.html: first task owns it, others stay separate and get wired in', () => {
+    const p = enforceFileOwnership(
+      normalizePlan('snake', {
+        tasks: [
+          { id: 'loop', title: 'Game loop', files: ['index.html', 'game.js'] },
+          { id: 'score', title: 'Score', files: ['index.html', 'score.js'] },
+          { id: 'over', title: 'Game over', files: ['index.html', 'over.js'] }
+        ]
+      })
+    )
+    expect(p.tasks.map((t) => t.id)).toEqual(['loop', 'score', 'over'])
+    expect(p.tasks[0].files).toEqual(['index.html', 'game.js'])
+    expect(p.tasks[1].files).toEqual(['score.js'])
+    expect(p.tasks[0].description).toContain('must load these files made by other agents: score.js, over.js')
+    expect(p.tasks[1].description).toContain('do not edit them')
+  })
+})

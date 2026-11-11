@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Bot, FileDown, Loader2, Plus, RefreshCw, Send, Undo2, X } from 'lucide-react'
 import { PLAN_SECTIONS, humanEdit, planToMarkdown, replaceById, type AppliedEdit, type ChatMsg, type PlanItem, type PlanSection, type Proposal } from '@hive/collab'
 import { invoke } from '../lib/api'
+import { applyContent } from '../lib/files'
 import { useStore, actorName } from '../store'
 import { session } from '../collab/session'
 import { ChatChannel } from '../panels/TeamPanel'
@@ -54,9 +55,15 @@ export function PlanningRoom() {
   const sendToAgents = async () => {
     const tasks = items.filter((i) => i.section === 'tasks' && i.status !== 'done')
     const goal = items.find((i) => i.section === 'goal')?.text ?? 'Build what the plan describes'
-    if (!tasks.length) return toast('Add some tasks to the plan first.', 'error')
+    // No task list is fine: the router plans from the PRD (goal + features). An empty doc is not.
+    if (!tasks.length && !items.some((i) => i.section === 'goal' || i.section === 'features')) {
+      return toast('The plan is empty — pitch some ideas and press Update plan first.', 'error')
+    }
     try {
-      await invoke('agents:start', goal, tasks.map((t) => ({ title: t.text, description: [t.owner && `owner: ${t.owner}`].filter(Boolean).join('') })))
+      // The plan doc is the PRD/MVP: save it into the project and hand it to the agents.
+      const prd = planToMarkdown(items, `${s.root.split(/[\\/]/).pop() ?? 'Project'} — plan`)
+      await applyContent('PLAN.md', prd) // through live sync, so teammates get it too
+      await invoke('agents:start', goal, tasks.map((t) => ({ title: t.text, description: [t.owner && `owner: ${t.owner}`].filter(Boolean).join('') })), prd)
       useStore.getState().set({ right: 'agents' })
       toast('Sent to the agents. Approve their plan in the Agents panel.', 'ok')
     } catch (e) {
@@ -66,7 +73,7 @@ export function PlanningRoom() {
 
   const exportMd = async () => {
     const name = s.root.split(/[\\/]/).pop() ?? 'Plan'
-    await invoke('fs:write', 'PLAN.md', planToMarkdown(items, `${name} — plan`))
+    await applyContent('PLAN.md', planToMarkdown(items, `${name} — plan`))
     toast('Exported PLAN.md', 'ok')
     useStore.getState().openFile('PLAN.md')
   }

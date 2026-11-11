@@ -109,41 +109,53 @@ export function planToTasks(runId: string, plan: AgentPlan): AgentTask[] {
 }
 
 /**
- * File ownership: tasks that touch the same file are merged into one task, so two agents never
- * edit the same file in parallel (and later tasks don't overwrite earlier ones). Dependencies are
- * re-pointed to the merged task.
+ * File ownership: every file belongs to exactly one task, so two agents never edit the same file in
+ * parallel. The first task that lists a file owns it; later tasks see it as read-only. A task left
+ * with no files of its own is folded into the task that owns its first file. The owner of an HTML
+ * page is told to load the scripts/styles other tasks create, so parallel pieces fit together.
  */
 const NL = String.fromCharCode(10)
+const norm = (f: string) => f.replace(/^\.?\//, '').toLowerCase()
 
 export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
+  const owner = new Map<string, string>()
+  for (const t of plan.tasks) for (const f of t.files) if (!owner.has(norm(f))) owner.set(norm(f), t.id)
+  const own = (t: PlanTask) => t.files.filter((f) => owner.get(norm(f)) === t.id)
+  const changed = plan.tasks.some((t) => own(t).length !== t.files.length)
+  if (!changed) return plan
+
+  // fold tasks with nothing of their own into the owner of their first file
   const parent = new Map(plan.tasks.map((t) => [t.id, t.id]))
   const find = (x: string): string => (parent.get(x) === x ? x : find(parent.get(x)!))
-  const owner = new Map<string, string>()
   for (const t of plan.tasks) {
-    for (const f of t.files.map((x) => x.replace(/^\.?\//, '').toLowerCase())) {
-      const o = owner.get(f)
-      if (o) parent.set(find(t.id), find(o))
-      else owner.set(f, t.id)
-    }
+    if (t.files.length && own(t).length === 0) parent.set(t.id, find(owner.get(norm(t.files[0]))!))
   }
   const groups = new Map<string, PlanTask[]>()
-  for (const t of plan.tasks) {
-    const r = find(t.id)
-    groups.set(r, [...(groups.get(r) ?? []), t])
-  }
-  if (groups.size === plan.tasks.length) return plan
+  for (const t of plan.tasks) groups.set(find(t.id), [...(groups.get(find(t.id)) ?? []), t])
+
   const tasks: PlanTask[] = []
   for (const [root, list] of groups) {
-    const first = list[0]
+    const first = list.find((t) => t.id === root) ?? list[0]
+    const files = [...new Set(list.flatMap(own))]
+    const shared = [...new Set(list.flatMap((t) => t.files).filter((f) => !files.includes(f)))]
+    let description = list.length === 1 ? first.description : list.map((t, i) => `${i + 1}. ${t.title}: ${t.description}`).join(NL)
+    if (shared.length) description += `${NL}Other agents own ${shared.join(', ')} — read them if they exist but do not edit them.`
     tasks.push({
       id: root,
       title: list.length === 1 ? first.title : list.map((t) => t.title).join('; ').slice(0, 120),
-      description: list.length === 1 ? first.description : list.map((t, i) => `${i + 1}. ${t.title}: ${t.description}`).join(NL),
-      files: [...new Set(list.flatMap((t) => t.files))],
+      description,
+      files,
       dependsOn: [...new Set(list.flatMap((t) => t.dependsOn).map(find))].filter((d) => d !== root),
       owner: first.owner,
       acceptance: list.map((t) => t.acceptance).filter(Boolean).join(' ') || undefined
     })
+  }
+  // the page owner wires in everyone else's scripts and styles
+  const assets = tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f))
+  for (const t of tasks) {
+    const page = t.files.find((f) => /\.html?$/i.test(f))
+    const others = assets.filter((a) => !t.files.includes(a))
+    if (page && others.length) t.description += `${NL}${page} must load these files made by other agents: ${others.join(', ')}.`
   }
   return { ...plan, tasks }
 }

@@ -55,9 +55,9 @@ export const orchestrator = new Orchestrator({
   memoryBudgetGB
 })
 
-export async function startAgents(goal: string, preset?: { title: string; description: string }[]) {
+export async function startAgents(goal: string, preset?: { title: string; description: string }[], prd?: string) {
   await refreshModels()
-  return orchestrator.start(goal, preset)
+  return orchestrator.start(goal, preset, prd)
 }
 
 export function answerApproval(id: string, ok: boolean) {

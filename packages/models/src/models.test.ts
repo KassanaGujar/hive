@@ -86,3 +86,19 @@ describe('json helpers', () => {
     expect(extractJson('<think>{"no":1}</think> here {"a": [1, 2]} trailing')).toEqual({ a: [1, 2] })
   })
 })
+
+import { canonicalToolName } from './client'
+describe('tool name aliases', () => {
+  const tools = ['write_file', 'read_file', 'report_done'].map((name) => ({ name, description: '', parameters: {} }))
+  it('maps near-miss names small models invent', () => {
+    expect(canonicalToolName('create_file', tools)).toBe('write_file')
+    expect(canonicalToolName('Finish', tools)).toBe('report_done')
+    expect(canonicalToolName('write_file', tools)).toBe('write_file')
+    expect(canonicalToolName('rm_rf', tools)).toBe('rm_rf')
+  })
+  it('parses {"name":"create_file","parameters":{...}} as write_file', () => {
+    const c = parseJsonToolCall('{"name":"create_file","parameters":{"path":"a.css","content":"x"}}', tools)
+    expect(c?.name).toBe('write_file')
+    expect(c?.arguments).toEqual({ path: 'a.css', content: 'x' })
+  })
+})

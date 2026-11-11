@@ -1,6 +1,6 @@
 import { applyPlannerEdits, planForPrompt, setArray, undoEdit, replaceById, type AppliedEdit, type PlannerEdit, type PlanItem, type Proposal } from '@hive/collab'
 import { extractJson } from '@hive/models'
-import { plannerPrompt } from '@hive/agents/prompts'
+import { mvpPrompt, plannerPrompt } from '@hive/agents/prompts'
 import { invoke } from '../lib/api'
 import type { ProjectSession } from './session'
 
@@ -35,7 +35,13 @@ export async function runPlanner(s: ProjectSession): Promise<{ applied: number; 
     ])
     const j = extractJson<{ edits?: PlannerEdit[] } | PlannerEdit[]>(reply)
     const edits = Array.isArray(j) ? j : j?.edits ?? []
-    const r = applyPlannerEdits(items, edits, msgs.map((m) => m.id))
+    let r = applyPlannerEdits(items, edits, msgs.map((m) => m.id))
+    // The doc must always be a usable PRD/MVP: a goal plus tasks the agents can build.
+    const mvp = await mvpEdits(model.id, r.items, s)
+    if (mvp.length) {
+      const r2 = applyPlannerEdits(r.items, mvp, msgs.map((m) => m.id))
+      r = { items: r2.items, applied: [...r.applied, ...r2.applied], proposals: [...r.proposals, ...r2.proposals] }
+    }
     s.doc.transact(() => {
       setArray(s.parts.plan, r.items)
       if (r.applied.length) s.parts.planLog.push(r.applied)
@@ -57,6 +63,38 @@ export async function runPlanner(s: ProjectSession): Promise<{ applied: number; 
   } finally {
     running = false
   }
+}
+
+/**
+ * PRD/MVP pass: small models often add features but no goal or tasks. When either is missing, ask
+ * specifically for them (cited to the planning chat); if the model still can't, derive them.
+ */
+async function mvpEdits(modelId: string, items: PlanItem[], s: ProjectSession): Promise<PlannerEdit[]> {
+  const hasGoal = items.some((i) => i.section === 'goal')
+  const hasTasks = items.some((i) => i.section === 'tasks')
+  if (hasGoal && hasTasks) return []
+  const chat = s.parts.chat.toArray().filter((m) => m.channel === 'planning')
+  const ids = chat.map((m) => m.id)
+  const features = items.filter((i) => i.section === 'features').map((i) => i.text)
+  let goal: string | undefined
+  let tasks: string[] = []
+  try {
+    const reply = await invoke('chat:once', modelId, [
+      { role: 'system', content: 'You write short product plans. Answer with JSON only.' },
+      { role: 'user', content: mvpPrompt(chat.map((m) => `${m.author}: ${m.text}`).join('\n'), features) }
+    ])
+    const j = extractJson<{ goal?: unknown; tasks?: unknown }>(reply)
+    if (typeof j?.goal === 'string') goal = j.goal
+    if (Array.isArray(j?.tasks)) tasks = j!.tasks.map((t) => (typeof t === 'string' ? t : (t as { title?: string })?.title ?? '')).filter(Boolean).slice(0, 6)
+  } catch {
+    /* fall back below */
+  }
+  goal ??= chat[0] ? chat[0].text.slice(0, 140) : undefined
+  if (!tasks.length) tasks = features.slice(0, 6)
+  const out: PlannerEdit[] = []
+  if (!hasGoal && goal) out.push({ section: 'goal', op: 'add', text: goal, sources: ids })
+  if (!hasTasks) for (const t of tasks) out.push({ section: 'tasks', op: 'add', text: t, status: 'todo', sources: ids })
+  return out
 }
 
 export function undoPlannerEdit(s: ProjectSession, edit: AppliedEdit): boolean {
