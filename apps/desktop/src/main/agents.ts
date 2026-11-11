@@ -9,6 +9,7 @@ import { gitOps } from './git'
 import { execCapture } from './terminal'
 import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
+import { smokeTestWeb } from './smoke'
 import { streamChat } from '@hive/models'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
@@ -52,7 +53,8 @@ export const orchestrator = new Orchestrator({
   feed(ev) {
     recordFeed(ev)
   },
-  memoryBudgetGB
+  memoryBudgetGB,
+  smokeTest: smokeTestWeb
 })
 
 export async function startAgents(goal: string, preset?: { title: string; description: string }[], prd?: string) {

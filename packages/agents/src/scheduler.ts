@@ -205,7 +205,7 @@ export function parallelizeWithContract(plan: AgentPlan): AgentPlan {
     return {
       ...t,
       dependsOn: [],
-      description: `${t.description}${wiring}${NL}Team contract — these files are written AT THE SAME TIME by other agents; use these exact names and share globals/ids consistently:${NL}${contract}`
+      description: `${t.description}${wiring}${NL}Team contract — these files are written AT THE SAME TIME by other agents; use these exact names and share globals/ids consistently:${NL}${contract}${assets.some((a) => /\.m?js$/i.test(a)) ? `${NL}Browser scripts are plain <script> files: NO import/export. Share state as properties of window (e.g. window.game). Create any DOM elements you need if they are missing.` : ''}`
     }
   })
   return { ...plan, tasks }

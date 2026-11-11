@@ -159,5 +159,31 @@ const st = await app.kim.eval(`${H.btn}${H.w}btn('Run').click();await w(3000);re
 log(`Kim pressed Run → ${st.status} ${st.previewUrl ?? st.message ?? ''}`)
 await wait(2500)
 await app.kim.shot(`${SP}/snake-4-kim-runs-it.png`)
+
+// --- is the game alive? inspect the preview <webview> on Kim's machine
+try {
+  const targets = await (await fetch(`http://127.0.0.1:${PEOPLE.kim}/json`)).json()
+  const view = targets.find((t) => t.type === 'webview' && /localhost/.test(t.url))
+  if (view) {
+    const ws = new WebSocket(view.webSocketDebuggerUrl)
+    await new Promise((r) => (ws.onopen = r))
+    let id = 0
+    const pending = new Map()
+    ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) } }
+    const ev = (expression) => new Promise((r) => { const i = ++id; pending.set(i, (m) => r(m.result?.result?.value)); ws.send(JSON.stringify({ id: i, method: 'Runtime.evaluate', params: { expression, returnByValue: true, awaitPromise: true } })) })
+    const snap = `(() => { const c = document.querySelector('canvas'); if (!c) return null; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let h = 0, distinct = new Set(); for (let i = 0; i < d.length; i += 4 * 13) { h = (h * 31 + d[i] + d[i+1] * 7 + d[i+2] * 13) | 0; distinct.add(d[i] + ',' + d[i+1] + ',' + d[i+2]) } return { h, colors: distinct.size, w: c.width, hgt: c.height } })()`
+    const a = await ev(snap)
+    await ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); 1`)
+    await wait(1500)
+    const b = await ev(snap)
+    const text = await ev(`document.body.innerText.slice(0, 200)`)
+    log(`Game check on Kim's preview: canvas ${a ? `${a.w}x${a.hgt}, ${a.colors} colours` : 'MISSING'} · animating: ${a && b && a.h !== b.h ? 'yes' : 'no'} · text on page: "${(text ?? '').replace(/\n/g, ' ')}"`)
+    ws.close()
+  } else log('Game check: no preview webview found')
+} catch (e) {
+  log(`Game check failed: ${e.message}`)
+}
+const runLog = await app.sam.eval(`return (await window.hive.invoke('agents:runs'))[0].tasks.map(t => t.id + ':' + t.status)`)
+log(`Final task list: ${runLog.join(', ')}`)
 log('DONE')
 process.exit(0)

@@ -119,3 +119,55 @@ describe('orchestrator (real git worktrees, scripted models)', () => {
     rmSync(root, { recursive: true, force: true })
   }, 60_000)
 })
+
+describe('integration step after parallel work', () => {
+  it('smoke test fails → integration task fixes it → then waits for merge approval', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-integ-'))
+    let smokeCalls = 0
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [model('big', 'top'), model('small', 'worker')],
+      tierOverrides: () => ({}),
+      chat: async (_m, messages) => {
+        const sys = messages[0].content
+        if (sys.includes('software architect')) return { text: '{"tasks":[{"id":"page","title":"Page","files":["index.html"]}]}' }
+        if (sys.includes('code reviewer')) return { text: '{"approved": true}' }
+        const done = messages.some((m) => m.role === 'tool')
+        const integrating = sys.includes('Make all the pieces work together')
+        return done
+          ? { text: '', toolCalls: [{ id: 'd', name: 'report_done', arguments: { summary: 'ok' } }] }
+          : { text: '', toolCalls: [{ id: 'w', name: 'write_file', arguments: { path: 'index.html', content: integrating ? '<canvas id="g"></canvas><script>/*fixed*/</script>' : '<script>broken(</script>' } }] }
+      },
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => true,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8,
+      smokeTest: async (dir) => {
+        smokeCalls++
+        return readFileSync(path.join(dir, 'index.html'), 'utf8').includes('fixed') ? [] : ['SyntaxError: Unexpected token (index.html:1)']
+      }
+    })
+    const id = await orch.start('a page')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase) return r
+        if (r.phase === 'failed') throw new Error(r.error)
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error(`timeout waiting for ${phase}`)
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    const r = await wait('awaiting-merge-approval')
+    expect(r.tasks.map((t) => `${t.id}:${t.status}`)).toEqual(['page:merged', 'integrate-1:merged'])
+    expect(smokeCalls).toBe(2)
+    await orch.approveMerge(id, true)
+    await wait('done')
+    expect(readFileSync(path.join(root, 'index.html'), 'utf8')).toContain('fixed')
+    rmSync(root, { recursive: true, force: true })
+  }, 60_000)
+})

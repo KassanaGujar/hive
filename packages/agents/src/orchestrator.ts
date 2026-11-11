@@ -23,6 +23,8 @@ export const MAX_REVIEW_ROUNDS = 3
 export const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 /** Worker agents per run, even with one model installed (they share it). */
 export const DEFAULT_WORKERS = 3
+/** Integration rounds after all tasks merge, when the smoke test finds problems. */
+export const MAX_INTEGRATION_ROUNDS = 2
 
 export interface ChatResult {
   text: string
@@ -58,6 +60,11 @@ export interface OrchestratorHost {
   log(runId: string, agent: string, taskId: string | undefined, line: string): void
   feed(ev: Omit<FeedEvent, 'id' | 'at'>): void
   memoryBudgetGB(): number
+  /**
+   * Optional smoke test of the merged result (e.g. load a web page and collect errors). Returns
+   * problems found; [] = looks fine; null = this kind of project can't be smoke-tested.
+   */
+  smokeTest?(dir: string): Promise<string[] | null>
 }
 
 const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefly', 'mantis']
@@ -73,6 +80,9 @@ interface RunCtl {
   /** The team's plan doc (PRD/MVP) from the Planning room, if the run came from there. */
   prd?: string
   waiters: Map<string, (ok: boolean) => void>
+  integrationRounds?: number
+  integrating?: boolean
+  integrated?: boolean
 }
 
 export class Orchestrator {
@@ -213,6 +223,20 @@ ${ctl.prd.slice(0, 8000)}`
     if (allSettled(run.tasks) && run.phase === 'working') {
       const merged = run.tasks.filter((t) => t.status === 'merged').length
       if (merged === 0) return this.fail(ctl, new Error('No task finished successfully.'))
+      // Pieces built in parallel must work together: smoke-test the merged result first.
+      if (this.host.smokeTest && !ctl.integrated) {
+        if (!ctl.integrating) {
+          ctl.integrating = true
+          this.integrate(ctl)
+            .catch((e) => this.log(ctl, 'architect', undefined, `Integration check failed to run: ${e?.message ?? e}`))
+            .finally(() => {
+              ctl.integrating = false
+              this.pump(ctl)
+            })
+        }
+        this.emit(ctl)
+        return
+      }
       run.phase = 'awaiting-merge-approval'
       this.log(ctl, 'architect', undefined, `All tasks settled (${merged} merged). Approve the final merge into ${run.baseBranch}.`)
     }
@@ -425,6 +449,55 @@ ${ctl.prd.slice(0, 3000)}` : '')
       ctl.run.tasks.push(fix)
     }
     this.emit(ctl)
+  }
+
+  /**
+   * Integration: smoke-test the merged work; if it fails, add one task that may touch every file to
+   * make the pieces work together (errors + PRD in its brief). Up to MAX_INTEGRATION_ROUNDS.
+   */
+  private async integrate(ctl: RunCtl) {
+    const dir = ctl.intWorktree!
+    this.log(ctl, 'architect', undefined, 'Integration check: testing the merged app…')
+    const problems = await this.host.smokeTest!(dir)
+    if (problems === null) {
+      ctl.integrated = true
+      return
+    }
+    if (problems.length === 0) {
+      this.log(ctl, 'architect', undefined, 'Integration check passed: the merged app loads without errors.')
+      ctl.integrated = true
+      return
+    }
+    const round = (ctl.integrationRounds ?? 0) + 1
+    this.log(ctl, 'architect', undefined, `Integration check found ${problems.length} problem(s): ${problems.slice(0, 5).join(' | ')}`)
+    if (round > MAX_INTEGRATION_ROUNDS) {
+      this.log(ctl, 'architect', undefined, 'Still not working after integration rounds — check it yourself before merging.')
+      ctl.integrated = true
+      return
+    }
+    ctl.integrationRounds = round
+    const files = (await listFiles(dir, '.', 200)).filter((f) => !/^(PLAN|README)\.md$/i.test(f))
+    const task: AgentTask = {
+      id: `integrate-${round}`,
+      runId: ctl.run.id,
+      title: `Make all the pieces work together (integration round ${round})`,
+      description: [
+        `The team built these files in parallel and they don't work together yet. Fix that so the app does what the goal says: ${ctl.run.goal}`,
+        `Problems found when loading the app:`,
+        ...problems.map((p) => `- ${p}`),
+        `You may rewrite any file, merge files, or remove broken parts. Make it simple and complete.`,
+        `For a web page: index.html must contain everything it needs (e.g. a <canvas>), load scripts as plain <script src> tags (no import/export), and share state through globals.`
+      ].join('\n'),
+      files,
+      dependsOn: [],
+      owner: ctl.workerPool[0]?.name,
+      acceptance: 'The app loads with no errors and shows a working version of the goal.',
+      status: 'pending',
+      attempts: 0,
+      log: []
+    }
+    ctl.run.tasks.push(task)
+    this.log(ctl, 'architect', undefined, `Router: "${task.title}" → ${task.owner}`)
   }
 
   async approveMerge(runId: string, approved: boolean) {
