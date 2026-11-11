@@ -104,10 +104,12 @@ export interface ToolContext {
   onWrite?(rel: string): void
   /** The task's only file, used when a model forgets to say which file it is writing. */
   defaultPath?: string
+  /** Files this task owns; writes elsewhere are refused (other agents own them). Empty = any. */
+  allowedPaths?: string[]
 }
 
 const PATH_KEYS = ['path', 'file', 'filename', 'file_path', 'filepath', 'file_name', 'name', 'f', 'target']
-const CONTENT_KEYS = ['content', 'contents', 'text', 'code', 'data', 'body', 'source', 'file_content']
+const CONTENT_KEYS = ['content', 'contents', 'text', 'code', 'data', 'body', 'source', 'file_content', 'file_contents', 's', 'html', 'css', 'js', 'javascript', 'value']
 
 /** Small models vary argument names ({"file": …, "code": …}); map them to path/content. */
 export function normalizeWriteArgs(args: Record<string, any>, defaultPath?: string): { path?: string; content?: string } {
@@ -115,7 +117,9 @@ export function normalizeWriteArgs(args: Record<string, any>, defaultPath?: stri
   let content = pick(CONTENT_KEYS)
   const p = PATH_KEYS.map((k) => args?.[k]).find((v) => typeof v === 'string' && v.length > 0 && v.length < 260 && v !== content)
   if (typeof content === 'string') content = stripFence(content)
-  return { path: p ?? defaultPath, content }
+  // "./", ".", "src/" and the like name a folder, not a file
+  const usable = p && !/^\.?\/?$/.test(p.trim()) && !/[\\/]$/.test(p.trim()) ? p.trim().replace(/^\.\//, '') : undefined
+  return { path: usable ?? defaultPath, content }
 }
 
 /** A model sometimes wraps file content in a markdown fence or a <script> wrapper meant for chat. */
@@ -144,6 +148,10 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
         const w = normalizeWriteArgs(args, ctx.defaultPath)
         if (typeof w.content !== 'string') return { output: 'Error: write_file needs "path" and "content" (the full file text)' }
         if (!w.path) return { output: 'Error: write_file needs "path" (which file to write)' }
+        const norm = (f: string) => f.replace(/\\/g, '/').replace(/^\.?\//, '').toLowerCase()
+        if (ctx.allowedPaths?.length && !ctx.allowedPaths.some((a) => norm(a) === norm(w.path!))) {
+          return { output: `Error: you only own ${ctx.allowedPaths.join(', ')}. ${w.path} belongs to another agent — do not write it. Write ${ctx.allowedPaths[0]} instead.` }
+        }
         const abs = safeResolve(ctx.root, w.path)
         await fs.mkdir(path.dirname(abs), { recursive: true })
         await fs.writeFile(abs, w.content, 'utf8')

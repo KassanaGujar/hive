@@ -123,7 +123,7 @@ log('Sam approved the plan — workers start')
 // --- watch concurrency
 let maxBusy = 0, maxBusyNames = []
 const t0 = Date.now()
-for (let i = 0; i < 600; i++) {
+for (let i = 0; i < 1350; i++) { // up to 45 min: 3 workers share one local model
   await wait(2000)
   run = await app.sam.eval(`return (await window.hive.invoke('agents:runs'))[0]`)
   const busy = run.agents.filter((a) => a.role === 'worker' && ['working', 'thinking', 'waiting'].includes(a.status))

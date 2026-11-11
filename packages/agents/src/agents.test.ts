@@ -216,3 +216,24 @@ describe('worker robustness (Snake test failures)', () => {
     await expect(withRetry(async () => Promise.reject(new Error('Model request failed (400): bad')), new AbortController().signal)).rejects.toThrow('400')
   }, 15000)
 })
+
+import { executeTool } from './tools'
+import { mkdtempSync as mkd, readFileSync as rf, existsSync as ex } from 'node:fs'
+import { tmpdir as td } from 'node:os'
+describe('ownership + messy write args (Snake run 3)', () => {
+  it('falls back to the task file when the path is a folder like "./" and accepts "s" as content', () => {
+    expect(normalizeWriteArgs({ path: './', content: 'x' }, 'style.css')).toEqual({ path: 'style.css', content: 'x' })
+    expect(normalizeWriteArgs({ f: 'game.js', s: 'let g' })).toEqual({ path: 'game.js', content: 'let g' })
+    expect(normalizeWriteArgs({ path: './game.js', content: 'x' })).toEqual({ path: 'game.js', content: 'x' })
+  })
+  it('refuses writes to files another agent owns', async () => {
+    const root = mkd(path.join(td(), 'hive-own-'))
+    const ctx = { root, runCommand: async () => '', allowedPaths: ['game.js'] }
+    const bad = await executeTool(ctx, 'write_file', { path: 'index.html', content: '<html>' })
+    expect(bad.output).toMatch(/belongs to another agent/)
+    expect(ex(path.join(root, 'index.html'))).toBe(false)
+    const ok = await executeTool(ctx, 'write_file', { path: './game.js', content: 'let g = 1' })
+    expect(ok.output).toMatch(/^Wrote/)
+    expect(rf(path.join(root, 'game.js'), 'utf8')).toBe('let g = 1')
+  })
+})

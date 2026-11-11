@@ -343,12 +343,23 @@ ${ctl.prd.slice(0, 3000)}` : '')
           {
             root: wt,
             runCommand: (cmd) => this.runCommand(ctl, worker.name, task, wt, cmd),
-            defaultPath: task.files.length === 1 ? task.files[0] : undefined
+            defaultPath: task.files.length === 1 ? task.files[0] : undefined,
+            allowedPaths: task.files
           },
           call.name,
           call.arguments
         )
         if (call.name === 'write_file' && !result.output.startsWith('Error')) writes++
+        if (result.output.startsWith('Error')) this.log(ctl, worker.name, task.id, `  ✗ ${result.output.slice(0, 200)}`)
+        // It pasted the file in its reply but the tool call failed or was only "done": save the paste.
+        if (result.done && writes === 0 && task.files.length === 1) {
+          const pasted = fileFromReply(text, task.files[0])
+          if (pasted) {
+            await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: task.files[0], content: pasted })
+            writes++
+            this.log(ctl, worker.name, task.id, `→ write_file ${task.files[0]} (from the code in its reply)`)
+          }
+        }
         if (result.done && writes === 0 && refusedDone++ < 2) {
           // "Done" without writing anything: send it back instead of wasting a review round.
           this.log(ctl, worker.name, task.id, '✗ said done without writing any files — asked to write them')
