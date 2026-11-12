@@ -13,7 +13,7 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
         <div className="mb-8 flex items-center gap-3">
           <img src={icon} alt="" className="h-14 w-14" />
           <div>
-            <div className="text-[22px] font-bold">Hive</div>
+            <div className="display text-[28px] leading-none font-bold">Hive</div>
             <div className="text-muted">
               Hi {settings.profile?.avatar} {settings.profile?.name}. What are we building?
             </div>

@@ -10,6 +10,10 @@ import type {
   GitStatus,
   Hardware,
   InstalledModel,
+  CustomProvider,
+  HfFile,
+  HfModel,
+  OpenRouterModel,
   PullProgress,
   RunState,
   SearchMatch,
@@ -45,6 +49,8 @@ export interface IpcContract {
   'project:create': (parentDir: string, name: string, opts?: { empty?: boolean }) => string
   'project:current': () => string | null
   'fs:tree': () => FileNode[]
+  /** Tree of a sub-folder (e.g. an agent's working folder); paths stay relative to the project root. */
+  'fs:treeAt': (rel: string) => FileNode[]
   'fs:read': (rel: string) => string
   'fs:write': (rel: string, content: string, actor?: string) => void
   'fs:create': (rel: string, type: 'file' | 'dir') => void
@@ -71,7 +77,7 @@ export interface IpcContract {
   'git:show': (rel: string, ref?: string) => string
 
   // run
-  'run:start': () => RunState
+  'run:start': (dir?: string) => RunState
   'run:stop': () => RunState
   'run:restart': () => RunState
   'run:state': () => RunState
@@ -92,6 +98,16 @@ export interface IpcContract {
   'models:setTier': (id: string, tier: Tier | null) => void
   'models:testKey': (provider: string, key: string) => { ok: boolean; message: string }
   'models:connectHosted': (catalogId: string, connected: boolean) => void
+  // the big library (live)
+  'library:searchHF': (query: string) => HfModel[]
+  'library:hfFiles': (repo: string) => HfFile[]
+  'library:openrouter': () => OpenRouterModel[]
+  // your own keys (paid or self-hosted providers)
+  'custom:list': () => CustomProvider[]
+  'custom:save': (p: { id?: string; name: string; baseUrl: string; key?: string }) => { ok: boolean; message: string; id: string; models: string[] }
+  'custom:models': (id: string) => string[]
+  'custom:setModels': (id: string, models: string[]) => void
+  'custom:remove': (id: string) => void
   /** Starts a streaming chat; chunks arrive on 'chat:chunk' with the returned stream id. */
   'chat:stream': (modelId: string, messages: ChatMessage[], tools?: ToolSpec[]) => string
   'chat:abort': (streamId: string) => void
@@ -130,6 +146,8 @@ export interface IpcEvents {
   'chat:chunk': { streamId: string; chunk: ChatChunk; error?: string }
   'agents:update': AgentRun
   'agents:log': { runId: string; agent: string; taskId?: string; line: string }
+  /** An agent just wrote this file (path relative to the project root). */
+  'agents:file': { runId: string; agent: string; taskId: string; path: string }
   'agents:approval': ApprovalRequest
   'feed:event': FeedEvent
   'updater:ready': { version: string; manual?: boolean }

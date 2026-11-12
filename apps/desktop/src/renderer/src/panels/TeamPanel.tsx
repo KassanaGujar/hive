@@ -55,7 +55,7 @@ export function TeamPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-9 items-center px-3">
-        <span className="label flex-1">Team</span>
+        <span className="pane-title flex-1">People</span>
         <span className="text-[11px] text-muted">{status === 'solo' ? 'not shared' : status}</span>
       </div>
       <div className="flex flex-col gap-3 px-3 pb-3">

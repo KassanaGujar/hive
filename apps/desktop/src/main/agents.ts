@@ -10,6 +10,7 @@ import { execCapture } from './terminal'
 import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
+import path from 'node:path'
 import { streamChat } from '@hive/models'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
@@ -54,7 +55,11 @@ export const orchestrator = new Orchestrator({
     recordFeed(ev)
   },
   memoryBudgetGB,
-  smokeTest: smokeTestWeb
+  smokeTest: smokeTestWeb,
+  fileWritten(runId, agent, taskId, absPath) {
+    const rel = path.relative(projectRoot(), absPath).replace(/\\/g, '/')
+    emit('agents:file', { runId, agent, taskId, path: rel })
+  }
 })
 
 export async function startAgents(goal: string, preset?: { title: string; description: string }[], prd?: string) {

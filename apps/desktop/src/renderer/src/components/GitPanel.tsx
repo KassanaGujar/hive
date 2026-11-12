@@ -37,7 +37,7 @@ export function GitPanel() {
   if (!st.isRepo)
     return (
       <div className="flex flex-col gap-2 p-3">
-        <span className="label">Source control</span>
+        <span className="pane-title">Git</span>
         <div className="text-muted">This folder isn't a git repository yet.</div>
         <button className="btn-primary self-start" onClick={guard(() => invoke('git:init'))}>
           Initialise git
@@ -65,7 +65,7 @@ export function GitPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-9 items-center gap-1 px-3">
-        <span className="label flex-1">Source control</span>
+        <span className="pane-title flex-1">Git</span>
         <button className="btn-ghost" onClick={refresh} title="Refresh">
           <RefreshCw size={13} />
         </button>

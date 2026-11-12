@@ -99,7 +99,7 @@ export function ChatPanel() {
   if (!models.length)
     return (
       <div className="flex flex-col gap-3 p-4">
-        <span className="label">AI chat</span>
+        <span className="pane-title">Ask AI</span>
         <div className="text-muted">No models yet. Download a free one to start chatting.</div>
         <button className="btn-primary self-start" onClick={openModelStore}>
           Open Model store
@@ -110,7 +110,7 @@ export function ChatPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-9 items-center gap-2 border-b border-line px-3">
-        <span className="label">AI chat</span>
+        <span className="pane-title">Ask AI</span>
         <select className="input flex-1" value={chatModel ?? ''} onChange={(e) => useStore.getState().set({ chatModel: e.target.value })}>
           {models.map((m) => (
             <option key={m.id} value={m.id}>

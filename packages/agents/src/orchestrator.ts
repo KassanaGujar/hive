@@ -65,6 +65,8 @@ export interface OrchestratorHost {
    * problems found; [] = looks fine; null = this kind of project can't be smoke-tested.
    */
   smokeTest?(dir: string): Promise<string[] | null>
+  /** Called whenever an agent writes a file (absolute path), so the UI can show it live. */
+  fileWritten?(runId: string, agent: string, taskId: string, absPath: string): void
 }
 
 const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefly', 'mantis']
@@ -184,6 +186,7 @@ ${ctl.prd.slice(0, 8000)}`
     ctl.run.integrationBranch = integration
     ctl.intWorktree = path.join(root, '.hive', 'worktrees', ctl.run.id, '_integration')
     await this.host.git.addWorktree(root, ctl.intWorktree, integration, ctl.run.baseBranch)
+    ctl.run.previewDir = path.relative(root, ctl.intWorktree).replace(/\\/g, '/')
     ctl.run.phase = 'working'
     this.setAgent(ctl, 'architect', { status: 'idle' })
     this.emit(ctl)
@@ -328,6 +331,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
         const pasted = task.files.length === 1 ? fileFromReply(text, task.files[0]) : null
         if (pasted) {
           await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: task.files[0], content: pasted })
+          this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, task.files[0]))
           writes++
           this.log(ctl, worker.name, task.id, `→ write_file ${task.files[0]} (from the code in its reply)`)
           messages.push({ role: 'user', content: `Saved that as ${task.files[0]}. If it is complete, call report_done; otherwise write the full file again.` })
@@ -344,6 +348,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
             root: wt,
             runCommand: (cmd) => this.runCommand(ctl, worker.name, task, wt, cmd),
             defaultPath: task.files.length === 1 ? task.files[0] : undefined,
+            onWrite: (rel) => this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, rel)),
             allowedPaths: task.files
           },
           call.name,
@@ -356,6 +361,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
           const pasted = fileFromReply(text, task.files[0])
           if (pasted) {
             await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: task.files[0], content: pasted })
+            this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, task.files[0]))
             writes++
             this.log(ctl, worker.name, task.id, `→ write_file ${task.files[0]} (from the code in its reply)`)
           }

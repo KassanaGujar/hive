@@ -1,39 +1,56 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, ChevronRight, FileDiff, Hand, Pause, Play, Square, X } from 'lucide-react'
-import type { AgentRun, AgentTask, InstalledModel, Tier } from '@hive/shared'
+import { Check, ChevronDown, ChevronRight, Eye, FileDiff, FolderOpen, Hand, Pause, Play, Square, X } from 'lucide-react'
+import type { AgentInfo, AgentRun, AgentTask, InstalledModel, Tier } from '@hive/shared'
 import { invoke, on, timeAgo } from '../lib/api'
 import { useStore } from '../store'
-import { openModelStore, refreshModels, runProject } from '../lib/actions'
+import { openModelStore, openPreview, refreshModels, runProject } from '../lib/actions'
 
 type Team = { architect?: InstalledModel; leads: InstalledModel[]; workers: InstalledModel[] }
 
 const PHASE: Record<AgentRun['phase'], string> = {
-  planning: 'Architect is writing the plan…',
-  'awaiting-plan-approval': 'Plan ready — approve it to start the workers',
-  working: 'Agents are working',
-  merging: 'Merging…',
-  'awaiting-merge-approval': 'All done — approve the final merge',
-  done: 'Done',
-  failed: 'Failed',
+  planning: 'The architect is writing the plan',
+  'awaiting-plan-approval': 'Plan ready. Approve it to start the workers',
+  working: 'Agents are building',
+  merging: 'Merging',
+  'awaiting-merge-approval': 'Finished. Try it, then merge it into your project',
+  done: 'Merged into your project',
+  failed: 'Stopped with a problem',
   cancelled: 'Stopped'
 }
 
+const STATUS_TEXT: Record<string, string> = {
+  pending: 'waiting',
+  ready: 'waiting',
+  running: 'writing',
+  review: 'in review',
+  'changes-requested': 'fixing',
+  approved: 'approved',
+  merged: 'done',
+  failed: 'failed',
+  cancelled: 'skipped',
+  blocked: 'you took over'
+}
 const STATUS_CLS: Record<string, string> = {
   running: 'text-accent',
-  review: 'text-accent',
+  review: 'text-wing',
   'changes-requested': 'text-warn',
   approved: 'text-ok',
   merged: 'text-ok',
   failed: 'text-bad',
-  cancelled: 'text-muted',
-  blocked: 'text-warn',
-  pending: 'text-muted'
+  blocked: 'text-warn'
+}
+
+/** Project-relative path of an agent's working folder. */
+const relDir = (abs: string) => {
+  const root = useStore.getState().root ?? ''
+  return abs.slice(root.length + 1).replace(/\\/g, '/')
 }
 
 export function AgentsPanel() {
   const runs = useStore((s) => s.runs)
   const models = useStore((s) => s.models)
   const approvals = useStore((s) => s.approvals)
+  const follow = useStore((s) => s.followAgents)
   const toast = useStore((s) => s.toast)
   const [team, setTeam] = useState<Team | null>(null)
   const [goal, setGoal] = useState('')
@@ -44,15 +61,14 @@ export function AgentsPanel() {
   useEffect(() => {
     refreshModels().then(loadTeam)
     invoke('agents:runs').then((r) => r.forEach((x) => useStore.getState().upsertRun(x)))
-    return on('agents:log', ({ runId, agent, line }) =>
-      setLogs((l) => ({ ...l, [runId]: [...(l[runId] ?? []), `${agent}: ${line}`].slice(-400) }))
-    )
+    return on('agents:log', ({ runId, agent, line }) => setLogs((l) => ({ ...l, [runId]: [...(l[runId] ?? []), `${agent}: ${line}`].slice(-400) })))
   }, [])
   useEffect(() => {
     loadTeam()
   }, [models.length])
 
   const run = runs.find((r) => r.id === selected) ?? runs[0]
+  const active = run && !['done', 'failed', 'cancelled'].includes(run.phase)
 
   const start = async () => {
     if (!goal.trim()) return
@@ -64,47 +80,53 @@ export function AgentsPanel() {
       toast((e as Error).message, 'error')
     }
   }
-
   const guard = (p: Promise<unknown>) => p.catch((e) => toast(e.message, 'error'))
 
   if (!models.length)
     return (
       <div className="flex flex-col gap-3 p-4">
-        <span className="label">Agents</span>
-        <div className="text-muted">The agent team needs at least one model. With one model it plays every role; more models make a stronger team.</div>
+        <span className="pane-title">AI team</span>
+        <div className="text-muted">The team needs at least one model. One model can play every role; more models make a stronger team.</div>
         <button className="btn-primary self-start" onClick={openModelStore}>
-          Open Model store
+          Get a model
         </button>
       </div>
     )
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-9 items-center px-3">
-        <span className="label flex-1">Agents</span>
+      <div className="flex h-10 items-center gap-2 px-3">
+        <span className="pane-title flex-1">AI team</span>
+        <label className="flex items-center gap-1.5 text-[11.5px] text-muted" title="Open each file in the editor as an agent writes it">
+          <input type="checkbox" className="accent-[var(--accent)]" checked={follow} onChange={(e) => useStore.getState().set({ followAgents: e.target.checked })} />
+          <Eye size={12} /> Follow along
+        </label>
         {runs.length > 1 && (
-          <select className="input w-44" value={run?.id} onChange={(e) => setSelected(e.target.value)}>
+          <select className="input !w-36 !py-1" value={run?.id} onChange={(e) => setSelected(e.target.value)}>
             {runs.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.goal.slice(0, 40)} · {timeAgo(r.createdAt)}
+                {r.goal.slice(0, 28)} ({timeAgo(r.createdAt)})
               </option>
             ))}
           </select>
         )}
       </div>
+
       <div className="min-h-0 flex-1 overflow-auto px-3 pb-6">
-        {team && <TeamView team={team} onChange={() => refreshModels().then(loadTeam)} />}
+        {/* the comb: live agents during a run, otherwise the team the models would form */}
+        <Comb agents={active || run?.phase === 'done' ? run!.agents : teamAsAgents(team)} />
+        {!active && team && <TierEditor team={team} onChange={() => refreshModels().then(loadTeam)} />}
 
         <div className="my-3">
           <textarea
-            className="input h-16 resize-none text-[13px]"
-            placeholder='Describe what to build, e.g. "Make a to-do web app with dark mode"'
+            className="input h-[68px] resize-none !text-[13px]"
+            placeholder="What should the team build? For example: a to-do web app with dark mode"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             onKeyDown={(e) => e.ctrlKey && e.key === 'Enter' && start()}
           />
-          <button className="btn-primary mt-1 w-full justify-center" disabled={!goal.trim()} onClick={start}>
-            Start the team
+          <button className="btn-primary mt-1.5 w-full justify-center !py-1.5" disabled={!goal.trim()} onClick={start}>
+            Start building
           </button>
         </div>
 
@@ -113,7 +135,7 @@ export function AgentsPanel() {
             <div className="mb-1 text-[12px]">
               <b>{a.agent}</b> wants to run a command that {a.reason}:
             </div>
-            <pre className="mb-2 overflow-x-auto rounded bg-bg p-2 font-mono text-[11px]">{a.command}</pre>
+            <pre className="mb-2 overflow-x-auto rounded-md bg-bg p-2 font-mono text-[11px]">{a.command}</pre>
             <div className="flex gap-2">
               <button className="btn-primary" onClick={() => answer(a.id, true)}>
                 <Check size={12} /> Allow once
@@ -137,11 +159,83 @@ function answer(id: string, ok: boolean) {
   s.set({ approvals: s.approvals.filter((a) => a.id !== id) })
 }
 
-function TeamView({ team, onChange }: { team: Team; onChange: () => void }) {
+function teamAsAgents(team: Team | null): AgentInfo[] {
+  if (!team?.architect) return []
+  const mk = (name: string, role: AgentInfo['role'], m: InstalledModel): AgentInfo => ({ name, role, modelId: m.id, modelName: m.name, status: 'idle' })
+  const workers = ['bee', 'wasp', 'ant']
+  return [
+    mk('architect', 'architect', team.architect),
+    mk('lead', 'lead', team.leads[0] ?? team.architect),
+    ...workers.map((w, i) => mk(w, 'worker', team.workers[i % Math.max(team.workers.length, 1)] ?? team.architect!))
+  ]
+}
+
+// ---------- the honeycomb ----------
+
+const HEX = 'M30 2 L56 17 L56 47 L30 62 L4 47 L4 17 Z'
+/** "Qwen2.5 Coder 7B (…)" → "Qwen2.5 7B": enough to recognise the model inside a cell. */
+const shortModel = (n: string) => {
+  const words = n.replace(/\(.*\)/, '').trim().split(/\s+/)
+  const s = words.length > 2 ? `${words[0]} ${words[words.length - 1]}` : words.join(' ')
+  return s.length > 11 ? s.slice(0, 10) + '…' : s
+}
+
+/** One wax cell per agent. Honey rises while it works; the outline pulses while it waits for you. */
+function Cell({ a, x, y }: { a: AgentInfo; x: number; y: number }) {
+  const busy = a.status === 'working' || a.status === 'thinking'
+  const waiting = a.status === 'waiting' || a.status === 'paused'
+  const tone = a.role === 'worker' ? 'var(--accent)' : 'var(--wing)'
+  const id = `clip-${a.name}`
+  return (
+    <g transform={`translate(${x} ${y})`} className={busy ? 'cell-working' : waiting ? 'cell-waiting' : ''}>
+      <title>{`${a.name} (${a.role}), ${a.modelName}: ${a.status}${a.currentTaskId ? `, on ${a.currentTaskId}` : ''}`}</title>
+      <clipPath id={id}>
+        <path d={HEX} />
+      </clipPath>
+      <path d={HEX} fill="var(--panel2)" />
+      {busy && (
+        <g clipPath={`url(#${id})`}>
+          <rect className="cell-fill" x="0" y="0" width="60" height="64" fill={tone} opacity="0.38" />
+        </g>
+      )}
+      <path d={HEX} fill="none" stroke={a.status === 'stopped' ? 'var(--bad)' : busy || waiting ? tone : 'var(--line)'} strokeWidth={busy || waiting ? 2.2 : 1.5} strokeDasharray={waiting ? '5 4' : undefined} strokeLinejoin="round" />
+      <text x="30" y="30" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="var(--fg)" style={{ fontFamily: 'var(--font-display)' }}>
+        {a.name}
+      </text>
+      <text x="30" y="42" textAnchor="middle" fontSize="7.5" fill={busy ? 'var(--fg)' : 'var(--muted)'}>
+        {busy ? (a.tokensPerSec ? `${Math.round(a.tokensPerSec)} tok/s` : a.status) : a.status === 'idle' ? shortModel(a.modelName) : a.status}
+      </text>
+    </g>
+  )
+}
+
+function Comb({ agents }: { agents: AgentInfo[] }) {
+  if (!agents.length) return null
+  const top = agents.filter((a) => a.role !== 'worker')
+  const workers = agents.filter((a) => a.role === 'worker')
+  const W = 54 // horizontal pitch
+  const width = Math.max(top.length, workers.length + 0.5) * W + 10
+  // planners sit on the top row, workers nest half a cell over on the row below
+  return (
+    <div className="flex justify-center py-1">
+      <svg width={width} height={workers.length ? 116 : 68} viewBox={`0 0 ${width} ${workers.length ? 116 : 68}`} role="img" aria-label="AI team status">
+        {top.map((a, i) => (
+          <Cell key={a.name} a={a} x={(width - top.length * W) / 2 + i * W - 3} y={2} />
+        ))}
+        {workers.map((a, i) => (
+          <Cell key={a.name} a={a} x={(width - workers.length * W) / 2 + i * W - 3} y={49} />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+function TierEditor({ team, onChange }: { team: Team; onChange: () => void }) {
+  const [open, setOpen] = useState(false)
   const [drag, setDrag] = useState<string | null>(null)
   const col = (title: string, tier: Tier, list: InstalledModel[]) => (
     <div
-      className="min-h-14 flex-1 rounded-md bg-panel2 p-1.5"
+      className="min-h-14 flex-1 rounded-lg bg-panel2 p-1.5"
       onDragOver={(e) => e.preventDefault()}
       onDrop={async () => {
         if (!drag) return
@@ -150,53 +244,77 @@ function TeamView({ team, onChange }: { team: Team; onChange: () => void }) {
         onChange()
       }}
     >
-      <div className="mb-1 text-[10px] font-semibold text-muted uppercase">{title}</div>
+      <div className="mb-1 text-[10.5px] font-semibold text-muted">{title}</div>
       {list.map((m) => (
-        <div key={m.id + title} draggable onDragStart={() => setDrag(m.id)} className="mb-1 cursor-grab truncate rounded bg-bg px-1.5 py-0.5 text-[11px]" title={`${m.name} — drag to change tier`}>
+        <div key={m.id + title} draggable onDragStart={() => setDrag(m.id)} className="mb-1 cursor-grab truncate rounded-md bg-bg px-1.5 py-0.5 text-[11px]" title={`${m.name}: drag to another column`}>
           {m.name}
         </div>
       ))}
     </div>
   )
   return (
-    <div>
-      <div className="mb-1 text-[11px] text-muted">Team (drag models between tiers)</div>
-      <div className="flex gap-1.5">
-        {col('Architect', 'top', team.architect ? [team.architect] : [])}
-        {col('Leads', 'lead', team.leads)}
-        {col('Workers', 'worker', team.workers)}
-      </div>
+    <div className="mb-1">
+      <button className="mx-auto flex items-center gap-1 text-[11.5px] text-muted hover:text-fg" onClick={() => setOpen(!open)}>
+        {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />} Who plays which role
+      </button>
+      {open && (
+        <div className="mt-1.5 flex gap-1.5">
+          {col('Architect', 'top', team.architect ? [team.architect] : [])}
+          {col('Reviewers', 'lead', team.leads)}
+          {col('Workers', 'worker', team.workers)}
+        </div>
+      )}
     </div>
   )
 }
 
 function RunView({ run, logs, models, guard }: { run: AgentRun; logs: string[]; models: InstalledModel[]; guard: (p: Promise<unknown>) => void }) {
   const logEnd = useRef<HTMLDivElement>(null)
-  const [showLog, setShowLog] = useState(true)
+  const [showLog, setShowLog] = useState(false)
   useEffect(() => {
     logEnd.current?.scrollIntoView({ block: 'end' })
-  }, [logs.length])
+  }, [logs.length, showLog])
   const active = !['done', 'failed', 'cancelled'].includes(run.phase)
+  const merged = run.tasks.filter((t) => t.status === 'merged').length
+  const canTry = !!run.previewDir && merged > 0 && run.phase !== 'done'
+
+  const tryIt = async () => {
+    window.dispatchEvent(new CustomEvent('hive:saveAll'))
+    const st = await invoke('run:start', run.previewDir)
+    if (st.status === 'failed' && st.message) useStore.getState().toast(st.message, 'error')
+    if (st.previewUrl) openPreview(st.previewUrl)
+    useStore.getState().set({ bottomOpen: true })
+  }
+  const browse = (dir: string, label: string) => useStore.getState().set({ explorerRoot: { dir, label }, side: 'explorer' })
 
   return (
     <div className="flex flex-col gap-3">
       <div className="card p-3">
-        <div className="mb-1 text-[11px] text-muted">Goal</div>
-        <div className="mb-2 font-medium">{run.goal}</div>
+        <div className="mb-1.5 font-medium leading-snug">{run.goal}</div>
         <div className={`text-[12px] ${run.phase === 'failed' ? 'text-bad' : run.phase === 'done' ? 'text-ok' : 'text-accent'}`}>
           {PHASE[run.phase]}
-          {run.error && ` — ${run.error}`}
+          {run.error && `: ${run.error}`}
         </div>
+        {run.tasks.length > 0 && run.phase !== 'awaiting-plan-approval' && (
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-panel2">
+            <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${(merged / run.tasks.length) * 100}%` }} />
+          </div>
+        )}
+
         {run.phase === 'awaiting-plan-approval' && run.plan && (
-          <div className="mt-2">
+          <div className="mt-3">
             {run.plan.summary && <div className="mb-2 text-muted">{run.plan.summary}</div>}
-            <ol className="mb-2 list-decimal pl-5">
-              {run.plan.tasks.map((t) => (
-                <li key={t.id} className="mb-1">
-                  <b>{t.title}</b> <span className="text-muted">→ {t.owner}</span>
-                  <div className="text-[11px] text-muted">{t.description}</div>
-                  {t.files.length > 0 && <div className="font-mono text-[10px] text-muted">{t.files.join(', ')}</div>}
-                  {t.dependsOn.length > 0 && <div className="text-[10px] text-muted">after: {t.dependsOn.join(', ')}</div>}
+            <ol className="mb-3 flex flex-col gap-2">
+              {run.plan.tasks.map((t, i) => (
+                <li key={t.id} className="flex gap-2">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-panel2 text-[10.5px] font-semibold">{i + 1}</span>
+                  <div className="min-w-0">
+                    <div className="font-medium">
+                      {t.title} <span className="font-normal text-wing">for {t.owner}</span>
+                    </div>
+                    {t.files.length > 0 && <div className="truncate font-mono text-[10.5px] text-muted">{t.files.join(', ')}</div>}
+                    {t.dependsOn.length > 0 && <div className="text-[10.5px] text-muted">after {t.dependsOn.join(', ')}</div>}
+                  </div>
                 </li>
               ))}
             </ol>
@@ -210,73 +328,57 @@ function RunView({ run, logs, models, guard }: { run: AgentRun; logs: string[]; 
             </div>
           </div>
         )}
-        {run.phase === 'awaiting-merge-approval' && (
-          <div className="mt-2 flex gap-2">
-            <button className="btn-primary" onClick={() => guard(invoke('agents:approveMerge', run.id, true))}>
-              Merge into {run.baseBranch}
+
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {canTry && (
+            <>
+              <button className={run.phase === 'awaiting-merge-approval' ? 'btn-primary' : 'btn'} onClick={tryIt} title="Run the combined result without touching your project">
+                <Play size={12} /> Try it
+              </button>
+              <button className="btn" onClick={() => browse(run.previewDir!, 'the combined result')}>
+                <FolderOpen size={12} /> Open the files
+              </button>
+            </>
+          )}
+          {run.phase === 'awaiting-merge-approval' && (
+            <>
+              <button className="btn-primary" onClick={() => guard(invoke('agents:approveMerge', run.id, true))}>
+                Merge into {run.baseBranch}
+              </button>
+              <button className="btn" onClick={() => guard(invoke('agents:approveMerge', run.id, false))}>
+                Discard
+              </button>
+            </>
+          )}
+          {run.phase === 'done' && (
+            <button className="btn-primary" onClick={runProject}>
+              <Play size={12} /> Run it
             </button>
-            <button className="btn" onClick={() => guard(invoke('agents:approveMerge', run.id, false))}>
-              Don't merge
+          )}
+          {active && run.phase !== 'awaiting-plan-approval' && (
+            <button className="btn" onClick={() => guard(invoke('agents:stop', run.id))}>
+              <Square size={11} className="text-bad" /> Stop the team
             </button>
-          </div>
-        )}
-        {run.phase === 'done' && (
-          <button className="btn-primary mt-2" onClick={runProject}>
-            <Play size={12} /> Run it
-          </button>
-        )}
-        {active && run.phase !== 'awaiting-plan-approval' && (
-          <button className="btn mt-2" onClick={() => guard(invoke('agents:stop', run.id))}>
-            <Square size={12} className="text-bad" /> Stop all
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-2">
-        {run.agents.map((a) => (
-          <div key={a.name} className="card flex items-center gap-2 p-2">
-            <span className={`h-2 w-2 rounded-full ${a.status === 'working' || a.status === 'thinking' ? 'animate-pulse bg-accent' : a.status === 'waiting' ? 'bg-warn' : a.status === 'paused' ? 'bg-warn' : a.status === 'stopped' ? 'bg-bad' : 'bg-muted'}`} />
-            <div className="min-w-0 flex-1">
-              <div className="truncate">
-                <b>{a.name}</b> <span className="text-[11px] text-muted">{a.role}</span>
-              </div>
-              <div className="truncate text-[11px] text-muted">
-                {a.modelName} · {a.status}
-                {a.currentTaskId && ` · ${a.currentTaskId}`}
-                {a.tokensPerSec ? ` · ${a.tokensPerSec} tok/s` : ''}
-              </div>
-            </div>
-            {active && a.role === 'worker' && (
-              a.status === 'paused' ? (
-                <button className="btn-ghost" title="Resume" onClick={() => guard(invoke('agents:resume', run.id, a.name))}>
-                  <Play size={13} />
-                </button>
-              ) : (
-                <button className="btn-ghost" title="Pause" onClick={() => guard(invoke('agents:pause', run.id, a.name))}>
-                  <Pause size={13} />
-                </button>
-              )
-            )}
-          </div>
-        ))}
-      </div>
-
-      {run.tasks.length > 0 && (
+      {run.tasks.length > 0 && run.phase !== 'awaiting-plan-approval' && (
         <div>
-          <div className="label mb-1">Tasks</div>
+          <div className="label mb-1.5">Tasks</div>
           {run.tasks.map((t) => (
-            <TaskRow key={t.id} run={run} t={t} models={models} guard={guard} />
+            <TaskRow key={t.id} run={run} t={t} models={models} guard={guard} browse={browse} />
           ))}
         </div>
       )}
 
       <div>
-        <button className="label mb-1 flex items-center gap-1" onClick={() => setShowLog(!showLog)}>
-          {showLog ? <ChevronDown size={12} /> : <ChevronRight size={12} />} Live log
+        <button className="label mb-1 flex items-center gap-1 hover:text-fg" onClick={() => setShowLog(!showLog)}>
+          {showLog ? <ChevronDown size={12} /> : <ChevronRight size={12} />} Activity log
         </button>
         {showLog && (
-          <div className="max-h-72 overflow-auto rounded-md bg-bg p-2 font-mono text-[10.5px] leading-snug text-muted">
-            {logs.length === 0 ? <div>No activity yet.</div> : logs.map((l, i) => <div key={i} className="whitespace-pre-wrap">{l}</div>)}
+          <div className="max-h-72 overflow-auto rounded-lg bg-bg p-2 font-mono text-[10.5px] leading-snug text-muted">
+            {logs.length === 0 ? <div>Nothing yet.</div> : logs.map((l, i) => <div key={i} className="whitespace-pre-wrap">{l}</div>)}
             <div ref={logEnd} />
           </div>
         )}
@@ -285,45 +387,48 @@ function RunView({ run, logs, models, guard }: { run: AgentRun; logs: string[]; 
   )
 }
 
-function TaskRow({ run, t, models, guard }: { run: AgentRun; t: AgentTask; models: InstalledModel[]; guard: (p: Promise<unknown>) => void }) {
+function TaskRow({ run, t, models, guard, browse }: { run: AgentRun; t: AgentTask; models: InstalledModel[]; guard: (p: Promise<unknown>) => void; browse: (dir: string, label: string) => void }) {
   const [open, setOpen] = useState(false)
-  const showDiff = () =>
-    useStore.getState().openTab({ id: `taskdiff:${run.id}:${t.id}`, kind: 'diff', title: `${t.id} diff`, path: `${t.id}.diff`, original: '', modified: t.diff ?? '' })
+  const live = ['running', 'review', 'changes-requested', 'blocked'].includes(t.status)
+  const showDiff = () => useStore.getState().openTab({ id: `taskdiff:${run.id}:${t.id}`, kind: 'diff', title: `${t.id} changes`, path: `${t.id}.diff`, original: '', modified: t.diff ?? '' })
   const takeOver = async () => {
     try {
       const { worktree } = await invoke('agents:takeOver', run.id, t.id)
-      useStore.getState().toast(`Edit the files in ${worktree}, then press Resume on ${t.owner}.`, 'info', { label: 'Open folder', run: () => invoke('shell:openPath', worktree) })
+      browse(relDir(worktree), `${t.owner}'s files`)
+      useStore.getState().toast(`${t.owner} is paused. Edit the files, then press Resume to send them to review.`)
     } catch (e) {
       useStore.getState().toast((e as Error).message, 'error')
     }
   }
   return (
-    <div className="mb-1 rounded-md border border-line">
-      <button className="flex w-full items-center gap-2 px-2 py-1.5 text-left" onClick={() => setOpen(!open)}>
+    <div className={`mb-1.5 rounded-lg border ${live ? 'border-accent/40' : 'border-line'}`}>
+      <button className="flex w-full items-center gap-2 px-2.5 py-2 text-left" onClick={() => setOpen(!open)}>
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        <span className="flex-1 truncate">{t.title}</span>
-        <span className={`text-[11px] ${STATUS_CLS[t.status] ?? ''}`}>
-          {t.status}
-          {t.attempts > 1 ? ` (round ${t.attempts})` : ''}
+        <span className="min-w-0 flex-1">
+          <span className="block truncate">{t.title}</span>
+          <span className="block truncate text-[10.5px] text-muted">
+            {t.owner}
+            {t.files.length > 0 && <span className="font-mono"> {t.files.join(', ')}</span>}
+          </span>
+        </span>
+        <span className={`shrink-0 text-[11px] font-medium ${STATUS_CLS[t.status] ?? 'text-muted'}`}>
+          {STATUS_TEXT[t.status] ?? t.status}
+          {t.attempts > 1 ? `, round ${t.attempts}` : ''}
         </span>
       </button>
       {open && (
-        <div className="border-t border-line p-2 text-[11px]">
-          <div className="mb-1 text-muted">
-            {t.owner} · {t.model ?? 'not started'}
-            {t.branch && (
-              <>
-                {' '}
-                · <span className="font-mono">{t.branch}</span>
-              </>
+        <div className="border-t border-line p-2.5 text-[11.5px]">
+          <div className="mb-1.5 whitespace-pre-wrap text-muted">{t.description.split('\n')[0]}</div>
+          {t.reviewNotes && <div className="mb-1.5 text-warn">Reviewer: {t.reviewNotes}</div>}
+          <div className="flex flex-wrap gap-1.5">
+            {t.worktree && !['merged', 'cancelled'].includes(t.status) && (
+              <button className="btn" onClick={() => browse(relDir(t.worktree!), `${t.owner}'s files`)}>
+                <FolderOpen size={11} /> Open files
+              </button>
             )}
-          </div>
-          <div className="mb-1">{t.description}</div>
-          {t.reviewNotes && <div className="mb-1 text-warn">Review: {t.reviewNotes}</div>}
-          <div className="flex flex-wrap gap-1">
             {t.diff && (
               <button className="btn" onClick={showDiff}>
-                <FileDiff size={11} /> Diff
+                <FileDiff size={11} /> Changes
               </button>
             )}
             {['running', 'review', 'changes-requested'].includes(t.status) && (
@@ -331,9 +436,19 @@ function TaskRow({ run, t, models, guard }: { run: AgentRun; t: AgentTask; model
                 <Hand size={11} /> Take over
               </button>
             )}
+            {t.status === 'blocked' && t.owner && (
+              <button className="btn-primary" onClick={() => guard(invoke('agents:resume', run.id, t.owner!))}>
+                <Play size={11} /> Resume
+              </button>
+            )}
+            {live && t.owner && t.status !== 'blocked' && (
+              <button className="btn" onClick={() => guard(invoke('agents:pause', run.id, t.owner!))}>
+                <Pause size={11} /> Pause
+              </button>
+            )}
             {!['merged', 'failed', 'cancelled'].includes(t.status) && (
-              <select className="input w-auto" defaultValue="" onChange={(e) => e.target.value && guard(invoke('agents:reassign', run.id, t.id, e.target.value))}>
-                <option value="">Reassign…</option>
+              <select className="input !w-auto !py-1" defaultValue="" onChange={(e) => e.target.value && guard(invoke('agents:reassign', run.id, t.id, e.target.value))}>
+                <option value="">Give to another model</option>
                 {models.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name}
@@ -342,7 +457,7 @@ function TaskRow({ run, t, models, guard }: { run: AgentRun; t: AgentTask; model
               </select>
             )}
           </div>
-          {t.log.length > 0 && <div className="mt-2 max-h-40 overflow-auto rounded bg-bg p-1.5 font-mono text-[10px] whitespace-pre-wrap text-muted">{t.log.slice(-60).join('\n')}</div>}
+          {t.log.length > 0 && <div className="mt-2 max-h-40 overflow-auto rounded-md bg-bg p-1.5 font-mono text-[10px] whitespace-pre-wrap text-muted">{t.log.slice(-60).join('\n')}</div>}
         </div>
       )}
     </div>

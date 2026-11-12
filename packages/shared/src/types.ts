@@ -1,7 +1,9 @@
 // Shared domain types used by main, renderer, packages and the relay.
 
 export type Tier = 'top' | 'lead' | 'worker'
-export type ModelSource = 'ollama' | 'openrouter' | 'groq' | 'hf'
+export type ModelSource = 'ollama' | 'openrouter' | 'groq' | 'hf' | 'custom'
+/** Sources that appear in the built-in free catalog. */
+export type CatalogSource = Exclude<ModelSource, 'custom'>
 
 export interface CatalogEntry {
   id: string
@@ -27,7 +29,7 @@ export interface CatalogEntry {
 export interface Catalog {
   version: number
   updated: string
-  providers: Record<Exclude<ModelSource, 'ollama'>, HostedProvider>
+  providers: Record<Exclude<CatalogSource, 'ollama'>, HostedProvider>
   models: CatalogEntry[]
 }
 
@@ -71,6 +73,40 @@ export interface PullProgress {
   total: number
   state: 'downloading' | 'paused' | 'done' | 'error' | 'cancelled'
   error?: string
+}
+
+/** A provider the user added with their own key (paid, or self-hosted). OpenAI-compatible. */
+export interface CustomProvider {
+  id: string
+  name: string
+  baseUrl: string
+  /** model names the user switched on */
+  models: string[]
+}
+
+export interface HfModel {
+  id: string
+  downloads: number
+  likes: number
+  gated: boolean
+}
+
+export interface HfFile {
+  file: string
+  quant: string
+  sizeGB: number
+  /** what Ollama pulls: hf.co/<repo>:<quant> */
+  pullName: string
+}
+
+export interface OpenRouterModel {
+  id: string
+  name: string
+  contextTokens: number
+  /** US dollars per million tokens */
+  priceIn: number
+  priceOut: number
+  free: boolean
 }
 
 // ---------- chat / model layer ----------
@@ -208,6 +244,8 @@ export interface AgentRun {
   agents: AgentInfo[]
   baseBranch: string
   integrationBranch?: string
+  /** Folder (relative to the project) holding the combined result so far — runnable before merging. */
+  previewDir?: string
   error?: string
   createdAt: number
 }

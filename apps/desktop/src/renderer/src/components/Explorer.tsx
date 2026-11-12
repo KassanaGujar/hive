@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronRight, FilePlus, FolderPlus, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronRight, File, FileCode, FileJson, FilePlus, FileText, FolderPlus, Image, RefreshCw } from 'lucide-react'
 import { makeFeedEvent } from '@hive/collab'
 import type { FileNode } from '@hive/shared'
 import { invoke, on } from '../lib/api'
@@ -11,7 +11,12 @@ import { session } from '../collab/session'
 const FILE_ICON: Record<string, string> = {
   ts: '🟦', tsx: '🟦', js: '🟨', jsx: '🟨', json: '🧾', md: '📝', html: '🌐', css: '🎨', py: '🐍', go: '🐹', rs: '🦀', java: '☕', c: '©', cpp: '➕', png: '🖼', jpg: '🖼', svg: '🖼'
 }
-const iconFor = (name: string) => FILE_ICON[name.split('.').pop()!.toLowerCase()] ?? '📄'
+const TINT: Record<string, string> = { ts: '#6aa7e8', tsx: '#6aa7e8', js: '#e8c14a', jsx: '#e8c14a', mjs: '#e8c14a', html: '#f08a5d', css: '#63cdc4', scss: '#63cdc4', py: '#86d07d', go: '#63cdc4', rs: '#e0946a', java: '#e0946a', json: '#c9a86a', md: '#a69a86' }
+function FileIcon({ name }: { name: string }) {
+  const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : ''
+  const Icon = ext === 'json' ? FileJson : ext === 'md' || ext === 'txt' ? FileText : /^(png|jpe?g|gif|svg|webp|ico)$/.test(ext) ? Image : ext in TINT ? FileCode : File
+  return <Icon size={14} className="shrink-0" style={{ color: TINT[ext] ?? 'var(--muted)' }} />
+}
 
 function feed(kind: 'file.created' | 'file.renamed' | 'file.deleted', files: string[]) {
   const s = session()
@@ -19,7 +24,21 @@ function feed(kind: 'file.created' | 'file.renamed' | 'file.deleted', files: str
 }
 
 export function Explorer() {
-  const tree = useStore((s) => s.tree)
+  const projectTree = useStore((s) => s.tree)
+  const explorerRoot = useStore((s) => s.explorerRoot)
+  const [agentTree, setAgentTree] = useState<FileNode[]>([])
+  useEffect(() => {
+    if (!explorerRoot) return
+    const load = () => invoke('fs:treeAt', explorerRoot.dir).then(setAgentTree).catch(() => setAgentTree([]))
+    load()
+    const off = on('agents:file', load)
+    const t = setInterval(load, 4000)
+    return () => {
+      off()
+      clearInterval(t)
+    }
+  }, [explorerRoot?.dir])
+  const tree = explorerRoot ? agentTree : projectTree
   const toast = useStore((s) => s.toast)
   const [open, setOpen] = useState<Set<string>>(new Set())
   const [menu, setMenu] = useState<{ x: number; y: number; node: FileNode | null } | null>(null)
@@ -37,7 +56,7 @@ export function Explorer() {
   )
 
   const guard = (fn: () => Promise<unknown>) => fn().catch((e) => toast(e.message, 'error'))
-  const parentOf = (node: FileNode | null) => (node ? (node.type === 'dir' ? node.path : node.path.split('/').slice(0, -1).join('/')) : '')
+  const parentOf = (node: FileNode | null) => (node ? (node.type === 'dir' ? node.path : node.path.split('/').slice(0, -1).join('/')) : explorerRoot?.dir ?? '')
   const join = (dir: string, name: string) => (dir ? `${dir}/${name}` : name)
 
   const newItem = (type: 'file' | 'dir', node: FileNode | null) =>
@@ -105,11 +124,11 @@ export function Explorer() {
               e.preventDefault()
               setMenu({ x: e.clientX, y: e.clientY, node: n })
             }}
-            className="flex cursor-pointer items-center gap-1 truncate py-[3px] pr-2 hover:bg-panel2"
+            className="mx-1 flex cursor-pointer items-center gap-1.5 truncate rounded-md py-[3px] pr-2 hover:bg-panel2"
             style={{ paddingLeft: 6 + depth * 12 }}
             title={n.path}
           >
-            {n.type === 'dir' ? (isOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />) : <span className="w-[13px] text-[10px]">{iconFor(n.name)}</span>}
+            {n.type === 'dir' ? (isOpen ? <ChevronDown size={14} className="shrink-0 text-muted" /> : <ChevronRight size={14} className="shrink-0 text-muted" />) : <FileIcon name={n.name} />}
             <span className="truncate">{n.name}</span>
           </div>
           {n.type === 'dir' && isOpen && n.children && render(n.children, depth + 1)}
@@ -120,7 +139,7 @@ export function Explorer() {
   return (
     <div className="flex h-full flex-col" onClick={() => setMenu(null)}>
       <div className="flex h-9 items-center gap-1 px-3">
-        <span className="label flex-1">Explorer</span>
+        <span className="pane-title flex-1">Files</span>
         <button className="btn-ghost" title="New file" onClick={() => newItem('file', null)}>
           <FilePlus size={14} />
         </button>
@@ -131,6 +150,16 @@ export function Explorer() {
           <RefreshCw size={13} />
         </button>
       </div>
+      {explorerRoot && (
+        <div className="mx-2 mb-1.5 rounded-lg border border-wing/40 bg-wing/10 px-2.5 py-2 text-[11.5px] leading-snug">
+          <div>
+            You're looking at <b className="text-wing">{explorerRoot.label}</b>, not your project yet. You can open and edit these files.
+          </div>
+          <button className="mt-1.5 font-semibold text-wing hover:underline" onClick={() => useStore.getState().set({ explorerRoot: null })}>
+            Back to my project
+          </button>
+        </div>
+      )}
       <div
         className="min-h-0 flex-1 overflow-auto pb-8"
         onContextMenu={(e) => {

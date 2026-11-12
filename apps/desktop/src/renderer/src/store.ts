@@ -66,6 +66,10 @@ interface State {
   toasts: Toast[]
   reveal: { path: string; line: number; col?: number; nonce: number } | null
   chatModel: string | null
+  /** When set, the Explorer shows an agent's working folder instead of the project. */
+  explorerRoot: { dir: string; label: string } | null
+  /** Open files in the editor as agents write them. */
+  followAgents: boolean
   ask: { title: string; initial: string; placeholder?: string; resolve: (v: string | null) => void } | null
 
   set: (patch: Partial<State>) => void
@@ -106,6 +110,8 @@ export const useStore = create<State>((set, get) => ({
   toasts: [],
   reveal: null,
   chatModel: null,
+  explorerRoot: null,
+  followAgents: true,
   ask: null,
 
   set: (patch) => set(patch),
@@ -128,7 +134,10 @@ export const useStore = create<State>((set, get) => ({
   },
 
   openFile: (path, at, group) => {
-    const title = path.split('/').pop() ?? path
+    const name = path.split('/').pop() ?? path
+    // files inside an agent's working folder are labelled with the task they belong to
+    const agentTask = /^\.hive\/worktrees\/[^/]+\/([^/]+)\//.exec(path)?.[1]
+    const title = agentTask ? `${name} (${agentTask === '_integration' ? 'combined' : agentTask})` : name
     get().openTab({ id: `file:${path}`, kind: 'file', path, title }, group)
     if (at) set({ reveal: { path, line: at.line, col: at.col, nonce: Date.now() } })
   },

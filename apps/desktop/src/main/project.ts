@@ -84,7 +84,12 @@ export async function createProject(parent: string, name: string, empty = false)
   return dir
 }
 
-export async function tree(): Promise<FileNode[]> {
+/** Tree of a sub-folder of the project (an agent's working folder). Paths stay project-relative. */
+export async function treeAt(rel: string): Promise<FileNode[]> {
+  return tree(abs(rel))
+}
+
+export async function tree(start?: string): Promise<FileNode[]> {
   const r = projectRoot()
   let count = 0
   async function walk(dir: string): Promise<FileNode[]> {
@@ -108,7 +113,7 @@ export async function tree(): Promise<FileNode[]> {
     }
     return out
   }
-  return walk(r)
+  return walk(start ?? r)
 }
 
 export async function readFile(rel: string) {

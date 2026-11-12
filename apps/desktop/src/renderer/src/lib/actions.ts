@@ -76,7 +76,7 @@ export function openPreview(url: string) {
 }
 
 export function openModelStore() {
-  useStore.getState().openTab({ id: 'models', kind: 'models', title: 'Model store' })
+  useStore.getState().openTab({ id: 'models', kind: 'models', title: 'Models' })
 }
 
 export function openPlanning() {

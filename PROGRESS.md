@@ -1,5 +1,22 @@
 # Hive — build progress (resume file)
 
+## 2026-11-12 — IDE + redesign + models (latest work, done in the main session)
+- **Watch/test/edit agent work:** agents announce each write (`agents:file`); "Follow along" opens files live;
+  Explorer can show any agent's folder or the combined result (`explorerRoot`, `fs:treeAt`); "Try it" runs the
+  combined result before merging (`run:start(dir)`, `AgentRun.previewDir`). Verified with a real llama3.2 run.
+- **Redesign:** propolis/honey design system in `index.css` (Hanken Grotesk, Bricolage Grotesque, JetBrains Mono
+  bundled via @fontsource), honeycomb agent cells in AgentsPanel, matching Monaco/xterm themes.
+- **Models:** `library.ts` — Hugging Face GGUF search (pull as `hf.co/<repo>:<quant>`), live OpenRouter list,
+  "Your own keys" (any OpenAI-compatible paid/self-hosted provider; keys in safeStorage). Catalog 26 → 96
+  (`tools/expand-catalog.mjs`; sizes approximate — recheck before release). The free-only rule still holds for
+  the catalog and Free online tab; paid models only come from keys the user adds themselves.
+- **Design skills installed** to ~/.claude/skills: design-taste-frontend (includes redesign), high-end-visual-design,
+  anti-ui-slop, ui-ux-pro-max. frontend-design + web-design-guidelines were already there.
+- NOT verified: a paid key end to end (needs a real key), downloading a Hugging Face model, light theme pass,
+  Mac. The installed copy on this PC must be reinstalled from the new installer to get these changes.
+- The 3-AI Snake E2E is still paused (see bookmark below); button labels changed (People, AI team) and the
+  driver in tools/e2e was updated to match.
+
 ## 🔖 BOOKMARK — paused 2026-11-10 23:18 (resume here)
 **Task in progress:** user's test — "3 AI working at once to make Snake. Passes if each person talks and
 asks for the snake game, the AI makes the planning doc/PRD/MVP, then a router tells each what to do."

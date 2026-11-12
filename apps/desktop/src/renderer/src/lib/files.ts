@@ -20,7 +20,7 @@ export async function ensureModel(path: string): Promise<monaco.editor.ITextMode
   const model = getModel(path, text)
   saved.set(path, text)
   const s = session()
-  if (s?.shared) {
+  if (s?.shared && !path.startsWith('.hive/')) {
     const ytext = s.textFor(path, text)
     if (ytext.toString() !== text) model.setValue(ytext.toString())
     bindings.set(path, new MonacoBinding(ytext, model, new Set(), s.provider!.awareness))
@@ -93,8 +93,24 @@ export async function applyContent(path: string, text: string) {
 }
 
 /** Solo mode: reload open, unmodified files when something else (terminal, agents) changes them. */
+async function reloadFromDisk(path: string) {
+  const model = monaco.editor.getModel(uriFor(path))
+  if (!model || useStore.getState().dirty.has(path)) return
+  const text = await invoke('fs:read', path).catch(() => null)
+  if (text === null || text === model.getValue()) return
+  saved.set(path, text)
+  model.pushEditOperations([], [{ range: model.getFullModelRange(), text }], () => null)
+  useStore.getState().setDirty(path, false)
+}
+
 export function startDiskReload() {
-  return on('fs:changed', async (e) => {
+  // Agents write inside .hive (not watched): refresh open copies and, if following, show the file.
+  const offAgents = on('agents:file', async ({ path }) => {
+    await reloadFromDisk(path)
+    const st = useStore.getState()
+    if (st.followAgents) st.openFile(path)
+  })
+  const offDisk = on('fs:changed', async (e) => {
     if (e.kind !== 'change' || bindings.has(e.path)) return
     const model = monaco.editor.getModel(uriFor(e.path))
     if (!model || useStore.getState().dirty.has(e.path)) return
@@ -104,6 +120,10 @@ export function startDiskReload() {
     model.pushEditOperations([], [{ range: model.getFullModelRange(), text }], () => null)
     useStore.getState().setDirty(e.path, false)
   })
+  return () => {
+    offAgents()
+    offDisk()
+  }
 }
 
 window.addEventListener('hive:saveAll', () => saveAll())

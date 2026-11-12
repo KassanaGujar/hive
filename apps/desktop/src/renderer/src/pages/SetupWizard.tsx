@@ -28,7 +28,7 @@ export function SetupWizard() {
         <div className="mb-6 flex items-center gap-3">
           <img src={icon} alt="" className="h-12 w-12" />
           <div>
-            <div className="text-[18px] font-bold">Welcome to Hive</div>
+            <div className="display text-[22px] leading-tight font-bold">Welcome to Hive</div>
             <div className="text-muted">Free AI coding with your friends. Setup takes a few minutes.</div>
           </div>
         </div>

@@ -30,7 +30,7 @@ export function SearchPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-col gap-2 p-3">
-        <span className="label">Search</span>
+        <span className="pane-title">Search</span>
         <input className="input" autoFocus placeholder="Search in files" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="flex gap-3 text-[11px] text-muted">
           <label className="flex items-center gap-1">

@@ -34,7 +34,7 @@ export function FeedPanel() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-9 items-center px-3">
-        <span className="label flex-1">Changes</span>
+        <span className="pane-title flex-1">History</span>
         <span className="text-[11px] text-muted">{list.length} events</span>
       </div>
       <div className="flex flex-wrap gap-1 px-3 pb-2">

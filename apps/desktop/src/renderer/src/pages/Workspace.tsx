@@ -12,6 +12,7 @@ import { ChatPanel } from '../panels/ChatPanel'
 import { AgentsPanel } from '../panels/AgentsPanel'
 import { FeedPanel } from '../panels/FeedPanel'
 import { TeamPanel } from '../panels/TeamPanel'
+import icon from '../assets/icon.png'
 
 export function Workspace() {
   const s = useStore()
@@ -58,10 +59,10 @@ export function Workspace() {
       <div className="flex min-h-0 flex-1">
         {/* activity bar */}
         <div className="flex w-11 flex-col items-center gap-1 border-r border-line bg-panel py-2">
-          <Act icon={<Files size={18} />} label="Explorer" active={s.side === 'explorer'} onClick={() => toggleSide('explorer')} />
+          <Act icon={<Files size={18} />} label="Files" active={s.side === 'explorer'} onClick={() => toggleSide('explorer')} />
           <Act icon={<Search size={18} />} label="Search" active={s.side === 'search'} onClick={() => toggleSide('search')} />
           <Act icon={<GitBranch size={18} />} label="Git" active={s.side === 'git'} onClick={() => toggleSide('git')} />
-          <Act icon={<Boxes size={18} />} label="Model store" onClick={openModelStore} />
+          <Act icon={<Boxes size={18} />} label="Models" onClick={openModelStore} />
           <Act icon={<LayoutList size={18} />} label="Planning room" onClick={openPlanning} />
           <div className="flex-1" />
           <Act
@@ -83,7 +84,7 @@ export function Workspace() {
         )}
 
         {/* centre */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <TopBar />
           <div className="min-h-0 flex-1">
             <EditorArea />
@@ -91,7 +92,7 @@ export function Workspace() {
           {s.bottomOpen && (
             <>
               <Resizer dir="y" onDrag={(d) => setBottomH((h) => clamp(h - d, 100, 700))} />
-              <div className="border-t border-line" style={{ height: bottomH }}>
+              <div className="shrink-0 overflow-hidden border-t border-line" style={{ height: bottomH }}>
                 <TerminalPanel />
               </div>
             </>
@@ -110,10 +111,10 @@ export function Workspace() {
           </>
         )}
         <div className="flex w-11 flex-col items-center gap-1 border-l border-line bg-panel py-2">
-          <Act icon={<MessageSquare size={18} />} label="AI chat" active={s.right === 'chat'} onClick={() => toggleRight('chat')} />
-          <Act icon={<Bot size={18} />} label="Agents" active={s.right === 'agents'} badge={pendingApprovals || activeRuns || 0} onClick={() => toggleRight('agents')} />
-          <Act icon={<History size={18} />} label="Changes" active={s.right === 'changes'} badge={s.unread} onClick={() => toggleRight('changes')} />
-          <Act icon={<Users size={18} />} label="Team" active={s.right === 'team'} onClick={() => toggleRight('team')} />
+          <Act icon={<MessageSquare size={18} />} label="Ask AI" active={s.right === 'chat'} onClick={() => toggleRight('chat')} />
+          <Act icon={<Bot size={18} />} label="AI team" active={s.right === 'agents'} badge={pendingApprovals || activeRuns || 0} onClick={() => toggleRight('agents')} />
+          <Act icon={<History size={18} />} label="History" active={s.right === 'changes'} badge={s.unread} onClick={() => toggleRight('changes')} />
+          <Act icon={<Users size={18} />} label="People" active={s.right === 'team'} onClick={() => toggleRight('team')} />
         </div>
       </div>
       <StatusBar />
@@ -126,8 +127,9 @@ function TopBar() {
   const root = useStore((s) => s.root)!
   const running = run.status === 'running'
   return (
-    <div className="flex h-9 items-center gap-2 border-b border-line bg-panel px-2">
-      <button className="btn-ghost text-[12px] font-semibold text-fg" onClick={closeProject} title="Close project">
+    <div className="flex h-10 items-center gap-2 border-b border-line bg-panel px-3">
+      <img src={icon} alt="" className="h-5 w-5" />
+      <button className="display rounded-md px-1 text-[14px] font-semibold text-fg hover:bg-panel2" onClick={closeProject} title="Close this project">
         {root.split(/[\\/]/).pop()}
       </button>
       <div className="flex-1" />
@@ -160,7 +162,7 @@ function StatusBar() {
     s.collabStatus === 'solo' ? 'Solo' : s.collabStatus === 'online' ? `Live · ${s.members.filter((m) => m.online).length} online` : s.collabStatus === 'connecting' ? 'Connecting…' : s.collabStatus === 'offline' ? 'Offline — changes will sync' : 'Sync error'
   const dot = s.collabStatus === 'online' ? 'bg-ok' : s.collabStatus === 'solo' ? 'bg-muted' : s.collabStatus === 'error' ? 'bg-bad' : 'bg-warn'
   return (
-    <div className="flex h-6 items-center gap-4 border-t border-line bg-panel px-3 text-[11px] text-muted">
+    <div className="flex h-7 items-center gap-4 border-t border-line bg-panel px-3 text-[11.5px] text-muted">
       <button className="flex items-center gap-1.5 hover:text-fg" onClick={() => s.set({ right: 'team' })} title={s.collabError}>
         <span className={`h-2 w-2 rounded-full ${dot}`} />
         {statusText}
@@ -188,10 +190,11 @@ function Act({ icon, label, active, onClick, badge }: { icon: React.ReactNode; l
       title={label}
       aria-label={label}
       onClick={onClick}
-      className={`relative flex h-9 w-9 items-center justify-center rounded-md ${active ? 'bg-panel2 text-accent' : 'text-muted hover:text-fg'}`}
+      className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${active ? 'bg-panel2 text-accent' : 'text-muted hover:bg-panel2/60 hover:text-fg'}`}
     >
       {icon}
-      {!!badge && <span className="absolute top-0.5 right-0.5 min-w-4 rounded-full bg-accent px-1 text-[9px] font-bold text-accent-fg">{badge}</span>}
+      {active && <span className="absolute top-2 -left-[5px] h-5 w-[3px] rounded-full bg-accent" />}
+      {!!badge && <span className="absolute -top-0.5 -right-0.5 min-w-4 rounded-full bg-accent px-1 text-center text-[9px] font-bold text-accent-fg">{badge}</span>}
     </button>
   )
 }

@@ -1,50 +1,69 @@
 @import 'tailwindcss';
 @import '@xterm/xterm/css/xterm.css';
+@import '@fontsource-variable/hanken-grotesk/wght.css';
+@import '@fontsource-variable/bricolage-grotesque/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Hive's look comes from the hive itself: propolis-dark surfaces (warm umber, never blue-black),
+ * wax-cream text, honey as the one accent, and a cool "wing" teal reserved for AI agents.
+ * The single showpiece is the honeycomb of agents; everything else stays quiet.
+ */
 @theme {
   --color-bg: var(--bg);
   --color-panel: var(--panel);
   --color-panel2: var(--panel2);
+  --color-raise: var(--raise);
   --color-line: var(--line);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-wing: var(--wing);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
-  --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace;
+  --font-sans: 'Hanken Grotesk Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Hanken Grotesk Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
 }
 
 :root {
+  /* light: plain paper with honey; warmth lives in the accent, not the page */
   --bg: #ffffff;
-  --panel: #f6f7f9;
-  --panel2: #eceef2;
-  --line: #dcdfe5;
-  --fg: #1c1f26;
-  --muted: #687080;
-  --accent: #e09a00;
-  --accent-fg: #1c1400;
-  --ok: #1a8a4a;
-  --warn: #b57600;
-  --bad: #c9303d;
+  --panel: #f6f5f2;
+  --panel2: #eceae5;
+  --raise: #ffffff;
+  --line: #dcd8cf;
+  --fg: #221c14;
+  --muted: #6d6456;
+  --accent: #f0a400;
+  --accent-fg: #221600;
+  --wing: #0f8f88;
+  --ok: #2c8a3f;
+  --warn: #a86700;
+  --bad: #c43b2e;
+  --shadow: 0 8px 30px rgba(60, 40, 0, 0.14);
 }
 
 .dark {
-  --bg: #14161b;
-  --panel: #1b1e24;
-  --panel2: #23272f;
-  --line: #2e333c;
-  --fg: #e3e6ec;
-  --muted: #8b93a3;
-  --accent: #f5b400;
-  --accent-fg: #1c1400;
-  --ok: #3ccf7a;
-  --warn: #f0b33d;
-  --bad: #ff6070;
+  /* dark: propolis */
+  --bg: #16130f;
+  --panel: #1d1915;
+  --panel2: #29231c;
+  --raise: #2f2820;
+  --line: #3a3228;
+  --fg: #f1e8d9;
+  --muted: #a69a86;
+  --accent: #f7ab0a;
+  --accent-fg: #201500;
+  --wing: #63cdc4;
+  --ok: #86d07d;
+  --warn: #ffb648;
+  --bad: #ff7565;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
 html,
@@ -60,6 +79,8 @@ body {
   color: var(--fg);
   font-family: var(--font-sans);
   font-size: 13px;
+  line-height: 1.45;
+  font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
 }
 
@@ -68,31 +89,93 @@ body {
   scrollbar-color: var(--line) transparent;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
 button {
   cursor: pointer;
 }
 button:disabled {
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.45;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
+/* controls: 7px corners; cards: 12px; docked panes: square */
 .btn {
-  @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-panel2 px-2.5 py-1 text-[12px] text-fg hover:brightness-110;
+  @apply inline-flex items-center gap-1.5 rounded-[7px] border border-line bg-raise px-2.5 py-1 text-[12px] font-medium text-fg transition-colors hover:border-muted/60;
 }
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1 text-[12px] font-semibold text-accent-fg hover:brightness-105;
+  @apply inline-flex items-center gap-1.5 rounded-[7px] bg-accent px-3 py-1 text-[12px] font-semibold text-accent-fg transition-[filter] hover:brightness-105 active:brightness-95;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .btn-ghost {
-  @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-muted hover:bg-panel2 hover:text-fg;
+  @apply inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted transition-colors hover:bg-panel2 hover:text-fg;
 }
 .input {
-  @apply w-full rounded-md border border-line bg-bg px-2 py-1 text-[12px] text-fg outline-none focus:border-accent;
+  @apply w-full rounded-[7px] border border-line bg-bg px-2.5 py-1.5 text-[12.5px] text-fg outline-none transition-colors placeholder:text-muted/70 focus:border-accent;
 }
+/* section labels: sentence case, never shouted */
 .label {
-  @apply text-[11px] font-semibold uppercase tracking-wide text-muted;
+  @apply text-[11.5px] font-semibold text-muted;
 }
 .card {
-  @apply rounded-lg border border-line bg-panel;
+  @apply rounded-xl border border-line bg-panel;
+}
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+.pane-title {
+  font-family: var(--font-display);
+  @apply text-[13px] font-semibold text-fg;
+}
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-[11px] text-muted;
+}
+.chip-on {
+  @apply border-transparent bg-accent text-accent-fg;
+}
+
+/* honeycomb cells (agents) */
+@keyframes honey-rise {
+  0% {
+    transform: translateY(70%);
+  }
+  50% {
+    transform: translateY(18%);
+  }
+  100% {
+    transform: translateY(70%);
+  }
+}
+@keyframes cell-wait {
+  50% {
+    opacity: 0.35;
+  }
+}
+.cell-fill {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cell-working .cell-fill {
+  animation: honey-rise 2.4s ease-in-out infinite;
+}
+.cell-waiting {
+  animation: cell-wait 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell-working .cell-fill,
+  .cell-waiting {
+    animation: none;
+  }
+  .cell-working .cell-fill {
+    transform: translateY(30%);
+  }
 }
 
 /* y-monaco remote cursors */
@@ -120,6 +203,7 @@ button:disabled {
 }
 
 .xterm {
-  padding: 4px 6px;
+  box-sizing: border-box;
+  padding: 6px 8px;
   height: 100%;
 }

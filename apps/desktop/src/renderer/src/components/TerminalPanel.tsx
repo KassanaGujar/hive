@@ -20,8 +20,8 @@ const mirrorTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 function themeFor(dark: boolean) {
   return dark
-    ? { background: '#14161b', foreground: '#e3e6ec', cursor: '#f5b400', selectionBackground: '#f5b40055' }
-    : { background: '#ffffff', foreground: '#1c1f26', cursor: '#e09a00', selectionBackground: '#e09a0040' }
+    ? { background: '#16130f', foreground: '#f1e8d9', cursor: '#f7ab0a', selectionBackground: '#f7ab0a55', yellow: '#f7ab0a', green: '#86d07d', cyan: '#63cdc4', red: '#ff7565', blue: '#8fb7e8', magenta: '#d6a3e0', brightBlack: '#7d7262' }
+    : { background: '#ffffff', foreground: '#221c14', cursor: '#f0a400', selectionBackground: '#f0a40040' }
 }
 
 /** Turn "src/app.ts:12:5" style text into clickable links that open the file. */
@@ -59,7 +59,7 @@ function getInstance(id: string, readOnly = false) {
   let inst = instances.get(id)
   if (inst) return inst
   const dark = useStore.getState().settings?.theme !== 'light'
-  const term = new Terminal({ fontFamily: "'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace", fontSize: 13, cursorBlink: !readOnly, disableStdin: readOnly, theme: themeFor(dark), scrollback: 5000, allowProposedApi: true })
+  const term = new Terminal({ fontFamily: "'JetBrains Mono Variable', 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace", fontSize: 12.5, lineHeight: 1.25, cursorBlink: !readOnly, disableStdin: readOnly, theme: themeFor(dark), scrollback: 5000, allowProposedApi: true })
   const fit = new FitAddon()
   term.loadAddon(fit)
   term.loadAddon(new WebLinksAddon((_e, uri) => invoke('shell:openExternal', uri)))
@@ -191,7 +191,7 @@ export function TerminalPanel() {
           </button>
         ))}
       </div>
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         {active.map((id) => {
           const t = tabs.find((x) => x.id === id)
           return t ? <TermView key={id} tab={t} /> : null
@@ -232,7 +232,7 @@ function TermView({ tab }: { tab: TermTab }) {
       inst.host.remove()
     }
   }, [tab.id])
-  return <div ref={box} className="min-w-0 flex-1 border-r border-line last:border-r-0" />
+  return <div ref={box} className="min-h-0 min-w-0 flex-1 overflow-hidden border-r border-line last:border-r-0" />
 }
 
 const myName = () => useStore.getState().settings?.profile?.name ?? 'me'

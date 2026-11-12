@@ -52,9 +52,10 @@ function TabBar({ group }: { group: number }) {
           <div
             key={id}
             onMouseDown={(e) => (e.button === 1 ? closeTab(id) : activate(id, group))}
-            className={`group flex cursor-pointer items-center gap-2 border-r border-line px-3 text-[12px] ${active ? `bg-bg ${focused ? 'text-fg' : 'text-muted'}` : 'text-muted hover:text-fg'}`}
+            className={`group relative flex cursor-pointer items-center gap-2 border-r border-line px-3 text-[12.5px] ${active ? `bg-bg ${focused ? 'text-fg' : 'text-muted'}` : 'text-muted hover:text-fg'}`}
             title={t.kind === 'file' ? t.path : t.title}
           >
+            {active && focused && <span className="absolute inset-x-0 top-0 h-[2px] bg-accent" />}
             <span className="max-w-48 truncate">
               {t.title}
               {t.kind === 'file' && g.tabs.some((o) => o !== id && tabs[o]?.title === t.title) && (
@@ -112,7 +113,12 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
     const editor = monaco.editor.create(el.current!, {
       automaticLayout: true,
       fontSize: 13,
-      fontFamily: "'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace",
+      fontFamily: "'JetBrains Mono Variable', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace",
+      fontLigatures: false,
+      lineHeight: 20,
+      padding: { top: 10 },
+      renderLineHighlight: 'line',
+      cursorBlinking: 'smooth',
       minimap: { enabled: true, scale: 1 },
       scrollBeyondLastLine: false,
       smoothScrolling: true,

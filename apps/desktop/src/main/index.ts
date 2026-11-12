@@ -9,6 +9,7 @@ import * as git from './git'
 import * as runner from './runner'
 import * as ollama from './ollama'
 import * as models from './models'
+import * as library from './library'
 import { scanHardware } from './hardware'
 import { orchestrator, startAgents, answerApproval, pendingApprovals, refreshModels, restoreRuns } from './agents'
 import { gitStatus, installGit } from './setup'
@@ -58,7 +59,7 @@ function createWindow() {
     minHeight: 600,
     show: false,
     title: 'Hive',
-    backgroundColor: dark ? '#14161b' : '#ffffff',
+    backgroundColor: dark ? '#16130f' : '#ffffff',
     autoHideMenuBar: true,
     icon: app.isPackaged ? undefined : path.join(__dirname, '../../build/icon.png'),
     webPreferences: {
@@ -154,6 +155,7 @@ function registerHandlers() {
   handle('project:create', (parent, name, o) => project.createProject(parent, name, o?.empty))
   handle('project:current', () => project.currentProject())
   handle('fs:tree', () => project.tree())
+  handle('fs:treeAt', (rel) => project.treeAt(rel))
   handle('fs:read', (rel) => project.readFile(rel))
   handle('fs:write', (rel, content) => project.writeFile(rel, content))
   handle('fs:create', (rel, type) => project.create(rel, type))
@@ -180,7 +182,7 @@ function registerHandlers() {
   handle('git:show', (p, r) => git.show(p, r))
 
   // run
-  handle('run:start', () => runner.startRun())
+  handle('run:start', (dir) => runner.startRun(dir))
   handle('run:stop', () => runner.stopRun())
   handle('run:restart', () => runner.restartRun())
   handle('run:state', () => runner.runState())
@@ -201,6 +203,18 @@ function registerHandlers() {
   handle('models:setTier', (id, t) => models.setTier(id, t))
   handle('models:testKey', (p, k) => models.testKey(p, k))
   handle('models:connectHosted', (id, on) => models.setHostedConnected(id, on))
+  handle('library:searchHF', (q) => library.searchHF(q))
+  handle('library:hfFiles', (repo) => library.hfFiles(repo))
+  handle('library:openrouter', () => library.openRouterModels())
+  handle('custom:list', () => library.customProviders())
+  handle('custom:save', (p) => library.saveProvider(p))
+  handle('custom:models', (id) => {
+    const p = library.customProviders().find((x) => x.id === id)
+    if (!p) throw new Error('Unknown provider')
+    return library.listProviderModels(p.baseUrl, library.providerKey(id))
+  })
+  handle('custom:setModels', (id, list) => library.setProviderModels(id, list))
+  handle('custom:remove', (id) => library.removeProvider(id))
   handle('chat:stream', (id, msgs, tools) => models.chatStream(id, msgs, tools))
   handle('chat:abort', (id) => models.abortStream(id))
   handle('chat:once', (id, msgs) => models.chatOnceById(id, msgs))

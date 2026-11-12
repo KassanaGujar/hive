@@ -6,6 +6,7 @@ import type { Catalog, CatalogEntry, ChatMessage, InstalledModel, Tier, ToolSpec
 import { emit } from './ipc'
 import { getSettings, secrets, setSettings, store } from './store'
 import { listLocal, ollamaBaseUrl } from './ollama'
+import { customProviders, providerKey } from './library'
 
 let catalog: Catalog | null = null
 
@@ -94,6 +95,13 @@ export async function installedModels(): Promise<InstalledModel[]> {
     })
   }
   for (const id of connectedHosted()) {
+    // Live OpenRouter free models are stored as "or:<model id>"; only ":free" ids are ever accepted.
+    if (id.startsWith('or:')) {
+      const model = id.slice(3)
+      if (!model.endsWith(':free') || !secrets.has('key:openrouter')) continue
+      out.push({ id, name: `${model.replace(/:free$/, '')} (OpenRouter free)`, source: 'openrouter', model, tier: overrides[id] ?? 'lead', codingScore: 60, sizeGB: 0, minRamGB: 0, contextTokens: 32768 })
+      continue
+    }
     const e = getCatalog().models.find((m) => m.id === id)
     if (!e || e.source === 'ollama' || !secrets.has(`key:${e.source}`)) continue
     out.push({
@@ -108,6 +116,13 @@ export async function installedModels(): Promise<InstalledModel[]> {
       contextTokens: e.contextTokens
     })
   }
+  // Your own keys: whatever the user pays for. Strong by default; the tier is theirs to change.
+  for (const p of customProviders()) {
+    for (const model of p.models) {
+      const id = `custom:${p.id}:${model}`
+      out.push({ id, name: `${model} (${p.name})`, source: 'custom', model, tier: overrides[id] ?? 'top', codingScore: 88, sizeGB: 0, minRamGB: 0, contextTokens: 128000 })
+    }
+  }
   return out
 }
 
@@ -120,6 +135,11 @@ export function setTier(id: string, tier: Tier | null) {
 
 export function endpointFor(m: InstalledModel): Endpoint {
   if (m.source === 'ollama') return { baseUrl: ollamaBaseUrl, model: m.model }
+  if (m.source === 'custom') {
+    const p = customProviders().find((x) => m.id.startsWith(`custom:${x.id}:`))
+    if (!p) throw new Error('That provider was removed.')
+    return { baseUrl: p.baseUrl, apiKey: providerKey(p.id), model: m.model }
+  }
   const p = getCatalog().providers[m.source]
   const key = secrets.get(`key:${m.source}`)
   if (!p || !key) throw new Error(`No free key saved for ${m.source}. Add one in the Model store.`)

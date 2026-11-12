@@ -1,38 +1,205 @@
 {
-  "version": 1,
-  "updated": "2026-11-02",
-  "providers": {
-    "openrouter": { "name": "OpenRouter (free models)", "baseUrl": "https://openrouter.ai/api/v1", "keyUrl": "https://openrouter.ai/settings/keys", "testPath": "/key" },
-    "groq": { "name": "Groq free tier", "baseUrl": "https://api.groq.com/openai/v1", "keyUrl": "https://console.groq.com/keys", "testPath": "/models" },
-    "hf": { "name": "Hugging Face free inference", "baseUrl": "https://router.huggingface.co/v1", "keyUrl": "https://huggingface.co/settings/tokens", "testPath": "/models" }
+ "version": 2,
+ "updated": "2026-11-12",
+ "providers": {
+  "openrouter": { "name": "OpenRouter (free models)", "baseUrl": "https://openrouter.ai/api/v1", "keyUrl": "https://openrouter.ai/settings/keys", "testPath": "/key"
   },
-  "models": [
-    { "id": "qwen2.5-coder-1.5b", "name": "Qwen2.5 Coder 1.5B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:1.5b", "sizeGB": 1.0, "minRamGB": 4, "minVramGB": 0, "contextTokens": 32768, "tier": "worker", "codingScore": 35, "free": true, "description": "Tiny and fast. Good for testing and very weak PCs." },
-    { "id": "qwen2.5-coder-7b", "name": "Qwen2.5 Coder 7B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 6, "contextTokens": 32768, "tier": "worker", "codingScore": 55, "free": true, "description": "Recommended starter for 16 GB laptops." },
-    { "id": "qwen2.5-coder-14b", "name": "Qwen2.5 Coder 14B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:14b", "sizeGB": 9.0, "minRamGB": 16, "minVramGB": 10, "contextTokens": 32768, "tier": "lead", "codingScore": 65, "free": true },
-    { "id": "qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 32768, "tier": "top", "codingScore": 74, "free": true },
-    { "id": "qwen3-coder-30b", "name": "Qwen3 Coder 30B (A3B)", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen3-coder:30b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 20, "contextTokens": 262144, "tier": "top", "codingScore": 78, "free": true },
-    { "id": "gpt-oss-20b", "name": "gpt-oss 20B", "family": "gpt-oss", "source": "ollama", "pullName": "gpt-oss:20b", "sizeGB": 14, "minRamGB": 16, "minVramGB": 14, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true },
-    { "id": "gpt-oss-120b", "name": "gpt-oss 120B", "family": "gpt-oss", "source": "ollama", "pullName": "gpt-oss:120b", "sizeGB": 65, "minRamGB": 64, "minVramGB": 60, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true },
-    { "id": "deepseek-r1-7b", "name": "DeepSeek R1 7B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 6, "contextTokens": 131072, "tier": "worker", "codingScore": 45, "free": true },
-    { "id": "deepseek-r1-14b", "name": "DeepSeek R1 14B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:14b", "sizeGB": 9.0, "minRamGB": 16, "minVramGB": 10, "contextTokens": 131072, "tier": "lead", "codingScore": 58, "free": true },
-    { "id": "deepseek-r1-32b", "name": "DeepSeek R1 32B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 131072, "tier": "lead", "codingScore": 66, "free": true },
-    { "id": "deepseek-coder-v2-16b", "name": "DeepSeek Coder V2 Lite 16B", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-coder-v2:16b", "sizeGB": 8.9, "minRamGB": 16, "minVramGB": 10, "contextTokens": 163840, "tier": "worker", "codingScore": 60, "free": true },
-    { "id": "devstral-24b", "name": "Devstral 24B", "family": "Devstral", "source": "ollama", "pullName": "devstral:24b", "sizeGB": 14, "minRamGB": 32, "minVramGB": 16, "contextTokens": 131072, "tier": "lead", "codingScore": 72, "free": true },
-    { "id": "llama3.2-3b", "name": "Llama 3.2 3B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.2:3b", "sizeGB": 2.0, "minRamGB": 4, "minVramGB": 3, "contextTokens": 131072, "tier": "worker", "codingScore": 30, "free": true },
-    { "id": "llama3.1-8b", "name": "Llama 3.1 8B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.1:8b", "sizeGB": 4.9, "minRamGB": 8, "minVramGB": 6, "contextTokens": 131072, "tier": "worker", "codingScore": 42, "free": true },
-    { "id": "llama3.3-70b", "name": "Llama 3.3 70B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.3:70b", "sizeGB": 43, "minRamGB": 64, "minVramGB": 44, "contextTokens": 131072, "tier": "top", "codingScore": 68, "free": true },
-    { "id": "gemma3-4b", "name": "Gemma 3 4B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:4b", "sizeGB": 3.3, "minRamGB": 4, "minVramGB": 4, "contextTokens": 131072, "tier": "worker", "codingScore": 32, "free": true },
-    { "id": "gemma3-12b", "name": "Gemma 3 12B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:12b", "sizeGB": 8.1, "minRamGB": 12, "minVramGB": 9, "contextTokens": 131072, "tier": "worker", "codingScore": 48, "free": true },
-    { "id": "gemma3-27b", "name": "Gemma 3 27B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:27b", "sizeGB": 17, "minRamGB": 32, "minVramGB": 18, "contextTokens": 131072, "tier": "lead", "codingScore": 58, "free": true },
-    { "id": "phi4-14b", "name": "Phi-4 14B", "family": "Phi-4", "source": "ollama", "pullName": "phi4:14b", "sizeGB": 9.1, "minRamGB": 16, "minVramGB": 10, "contextTokens": 16384, "tier": "worker", "codingScore": 55, "free": true },
-
-    { "id": "or-qwen3-coder-free", "name": "Qwen3 Coder 480B (OpenRouter free)", "family": "Qwen Coder", "source": "openrouter", "endpointModel": "qwen/qwen3-coder:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "top", "codingScore": 84, "free": true, "keyUrl": "https://openrouter.ai/settings/keys" },
-    { "id": "or-gpt-oss-120b-free", "name": "gpt-oss 120B (OpenRouter free)", "family": "gpt-oss", "source": "openrouter", "endpointModel": "openai/gpt-oss-120b:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://openrouter.ai/settings/keys" },
-    { "id": "or-llama3.3-70b-free", "name": "Llama 3.3 70B (OpenRouter free)", "family": "Llama 3.x", "source": "openrouter", "endpointModel": "meta-llama/llama-3.3-70b-instruct:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://openrouter.ai/settings/keys" },
-    { "id": "groq-gpt-oss-120b", "name": "gpt-oss 120B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-120b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://console.groq.com/keys" },
-    { "id": "groq-gpt-oss-20b", "name": "gpt-oss 20B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-20b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys" },
-    { "id": "groq-llama3.3-70b", "name": "Llama 3.3 70B (Groq free tier)", "family": "Llama 3.x", "source": "groq", "endpointModel": "llama-3.3-70b-versatile", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://console.groq.com/keys" },
-    { "id": "hf-qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B (HF free inference)", "family": "Qwen Coder", "source": "hf", "endpointModel": "Qwen/Qwen2.5-Coder-32B-Instruct", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 32768, "tier": "lead", "codingScore": 74, "free": true, "keyUrl": "https://huggingface.co/settings/tokens" }
-  ]
+  "groq": { "name": "Groq free tier", "baseUrl": "https://api.groq.com/openai/v1", "keyUrl": "https://console.groq.com/keys", "testPath": "/models"
+  },
+  "hf": { "name": "Hugging Face free inference", "baseUrl": "https://router.huggingface.co/v1", "keyUrl": "https://huggingface.co/settings/tokens", "testPath": "/models"
+  } },
+ "models": [
+  { "id": "qwen2.5-coder-1.5b", "name": "Qwen2.5 Coder 1.5B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:1.5b", "sizeGB": 1, "minRamGB": 4, "minVramGB": 0, "contextTokens": 32768, "tier": "worker", "codingScore": 35, "free": true, "description": "Tiny and fast. Good for testing and very weak PCs."
+  },
+  { "id": "qwen2.5-coder-7b", "name": "Qwen2.5 Coder 7B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 6, "contextTokens": 32768, "tier": "worker", "codingScore": 55, "free": true, "description": "Recommended starter for 16 GB laptops."
+  },
+  { "id": "qwen2.5-coder-14b", "name": "Qwen2.5 Coder 14B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:14b", "sizeGB": 9, "minRamGB": 16, "minVramGB": 10, "contextTokens": 32768, "tier": "lead", "codingScore": 65, "free": true
+  },
+  { "id": "qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 32768, "tier": "top", "codingScore": 74, "free": true
+  },
+  { "id": "qwen3-coder-30b", "name": "Qwen3 Coder 30B (A3B)", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen3-coder:30b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 20, "contextTokens": 262144, "tier": "top", "codingScore": 78, "free": true
+  },
+  { "id": "gpt-oss-20b", "name": "gpt-oss 20B", "family": "gpt-oss", "source": "ollama", "pullName": "gpt-oss:20b", "sizeGB": 14, "minRamGB": 16, "minVramGB": 14, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true
+  },
+  { "id": "gpt-oss-120b", "name": "gpt-oss 120B", "family": "gpt-oss", "source": "ollama", "pullName": "gpt-oss:120b", "sizeGB": 65, "minRamGB": 64, "minVramGB": 60, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true
+  },
+  { "id": "deepseek-r1-7b", "name": "DeepSeek R1 7B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 6, "contextTokens": 131072, "tier": "worker", "codingScore": 45, "free": true
+  },
+  { "id": "deepseek-r1-14b", "name": "DeepSeek R1 14B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:14b", "sizeGB": 9, "minRamGB": 16, "minVramGB": 10, "contextTokens": 131072, "tier": "lead", "codingScore": 58, "free": true
+  },
+  { "id": "deepseek-r1-32b", "name": "DeepSeek R1 32B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 131072, "tier": "lead", "codingScore": 66, "free": true
+  },
+  { "id": "deepseek-coder-v2-16b", "name": "DeepSeek Coder V2 Lite 16B", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-coder-v2:16b", "sizeGB": 8.9, "minRamGB": 16, "minVramGB": 10, "contextTokens": 163840, "tier": "worker", "codingScore": 60, "free": true
+  },
+  { "id": "devstral-24b", "name": "Devstral 24B", "family": "Devstral", "source": "ollama", "pullName": "devstral:24b", "sizeGB": 14, "minRamGB": 32, "minVramGB": 16, "contextTokens": 131072, "tier": "lead", "codingScore": 72, "free": true
+  },
+  { "id": "llama3.2-3b", "name": "Llama 3.2 3B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.2:3b", "sizeGB": 2, "minRamGB": 4, "minVramGB": 3, "contextTokens": 131072, "tier": "worker", "codingScore": 30, "free": true
+  },
+  { "id": "llama3.1-8b", "name": "Llama 3.1 8B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.1:8b", "sizeGB": 4.9, "minRamGB": 8, "minVramGB": 6, "contextTokens": 131072, "tier": "worker", "codingScore": 42, "free": true
+  },
+  { "id": "llama3.3-70b", "name": "Llama 3.3 70B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.3:70b", "sizeGB": 43, "minRamGB": 64, "minVramGB": 44, "contextTokens": 131072, "tier": "top", "codingScore": 68, "free": true
+  },
+  { "id": "gemma3-4b", "name": "Gemma 3 4B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:4b", "sizeGB": 3.3, "minRamGB": 4, "minVramGB": 4, "contextTokens": 131072, "tier": "worker", "codingScore": 32, "free": true
+  },
+  { "id": "gemma3-12b", "name": "Gemma 3 12B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:12b", "sizeGB": 8.1, "minRamGB": 12, "minVramGB": 9, "contextTokens": 131072, "tier": "worker", "codingScore": 48, "free": true
+  },
+  { "id": "gemma3-27b", "name": "Gemma 3 27B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:27b", "sizeGB": 17, "minRamGB": 32, "minVramGB": 18, "contextTokens": 131072, "tier": "lead", "codingScore": 58, "free": true
+  },
+  { "id": "phi4-14b", "name": "Phi-4 14B", "family": "Phi-4", "source": "ollama", "pullName": "phi4:14b", "sizeGB": 9.1, "minRamGB": 16, "minVramGB": 10, "contextTokens": 16384, "tier": "worker", "codingScore": 55, "free": true
+  },
+  { "id": "or-qwen3-coder-free", "name": "Qwen3 Coder 480B (OpenRouter free)", "family": "Qwen Coder", "source": "openrouter", "endpointModel": "qwen/qwen3-coder:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "top", "codingScore": 84, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  },
+  { "id": "or-gpt-oss-120b-free", "name": "gpt-oss 120B (OpenRouter free)", "family": "gpt-oss", "source": "openrouter", "endpointModel": "openai/gpt-oss-120b:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  },
+  { "id": "or-llama3.3-70b-free", "name": "Llama 3.3 70B (OpenRouter free)", "family": "Llama 3.x", "source": "openrouter", "endpointModel": "meta-llama/llama-3.3-70b-instruct:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  },
+  { "id": "groq-gpt-oss-120b", "name": "gpt-oss 120B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-120b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://console.groq.com/keys"
+  },
+  { "id": "groq-gpt-oss-20b", "name": "gpt-oss 20B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-20b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys"
+  },
+  { "id": "groq-llama3.3-70b", "name": "Llama 3.3 70B (Groq free tier)", "family": "Llama 3.x", "source": "groq", "endpointModel": "llama-3.3-70b-versatile", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://console.groq.com/keys"
+  },
+  { "id": "hf-qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B (HF free inference)", "family": "Qwen Coder", "source": "hf", "endpointModel": "Qwen/Qwen2.5-Coder-32B-Instruct", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 32768, "tier": "lead", "codingScore": 74, "free": true, "keyUrl": "https://huggingface.co/settings/tokens"
+  },
+  { "id": "qwen2.5-coder-0.5b", "name": "Qwen2.5 Coder 0.5B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:0.5b", "sizeGB": 0.4, "minRamGB": 4, "minVramGB": 0, "contextTokens": 32768, "tier": "worker", "codingScore": 22, "free": true, "description": "Smallest coder; runs on anything."
+  },
+  { "id": "qwen2.5-coder-3b", "name": "Qwen2.5 Coder 3B", "family": "Qwen Coder", "source": "ollama", "pullName": "qwen2.5-coder:3b", "sizeGB": 1.9, "minRamGB": 8, "minVramGB": 4, "contextTokens": 32768, "tier": "worker", "codingScore": 45, "free": true, "description": "Good coder for 8 GB laptops."
+  },
+  { "id": "qwen3-0.6b", "name": "Qwen3 0.6B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:0.6b", "sizeGB": 0.5, "minRamGB": 4, "minVramGB": 0, "contextTokens": 40960, "tier": "worker", "codingScore": 20, "free": true
+  },
+  { "id": "qwen3-1.7b", "name": "Qwen3 1.7B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:1.7b", "sizeGB": 1.4, "minRamGB": 4, "minVramGB": 3, "contextTokens": 40960, "tier": "worker", "codingScore": 32, "free": true
+  },
+  { "id": "qwen3-4b", "name": "Qwen3 4B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:4b", "sizeGB": 2.6, "minRamGB": 8, "minVramGB": 5, "contextTokens": 262144, "tier": "worker", "codingScore": 46, "free": true
+  },
+  { "id": "qwen3-8b", "name": "Qwen3 8B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:8b", "sizeGB": 5.2, "minRamGB": 12, "minVramGB": 7, "contextTokens": 40960, "tier": "worker", "codingScore": 56, "free": true
+  },
+  { "id": "qwen3-14b", "name": "Qwen3 14B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:14b", "sizeGB": 9.3, "minRamGB": 16, "minVramGB": 11, "contextTokens": 40960, "tier": "lead", "codingScore": 64, "free": true
+  },
+  { "id": "qwen3-30b", "name": "Qwen3 30B (A3B)", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:30b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 262144, "tier": "lead", "codingScore": 70, "free": true
+  },
+  { "id": "qwen3-32b", "name": "Qwen3 32B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 40960, "tier": "top", "codingScore": 72, "free": true
+  },
+  { "id": "qwen2.5-3b", "name": "Qwen2.5 3B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:3b", "sizeGB": 1.9, "minRamGB": 8, "minVramGB": 4, "contextTokens": 32768, "tier": "worker", "codingScore": 40, "free": true
+  },
+  { "id": "qwen2.5-7b", "name": "Qwen2.5 7B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 7, "contextTokens": 32768, "tier": "worker", "codingScore": 52, "free": true
+  },
+  { "id": "qwen2.5-14b", "name": "Qwen2.5 14B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:14b", "sizeGB": 9, "minRamGB": 16, "minVramGB": 11, "contextTokens": 32768, "tier": "lead", "codingScore": 60, "free": true
+  },
+  { "id": "qwen2.5-32b", "name": "Qwen2.5 32B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 32768, "tier": "lead", "codingScore": 68, "free": true
+  },
+  { "id": "qwen2.5-72b", "name": "Qwen2.5 72B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:72b", "sizeGB": 47, "minRamGB": 64, "minVramGB": 49, "contextTokens": 32768, "tier": "top", "codingScore": 74, "free": true
+  },
+  { "id": "qwq-32b", "name": "QwQ 32B (reasoning)", "family": "QwQ", "source": "ollama", "pullName": "qwq:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "description": "Thinks step by step; slow but careful."
+  },
+  { "id": "deepseek-r1-1.5b", "name": "DeepSeek R1 1.5B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:1.5b", "sizeGB": 1.1, "minRamGB": 4, "minVramGB": 0, "contextTokens": 131072, "tier": "worker", "codingScore": 28, "free": true
+  },
+  { "id": "deepseek-r1-8b", "name": "DeepSeek R1 8B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:8b", "sizeGB": 5.2, "minRamGB": 12, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 48, "free": true
+  },
+  { "id": "deepseek-r1-70b", "name": "DeepSeek R1 70B (distill)", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-r1:70b", "sizeGB": 43, "minRamGB": 64, "minVramGB": 45, "contextTokens": 131072, "tier": "top", "codingScore": 72, "free": true
+  },
+  { "id": "deepseek-coder-1.3b", "name": "DeepSeek Coder 1.3B", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-coder:1.3b", "sizeGB": 0.8, "minRamGB": 4, "minVramGB": 0, "contextTokens": 16384, "tier": "worker", "codingScore": 30, "free": true
+  },
+  { "id": "deepseek-coder-6.7b", "name": "DeepSeek Coder 6.7B", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-coder:6.7b", "sizeGB": 3.8, "minRamGB": 8, "minVramGB": 6, "contextTokens": 16384, "tier": "worker", "codingScore": 50, "free": true
+  },
+  { "id": "deepseek-coder-33b", "name": "DeepSeek Coder 33B", "family": "DeepSeek", "source": "ollama", "pullName": "deepseek-coder:33b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 16384, "tier": "lead", "codingScore": 64, "free": true
+  },
+  { "id": "codellama-7b", "name": "Code Llama 7B", "family": "Code Llama", "source": "ollama", "pullName": "codellama:7b", "sizeGB": 3.8, "minRamGB": 8, "minVramGB": 6, "contextTokens": 16384, "tier": "worker", "codingScore": 44, "free": true
+  },
+  { "id": "codellama-13b", "name": "Code Llama 13B", "family": "Code Llama", "source": "ollama", "pullName": "codellama:13b", "sizeGB": 7.4, "minRamGB": 12, "minVramGB": 9, "contextTokens": 16384, "tier": "worker", "codingScore": 50, "free": true
+  },
+  { "id": "codellama-34b", "name": "Code Llama 34B", "family": "Code Llama", "source": "ollama", "pullName": "codellama:34b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 16384, "tier": "lead", "codingScore": 58, "free": true
+  },
+  { "id": "codegemma-2b", "name": "CodeGemma 2B", "family": "CodeGemma", "source": "ollama", "pullName": "codegemma:2b", "sizeGB": 1.6, "minRamGB": 4, "minVramGB": 4, "contextTokens": 8192, "tier": "worker", "codingScore": 34, "free": true
+  },
+  { "id": "codegemma-7b", "name": "CodeGemma 7B", "family": "CodeGemma", "source": "ollama", "pullName": "codegemma:7b", "sizeGB": 5, "minRamGB": 8, "minVramGB": 7, "contextTokens": 8192, "tier": "worker", "codingScore": 48, "free": true
+  },
+  { "id": "starcoder2-3b", "name": "StarCoder2 3B", "family": "StarCoder2", "source": "ollama", "pullName": "starcoder2:3b", "sizeGB": 1.7, "minRamGB": 8, "minVramGB": 4, "contextTokens": 16384, "tier": "worker", "codingScore": 36, "free": true
+  },
+  { "id": "starcoder2-7b", "name": "StarCoder2 7B", "family": "StarCoder2", "source": "ollama", "pullName": "starcoder2:7b", "sizeGB": 4, "minRamGB": 8, "minVramGB": 6, "contextTokens": 16384, "tier": "worker", "codingScore": 44, "free": true
+  },
+  { "id": "starcoder2-15b", "name": "StarCoder2 15B", "family": "StarCoder2", "source": "ollama", "pullName": "starcoder2:15b", "sizeGB": 9.1, "minRamGB": 16, "minVramGB": 11, "contextTokens": 16384, "tier": "worker", "codingScore": 52, "free": true
+  },
+  { "id": "granite-code-3b", "name": "Granite Code 3B", "family": "Granite Code", "source": "ollama", "pullName": "granite-code:3b", "sizeGB": 2, "minRamGB": 8, "minVramGB": 4, "contextTokens": 131072, "tier": "worker", "codingScore": 38, "free": true
+  },
+  { "id": "granite-code-8b", "name": "Granite Code 8B", "family": "Granite Code", "source": "ollama", "pullName": "granite-code:8b", "sizeGB": 4.6, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 48, "free": true
+  },
+  { "id": "granite-code-20b", "name": "Granite Code 20B", "family": "Granite Code", "source": "ollama", "pullName": "granite-code:20b", "sizeGB": 12, "minRamGB": 24, "minVramGB": 14, "contextTokens": 8192, "tier": "worker", "codingScore": 56, "free": true
+  },
+  { "id": "granite-code-34b", "name": "Granite Code 34B", "family": "Granite Code", "source": "ollama", "pullName": "granite-code:34b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 8192, "tier": "lead", "codingScore": 60, "free": true
+  },
+  { "id": "granite3.3-2b", "name": "Granite 3.3 2B", "family": "Granite", "source": "ollama", "pullName": "granite3.3:2b", "sizeGB": 1.5, "minRamGB": 4, "minVramGB": 3, "contextTokens": 131072, "tier": "worker", "codingScore": 34, "free": true
+  },
+  { "id": "granite3.3-8b", "name": "Granite 3.3 8B", "family": "Granite", "source": "ollama", "pullName": "granite3.3:8b", "sizeGB": 4.9, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 50, "free": true
+  },
+  { "id": "mistral-7b", "name": "Mistral 7B", "family": "Mistral", "source": "ollama", "pullName": "mistral:7b", "sizeGB": 4.4, "minRamGB": 8, "minVramGB": 6, "contextTokens": 32768, "tier": "worker", "codingScore": 42, "free": true
+  },
+  { "id": "mistral-nemo-12b", "name": "Mistral Nemo 12B", "family": "Mistral", "source": "ollama", "pullName": "mistral-nemo:12b", "sizeGB": 7.1, "minRamGB": 12, "minVramGB": 9, "contextTokens": 131072, "tier": "worker", "codingScore": 52, "free": true
+  },
+  { "id": "mistral-small-24b", "name": "Mistral Small 24B", "family": "Mistral", "source": "ollama", "pullName": "mistral-small:24b", "sizeGB": 14, "minRamGB": 24, "minVramGB": 16, "contextTokens": 32768, "tier": "lead", "codingScore": 62, "free": true
+  },
+  { "id": "codestral-22b", "name": "Codestral 22B", "family": "Mistral", "source": "ollama", "pullName": "codestral:22b", "sizeGB": 13, "minRamGB": 24, "minVramGB": 15, "contextTokens": 32768, "tier": "lead", "codingScore": 68, "free": true, "description": "Mistral’s code model."
+  },
+  { "id": "magistral-24b", "name": "Magistral 24B (reasoning)", "family": "Mistral", "source": "ollama", "pullName": "magistral:24b", "sizeGB": 14, "minRamGB": 24, "minVramGB": 16, "contextTokens": 40960, "tier": "lead", "codingScore": 64, "free": true
+  },
+  { "id": "mixtral-8x7b", "name": "Mixtral 8x7B", "family": "Mistral", "source": "ollama", "pullName": "mixtral:8x7b", "sizeGB": 26, "minRamGB": 48, "minVramGB": 28, "contextTokens": 32768, "tier": "worker", "codingScore": 56, "free": true
+  },
+  { "id": "llama3.2-1b", "name": "Llama 3.2 1B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.2:1b", "sizeGB": 1.3, "minRamGB": 4, "minVramGB": 3, "contextTokens": 131072, "tier": "worker", "codingScore": 18, "free": true
+  },
+  { "id": "llama3.1-70b", "name": "Llama 3.1 70B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.1:70b", "sizeGB": 43, "minRamGB": 64, "minVramGB": 45, "contextTokens": 131072, "tier": "lead", "codingScore": 66, "free": true
+  },
+  { "id": "llama3.2-vision-11b", "name": "Llama 3.2 Vision 11B", "family": "Llama 3.x", "source": "ollama", "pullName": "llama3.2-vision:11b", "sizeGB": 7.8, "minRamGB": 12, "minVramGB": 10, "contextTokens": 131072, "tier": "worker", "codingScore": 40, "free": true, "description": "Can look at images."
+  },
+  { "id": "gemma3-1b", "name": "Gemma 3 1B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3:1b", "sizeGB": 0.8, "minRamGB": 4, "minVramGB": 0, "contextTokens": 32768, "tier": "worker", "codingScore": 18, "free": true
+  },
+  { "id": "gemma3n-e2b", "name": "Gemma 3n E2B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3n:e2b", "sizeGB": 5.6, "minRamGB": 12, "minVramGB": 8, "contextTokens": 32768, "tier": "worker", "codingScore": 36, "free": true
+  },
+  { "id": "gemma3n-e4b", "name": "Gemma 3n E4B", "family": "Gemma 3", "source": "ollama", "pullName": "gemma3n:e4b", "sizeGB": 7.5, "minRamGB": 12, "minVramGB": 9, "contextTokens": 32768, "tier": "worker", "codingScore": 44, "free": true
+  },
+  { "id": "gemma2-2b", "name": "Gemma 2 2B", "family": "Gemma 2", "source": "ollama", "pullName": "gemma2:2b", "sizeGB": 1.6, "minRamGB": 4, "minVramGB": 4, "contextTokens": 8192, "tier": "worker", "codingScore": 28, "free": true
+  },
+  { "id": "gemma2-9b", "name": "Gemma 2 9B", "family": "Gemma 2", "source": "ollama", "pullName": "gemma2:9b", "sizeGB": 5.4, "minRamGB": 12, "minVramGB": 7, "contextTokens": 8192, "tier": "worker", "codingScore": 46, "free": true
+  },
+  { "id": "gemma2-27b", "name": "Gemma 2 27B", "family": "Gemma 2", "source": "ollama", "pullName": "gemma2:27b", "sizeGB": 16, "minRamGB": 24, "minVramGB": 18, "contextTokens": 8192, "tier": "worker", "codingScore": 56, "free": true
+  },
+  { "id": "phi3-3.8b", "name": "Phi-3 Mini 3.8B", "family": "Phi", "source": "ollama", "pullName": "phi3:3.8b", "sizeGB": 2.2, "minRamGB": 8, "minVramGB": 4, "contextTokens": 131072, "tier": "worker", "codingScore": 38, "free": true
+  },
+  { "id": "phi3-14b", "name": "Phi-3 Medium 14B", "family": "Phi", "source": "ollama", "pullName": "phi3:14b", "sizeGB": 7.9, "minRamGB": 12, "minVramGB": 10, "contextTokens": 131072, "tier": "worker", "codingScore": 48, "free": true
+  },
+  { "id": "phi4-mini-3.8b", "name": "Phi-4 Mini 3.8B", "family": "Phi", "source": "ollama", "pullName": "phi4-mini:3.8b", "sizeGB": 2.5, "minRamGB": 8, "minVramGB": 4, "contextTokens": 131072, "tier": "worker", "codingScore": 44, "free": true
+  },
+  { "id": "phi4-reasoning-14b", "name": "Phi-4 Reasoning 14B", "family": "Phi", "source": "ollama", "pullName": "phi4-reasoning:14b", "sizeGB": 11, "minRamGB": 16, "minVramGB": 13, "contextTokens": 32768, "tier": "worker", "codingScore": 56, "free": true
+  },
+  { "id": "smollm2-360m", "name": "SmolLM2 360M", "family": "Small & fast", "source": "ollama", "pullName": "smollm2:360m", "sizeGB": 0.7, "minRamGB": 4, "minVramGB": 0, "contextTokens": 8192, "tier": "worker", "codingScore": 10, "free": true, "description": "Tiny; for quick tests only."
+  },
+  { "id": "smollm2-1.7b", "name": "SmolLM2 1.7B", "family": "Small & fast", "source": "ollama", "pullName": "smollm2:1.7b", "sizeGB": 1.8, "minRamGB": 8, "minVramGB": 4, "contextTokens": 8192, "tier": "worker", "codingScore": 22, "free": true
+  },
+  { "id": "tinyllama-1.1b", "name": "TinyLlama 1.1B", "family": "Small & fast", "source": "ollama", "pullName": "tinyllama:1.1b", "sizeGB": 0.6, "minRamGB": 4, "minVramGB": 0, "contextTokens": 2048, "tier": "worker", "codingScore": 10, "free": true
+  },
+  { "id": "yi-coder-1.5b", "name": "Yi Coder 1.5B", "family": "Yi Coder", "source": "ollama", "pullName": "yi-coder:1.5b", "sizeGB": 0.9, "minRamGB": 4, "minVramGB": 0, "contextTokens": 131072, "tier": "worker", "codingScore": 32, "free": true
+  },
+  { "id": "yi-coder-9b", "name": "Yi Coder 9B", "family": "Yi Coder", "source": "ollama", "pullName": "yi-coder:9b", "sizeGB": 5, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 54, "free": true
+  },
+  { "id": "opencoder-1.5b", "name": "OpenCoder 1.5B", "family": "OpenCoder", "source": "ollama", "pullName": "opencoder:1.5b", "sizeGB": 1.4, "minRamGB": 4, "minVramGB": 3, "contextTokens": 4096, "tier": "worker", "codingScore": 30, "free": true
+  },
+  { "id": "opencoder-8b", "name": "OpenCoder 8B", "family": "OpenCoder", "source": "ollama", "pullName": "opencoder:8b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 7, "contextTokens": 8192, "tier": "worker", "codingScore": 50, "free": true
+  },
+  { "id": "cogito-8b", "name": "Cogito 8B", "family": "Cogito", "source": "ollama", "pullName": "cogito:8b", "sizeGB": 4.9, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 52, "free": true
+  },
+  { "id": "cogito-14b", "name": "Cogito 14B", "family": "Cogito", "source": "ollama", "pullName": "cogito:14b", "sizeGB": 9, "minRamGB": 16, "minVramGB": 11, "contextTokens": 131072, "tier": "lead", "codingScore": 60, "free": true
+  },
+  { "id": "cogito-32b", "name": "Cogito 32B", "family": "Cogito", "source": "ollama", "pullName": "cogito:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true
+  },
+  { "id": "dolphin3-8b", "name": "Dolphin 3 8B", "family": "Community", "source": "ollama", "pullName": "dolphin3:8b", "sizeGB": 4.9, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 44, "free": true
+  },
+  { "id": "hermes3-8b", "name": "Hermes 3 8B", "family": "Community", "source": "ollama", "pullName": "hermes3:8b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 7, "contextTokens": 131072, "tier": "worker", "codingScore": 46, "free": true
+  },
+  { "id": "wizardlm2-7b", "name": "WizardLM2 7B", "family": "Community", "source": "ollama", "pullName": "wizardlm2:7b", "sizeGB": 4.1, "minRamGB": 8, "minVramGB": 6, "contextTokens": 32768, "tier": "worker", "codingScore": 42, "free": true
+  },
+  { "id": "command-r-35b", "name": "Command R 35B", "family": "Community", "source": "ollama", "pullName": "command-r:35b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 131072, "tier": "worker", "codingScore": 54, "free": true
+  },
+  { "id": "llava-7b", "name": "LLaVA 7B (vision)", "family": "Community", "source": "ollama", "pullName": "llava:7b", "sizeGB": 4.7, "minRamGB": 8, "minVramGB": 7, "contextTokens": 32768, "tier": "worker", "codingScore": 30, "free": true, "description": "Can look at images."
+  },
+  { "id": "devstral-small-2-24b", "name": "Devstral Small 2 24B", "family": "Devstral", "source": "ollama", "pullName": "devstral-small-2:24b", "sizeGB": 15, "minRamGB": 24, "minVramGB": 17, "contextTokens": 262144, "tier": "top", "codingScore": 76, "free": true, "description": "Built for coding agents."
+  }
+ ]
 }

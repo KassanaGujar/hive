@@ -4,13 +4,14 @@ import path from 'node:path'
 import { detectProject, RUNTIME_DOWNLOADS } from '@hive/editor'
 import type { RunConfig, RunState } from '@hive/shared'
 import { emit } from './ipc'
-import { projectRoot } from './project'
+import { abs, projectRoot } from './project'
 import { createTerminal, killTerminal, whichSync, clearWhichCache } from './terminal'
 import { recordFeed } from './feed'
 import { getSettings } from './store'
 
 let state: RunState = { status: 'idle' }
 let staticServer: Server | null = null
+let lastDir: string | undefined
 
 function setState(s: RunState) {
   state = s
@@ -19,8 +20,8 @@ function setState(s: RunState) {
 
 export const runState = () => state
 
-async function detect(): Promise<RunConfig | null> {
-  const root = projectRoot()
+async function detect(dir?: string): Promise<RunConfig | null> {
+  const root = dir ? abs(dir) : projectRoot()
   const files = await fs.readdir(root)
   clearWhichCache()
   return detectProject(
@@ -42,9 +43,11 @@ async function detect(): Promise<RunConfig | null> {
 
 const actor = () => getSettings().profile?.name ?? 'me'
 
-export async function startRun(): Promise<RunState> {
+/** Run the project, or a sub-folder of it (e.g. the agents' combined result before merging). */
+export async function startRun(dir?: string): Promise<RunState> {
   await stopRun(true)
-  const cfg = await detect()
+  lastDir = dir
+  const cfg = await detect(dir)
   if (!cfg) {
     setState({ status: 'failed', message: 'Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a "command".' })
     return state
@@ -95,7 +98,7 @@ export async function stopRun(silent = false): Promise<RunState> {
 
 export async function restartRun() {
   await stopRun(true)
-  return startRun()
+  return startRun(lastDir)
 }
 
 const MIME: Record<string, string> = {
