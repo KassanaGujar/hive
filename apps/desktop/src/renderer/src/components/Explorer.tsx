@@ -4,7 +4,7 @@ import { makeFeedEvent } from '@hive/collab'
 import type { FileNode } from '@hive/shared'
 import { invoke, on } from '../lib/api'
 import { useStore, ask, actorName } from '../store'
-import { refreshTree } from '../lib/actions'
+import { refreshTree, renameFile, deleteFile } from '../lib/actions'
 import { disposeModel, renameModel } from '../lib/monaco'
 import { session } from '../collab/session'
 
@@ -79,26 +79,12 @@ export function Explorer() {
       await moveTo(node, to)
     })
 
-  const moveTo = async (node: FileNode, to: string) => {
-    await invoke('fs:rename', node.path, to)
-    feed('file.renamed', [node.path, to])
-    const st = useStore.getState()
-    if (node.type === 'file' && st.tabs[`file:${node.path}`]) {
-      renameModel(node.path, to)
-      st.closeTab(`file:${node.path}`)
-      st.openFile(to)
-    }
-    await refreshTree()
-  }
+  const moveTo = (node: FileNode, to: string) => renameFile(node.path, to)
 
   const deleteItem = (node: FileNode) =>
     guard(async () => {
       if (!confirm(`Move "${node.path}" to the ${navigator.userAgent.includes('Mac') ? 'Trash' : 'Recycle Bin'}?`)) return
-      await invoke('fs:delete', node.path)
-      feed('file.deleted', [node.path])
-      useStore.getState().closeTab(`file:${node.path}`)
-      disposeModel(node.path)
-      await refreshTree()
+      await deleteFile(node.path)
     })
 
   const render = (nodes: FileNode[], depth: number): React.ReactNode =>

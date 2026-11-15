@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, Menu, Notification, shell } from 'electron'
 import path from 'node:path'
 import { handle, emit } from './ipc'
 import { fixPath } from './shellEnv'
-import { initStore, getSettings, setSettings, secrets } from './store'
+import { initStore, getSettings, setSettings, secrets, StoreBusyError } from './store'
 import * as project from './project'
 import * as term from './terminal'
 import * as git from './git'
@@ -147,13 +147,34 @@ function registerHandlers() {
   handle('updater:install', () => installUpdate())
 
   // project / files
+  // A project's terminals and Run process live in its folder: end them when leaving the project,
+  // otherwise they keep running in the background and Windows refuses to rename/delete the folder.
+  const leaveProject = async () => {
+    await runner.stopRun(true)
+    await term.killAllTerminalsAndWait()
+  }
   handle('project:open', async (dir) => {
+    const cur = project.currentProject()
+    if (cur && path.resolve(cur) !== path.resolve(dir)) await leaveProject()
     const r = await project.openProject(dir)
     restoreRuns()
     return r
   })
   handle('project:create', (parent, name, o) => project.createProject(parent, name, o?.empty))
   handle('project:current', () => project.currentProject())
+  handle('project:close', async () => {
+    await leaveProject()
+    await project.closeProject()
+  })
+  handle('project:rename', async (dir, name) => {
+    await leaveProject()
+    return project.renameProject(dir, name)
+  })
+  handle('project:delete', async (dir) => {
+    await leaveProject()
+    return project.deleteProject(dir)
+  })
+  handle('project:forget', (dir) => project.forgetProject(dir))
   handle('fs:tree', () => project.tree())
   handle('fs:treeAt', (rel) => project.treeAt(rel))
   handle('fs:read', (rel) => project.readFile(rel))
@@ -251,7 +272,25 @@ function registerHandlers() {
 }
 
 app.whenReady().then(async () => {
-  initStore()
+  for (;;) {
+    try {
+      initStore()
+      break
+    } catch (e) {
+      if (!(e instanceof StoreBusyError)) throw e
+      // Never start with an empty store: that would look like all settings and keys were lost.
+      const r = dialog.showMessageBoxSync({
+        type: 'warning',
+        title: 'Hive is still closing',
+        message: "Hive can't open its saved settings yet.",
+        detail: 'Another Hive window may still be closing, or another program is using the file. Wait a moment, then press Try again.\n\n' + (e as Error).message,
+        buttons: ['Try again', 'Quit'],
+        defaultId: 0,
+        cancelId: 1
+      })
+      if (r === 1) return app.quit()
+    }
+  }
   registerHandlers()
   buildMenu()
   createWindow()

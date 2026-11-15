@@ -112,10 +112,18 @@ export function TerminalPanel() {
     }
   }, [run.terminalId])
 
-  // one shell on first open
+  // one shell per project: when the project changes, old shells are gone (main killed them), start fresh
+  const root = useStore((st) => st.root)
   useEffect(() => {
-    if (tabs.length === 0) newTerm()
-  }, [])
+    if (!root) return
+    for (const [id, i] of instances) {
+      i.term.dispose()
+      instances.delete(id)
+    }
+    setTabs([])
+    setActive([])
+    newTerm()
+  }, [root])
 
   // theme switch
   useEffect(() => {

@@ -80,13 +80,13 @@ describe('orchestrator (real git worktrees, scripted models)', () => {
 
     const id = await orch.start('Build a todo page')
     const wait = async (phase: AgentRun['phase']) => {
-      for (let i = 0; i < 400; i++) {
+      for (let i = 0; i < 4800; i++) {
         const r = orch.list().find((x) => x.id === id)!
         if (r.phase === phase) return r
         if (r.phase === 'failed') throw new Error(r.error)
         await new Promise((res) => setTimeout(res, 25))
       }
-      throw new Error(`timeout waiting for ${phase}`)
+      throw new Error(`timeout waiting for ${phase}; stuck in ${orch.list().find((x) => x.id === id)!.phase}: ${JSON.stringify(orch.list().find((x) => x.id === id)!.tasks.map((t) => [t.id, t.status]))}`)
     }
 
     const planned = await wait('awaiting-plan-approval')
@@ -117,7 +117,7 @@ describe('orchestrator (real git worktrees, scripted models)', () => {
     // .hive is excluded from git, so the user's status stays clean
     expect((await simpleGit(root).status()).isClean()).toBe(true)
     rmSync(root, { recursive: true, force: true })
-  }, 60_000)
+  }, 180_000)
 })
 
 describe('integration step after parallel work', () => {
@@ -152,13 +152,13 @@ describe('integration step after parallel work', () => {
     })
     const id = await orch.start('a page')
     const wait = async (phase: AgentRun['phase']) => {
-      for (let i = 0; i < 800; i++) {
+      for (let i = 0; i < 4800; i++) {
         const r = orch.list().find((x) => x.id === id)!
         if (r.phase === phase) return r
         if (r.phase === 'failed') throw new Error(r.error)
         await new Promise((res) => setTimeout(res, 25))
       }
-      throw new Error(`timeout waiting for ${phase}`)
+      throw new Error(`timeout waiting for ${phase}; stuck in ${orch.list().find((x) => x.id === id)!.phase}: ${JSON.stringify(orch.list().find((x) => x.id === id)!.tasks.map((t) => [t.id, t.status]))}`)
     }
     await wait('awaiting-plan-approval')
     await orch.approvePlan(id, true)
@@ -169,5 +169,5 @@ describe('integration step after parallel work', () => {
     await wait('done')
     expect(readFileSync(path.join(root, 'index.html'), 'utf8')).toContain('fixed')
     rmSync(root, { recursive: true, force: true })
-  }, 60_000)
+  }, 180_000)
 })

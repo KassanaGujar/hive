@@ -128,6 +128,19 @@ export function killAllTerminals() {
   for (const id of terms.keys()) killTerminal(id)
 }
 
+/** Kill every terminal and wait (up to 5 s) until their processes have exited. */
+export async function killAllTerminalsAndWait() {
+  const ids = [...terms.keys()]
+  if (!ids.length) return
+  const exited = ids.map((id) => new Promise<void>((resolve) => {
+    const t = terms.get(id)
+    if (!t) return resolve()
+    t.p.onExit(() => resolve())
+  }))
+  ids.forEach(killTerminal)
+  await Promise.race([Promise.all(exited), new Promise((r) => setTimeout(r, 5000))])
+}
+
 /** Run a command without a terminal and capture output (used by agents). */
 export function execCapture(cwd: string, command: string, timeoutMs: number, signal?: AbortSignal): Promise<{ code: number; output: string }> {
   return new Promise((resolve) => {

@@ -1,0 +1,172 @@
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T20:44:01.897Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T20:44:03.396Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"FAIL","detail":"[p1a] Error: Couldn't rename the folder. Close anything using it (terminals, other apps) and try again. (EBUSY)","at":"2026-11-15T20:44:03.854Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"FAIL","detail":"[p1a] Error: Couldn't move the folder to the bin. Close anything using it and try again. (Operation was aborted)","at":"2026-11-15T20:44:13.706Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T20:44:15.595Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T20:44:16.015Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T20:44:19.259Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T20:44:19.831Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T20:44:20.583Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T20:44:23.145Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T20:44:24.298Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T20:44:28.878Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"","at":"2026-11-15T20:45:06.907Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T20:45:06.908Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T20:46:01.578Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T20:46:07.948Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T20:47:01.521Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"viewer edit reached the host","at":"2026-11-15T20:47:53.345Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"FAIL","detail":"raw technical error shown to the user: ENOENT: no such file or directory, stat 'C:\\Users\\User\\dev-cache\\hive\\qa\\p1\\alpha\\does\\not\\exist.txt' || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there.","at":"2026-11-15T20:47:54.592Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T20:47:54.595Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:08:44.820Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:08:51.526Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:08:58.722Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:09:00.203Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:09:01.271Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:09:01.305Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:09:01.419Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:09:01.476Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:09:01.526Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:09:02.655Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:09:03.677Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:09:06.459Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"FAIL","detail":"project not restored: null","at":"2026-11-15T21:09:48.303Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:09:48.304Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"FAIL","detail":"[p1a] TypeError: Cannot read properties of null (reading 'share')\n    at <anonymous>:1:114\n    at <anonymous>:1:159","at":"2026-11-15T21:10:06.646Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"FAIL","detail":"Cannot read properties of undefined (reading 'relay')","at":"2026-11-15T21:10:06.668Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"FAIL","detail":"Cannot read properties of undefined (reading 'key')","at":"2026-11-15T21:10:20.149Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"[p1a] TypeError: Cannot read properties of null (reading 'newInvite')\n    at <anonymous>:1:114\n    at <anonymous>:1:150","at":"2026-11-15T21:10:23.607Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"No project is open. || No project is open. || A folder named \"alpha\" already exists there. || toast: Couldn't find \"nothing\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:10:49.023Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:10:49.024Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:21:12.765Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:21:18.552Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:21:25.747Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:21:26.577Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:21:27.659Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:21:27.692Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:21:27.937Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:21:28.000Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:21:28.103Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:21:29.233Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:21:30.184Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:21:32.969Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"FAIL","detail":"project not restored: null; toasts: ","at":"2026-11-15T21:22:24.117Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:22:24.118Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"FAIL","detail":"[p1a] TypeError: Cannot read properties of null (reading 'share')\n    at <anonymous>:1:114\n    at <anonymous>:1:159","at":"2026-11-15T21:22:34.400Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"FAIL","detail":"Cannot read properties of undefined (reading 'relay')","at":"2026-11-15T21:22:34.418Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"FAIL","detail":"Cannot read properties of undefined (reading 'key')","at":"2026-11-15T21:22:43.206Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"[p1a] TypeError: Cannot read properties of null (reading 'newInvite')\n    at <anonymous>:1:114\n    at <anonymous>:1:150","at":"2026-11-15T21:22:44.099Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"No project is open. || No project is open. || A folder named \"alpha\" already exists there. || toast: Couldn't find \"nothing\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:22:51.689Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:22:51.690Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:24:06.482Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:24:11.873Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:24:18.327Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:24:19.169Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:24:20.121Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:24:20.158Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:24:20.238Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:24:20.297Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:24:20.347Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:24:21.567Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:24:22.551Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:24:25.365Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"reopened in 1762 ms","at":"2026-11-15T21:24:51.273Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:24:51.274Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T21:26:54.195Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T21:26:56.332Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T21:27:25.733Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"[p1v] SyntaxError: Invalid or unexpected token","at":"2026-11-15T21:27:45.035Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"Couldn't find \"does/not/exist.txt\". It may have been moved, renamed or deleted. || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there. || toast: ","at":"2026-11-15T21:31:01.675Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:31:01.677Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:48:58.096Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:49:02.410Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:49:09.150Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:49:09.942Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:49:11.020Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:49:11.056Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:49:11.305Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:49:11.366Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:49:11.422Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:49:12.554Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:49:13.551Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:49:16.292Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"reopened in 1314 ms","at":"2026-11-15T21:49:33.504Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:49:33.505Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T21:49:49.472Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T21:49:50.893Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T21:50:11.378Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"[p1v] SyntaxError: Invalid or unexpected token","at":"2026-11-15T21:50:22.456Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"Couldn't find \"does/not/exist.txt\". It may have been moved, renamed or deleted. || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there. || toast: Couldn't find \"nothing\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:50:24.472Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:50:24.473Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:50:59.183Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:51:03.187Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:51:09.218Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:51:10.017Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:51:10.933Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:51:10.961Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:51:11.046Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:51:11.116Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:51:11.172Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:51:12.317Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:51:13.286Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:51:16.032Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"reopened in 1113 ms","at":"2026-11-15T21:51:25.303Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:51:25.304Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T21:51:36.469Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T21:51:37.858Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T21:51:57.059Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"[p1v] SyntaxError: Invalid or unexpected token","at":"2026-11-15T21:52:06.123Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"Couldn't find \"does/not/exist.txt\". It may have been moved, renamed or deleted. || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there. || toast: ","at":"2026-11-15T21:52:07.469Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:52:07.470Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:53:02.457Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:53:06.719Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:53:12.880Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:53:13.670Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:53:14.744Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:53:14.771Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:53:15.017Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:53:15.069Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:53:15.121Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:53:16.246Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:53:17.220Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:53:19.966Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"reopened in 1436 ms","at":"2026-11-15T21:53:28.703Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:53:28.704Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T21:53:40.467Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T21:53:41.795Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T21:54:02.347Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"FAIL","detail":"relay role editor, host sees editor","at":"2026-11-15T21:54:16.818Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"Couldn't find \"does/not/exist.txt\". It may have been moved, renamed or deleted. || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there. || toast: ","at":"2026-11-15T21:54:17.469Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T21:54:17.470Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T21:54:48.580Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T21:54:53.145Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T21:54:59.547Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T21:55:00.608Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T21:55:01.667Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T21:55:01.707Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T21:55:01.964Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T21:55:02.036Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T21:55:02.092Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T21:55:03.242Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T21:55:04.268Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T21:55:07.009Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"FAIL","detail":"no Hive window on port 9401","at":"2026-11-15T21:55:58.896Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T21:55:58.897Z"}
+{"phase":"P1","name":"Create a new project; it appears in the project list","status":"PASS","detail":"","at":"2026-11-15T22:30:13.828Z"}
+{"phase":"P1","name":"Create multiple projects; files and settings stay independent","status":"PASS","detail":"","at":"2026-11-15T22:30:25.205Z"}
+{"phase":"P1","name":"Rename a project; the new name persists after refresh","status":"PASS","detail":"","at":"2026-11-15T22:30:34.842Z"}
+{"phase":"P1","name":"Delete a project; it is removed and its old path no longer opens","status":"PASS","detail":"old path → Couldn't find \"gamma\". It may have been moved, renamed or deleted.","at":"2026-11-15T22:30:47.315Z"}
+{"phase":"P1","name":"Create a file; it appears in the explorer","status":"PASS","detail":"","at":"2026-11-15T22:30:49.084Z"}
+{"phase":"P1","name":"Rename a file; contents are preserved","status":"PASS","detail":"","at":"2026-11-15T22:30:49.688Z"}
+{"phase":"P1","name":"Delete a file; it disappears","status":"PASS","detail":"","at":"2026-11-15T22:30:50.908Z"}
+{"phase":"P1","name":"Create nested folders","status":"PASS","detail":"","at":"2026-11-15T22:30:50.994Z"}
+{"phase":"P1","name":"Move a file between folders (content kept)","status":"PASS","detail":"file moved; imports in other files are NOT rewritten (no refactoring support)","at":"2026-11-15T22:30:51.093Z"}
+{"phase":"P1","name":"Open multiple files and switch between them","status":"PASS","detail":"","at":"2026-11-15T22:30:53.013Z"}
+{"phase":"P1","name":"Edit code; changes are saved to disk","status":"PASS","detail":"","at":"2026-11-15T22:30:54.153Z"}
+{"phase":"P1","name":"Refresh the window; no saved work is lost and the project reopens","status":"PASS","detail":"","at":"2026-11-15T22:30:58.740Z"}
+{"phase":"P1","name":"Close and reopen the app; the project is restored","status":"PASS","detail":"reopened in 2131 ms","at":"2026-11-15T22:31:32.639Z"}
+{"phase":"P1","name":"Browser navigation (back / forward)","status":"BLOCKED","detail":"Not applicable: Hive is a desktop app with tabs, not URL pages. There is no back/forward history to test.","at":"2026-11-15T22:31:32.640Z"}
+{"phase":"P1","name":"Copy a project invitation link; it is valid","status":"PASS","detail":"link ok (People panel shows it after pressing Share)","at":"2026-11-15T22:36:01.002Z"}
+{"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T22:36:07.185Z"}
+{"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T22:41:29.067Z"}
+{"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"PASS","detail":"view-only link has no edit token; relay made Vera a viewer even though her app claimed \"editor\"; her edit never reached the host; host keeps ownership","at":"2026-11-15T22:42:16.598Z"}

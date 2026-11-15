@@ -24,13 +24,41 @@ interface Backend {
   runList(project: string): AgentRun[]
 }
 
+const sleepSync = (ms: number) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+
+/** The data file can't be opened (still locked by a Hive that is closing, disk error, …). */
+export class StoreBusyError extends Error {}
+
+/**
+ * Open the SQLite store. Returns null only when this Electron has no node:sqlite at all. A file that
+ * is merely busy (e.g. the previous Hive is still shutting down) is retried; it must never fall back
+ * to an empty store, or the user's settings, keys and history would seem to vanish.
+ */
 function sqliteBackend(file: string): Backend | null {
+  let DatabaseSync: new (f: string) => any
   try {
-    const req = createRequire(__filename)
-    const { DatabaseSync } = req('node:sqlite')
-    const db = new DatabaseSync(file)
+    DatabaseSync = createRequire(__filename)('node:sqlite').DatabaseSync
+  } catch (e) {
+    console.warn('[store] node:sqlite unavailable, using JSON store:', (e as Error).message)
+    return null
+  }
+  let db: any
+  let lastErr: unknown
+  for (let attempt = 0; attempt < 40 && !db; attempt++) {
+    try {
+      const d = new DatabaseSync(file)
+      d.exec('PRAGMA busy_timeout = 5000;')
+      d.exec('PRAGMA journal_mode = WAL;')
+      d.prepare('SELECT 1').get()
+      db = d
+    } catch (e) {
+      lastErr = e
+      sleepSync(250) // up to ~10 s for a closing Hive to let go of the file
+    }
+  }
+  if (!db) throw new StoreBusyError(`Hive's data file is in use or unreadable (${(lastErr as Error)?.message ?? lastErr}).`)
+  {
     db.exec(`
-      PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS feed (id TEXT PRIMARY KEY, project TEXT NOT NULL, at INTEGER NOT NULL, json TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS feed_project_at ON feed(project, at);
@@ -54,9 +82,6 @@ function sqliteBackend(file: string): Backend | null {
       runSave: (p, r) => void q.runSave.run(r.id, p, r.createdAt, JSON.stringify(r)),
       runList: (p) => (q.runList.all(p) as { json: string }[]).map((r) => JSON.parse(r.json))
     }
-  } catch (e) {
-    console.warn('[store] node:sqlite unavailable, using JSON store:', (e as Error).message)
-    return null
   }
 }
 

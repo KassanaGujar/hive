@@ -1,7 +1,9 @@
 import { invoke } from './api'
 import { useStore, ask } from '../store'
 import { openSession, session } from '../collab/session'
-import { disposeModel } from './monaco'
+import { disposeModel, renameModel } from './monaco'
+import { makeFeedEvent } from '@hive/collab'
+import { actorName } from '../store'
 
 export async function openProject(dir: string) {
   const s = useStore.getState()
@@ -32,8 +34,36 @@ export async function openProject(dir: string) {
 
 export function closeProject() {
   session()?.destroy()
+  invoke('project:close').catch(() => {})
   sessionStorage.setItem('hive.closedProject', '1')
   useStore.getState().set({ root: null, tree: [], tabs: {}, groups: [{ tabs: [], active: null }] })
+}
+
+function soloFeed(kind: 'file.created' | 'file.renamed' | 'file.deleted', files: string[]) {
+  const s = session()
+  if (s && !s.shared) s.pushFeed(makeFeedEvent({ actor: actorName(), kind, files }))
+}
+
+/** Rename or move a file/folder; open editor tabs follow it. */
+export async function renameFile(from: string, to: string) {
+  await invoke('fs:rename', from, to)
+  soloFeed('file.renamed', [from, to])
+  const st = useStore.getState()
+  if (st.tabs[`file:${from}`]) {
+    renameModel(from, to)
+    st.closeTab(`file:${from}`)
+    st.openFile(to)
+  }
+  await refreshTree()
+}
+
+/** Move a file/folder to the Recycle Bin / Trash and close its tab. */
+export async function deleteFile(rel: string) {
+  await invoke('fs:delete', rel)
+  soloFeed('file.deleted', [rel])
+  useStore.getState().closeTab(`file:${rel}`)
+  disposeModel(rel)
+  await refreshTree()
 }
 
 export async function refreshTree() {

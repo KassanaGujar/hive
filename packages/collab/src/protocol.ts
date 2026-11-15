@@ -10,8 +10,9 @@ export interface MemberHello {
 }
 
 export type ClientMsg =
-  | { t: 'create'; room: string; adminToken: string; member: MemberHello }
-  | { t: 'join'; room: string; member: MemberHello }
+  /** editHash = sha256 hex of the room's edit token; joiners who present the token become editors, others viewers. */
+  | { t: 'create'; room: string; adminToken: string; member: MemberHello; editHash?: string }
+  | { t: 'join'; room: string; member: MemberHello; editToken?: string }
   | { t: 'update'; data: string }
   | { t: 'awareness'; data: string }
   /** Replace the stored log with one encrypted full-state snapshot covering entries ≤ upTo. */

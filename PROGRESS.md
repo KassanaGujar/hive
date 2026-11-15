@@ -1,5 +1,22 @@
 # Hive — build progress (resume file)
 
+## 🔖 BOOKMARK 2026-11-15 — QA plan, stopped at usage limit (resume here)
+- node_modules lost native binaries + big files (OneDrive?). A background `rm -rf node_modules && npm ci` was running
+  when the session stopped. FIRST: check `ls node_modules | wc -l`; if incomplete run `npm ci`, then
+  `cd apps/desktop && npx electron-vite build` and `npx vitest run` (61 tests passed before the reinstall).
+- Uncommitted, NOT yet built or tested: project rename/delete/forget (ipc.ts, main/project.ts, main/index.ts,
+  Welcome.tsx), `window.__hive` test handle (renderer main.tsx), QA harness `tools/qa/{lib,phase1,phase2}.mjs`.
+- phase2.mjs calls `H.actions.renameFile` which does not exist yet: move Explorer's moveTo/deleteItem into actions.ts.
+- Predicted collab bugs to confirm then fix: (1) rename while a teammate edits loses their edits/tab, (2) no notice
+  when an open file is deleted remotely, (3) Monaco undo may undo teammates' edits (use Y.UndoManager),
+  (4) file edited outside Hive while closed overwrites team edits on rejoin (import disk into local doc BEFORE
+  connect), (5) setText is single-hunk (use `diff` package), (6) room cap is 10, plan wants 20.
+- Research done: Jev (TypeSafe AI) = closed-weight paid API typed-decision model via Vercel AI Gateway
+  ($0.042/M input) — usable only as an OPTIONAL router/command gate with a user key, never the free default.
+  Amoeba gaps vs Hive: overlap warnings before a prompt runs, per-person agent lanes in one session, shared
+  "Brain" notes pinned to files, plan-step ownership + handoffs, comments on code/diffs, conflict sidebar.
+- Phases 1–11 of the user's QA plan: none executed yet. Report should go to docs/qa-report.md.
+
 ## 2026-11-12 — IDE + redesign + models (latest work, done in the main session)
 - **Watch/test/edit agent work:** agents announce each write (`agents:file`); "Follow along" opens files live;
   Explorer can show any agent's folder or the combined result (`explorerRoot`, `fs:treeAt`); "Try it" runs the

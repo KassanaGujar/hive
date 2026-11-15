@@ -3,7 +3,7 @@ import { decrypt, encrypt, fromB64, keyFromCode, randomBytes, toB64 } from './cr
 // No 0/O/1/I/L to avoid misreads when a friend types the code.
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
 export const INVITE_TTL_MS = 24 * 60 * 60 * 1000
-export const MAX_MEMBERS = 10
+export const MAX_MEMBERS = 25
 
 export function newInviteCode(): string {
   const b = randomBytes(6)
@@ -20,12 +20,15 @@ export interface InviteInfo {
   roomKey: string
   projectName: string
   role: 'editor' | 'viewer'
+  /** Only in editor invites. The relay checks it, so a view-only link can't be turned into an edit link. */
+  editToken?: string
 }
 
 /** hive://join?relay=…&room=…&name=…&role=…#<roomKey> — the key never reaches a server. */
 export function inviteLink(i: InviteInfo, code: string): string {
   const q = new URLSearchParams({ relay: i.relayUrl, room: i.roomId, name: i.projectName, role: i.role, code })
-  return `hive://join?${q.toString()}#${i.roomKey}`
+  // secrets live in the #fragment, which never reaches a server: "<roomKey>" or "<roomKey>.<editToken>"
+  return `hive://join?${q.toString()}#${i.roomKey}${i.editToken ? '.' + i.editToken : ''}`
 }
 
 export function parseInvite(text: string): Partial<InviteInfo> & { code?: string } {
@@ -40,7 +43,8 @@ export function parseInvite(text: string): Partial<InviteInfo> & { code?: string
       projectName: p.get('name') ?? undefined,
       role: (p.get('role') as 'editor' | 'viewer') ?? 'editor',
       code: p.get('code') ?? undefined,
-      roomKey: url.hash.replace(/^#/, '') || undefined
+      roomKey: url.hash.replace(/^#/, '').split('.')[0] || undefined,
+      editToken: url.hash.replace(/^#/, '').split('.')[1] || undefined
     }
   } catch {
     return {}

@@ -84,6 +84,65 @@ export async function createProject(parent: string, name: string, empty = false)
   return dir
 }
 
+export async function closeProject() {
+  await watcher?.close()
+  watcher = null
+  root = null
+}
+
+async function closeIfOpen(dir: string) {
+  if (root && path.resolve(dir) === root) await closeProject()
+}
+
+/** Windows keeps a folder locked for a moment after the last process in it exits: retry briefly. */
+async function retryBusy<T>(fn: () => Promise<T>, tries = 12): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn()
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code
+      if (i >= tries || !['EBUSY', 'EPERM', 'EACCES', 'ENOTEMPTY'].includes(code ?? '') && !/abort/i.test(String(e))) throw e
+      await new Promise((r) => setTimeout(r, 250))
+    }
+  }
+}
+
+export function forgetProject(dir: string) {
+  const resolved = path.resolve(dir)
+  setSettings({ recentProjects: getSettings().recentProjects.filter((x) => path.resolve(x) !== resolved) })
+}
+
+export async function renameProject(dir: string, newName: string) {
+  const from = path.resolve(dir)
+  const safe = newName.trim().replace(/[<>:"/\\|?*]+/g, '-')
+  if (!safe) throw new Error('Type a name for the project.')
+  const to = path.join(path.dirname(from), safe)
+  if (to === from) return from
+  if (existsSync(to)) throw new Error(`A folder named "${safe}" already exists there.`)
+  if (!existsSync(from)) throw new Error('That project folder no longer exists.')
+  await closeIfOpen(from)
+  try {
+    await retryBusy(() => fs.rename(from, to))
+  } catch (e) {
+    throw new Error(`Couldn't rename the folder. Close anything using it (terminals, other apps) and try again. (${(e as NodeJS.ErrnoException).code ?? e})`)
+  }
+  setSettings({ recentProjects: getSettings().recentProjects.map((x) => (path.resolve(x) === from ? to : x)) })
+  return to
+}
+
+export async function deleteProject(dir: string) {
+  const resolved = path.resolve(dir)
+  await closeIfOpen(resolved)
+  if (existsSync(resolved)) {
+    try {
+      await retryBusy(() => shell.trashItem(resolved))
+    } catch (e) {
+      throw new Error(`Couldn't move the folder to the bin. Close anything using it and try again. (${(e as Error).message})`)
+    }
+  }
+  forgetProject(resolved)
+}
+
 /** Tree of a sub-folder of the project (an agent's working folder). Paths stay project-relative. */
 export async function treeAt(rel: string): Promise<FileNode[]> {
   return tree(abs(rel))

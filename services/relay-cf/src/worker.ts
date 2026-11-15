@@ -27,7 +27,7 @@ interface Attachment {
   lastInviteGet?: number
 }
 
-const MAX_MEMBERS = 10
+const MAX_MEMBERS = 25
 const MAX_LOG = 20_000
 const CHUNK = 1_000_000 // SQLite values are capped at 2 MB; big snapshots are split
 const INVITE_TTL = 24 * 60 * 60 * 1000
@@ -152,7 +152,7 @@ export class Room extends DurableObject<Env> {
       if (members.size >= MAX_MEMBERS) return send(ws, { t: 'error', message: `This project is full (${MAX_MEMBERS} people max).` })
       info = { ...member, role, online: true }
     } else {
-      info = { ...info, name: member.name, color: member.color, avatar: member.avatar, role: role === 'host' ? 'host' : info.role }
+      info = { ...info, name: member.name, color: member.color, avatar: member.avatar, role: role === 'host' ? 'host' : role === 'editor' && info.role === 'viewer' ? 'editor' : info.role }
     }
     this.saveMember(info)
     ws.serializeAttachment({ memberId: info.id } satisfies Attachment)
@@ -178,12 +178,15 @@ export class Room extends DurableObject<Env> {
         const existing = this.meta('adminHash')
         if (existing && !(await this.isAdmin(msg.adminToken))) return send(ws, { t: 'error', message: 'Room exists and you are not its host.' })
         if (!existing) this.setMeta('adminHash', await sha256(msg.adminToken))
+        if (!this.meta('editHash') && typeof msg.editHash === 'string' && /^[a-f0-9]{64}$/.test(msg.editHash)) this.setMeta('editHash', msg.editHash)
         return this.attach(ws, msg.member, 'host')
       }
       case 'join': {
         if (!this.meta('adminHash')) return send(ws, { t: 'error', message: 'That project was not found on this relay. Check the invite.' })
         if (this.sql.exec('SELECT 1 FROM banned WHERE id = ?', msg.member?.id).toArray().length) return send(ws, { t: 'kicked' })
-        return this.attach(ws, msg.member, 'editor')
+        const editHash = this.meta('editHash')
+        const canEdit = !editHash || (typeof msg.editToken === 'string' && (await sha256(msg.editToken)) === editHash)
+        return this.attach(ws, msg.member, canEdit ? 'editor' : 'viewer')
       }
       case 'update': {
         if (!me) return
@@ -200,7 +203,7 @@ export class Room extends DurableObject<Env> {
         if (me) this.broadcast({ t: 'awareness', from: me, data: msg.data }, ws)
         return
       case 'snapshot': {
-        if (!me) return
+        if (!me || this.members().get(me)?.role === 'viewer') return
         const upTo = Number(msg.upTo)
         // keep entries newer than the snapshot so concurrent edits aren't lost
         this.sql.exec('DELETE FROM log WHERE seq <= ?', upTo)

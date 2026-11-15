@@ -1,5 +1,6 @@
-import { FolderOpen, FolderPlus, Users } from 'lucide-react'
-import { useStore } from '../store'
+import { FolderOpen, FolderPlus, Pencil, Trash2, Users } from 'lucide-react'
+import { invoke } from '../lib/api'
+import { useStore, ask } from '../store'
 import icon from '../assets/icon.png'
 import { newProjectFlow, openFolderFlow, openProject } from '../lib/actions'
 
@@ -7,6 +8,23 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
   const settings = useStore((s) => s.settings)!
   const toast = useStore((s) => s.toast)
   const safe = (fn: () => Promise<unknown>) => () => fn().catch((e) => toast(e.message, 'error'))
+  const refresh = async () => useStore.getState().set({ settings: await invoke('settings:get') })
+  const rename = (p: string) => async () => {
+    const name = await ask('Rename project', p.split(/[\\/]/).pop() ?? '')
+    if (!name) return
+    await invoke('project:rename', p, name)
+    await refresh()
+    toast(`Renamed to ${name}`, 'ok')
+  }
+  const remove = (p: string) => async () => {
+    const name = p.split(/[\\/]/).pop() ?? p
+    const typed = await ask(`Delete "${name}"? The folder moves to the Recycle Bin. Type its name to confirm.`, '', name)
+    if (typed === null) return
+    if (typed.trim() !== name) return toast('The name did not match, so nothing was deleted.', 'error')
+    await invoke('project:delete', p)
+    await refresh()
+    toast(`${name} moved to the Recycle Bin`, 'ok')
+  }
   return (
     <div className="flex h-full items-center justify-center bg-bg">
       <div className="w-[520px]">
@@ -28,9 +46,17 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
           <div className="mt-8">
             <div className="label mb-2">Recent</div>
             {settings.recentProjects.map((p) => (
-              <button key={p} className="block w-full truncate rounded px-2 py-1.5 text-left hover:bg-panel2" onClick={safe(() => openProject(p))} title={p}>
-                <span className="font-medium">{p.split(/[\\/]/).pop()}</span> <span className="text-muted">{p}</span>
-              </button>
+              <div key={p} className="group flex items-center rounded hover:bg-panel2" data-project={p}>
+                <button className="min-w-0 flex-1 truncate px-2 py-1.5 text-left" onClick={safe(() => openProject(p))} title={p}>
+                  <span className="font-medium">{p.split(/[\\/]/).pop()}</span> <span className="text-muted">{p}</span>
+                </button>
+                <button className="btn-ghost opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label={`Rename ${p}`} title="Rename" onClick={safe(rename(p))}>
+                  <Pencil size={13} />
+                </button>
+                <button className="btn-ghost opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label={`Delete ${p}`} title="Delete" onClick={safe(remove(p))}>
+                  <Trash2 size={13} />
+                </button>
+              </div>
             ))}
           </div>
         )}

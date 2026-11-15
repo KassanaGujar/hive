@@ -22,6 +22,8 @@ export interface RelayOptions {
 interface Room {
   id: string
   adminHash: string
+  /** sha256 of the edit token; absent for rooms made by older Hive versions (everyone edits). */
+  editHash?: string
   seq: number
   log: { seq: number; data: string }[]
   members: Map<string, { info: MemberInfo; sockets: Set<WebSocket> }>
@@ -38,6 +40,7 @@ interface Invite {
 
 const INVITE_TTL = 24 * 60 * 60 * 1000
 const sha = (s: string) => createHash('sha256').update(s).digest('hex')
+const validHash = (h: unknown) => (typeof h === 'string' && /^[a-f0-9]{64}$/.test(h) ? h : undefined)
 
 function sameHash(a: string, b: string) {
   const x = Buffer.from(a)
@@ -53,7 +56,7 @@ export interface RelayHandle {
 
 export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> {
   const log = opts.log ?? ((m: string) => console.log(`[relay] ${m}`))
-  const maxMembers = opts.maxMembers ?? 10
+  const maxMembers = opts.maxMembers ?? 25
   const maxLog = opts.maxLogEntries ?? 20_000
   const maxBytes = opts.maxMessageBytes ?? 8 * 1024 * 1024
   const dataDir = opts.dataDir
@@ -70,7 +73,7 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
       const j = JSON.parse(await fs.readFile(roomFile(id), 'utf8'))
       const members = new Map<string, { info: MemberInfo; sockets: Set<WebSocket> }>()
       for (const m of j.members ?? []) members.set(m.id, { info: { ...m, online: false }, sockets: new Set() })
-      return { id, adminHash: j.adminHash, seq: j.seq, log: j.log, members, banned: new Set(j.banned ?? []), dirty: false }
+      return { id, adminHash: j.adminHash, editHash: j.editHash, seq: j.seq, log: j.log, members, banned: new Set(j.banned ?? []), dirty: false }
     } catch {
       return null
     }
@@ -80,7 +83,7 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
     for (const r of rooms.values()) {
       if (!r.dirty) continue
       r.dirty = false
-      const j = { adminHash: r.adminHash, seq: r.seq, log: r.log, banned: [...r.banned], members: [...r.members.values()].map((m) => m.info) }
+      const j = { adminHash: r.adminHash, editHash: r.editHash, seq: r.seq, log: r.log, banned: [...r.banned], members: [...r.members.values()].map((m) => m.info) }
       const tmp = roomFile(r.id) + '.tmp'
       await fs.writeFile(tmp, JSON.stringify(j))
       await fs.rename(tmp, roomFile(r.id))
@@ -132,6 +135,7 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
     } else {
       entry.info = { ...entry.info, name: m.name, color: m.color, avatar: m.avatar }
       if (role === 'host') entry.info.role = 'host'
+      else if (role === 'editor' && entry.info.role === 'viewer') entry.info.role = 'editor' // came back with an edit link
     }
     entry.sockets.add(ws)
     sockMeta.set(ws, { room: r, memberId: m.id })
@@ -159,9 +163,13 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
             let room = await getRoom(msg.room)
             if (room && !isAdmin(room, msg.adminToken)) return send(ws, { t: 'error', message: 'Room exists and you are not its host.' })
             if (!room) {
-              room = { id: msg.room, adminHash: sha(msg.adminToken), seq: 0, log: [], members: new Map(), banned: new Set(), dirty: true }
+              room = { id: msg.room, adminHash: sha(msg.adminToken), editHash: validHash(msg.editHash), seq: 0, log: [], members: new Map(), banned: new Set(), dirty: true }
               rooms.set(room.id, room)
               log(`room created ${room.id.slice(0, 6)}…`)
+            }
+            if (!room.editHash && validHash(msg.editHash)) {
+              room.editHash = validHash(msg.editHash) // a room from an older version gains edit protection
+              room.dirty = true
             }
             return attach(ws, room, msg, 'host')
           }
@@ -169,7 +177,8 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
             const room = await getRoom(msg.room)
             if (!room) return send(ws, { t: 'error', message: 'That project was not found on this relay. Check the invite.' })
             if (room.banned.has(msg.member.id)) return send(ws, { t: 'kicked' })
-            return attach(ws, room, msg, 'editor')
+            const canEdit = !room.editHash || (typeof msg.editToken === 'string' && sameHash(room.editHash, sha(msg.editToken)))
+            return attach(ws, room, msg, canEdit ? 'editor' : 'viewer')
           }
           case 'update': {
             if (!r || !meta.memberId) return
@@ -186,7 +195,9 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
             if (r && meta.memberId) broadcast(r, { t: 'awareness', from: meta.memberId, data: msg.data }, ws)
             return
           case 'snapshot': {
-            if (!r) return
+            if (!r || !meta.memberId) return
+            // a snapshot replaces stored history: viewers must never be able to do that
+            if (r.members.get(meta.memberId)?.info.role === 'viewer') return
             // Keep entries newer than the snapshot so concurrent edits aren't lost.
             r.log = [{ seq: msg.upTo, data: msg.data }, ...r.log.filter((e) => e.seq > msg.upTo)]
             r.dirty = true

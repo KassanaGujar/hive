@@ -26,7 +26,7 @@ export function JoinDialog({ initial, onClose }: { initial: string; onClose: () 
     try {
       let info: InviteInfo
       if (parsed.roomKey && parsed.roomId && parsed.relayUrl) {
-        info = { relayUrl: parsed.relayUrl, roomId: parsed.roomId, roomKey: parsed.roomKey, projectName: parsed.projectName ?? 'project', role: parsed.role ?? 'editor' }
+        info = { relayUrl: parsed.relayUrl, roomId: parsed.roomId, roomKey: parsed.roomKey, projectName: parsed.projectName ?? 'project', role: parsed.role ?? 'editor', editToken: parsed.editToken }
       } else if (parsed.code) {
         const sealed = await HiveProvider.fetchInvite(relay, parsed.code)
         if (!sealed) throw new Error('That code was not found or has expired (codes last 24 hours). Ask for a new one.')

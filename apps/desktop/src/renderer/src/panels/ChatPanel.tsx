@@ -13,7 +13,7 @@ interface Msg {
   file?: string
 }
 
-const SYSTEM = `You are Hive's coding assistant inside a code editor. Be concise and practical.
+export const SYSTEM = `You are Hive's coding assistant inside a code editor. Be concise and practical.
 When you want to change a file, output the COMPLETE new content of that file in a fenced code block
 whose info string is the file path, like:
 \`\`\`src/app.js

@@ -19,7 +19,8 @@ import {
   MAX_SHARED_FILE_BYTES,
   MAX_FEED,
   type ChatMsg,
-  type InviteInfo
+  type InviteInfo,
+  type MemberInfo
 } from '@hive/collab'
 import type { FeedEvent } from '@hive/shared'
 import { invoke, on, COLORS } from '../lib/api'
@@ -30,6 +31,8 @@ interface CollabConfig {
   roomId: string
   roomKey: string
   adminToken?: string
+  /** Host: the secret that makes an invite an edit invite. Joiners: present if their invite allows editing. */
+  editToken?: string
   projectName: string
   role: 'host' | 'editor' | 'viewer'
 }
@@ -141,12 +144,16 @@ export class ProjectSession {
       roomId: cfg.roomId,
       roomKey: cfg.roomKey,
       member: me,
-      adminToken: cfg.adminToken
+      adminToken: cfg.adminToken,
+      editToken: cfg.role === 'host' ? undefined : cfg.editToken,
+      editHash: cfg.role === 'host' && cfg.editToken ? await sha256Hex(cfg.editToken) : undefined
     })
     this.provider = p
     p.awareness.setLocalStateField('user', { name: me.name, color: me.color, avatar: me.avatar })
     p.on('status', (st) => useStore.getState().set({ collabStatus: st, collabError: p.error }))
-    p.on('members', (m) => {
+    p.on('members', (m: MemberInfo[]) => {
+      const mine = m.find((x) => x.id === me.id)?.role
+      if (this.config && mine && mine !== 'host' && mine !== this.config.role) this.config.role = mine
       const prev = useStore.getState().members
       useStore.getState().set({ members: m })
       for (const x of m) {
@@ -165,8 +172,13 @@ export class ProjectSession {
   /** Host: turn this project into a shared room and upload its files. */
   async share(relayUrl: string): Promise<{ code: string; link: string }> {
     const name = this.root.split(/[\\/]/).pop() ?? 'project'
+    if (this.config?.role === 'host' && !this.config.editToken) {
+      // shared with an older Hive: add edit protection now
+      this.config.editToken = toB64Url(randomBytes(18))
+      await invoke('fs:write', CONFIG, JSON.stringify(this.config, null, 2))
+    }
     if (!this.config) {
-      this.config = { relayUrl, roomId: newRoomId(), roomKey: newRoomKey(), adminToken: toB64Url(randomBytes(24)), projectName: name, role: 'host' }
+      this.config = { relayUrl, roomId: newRoomId(), roomKey: newRoomKey(), adminToken: toB64Url(randomBytes(24)), editToken: toB64Url(randomBytes(18)), projectName: name, role: 'host' }
       await invoke('fs:write', CONFIG, JSON.stringify(this.config, null, 2))
       this.parts.meta.set('name', name)
       this.parts.meta.set('hostId', memberId())
@@ -182,14 +194,14 @@ export class ProjectSession {
   async newInvite(role: 'editor' | 'viewer') {
     const cfg = this.config!
     const code = newInviteCode()
-    const info: InviteInfo = { relayUrl: cfg.relayUrl, roomId: cfg.roomId, roomKey: cfg.roomKey, projectName: cfg.projectName, role }
+    const info: InviteInfo = { relayUrl: cfg.relayUrl, roomId: cfg.roomId, roomKey: cfg.roomKey, projectName: cfg.projectName, role, editToken: role === 'editor' ? cfg.editToken : undefined }
     this.provider!.publishInvite(code, await sealInvite(code, info))
     return { code, link: inviteLink(info, code) }
   }
 
   /** Friend: write the config for a project we are joining; caller then opens the folder. */
   static async prepareJoin(dir: string, info: InviteInfo) {
-    const cfg: CollabConfig = { relayUrl: info.relayUrl, roomId: info.roomId, roomKey: info.roomKey, projectName: info.projectName, role: info.role }
+    const cfg: CollabConfig = { relayUrl: info.relayUrl, roomId: info.roomId, roomKey: info.roomKey, projectName: info.projectName, role: info.role, editToken: info.editToken }
     await invoke('fs:write', CONFIG, JSON.stringify(cfg, null, 2))
     return dir
   }

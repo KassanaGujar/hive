@@ -12,6 +12,10 @@ export interface ProviderOptions {
   member: MemberHello
   /** Present for the host: creates the room and allows invites, roles and kicks. */
   adminToken?: string
+  /** Host: sha256 of the edit token, registered when the room is created. */
+  editHash?: string
+  /** Joiner: proves the invite allows editing. Without it the relay makes you a viewer. */
+  editToken?: string
   /** Compact the relay log into one snapshot when it grows past this many entries. */
   compactAfter?: number
 }
@@ -71,7 +75,11 @@ export class HiveProvider {
     ws.onopen = () => {
       this.backoff = 500
       const m = this.opts.member
-      this.send(this.opts.adminToken ? { t: 'create', room: this.opts.roomId, adminToken: this.opts.adminToken, member: m } : { t: 'join', room: this.opts.roomId, member: m })
+      this.send(
+        this.opts.adminToken
+          ? { t: 'create', room: this.opts.roomId, adminToken: this.opts.adminToken, member: m, editHash: this.opts.editHash }
+          : { t: 'join', room: this.opts.roomId, member: m, editToken: this.opts.editToken }
+      )
       this.pingTimer = setInterval(() => this.send({ t: 'ping' }), 25_000)
     }
     ws.onmessage = (ev) => this.onMessage(JSON.parse(String(ev.data)) as ServerMsg).catch((e) => this.fail(String(e?.message ?? e)))
@@ -129,8 +137,13 @@ export class HiveProvider {
     }
   }
 
+  /** The relay's view of my role (viewers' edits are refused, so they are never sent). */
+  get role(): MemberInfo['role'] | undefined {
+    return this.members.find((m) => m.id === this.opts.member.id)?.role
+  }
+
   private onDocUpdate = (update: Uint8Array, origin: unknown) => {
-    if (origin === 'remote' || this.status !== 'online') return
+    if (origin === 'remote' || this.status !== 'online' || this.role === 'viewer') return
     this.seal(update).then((data) => this.send({ t: 'update', data }))
   }
 
@@ -157,8 +170,9 @@ export class HiveProvider {
         }
         const missing = Y.encodeStateAsUpdate(this.doc, Y.encodeStateVector(remote))
         this.setStatus('online')
-        if (missing.length > 2) this.send({ t: 'update', data: await this.seal(missing) })
-        if (m.log.length > (this.opts.compactAfter ?? 300)) {
+        const viewer = this.role === 'viewer'
+        if (missing.length > 2 && !viewer) this.send({ t: 'update', data: await this.seal(missing) })
+        if (!viewer && m.log.length > (this.opts.compactAfter ?? 300)) {
           this.send({ t: 'snapshot', data: await this.seal(Y.encodeStateAsUpdate(this.doc)), upTo: this.lastSeq })
         }
         // announce our cursor/presence
@@ -188,7 +202,9 @@ export class HiveProvider {
         this.emit('kicked')
         break
       case 'error':
-        this.fail(m.message)
+        // a refused edit is not a connection failure
+        if (/Viewers can not edit/.test(m.message)) this.emit('error', m.message)
+        else this.fail(m.message)
         break
     }
   }

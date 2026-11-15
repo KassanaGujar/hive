@@ -48,6 +48,14 @@ export interface IpcContract {
   'project:open': (dir: string) => { root: string; tree: FileNode[] }
   'project:create': (parentDir: string, name: string, opts?: { empty?: boolean }) => string
   'project:current': () => string | null
+  /** Close the open project: stops its run and terminals and its file watcher. */
+  'project:close': () => void
+  /** Rename a project's folder; returns the new path. */
+  'project:rename': (dir: string, newName: string) => string
+  /** Move a project's folder to the Recycle Bin / Trash and forget it. */
+  'project:delete': (dir: string) => void
+  /** Drop a project from the recent list without touching its files. */
+  'project:forget': (dir: string) => void
   'fs:tree': () => FileNode[]
   /** Tree of a sub-folder (e.g. an agent's working folder); paths stay relative to the project root. */
   'fs:treeAt': (rel: string) => FileNode[]
