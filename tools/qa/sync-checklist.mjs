@@ -7,22 +7,7 @@ import { OUT, REPO } from './lib.mjs'
 
 const CHECKLIST = path.join(REPO, 'docs', 'qa-checklist.md')
 const PHASE_OF_HEADING = [[/^## PHASE (\d+)/, (m) => 'P' + m[1]]]
-// app bugs found by a test and fixed (test name → what was wrong); these get [!] once they pass again
-const FIXED = {
-  'Rename a project; the new name persists after refresh': 'terminals from a previous project kept the folder locked',
-  'Delete a project; it is removed and its old path no longer opens': 'terminals from a previous project kept the folder locked',
-  'Project permissions and ownership (viewer cannot change files; host can)': 'view-only links could edit; relay now enforces roles with an edit token',
-  'Errors are communicated clearly to users': 'raw system errors (ENOENT …) were shown; now plain sentences',
-  'Close and reopen the app; the project is restored': 'a briefly locked settings file made Hive start with empty settings'
-}
-// checklist wording → test name, where they differ too much for word matching
-const ALIAS = {
-  "Delete a project; it is removed and can't be opened through its old link": 'Delete a project; it is removed and its old path no longer opens',
-  'Create nested folders; the directory structure works': 'Create nested folders',
-  'Move files between folders; imports and references still work where applicable': 'Move a file between folders (content kept)',
-  'Browser navigation, including back and forward': 'Browser navigation (back / forward)',
-  "Unauthorized users can't access private projects": 'Unauthorized users cannot read a private project'
-}
+import { ALIAS, FIXED } from './checklist-aliases.mjs'
 const norm = (s) => s.toLowerCase().replace(/[’']/g, "'").replace(/\(.*?\)/g, '').replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()
 const words = (s) => new Set(norm(s).split(' ').filter((w) => w.length > 2 && !['the', 'and', 'that', 'are', 'can', 'with', 'for', 'its', 'what', 'happens'].includes(w)))
 

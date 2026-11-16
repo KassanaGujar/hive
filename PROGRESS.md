@@ -1,17 +1,23 @@
 # Hive — build progress (resume file)
 
-## 🔖 2026-11-15 23:20 — PROJECT MOVED to C:\dev\hive (resume here)
-- User approved moving out of OneDrive. Backups: OneDrive\Hive-backup-2026-11-15.bundle (git, all refs) and
-  OneDrive\Hive-source-2026-11-15.zip. C:\dev\hive copy verified: same commit 0b839fc, clean tree.
-- `npm ci` was started in C:\dev\hive; check it finished, run `node node_modules/electron/install.js`,
-  build (`cd apps/desktop && npx electron-vite build`) and `npx vitest run`.
-- The old folder "OneDrive\Desktop\Collab site" is NOT deleted yet. Ask the user before deleting it
-  (node_modules permanently, the rest to the Recycle Bin). Switch the Claude session to C:\dev\hive.
-- QA: Phase 1 done (18/19, 1 N/A). Phase 2: 22/24 pass. Open: rename leftover file (fix written, untested)
-  and relay restart (third client stale; reproduce with the dbg-restart idea: 3 windows, edits during outage).
-- Under 100% CPU, simultaneous reloads of 3 windows sometimes left a renderer unresponsive (harness now
-  avoids reloads; record in the report as an open observation).
+## 🔖 RESUME HERE (paused 2026-11-16 ~01:00, user closed Claude for the night)
+Project lives in **C:devhive** (moved out of OneDrive; old folder removed; backups in OneDrive:
+Hive-backup-2026-11-15.bundle + Hive-source-2026-11-15.zip). Deps installed, build OK, 67 unit tests pass.
 
+**Exact next steps, in order:**
+1. Phase 2, rename-while-editing: the old b.js stays on a teammate's disk. A fix is committed but untested
+   (session.ts observeRenames deletes the old file again after 1.5 s; the test now waits up to 15 s).
+   Rerun: `node tools/qa/phase2.mjs > docs/qa/phase2-run.log 2>&1` (~15 min; one run at a time).
+2. Phase 2, relay restart: after the relay restarts, client C comes back "online" but keeps older text
+   (a/b converge). Reproduce with 3 windows: edits during the outage, then restart the relay, then log
+   each client's provider.lastSeq + text. Suspects: relay (services/relay) loses its last unflushed log on
+   a hard kill, and C's join/diff logic. Fix, then rerun phase2.
+3. Phase 2 scale (5/10/20 people): `npx vitest run --config vitest.stress.mts tools/qa/scale.stress.ts`.
+4. `node tools/qa/sync-checklist.mjs` (updates docs/qa-checklist.md), commit, then Phase 3 (phase3.mjs, uses
+   qwen2.5-coder:7b), Phase 4, Phase 5 (+ soak.mjs, 60 min), Phases 6–8 (run-challenges.mjs), Phase 9,
+   Phase 11 + the final report (docs/qa-report.md). Phase 10 needs two real people.
+**Harness tips:** launch windows one at a time (simultaneous reloads under load froze renderers); the harness
+reconnects once if DevTools stops answering; check the CPU first (OneDrive/Explorer were pinning it).
 
 ## 🔖 BOOKMARK 2026-11-15 evening — QA plan in progress (resume here)
 **Checklist (live, every item from the user's plan):** `docs/qa-checklist.md` — sync it with

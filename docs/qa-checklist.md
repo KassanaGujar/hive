@@ -38,39 +38,39 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 - [!] Errors are communicated clearly to users — fixed: raw system errors (ENOENT …) were shown; now plain sentences
 
 ## PHASE 2 — Multiplayer Collaboration
-- [ ] Invite one collaborator using a project link
-- [ ] Invite multiple collaborators simultaneously
-- [ ] All collaborators see the same project files
-- [ ] Two people edit different files simultaneously
-- [ ] Two people edit the same file simultaneously
-- [ ] Two people edit the exact same line simultaneously
-- [ ] Two people type at the exact same cursor position
-- [ ] One person deletes code while another edits that code
-- [ ] One person renames a file while another edits it
-- [ ] One person creates a file while another navigates the file explorer
-- [ ] One person deletes a file while another has it open
-- [ ] Simultaneous changes don't silently disappear
-- [ ] Changes synchronize across all connected clients
-- [ ] Collaborators can see each other's cursors
-- [ ] Collaborator presence indicators update correctly
-- [ ] Users can tell their own changes from other people's
-- [ ] Undo and redo while multiple people are editing
-- [ ] Undoing one person's changes doesn't undo another person's unrelated changes
-- [ ] Disconnect one collaborator from the internet
-- [ ] Continue editing while that collaborator is disconnected
-- [ ] Reconnect the disconnected collaborator
-- [ ] Their editor synchronizes with the latest project state
-- [ ] Refresh one collaborator's window while everyone else is working
-- [ ] The refreshed session restores correctly
-- [ ] A collaborator leaves the project
-- [ ] Remaining collaborators can continue working
-- [ ] Rejoin the project using the original invitation link
-- [ ] Collaborators can't accidentally overwrite the whole project with stale data
+- [x] Invite one collaborator using a project link
+- [x] Invite multiple collaborators simultaneously
+- [x] All collaborators see the same project files — 4 files identical on all three (on disk after 110 ms)
+- [x] Two people edit different files simultaneously
+- [x] Two people edit the same file simultaneously
+- [x] Two people edit the exact same line simultaneously
+- [x] Two people type at the exact same cursor position
+- [x] One person deletes code while another edits that code
+- [F] One person renames a file while another edits it — old file still on b's disk
+- [x] One person creates a file while another navigates the file explorer
+- [!] One person deletes a file while another has it open — fixed: no notice and the tab stayed open; now closed with a notice
+- [x] Simultaneous changes don't silently disappear — 300/300 edits present on all three
+- [x] Changes synchronize across all connected clients
+- [!] Collaborators can see each other's cursors — fixed: cursors were never sent or drawn (editors attached after the binding)
+- [x] Collaborator presence indicators update correctly
+- [x] Users can tell their own changes from other people's
+- [!] Undo and redo while multiple people are editing — fixed: Ctrl+Z did nothing after a teammate's edit; now a shared undo of your own edits
+- [!] Undoing one person's changes doesn't undo another person's unrelated changes — fixed: Ctrl+Z did nothing after a teammate's edit; now a shared undo of your own edits
+- [!] Disconnect one collaborator from the internet — fixed: background windows were throttled, delaying sync by minutes
+- [!] Continue editing while that collaborator is disconnected — fixed: background windows were throttled, delaying sync by minutes
+- [!] Reconnect the disconnected collaborator — fixed: background windows were throttled, delaying sync by minutes
+- [!] Their editor synchronizes with the latest project state — fixed: background windows were throttled, delaying sync by minutes
+- [x] Refresh one collaborator's window while everyone else is working
+- [x] The refreshed session restores correctly
+- [x] A collaborator leaves the project
+- [x] Remaining collaborators can continue working
+- [x] Rejoin the project using the original invitation link
+- [!] Collaborators can't accidentally overwrite the whole project with stale data — fixed: an offline copy overwrote the team's newer work; now a 3-way merge
 - [ ] Synchronization with five people editing simultaneously
 - [ ] Synchronization with ten people editing simultaneously
 - [ ] Synchronization with twenty people joining simultaneously
-- [ ] Concurrent operations are handled consistently
-- [ ] Project state stays consistent after a server restart
+- [x] Concurrent operations are handled consistently
+- [F] Project state stays consistent after a server restart — not converged on a.js: a:doc=83 disk=83 b:doc=83 disk=83 c:doc=49 disk=49
 
 ## PHASE 3 — AI / Vibe-Coding Functionality
 - [ ] AI creates a simple program from a natural-language prompt
