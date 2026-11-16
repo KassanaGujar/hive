@@ -179,20 +179,37 @@ export async function testKey(provider: string, key: string): Promise<{ ok: bool
 
 const streams = new Map<string, AbortController>()
 
+/** First words can take a while (a local model loading into memory); after that, long silences mean trouble. */
+const FIRST_TOKEN_TIMEOUT_MS = Number(process.env.HIVE_FIRST_TOKEN_TIMEOUT_MS ?? 120_000)
+const STALL_TIMEOUT_MS = Number(process.env.HIVE_STALL_TIMEOUT_MS ?? 60_000)
+
 export async function chatStream(modelId: string, messages: ChatMessage[], tools?: ToolSpec[]): Promise<string> {
   const m = await findModel(modelId)
   const ep = endpointFor(m)
   const streamId = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
   const ctl = new AbortController()
   streams.set(streamId, ctl)
+  // A provider that accepts the request but never answers would otherwise leave the chat waiting forever.
+  let timedOut: string | null = null
+  let idle: ReturnType<typeof setTimeout> | undefined
+  const arm = (ms: number, why: string) => {
+    clearTimeout(idle)
+    idle = setTimeout(() => {
+      timedOut = why
+      ctl.abort()
+    }, ms)
+  }
+  arm(FIRST_TOKEN_TIMEOUT_MS, `The model didn't start answering within ${FIRST_TOKEN_TIMEOUT_MS / 1000} seconds. It may be overloaded or unreachable. Try again, or pick another model.`)
   ;(async () => {
     try {
       for await (const chunk of streamChat(ep, messages, { tools, signal: ctl.signal })) {
+        arm(STALL_TIMEOUT_MS, `The model stopped answering for ${STALL_TIMEOUT_MS / 1000} seconds, so the reply was cut off. Try again.`)
         emit('chat:chunk', { streamId, chunk })
       }
     } catch (e) {
-      emit('chat:chunk', { streamId, chunk: { done: true }, error: ctl.signal.aborted ? undefined : (e as Error).message })
+      emit('chat:chunk', { streamId, chunk: { done: true }, error: timedOut ?? (ctl.signal.aborted ? undefined : (e as Error).message) })
     } finally {
+      clearTimeout(idle)
       streams.delete(streamId)
     }
   })()

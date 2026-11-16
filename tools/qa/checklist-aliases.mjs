@@ -23,7 +23,12 @@ export const ALIAS = {
   "Collaborators can't accidentally overwrite the whole project with stale data": 'A stale copy cannot overwrite the project (edited outside Hive while closed)',
   'Project state stays consistent after a server restart': 'Project state survives a relay (server) restart',
   'One person creates a file while another navigates the file explorer': 'One person creates a file while another browses the explorer',
-  "Users can tell their own changes from other people's": "Users can tell their own changes from other people's"
+  "Users can tell their own changes from other people's": "Users can tell their own changes from other people's",
+  // Phase 4
+  'Run a program with missing dependencies; the error is understandable': 'Missing dependency: the error is understandable',
+  'Modify code while a previous version is running': 'Modify code while a previous version is running; running program keeps a consistent version',
+  'The running program uses a consistent source version': 'Modify code while a previous version is running; running program keeps a consistent version',
+  'Run a program with external dependencies': 'Run a program with external dependencies (npm install runs first)'
 }
 
 // app bugs found by a test and fixed (test name → what was wrong); these get [!] once they pass again

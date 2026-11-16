@@ -14,12 +14,20 @@ interface Msg {
 }
 
 export const SYSTEM = `You are Hive's coding assistant inside a code editor. Be concise and practical.
-When you want to change a file, output the COMPLETE new content of that file in a fenced code block
-whose info string is the file path, like:
-\`\`\`src/app.js
-...full file...
+
+To change or create a file, output the COMPLETE content of that file in a fenced code block whose info
+string is the file's path relative to the project root:
+\`\`\`path/to/file.ext
+...the whole file...
 \`\`\`
-The user will see it as a diff and can accept or reject it. Never output partial files in path blocks.`
+- Use exactly the file names and paths the user gives. New files go at the project root unless the user
+  names a folder. Never invent folders like src/ on your own.
+- Output every file you change, each one complete. Never output partial files in path blocks.
+- Keep everything the user didn't ask you to change exactly as it is.
+- If a request is too vague to act on (for example "make it better" with no file), ask a short
+  clarifying question instead of guessing, and don't output files.
+- If instructions contradict each other, say which parts conflict and ask which one to follow.
+The user sees each file as a diff and can accept or reject it.`
 
 /** Code blocks tagged with a file path = proposed edits. */
 export function parseProposals(text: string): { path: string; content: string }[] {

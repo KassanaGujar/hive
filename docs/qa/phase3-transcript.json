@@ -1,0 +1,9 @@
+[
+ {
+  "prompt": "Create fib.js: a Node program that prints the first 10 Fibonacci numbers starting 0 1, comma-separated on one line.",
+  "ctxFiles": [],
+  "ms": 58082,
+  "err": null,
+  "reply": "```fib.js\nlet a = 0, b = 1, fib = [];\n\nfor (let i = 0; i < 10; i++) {\n    fib.push(a);\n    [a, b] = [b, a + b];\n}\n\nconsole.log(fib.join(','));\n```"
+ }
+]

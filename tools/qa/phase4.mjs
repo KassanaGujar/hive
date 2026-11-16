@@ -52,8 +52,11 @@ await check(P, 'Run a program that accepts user input', async () => {
 })
 await check(P, 'Run a program that produces continuous output', async () => {
   const r = await runProject('ticker', { 'hive.json': '{"command":"node tick.js"}', 'tick.js': 'let i=0;setInterval(()=>console.log("tick "+(i++)),50)\n' })
+  const started = await until(async () => (await r.out()).includes('tick 0'), 20000) // wait for the program to start
+  const n0 = ((await r.out()).match(/tick \d+/g) ?? []).length
   await wait(2500)
-  const n = ((await r.out()).match(/tick \d+/g) ?? []).length
+  const n = ((await r.out()).match(/tick \d+/g) ?? []).length - n0
+  assert(started, 'program never printed (run state: ' + JSON.stringify(await state()) + ')')
   assert(n > 20, 'only ' + n + ' lines in 2.5 s')
   await a.invoke('run:stop')
   return n + ' lines streamed in 2.5 s'
@@ -159,8 +162,9 @@ await check(P, 'Modify code while a previous version is running; running program
   assert(!o1.includes('version v2'), 'running program changed version mid-run')
   await a.invoke('run:restart')
   const st = await a.invoke('run:state')
-  await wait(1500)
-  const o2 = strip(await a.eval(`return window.__out[${JSON.stringify(st.terminalId)}]||''`))
+  const o2v = async () => strip(await a.eval(`return window.__out[${JSON.stringify(st.terminalId)}]||''`))
+  await until(async () => (await o2v()).includes('version'), 20000)
+  const o2 = await o2v()
   await a.invoke('run:stop')
   assert(o2.includes('version v2'), 'restart did not pick up the new code')
   return 'old run kept v1; Restart picked up v2'

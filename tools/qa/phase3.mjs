@@ -276,7 +276,7 @@ await check(P, 'AI modifies code that another collaborator is currently editing'
   const r = await ask("Change alpha to return 'ALPHA'. Keep everything else exactly.", ['team.js'])
   const prop = needProposal(r, 'team.js')
   // while the AI was answering, Omar edited gamma
-  await b.eval(`const m=H.monaco.editor.getModel(H.monaco.Uri.parse('hive:///team.js'));const v=m.getValue();const i=v.indexOf("return 'c'");const p=m.getPositionAt(i+8);m.pushEditOperations([],[{range:new H.monaco.Range(p.lineNumber,p.column,p.lineNumber,p.column),text:'-omar'}],()=>null);return 1`)
+  await b.eval(`const m=H.monaco.editor.getModel(H.monaco.Uri.parse('hive:///team.js'));const v=m.getValue();const i=v.indexOf("return 'c'");const p=m.getPositionAt(i+9);m.pushEditOperations([],[{range:new H.monaco.Range(p.lineNumber,p.column,p.lineNumber,p.column),text:'-omar'}],()=>null);return 1`)
   await wait(1500)
   await accept([prop])
   await wait(1500)

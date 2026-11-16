@@ -73,59 +73,105 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 - [!] Project state stays consistent after a server restart — fixed: a stale snapshot could delete entries after a restart; dead connections now detected
 
 ## PHASE 3 — AI / Vibe-Coding Functionality
-- [ ] AI creates a simple program from a natural-language prompt
-- [ ] AI creates a multi-file project
-- [ ] AI modifies an existing function
-- [ ] AI adds a feature without changing unrelated functionality
-- [ ] AI identifies and fixes a syntax error
-- [ ] AI identifies and fixes a logical error
-- [ ] AI explains an unfamiliar codebase
-- [ ] AI explains a specific function
-- [ ] Ambiguous prompt: AI handles uncertainty appropriately
-- [ ] Contradictory instructions: AI identifies the contradiction
-- [ ] AI refactors poorly structured code
-- [ ] AI optimizes a slow algorithm
-- [ ] AI writes unit tests
-- [ ] AI fixes failing unit tests
-- [ ] AI implements a feature across multiple files
-- [ ] AI modifies code another collaborator is currently editing
+- [F] AI creates a simple program from a natural-language prompt — output: node:internal/modules/cjs/loader:1607
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\fib.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\fib.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1
+- [F] AI creates a multi-file project — node:internal/modules/cjs/loader:1607
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\app.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1603:15)
+    at wrap
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\app.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1603:15)
+    at wrap
+- [x] AI modifies an existing function
+- [x] AI adds a feature without changing unrelated functionality
+- [x] AI identifies and fixes a syntax error
+- [x] AI identifies and fixes a logical error
+- [x] AI explains an unfamiliar codebase
+- [x] AI explains a specific function
+- [x] Ambiguous prompt: AI handles uncertainty appropriately
+- [F] Contradictory instructions: AI identifies the contradiction — no contradiction flagged: ```src/sum.js
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+- [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+- [x] AI optimizes a slow algorithm — fib(35): 630 ms → 0 ms
+- [F] AI writes unit tests — tests fail on correct code: Could not find 'strings.test.js'
+
+
+- [x] AI fixes failing unit tests
+- [F] AI implements a feature across multiple files — milk
+eggs
+
+eggs
+
+- [F] AI modifies code another collaborator is currently editing — accepting the AI change wiped out Omar's concurrent edit
 - [ ] Two collaborators send AI requests simultaneously
 - [ ] Simultaneous AI requests don't overwrite each other's changes
-- [ ] AI-generated changes are synchronized with all collaborators
-- [ ] Users can inspect AI-generated changes before accepting them
-- [ ] AI doesn't silently remove unrelated functionality
-- [ ] Requesting broken code: the app reports execution errors
-- [ ] AI references nonexistent files or dependencies: what happens
-- [ ] An AI request times out: what happens
-- [ ] The AI provider returns an error: what happens
-- [ ] Users can recover from unsuccessful AI modifications
+- [x] AI-generated changes are synchronized with all collaborators
+- [x] Users can inspect AI-generated changes before accepting them
+- [x] AI doesn't silently remove unrelated functionality
+- [x] Requesting broken code: the app reports execution errors — Exited with code 1. See the Run terminal for details.
+- [x] AI references nonexistent files or dependencies: what happens — Run fails with Node's "Cannot find module" in the terminal + "Exited with code 1. See the Run terminal for details.". Hive does not warn about missing packages 
+- [F] An AI request times out: what happens — a provider that never answers leaves Ask AI waiting forever (test gave up after 150 s); only the Stop button ends it
+- [x] The AI provider returns an error: what happens — shown to the user as: Model request failed (500): {"error":{"message":"upstream exploded"}}
+- [x] Users can recover from unsuccessful AI modifications
 
 ## PHASE 4 — Code Execution and Runtime
-- [ ] Run a basic Hello World program
-- [ ] Run a program that accepts user input
-- [ ] Run a program that produces continuous output
-- [ ] Run a program with multiple files
-- [ ] Run a program with external dependencies
-- [ ] Run a program with missing dependencies; the error is understandable
-- [ ] Run a program with syntax errors
-- [ ] Run a program with runtime errors
-- [ ] Run a program that intentionally throws an exception
-- [ ] Run a program that uses significant memory
-- [ ] Run a program that uses significant CPU
-- [ ] Run an infinite loop
-- [ ] An infinite loop can be terminated
-- [ ] Stopping execution actually releases its resources
-- [ ] Run multiple programs simultaneously
-- [ ] One user's execution doesn't interfere with another user's
-- [ ] Modify code while a previous version is running
-- [ ] The running program uses a consistent source version
-- [ ] Execution output is displayed correctly
-- [ ] Errors include useful file names and line numbers
-- [ ] Execution environments don't expose other users' project files
-- [ ] Attempts to access unauthorized filesystem locations
-- [ ] Attempts to access unauthorized network resources
-- [ ] Attempts to escape the execution sandbox
-- [ ] Resource limits and execution timeouts
+- [x] Run a basic Hello World program
+- [x] Run a program that accepts user input
+- [x] Run a program that produces continuous output — 33 lines streamed in 2.5 s
+- [x] Run a program with multiple files
+- [x] Run a program with external dependencies
+- [x] Run a program with missing dependencies; the error is understandable — Node error shown + Hive status message: Exited with code 1. See the Run terminal for details.
+- [x] Run a program with syntax errors
+- [x] Run a program with runtime errors
+- [x] Run a program that intentionally throws an exception
+- [x] Run a program that uses significant memory — 1 GB allocated, status exited, Hive UI responsive (complete). No memory limit is enforced.
+- [x] Run a program that uses significant CPU — UI stayed responsive (worst 101 ms)
+- [x] Run an infinite loop
+- [x] An infinite loop can be terminated
+- [x] Stopping execution actually releases its resources
+- [x] Run multiple programs simultaneously
+- [x] One user's execution doesn't interfere with another user's — Each person runs code on their own computer (Hive has no shared execution server); verified separately in Phase 9 runs by two instances.
+- [x] Modify code while a previous version is running — old run kept v1; Restart picked up v2
+- [x] The running program uses a consistent source version — old run kept v1; Restart picked up v2
+- [x] Execution output is displayed correctly
+- [x] Errors include useful file names and line numbers — file and line (t.js:4) present
+- [x] Execution environments don't expose other users' project files
+- [F] Attempts to access unauthorized filesystem locations — a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794850098811.txt). Hive's own file API: refused: "../../../../hive-qa-secret.txt" is outside the project
+- [F] Attempts to access unauthorized network resources — programs have full network access (no network policy for Run)
+- [F] Attempts to escape the execution sandbox — no sandbox: programs can start other processes as the user (WHOAMI:User)
+- [F] Resource limits and execution timeouts — Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy
 
 ## PHASE 5 — Performance and Stress Testing
 - [ ] Open a project with 100 files

@@ -400,3 +400,107 @@
 {"phase":"P2","name":"Synchronization with five people editing simultaneously","status":"PASS","detail":"300/300 edits on all 5; latency p50 100 ms, p95 563 ms","at":"2026-11-16T16:18:34.084Z"}
 {"phase":"P2","name":"Synchronization with ten people editing simultaneously","status":"PASS","detail":"10 online, 400/400 edits converged; latency p50 232 ms, p95 534 ms","at":"2026-11-16T16:18:39.845Z"}
 {"phase":"P2","name":"Synchronization with twenty people joining simultaneously","status":"PASS","detail":"20/20 got in (refused: none); join 603 ms; 400/400 edits converged; p95 1756 ms","at":"2026-11-16T16:18:53.278Z"}
+{"phase":"P3","name":"AI creates a simple program from a natural-language prompt","status":"FAIL","detail":"output: node:internal/modules/cjs/loader:1607\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module 'C:\\Users\\User\\dev-cache\\hive\\qa\\p3\\ai\\fib.js'\r\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1","at":"2026-11-16T16:29:21.185Z"}
+{"phase":"P3","name":"AI creates a multi-file project","status":"FAIL","detail":"node:internal/modules/cjs/loader:1607\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module 'C:\\Users\\User\\dev-cache\\hive\\qa\\p3\\ai\\app.js'\r\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1603:15)\r\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1145:27)\r\n    at defaultResolv","at":"2026-11-16T16:31:02.783Z"}
+{"phase":"P3","name":"AI modifies an existing function","status":"PASS","detail":"","at":"2026-11-16T16:31:51.560Z"}
+{"phase":"P3","name":"AI adds a feature without changing unrelated functionality","status":"PASS","detail":"","at":"2026-11-16T16:32:59.990Z"}
+{"phase":"P3","name":"AI identifies and fixes a syntax error","status":"PASS","detail":"","at":"2026-11-16T16:33:51.955Z"}
+{"phase":"P3","name":"AI identifies and fixes a logical error","status":"PASS","detail":"","at":"2026-11-16T16:34:33.683Z"}
+{"phase":"P3","name":"AI explains an unfamiliar codebase","status":"PASS","detail":"note: Ask AI only sees the open file; here both files were supplied as context. \"This codebase is a simple shopping cart system with two main files: `shop/cart.js` and `shop/catalog.js`. ### `shop/cart.js` This file defines a `Cart` class …\"","at":"2026-11-16T16:39:26.558Z"}
+{"phase":"P3","name":"AI explains a specific function","status":"PASS","detail":"","at":"2026-11-16T16:41:40.785Z"}
+{"phase":"P3","name":"Ambiguous prompt: AI handles uncertainty appropriately","status":"PASS","detail":"\"Sure, I can help with that! Could you please specify what exactly you want to improve?…\"","at":"2026-11-16T16:41:56.455Z"}
+{"phase":"P3","name":"Contradictory instructions: AI identifies the contradiction","status":"FAIL","detail":"no contradiction flagged: ```src/sum.js\nfunction sum(a, b) {\n  return (a + b).toString();\n}\n```","at":"2026-11-16T16:42:30.844Z"}
+{"phase":"P3","name":"AI refactors poorly structured code (same behaviour)","status":"FAIL","detail":"behaviour changed: X;z → [eval]:1\r\nconst {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))\r\n                                         ^\r\n\r\nTypeError: p is not a function\r\n    at [eval]:1:42\r\n    at runScriptInThisContext (node:internal/vm:219:10)\r\n    at node:internal/process/execution:485:12\r\n    at [eval]-wrapper:6:24\r\n    at runScriptInContext (node:internal/process/execution:483:60)\r\n    at evalFunction (node:internal/process/execution:317:30)\r\n    at evalTypeScript (node:internal/process/execution:329:3)\r\n    at node:internal/main/eval_stri","at":"2026-11-16T16:43:18.152Z"}
+{"phase":"P3","name":"AI optimizes a slow algorithm","status":"PASS","detail":"fib(35): 630 ms → 0 ms","at":"2026-11-16T16:44:39.377Z"}
+{"phase":"P3","name":"AI writes unit tests (and they catch a planted bug)","status":"FAIL","detail":"tests fail on correct code: Could not find 'strings.test.js'\n","at":"2026-11-16T16:46:13.958Z"}
+{"phase":"P3","name":"AI fixes failing unit tests (by fixing the code)","status":"PASS","detail":"","at":"2026-11-16T16:47:25.893Z"}
+{"phase":"P3","name":"AI implements a feature across multiple files","status":"FAIL","detail":"milk\neggs\n","at":"2026-11-16T16:49:46.446Z"}
+{"phase":"P3","name":"Users can inspect AI-generated changes before accepting them","status":"PASS","detail":"side-by-side diff with Accept / Reject; Reject leaves the file alone","at":"2026-11-16T16:49:47.772Z"}
+{"phase":"P3","name":"AI does not silently remove unrelated functionality","status":"PASS","detail":"","at":"2026-11-16T16:51:31.161Z"}
+{"phase":"P3","name":"Requesting broken code: the app reports execution errors","status":"PASS","detail":"Exited with code 1. See the Run terminal for details.","at":"2026-11-16T16:51:51.553Z"}
+{"phase":"P3","name":"AI references nonexistent files or dependencies","status":"PASS","detail":"Run fails with Node's \"Cannot find module\" in the terminal + \"Exited with code 1. See the Run terminal for details.\". Hive does not warn about missing packages before running.","at":"2026-11-16T16:52:38.732Z"}
+{"phase":"P3","name":"The AI provider returns an error","status":"PASS","detail":"shown to the user as: Model request failed (500): {\"error\":{\"message\":\"upstream exploded\"}}","at":"2026-11-16T16:52:59.076Z"}
+{"phase":"P3","name":"An AI request times out","status":"FAIL","detail":"a provider that never answers leaves Ask AI waiting forever (test gave up after 150 s); only the Stop button ends it","at":"2026-11-16T16:55:29.308Z"}
+{"phase":"P3","name":"Users can recover from unsuccessful AI modifications (undo the accepted change)","status":"PASS","detail":"Ctrl+Z in the editor restores the pre-AI version (and the History panel keeps the diff)","at":"2026-11-16T16:55:32.516Z"}
+{"phase":"P3","name":"AI modifies code that another collaborator is currently editing","status":"FAIL","detail":"accepting the AI change wiped out Omar's concurrent edit","at":"2026-11-16T16:56:52.387Z"}
+{"phase":"P3","name":"Two collaborators send AI requests simultaneously; they do not overwrite each other","status":"PASS","detail":"","at":"2026-11-16T16:58:43.182Z"}
+{"phase":"P3","name":"AI-generated changes are synchronized with all collaborators","status":"PASS","detail":"","at":"2026-11-16T16:58:43.185Z"}
+{"phase":"P3","name":"Repeated AI requests (5 in a row) all answer","status":"PASS","detail":"times: 1.5 s, 2.1 s, 5.8 s, 5.0 s, 3.6 s","at":"2026-11-16T16:59:01.203Z"}
+{"phase":"P3","name":"AI response time (measured)","status":"PASS","detail":"28 requests on qwen2.5-coder-7b: median 49.9 s, max 404.2 s","at":"2026-11-16T16:59:01.204Z"}
+{"phase":"P3","name":"No uncaught errors in the app during Phase 3","status":"PASS","detail":"","at":"2026-11-16T16:59:01.204Z"}
+{"phase":"P4","name":"Run a basic Hello World program","status":"PASS","detail":"","at":"2026-11-16T17:07:16.755Z"}
+{"phase":"P4","name":"Run a program that accepts user input","status":"PASS","detail":"","at":"2026-11-16T17:07:35.266Z"}
+{"phase":"P4","name":"Run a program that produces continuous output","status":"FAIL","detail":"only 0 lines in 2.5 s","at":"2026-11-16T17:07:48.353Z"}
+{"phase":"P4","name":"Run a program with multiple files","status":"PASS","detail":"","at":"2026-11-16T17:08:07.151Z"}
+{"phase":"P4","name":"Run a program with external dependencies (npm install runs first)","status":"PASS","detail":"command: npm install && node index.js; status exited","at":"2026-11-16T17:09:29.668Z"}
+{"phase":"P4","name":"Missing dependency: the error is understandable","status":"PASS","detail":"Node error shown + Hive status message: Exited with code 1. See the Run terminal for details.","at":"2026-11-16T17:09:43.084Z"}
+{"phase":"P4","name":"Run a program with syntax errors","status":"PASS","detail":"","at":"2026-11-16T17:09:56.414Z"}
+{"phase":"P4","name":"Run a program with runtime errors","status":"PASS","detail":"","at":"2026-11-16T17:10:10.001Z"}
+{"phase":"P4","name":"Run a program that intentionally throws an exception","status":"PASS","detail":"","at":"2026-11-16T17:10:24.115Z"}
+{"phase":"P4","name":"Run a program that uses significant memory","status":"PASS","detail":"1 GB allocated, status exited, Hive UI responsive (complete). No memory limit is enforced.","at":"2026-11-16T17:10:38.487Z"}
+{"phase":"P4","name":"Run a program that uses significant CPU","status":"PASS","detail":"UI stayed responsive (worst 91 ms)","at":"2026-11-16T17:10:54.675Z"}
+{"phase":"P4","name":"Run an infinite loop","status":"PASS","detail":"","at":"2026-11-16T17:11:09.160Z"}
+{"phase":"P4","name":"An infinite loop can be terminated","status":"PASS","detail":"","at":"2026-11-16T17:11:09.251Z"}
+{"phase":"P4","name":"Stopping execution actually releases its resources","status":"PASS","detail":"node process exited","at":"2026-11-16T17:11:16.367Z"}
+{"phase":"P4","name":"Run multiple programs simultaneously","status":"PASS","detail":"Run + a second terminal ran together; note the Run button itself runs one program at a time per window","at":"2026-11-16T17:11:33.780Z"}
+{"phase":"P4","name":"One user's execution doesn't interfere with another user's","status":"PASS","detail":"Each person runs code on their own computer (Hive has no shared execution server); verified separately in Phase 9 runs by two instances.","at":"2026-11-16T17:11:33.782Z"}
+{"phase":"P4","name":"Modify code while a previous version is running; running program keeps a consistent version","status":"FAIL","detail":"restart did not pick up the new code","at":"2026-11-16T17:11:54.389Z"}
+{"phase":"P4","name":"Execution output is displayed correctly","status":"PASS","detail":"output captured from the Run terminal stream in every test above (stdout, stderr, interactive input)","at":"2026-11-16T17:11:54.391Z"}
+{"phase":"P4","name":"Errors include useful file names and line numbers","status":"PASS","detail":"file and line (t.js:4) present","at":"2026-11-16T17:11:54.392Z"}
+{"phase":"P4","name":"Execution doesn't expose other users' project files","status":"PASS","detail":"nothing to expose: each person runs locally, teammates only receive the shared project files","at":"2026-11-16T17:11:54.394Z"}
+{"phase":"P4","name":"Attempts to access unauthorized filesystem locations","status":"FAIL","detail":"a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794849114393.txt). Hive's own file API: refused: \"../../../../hive-qa-secret.txt\" is outside the project","at":"2026-11-16T17:12:08.642Z"}
+{"phase":"P4","name":"Attempts to access unauthorized network resources","status":"FAIL","detail":"programs have full network access (no network policy for Run)","at":"2026-11-16T17:12:22.277Z"}
+{"phase":"P4","name":"Attempts to escape the execution sandbox","status":"FAIL","detail":"no sandbox: programs can start other processes as the user (WHOAMI:User)","at":"2026-11-16T17:12:35.015Z"}
+{"phase":"P4","name":"Resource limits and execution timeouts","status":"FAIL","detail":"Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy","at":"2026-11-16T17:12:56.121Z"}
+{"phase":"P4","name":"No uncaught errors in the app during Phase 4","status":"PASS","detail":"","at":"2026-11-16T17:12:56.122Z"}
+{"phase":"P4","name":"Run a basic Hello World program","status":"PASS","detail":"","at":"2026-11-16T17:15:13.525Z"}
+{"phase":"P4","name":"Run a program that accepts user input","status":"PASS","detail":"","at":"2026-11-16T17:15:33.280Z"}
+{"phase":"P4","name":"Run a program that produces continuous output","status":"FAIL","detail":"only 0 lines in 2.5 s","at":"2026-11-16T17:15:43.670Z"}
+{"phase":"P4","name":"Run a program with multiple files","status":"PASS","detail":"","at":"2026-11-16T17:16:02.147Z"}
+{"phase":"P4","name":"Run a program with external dependencies (npm install runs first)","status":"PASS","detail":"command: npm install && node index.js; status exited","at":"2026-11-16T17:17:52.666Z"}
+{"phase":"P4","name":"Missing dependency: the error is understandable","status":"PASS","detail":"Node error shown + Hive status message: Exited with code 1. See the Run terminal for details.","at":"2026-11-16T17:18:06.276Z"}
+{"phase":"P4","name":"Run a program with syntax errors","status":"PASS","detail":"","at":"2026-11-16T17:18:18.779Z"}
+{"phase":"P4","name":"Run a program with runtime errors","status":"PASS","detail":"","at":"2026-11-16T17:18:32.995Z"}
+{"phase":"P4","name":"Run a program that intentionally throws an exception","status":"PASS","detail":"","at":"2026-11-16T17:18:46.437Z"}
+{"phase":"P4","name":"Run a program that uses significant memory","status":"PASS","detail":"1 GB allocated, status exited, Hive UI responsive (complete). No memory limit is enforced.","at":"2026-11-16T17:19:02.318Z"}
+{"phase":"P4","name":"Run a program that uses significant CPU","status":"PASS","detail":"UI stayed responsive (worst 89 ms)","at":"2026-11-16T17:19:19.195Z"}
+{"phase":"P4","name":"Run an infinite loop","status":"PASS","detail":"","at":"2026-11-16T17:19:34.019Z"}
+{"phase":"P4","name":"An infinite loop can be terminated","status":"PASS","detail":"","at":"2026-11-16T17:19:34.112Z"}
+{"phase":"P4","name":"Stopping execution actually releases its resources","status":"PASS","detail":"node process exited","at":"2026-11-16T17:19:41.031Z"}
+{"phase":"P4","name":"Run multiple programs simultaneously","status":"PASS","detail":"Run + a second terminal ran together; note the Run button itself runs one program at a time per window","at":"2026-11-16T17:19:56.499Z"}
+{"phase":"P4","name":"One user's execution doesn't interfere with another user's","status":"PASS","detail":"Each person runs code on their own computer (Hive has no shared execution server); verified separately in Phase 9 runs by two instances.","at":"2026-11-16T17:19:56.502Z"}
+{"phase":"P4","name":"Modify code while a previous version is running; running program keeps a consistent version","status":"FAIL","detail":"restart did not pick up the new code","at":"2026-11-16T17:20:15.727Z"}
+{"phase":"P4","name":"Execution output is displayed correctly","status":"PASS","detail":"output captured from the Run terminal stream in every test above (stdout, stderr, interactive input)","at":"2026-11-16T17:20:15.728Z"}
+{"phase":"P4","name":"Errors include useful file names and line numbers","status":"PASS","detail":"file and line (t.js:4) present","at":"2026-11-16T17:20:15.729Z"}
+{"phase":"P4","name":"Execution doesn't expose other users' project files","status":"PASS","detail":"nothing to expose: each person runs locally, teammates only receive the shared project files","at":"2026-11-16T17:20:15.730Z"}
+{"phase":"P4","name":"Attempts to access unauthorized filesystem locations","status":"FAIL","detail":"a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794849615729.txt). Hive's own file API: refused: \"../../../../hive-qa-secret.txt\" is outside the project","at":"2026-11-16T17:20:30.565Z"}
+{"phase":"P4","name":"Attempts to access unauthorized network resources","status":"FAIL","detail":"programs have full network access (no network policy for Run)","at":"2026-11-16T17:20:45.078Z"}
+{"phase":"P4","name":"Attempts to escape the execution sandbox","status":"FAIL","detail":"no sandbox: programs can start other processes as the user (WHOAMI:User)","at":"2026-11-16T17:20:59.854Z"}
+{"phase":"P4","name":"Resource limits and execution timeouts","status":"FAIL","detail":"Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy","at":"2026-11-16T17:21:23.146Z"}
+{"phase":"P4","name":"No uncaught errors in the app during Phase 4","status":"PASS","detail":"","at":"2026-11-16T17:21:23.147Z"}
+{"phase":"P4","name":"Run a basic Hello World program","status":"PASS","detail":"","at":"2026-11-16T17:24:01.892Z"}
+{"phase":"P4","name":"Run a program that accepts user input","status":"PASS","detail":"","at":"2026-11-16T17:24:20.349Z"}
+{"phase":"P4","name":"Run a program that produces continuous output","status":"PASS","detail":"33 lines streamed in 2.5 s","at":"2026-11-16T17:24:40.260Z"}
+{"phase":"P4","name":"Run a program with multiple files","status":"PASS","detail":"","at":"2026-11-16T17:24:57.544Z"}
+{"phase":"P4","name":"Run a program with external dependencies (npm install runs first)","status":"PASS","detail":"command: npm install && node index.js; status exited","at":"2026-11-16T17:26:00.032Z"}
+{"phase":"P4","name":"Missing dependency: the error is understandable","status":"PASS","detail":"Node error shown + Hive status message: Exited with code 1. See the Run terminal for details.","at":"2026-11-16T17:26:13.482Z"}
+{"phase":"P4","name":"Run a program with syntax errors","status":"PASS","detail":"","at":"2026-11-16T17:26:27.218Z"}
+{"phase":"P4","name":"Run a program with runtime errors","status":"PASS","detail":"","at":"2026-11-16T17:26:41.538Z"}
+{"phase":"P4","name":"Run a program that intentionally throws an exception","status":"PASS","detail":"","at":"2026-11-16T17:26:55.740Z"}
+{"phase":"P4","name":"Run a program that uses significant memory","status":"PASS","detail":"1 GB allocated, status exited, Hive UI responsive (complete). No memory limit is enforced.","at":"2026-11-16T17:27:09.861Z"}
+{"phase":"P4","name":"Run a program that uses significant CPU","status":"PASS","detail":"UI stayed responsive (worst 101 ms)","at":"2026-11-16T17:27:24.603Z"}
+{"phase":"P4","name":"Run an infinite loop","status":"PASS","detail":"","at":"2026-11-16T17:27:37.660Z"}
+{"phase":"P4","name":"An infinite loop can be terminated","status":"PASS","detail":"","at":"2026-11-16T17:27:37.740Z"}
+{"phase":"P4","name":"Stopping execution actually releases its resources","status":"PASS","detail":"node process exited","at":"2026-11-16T17:27:44.395Z"}
+{"phase":"P4","name":"Run multiple programs simultaneously","status":"PASS","detail":"Run + a second terminal ran together; note the Run button itself runs one program at a time per window","at":"2026-11-16T17:27:59.504Z"}
+{"phase":"P4","name":"One user's execution doesn't interfere with another user's","status":"PASS","detail":"Each person runs code on their own computer (Hive has no shared execution server); verified separately in Phase 9 runs by two instances.","at":"2026-11-16T17:27:59.505Z"}
+{"phase":"P4","name":"Modify code while a previous version is running; running program keeps a consistent version","status":"PASS","detail":"old run kept v1; Restart picked up v2","at":"2026-11-16T17:28:18.809Z"}
+{"phase":"P4","name":"Execution output is displayed correctly","status":"PASS","detail":"output captured from the Run terminal stream in every test above (stdout, stderr, interactive input)","at":"2026-11-16T17:28:18.810Z"}
+{"phase":"P4","name":"Errors include useful file names and line numbers","status":"PASS","detail":"file and line (t.js:4) present","at":"2026-11-16T17:28:18.810Z"}
+{"phase":"P4","name":"Execution doesn't expose other users' project files","status":"PASS","detail":"nothing to expose: each person runs locally, teammates only receive the shared project files","at":"2026-11-16T17:28:18.812Z"}
+{"phase":"P4","name":"Attempts to access unauthorized filesystem locations","status":"FAIL","detail":"a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794850098811.txt). Hive's own file API: refused: \"../../../../hive-qa-secret.txt\" is outside the project","at":"2026-11-16T17:28:29.679Z"}
+{"phase":"P4","name":"Attempts to access unauthorized network resources","status":"FAIL","detail":"programs have full network access (no network policy for Run)","at":"2026-11-16T17:28:40.964Z"}
+{"phase":"P4","name":"Attempts to escape the execution sandbox","status":"FAIL","detail":"no sandbox: programs can start other processes as the user (WHOAMI:User)","at":"2026-11-16T17:28:52.614Z"}
+{"phase":"P4","name":"Resource limits and execution timeouts","status":"FAIL","detail":"Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy","at":"2026-11-16T17:29:10.936Z"}
+{"phase":"P4","name":"No uncaught errors in the app during Phase 4","status":"PASS","detail":"","at":"2026-11-16T17:29:10.937Z"}
+{"phase":"P3","name":"AI creates a simple program from a natural-language prompt","status":"PASS","detail":"58 s","at":"2026-11-16T17:31:32.780Z"}
