@@ -577,3 +577,32 @@
 {"phase":"P5","name":"Identify redundant storage operations (writes while typing)","status":"PASS","detail":"1 disk writes for 100 keystrokes over 10 s (autosave debounced at 0.9 s)","at":"2026-11-16T18:43:23.734Z"}
 {"phase":"P5","name":"Redundant storage operations in a shared project (state file rewrites)","status":"PASS","detail":"1 full rewrites of a 936 KB state file during 10 s of typing (debounced 1.5 s; each rewrite re-encodes the whole project)","at":"2026-11-16T18:43:59.532Z"}
 {"phase":"P5","name":"No uncaught errors during Phase 5","status":"PASS","detail":"","at":"2026-11-16T18:43:59.964Z"}
+{"phase":"P5","name":"Multiple collaborators continuously editing for 30 minutes","status":"PASS","detail":"16771 edits; files identical everywhere: {\"a.js\":true,\"b.js\":true,\"shared.js\":true}; sync latency median 43 ms; renderer heap 65→64.8 MB (A), 48.7→77.9 MB (B); app RSS 1073/1070 MB; relay 91 MB, 58.8 CPU-s","at":"2026-11-16T19:18:04.785Z"}
+{"phase":"P5","name":"Multiple collaborators continuously editing for one hour","status":"PASS","detail":"13723 edits; files identical everywhere: {\"a.js\":true,\"b.js\":true,\"shared.js\":true}; sync latency median 616 ms; renderer heap 65→58.5 MB (A), 48.7→64.1 MB (B); app RSS 975/1044 MB; relay 70 MB, 152.2 CPU-s","at":"2026-11-16T19:48:30.123Z"}
+{"phase":"P5","name":"Measure synchronization latency","status":"PASS","detail":"65 samples over 60 min on the local relay: p50 151 ms, p95 608 ms (Cloudflare relay measured separately)","at":"2026-11-16T19:48:30.124Z"}
+{"phase":"P5","name":"Monitor server resource consumption","status":"PASS","detail":"relay process 62→70 MB RSS, 150.9 CPU-s over 60 min","at":"2026-11-16T19:48:30.125Z"}
+{"phase":"P5","name":"Identify memory leaks","status":"PASS","detail":"renderer heap from min 5 to min 60: A 65→58.5 MB, B 48.7→64.1 MB; RSS A 930→975 MB","at":"2026-11-16T19:48:30.126Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-16T19:52:22.383Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-16T19:52:23.934Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"PASS","detail":"4 files identical on all three (on disk after 48 ms)","at":"2026-11-16T19:52:23.984Z"}
+{"phase":"P2","name":"Two people edit different files simultaneously","status":"PASS","detail":"","at":"2026-11-16T19:52:27.029Z"}
+{"phase":"P2","name":"Two people edit the same file simultaneously","status":"PASS","detail":"","at":"2026-11-16T19:52:28.021Z"}
+{"phase":"P2","name":"Two people edit the exact same line simultaneously","status":"PASS","detail":"","at":"2026-11-16T19:52:29.746Z"}
+{"phase":"P2","name":"Two people type at the exact same cursor position","status":"PASS","detail":"result: [BBBBBBBBBBBBBBBBBBBBAAAAAAAAAAAAAAAAAAAA]","at":"2026-11-16T19:52:30.840Z"}
+{"phase":"P2","name":"One person deletes code while another edits that code","status":"PASS","detail":"converged; the concurrent insert survived the delete","at":"2026-11-16T19:52:31.560Z"}
+{"phase":"P2","name":"One person renames a file while another edits it","status":"PASS","detail":"","at":"2026-11-16T19:52:34.865Z"}
+{"phase":"P2","name":"One person creates a file while another browses the explorer","status":"PASS","detail":"","at":"2026-11-16T19:52:35.446Z"}
+{"phase":"P2","name":"One person deletes a file while another has it open","status":"PASS","detail":"tab closed","at":"2026-11-16T19:52:41.262Z"}
+{"phase":"P2","name":"Simultaneous changes do not silently disappear (300 marked edits from 3 people)","status":"PASS","detail":"300/300 edits present on all three","at":"2026-11-16T19:52:43.101Z"}
+{"phase":"P2","name":"Changes synchronize across all connected clients","status":"PASS","detail":"every test above compares the shared doc and the disk copy on all three machines","at":"2026-11-16T19:52:43.102Z"}
+{"phase":"P2","name":"Collaborators can see each other's cursors","status":"PASS","detail":"remote selection rendered with the name label","at":"2026-11-16T19:52:43.557Z"}
+{"phase":"P2","name":"Presence indicators update correctly","status":"PASS","detail":"","at":"2026-11-16T19:52:43.820Z"}
+{"phase":"P2","name":"Users can tell their own changes from other people's","status":"PASS","detail":"history shows who changed what, with a diff","at":"2026-11-16T19:52:44.049Z"}
+{"phase":"P2","name":"Undo/redo while several people edit: undo only removes your own change","status":"PASS","detail":"","at":"2026-11-16T19:52:46.038Z"}
+{"phase":"P2","name":"Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs","status":"PASS","detail":"","at":"2026-11-16T19:52:48.465Z"}
+{"phase":"P2","name":"Refresh one collaborator's window while everyone works; it restores","status":"PASS","detail":"","at":"2026-11-16T19:52:51.888Z"}
+{"phase":"P2","name":"A collaborator leaves; the others keep working; they rejoin with the original link","status":"PASS","detail":"","at":"2026-11-16T19:53:35.390Z"}
+{"phase":"P2","name":"A stale copy cannot overwrite the project (edited outside Hive while closed)","status":"PASS","detail":"both edits merged: \"TEAM-EDIT L1 base\\nL2 base\\nL3 base EDITED-OUTSIDE\\n\"","at":"2026-11-16T19:53:56.693Z"}
+{"phase":"P2","name":"Project state survives a relay (server) restart","status":"PASS","detail":"","at":"2026-11-16T19:54:18.397Z"}
+{"phase":"P2","name":"Concurrent operations are handled consistently","status":"PASS","detail":"same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client","at":"2026-11-16T19:54:18.398Z"}
+{"phase":"P2","name":"No uncaught errors in any window during Phase 2","status":"PASS","detail":"","at":"2026-11-16T19:54:18.399Z"}

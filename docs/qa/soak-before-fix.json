@@ -1,0 +1,288 @@
+[
+ {
+  "minute": 0,
+  "sentA": 101,
+  "sentB": 101,
+  "latMs": [
+   6,
+   8,
+   8,
+   10,
+   67
+  ],
+  "heapA": 27.1,
+  "heapB": 28.1,
+  "rssA": 626,
+  "rssB": 735,
+  "relay": {
+   "mb": 62,
+   "cpu": 1.3
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 5,
+  "sentA": 1555,
+  "sentB": 1532,
+  "latMs": [
+   31,
+   52,
+   54,
+   182,
+   184
+  ],
+  "heapA": 65,
+  "heapB": 48.7,
+  "rssA": 930,
+  "rssB": 952,
+  "relay": {
+   "mb": 84,
+   "cpu": 6.8
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 10,
+  "sentA": 2922,
+  "sentB": 2889,
+  "latMs": [
+   10,
+   13,
+   27,
+   29,
+   31
+  ],
+  "heapA": 46.5,
+  "heapB": 65.6,
+  "rssA": 931,
+  "rssB": 971,
+  "relay": {
+   "mb": 64,
+   "cpu": 14.7
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 15,
+  "sentA": 4346,
+  "sentB": 4275,
+  "latMs": [
+   20,
+   58,
+   69,
+   76,
+   142
+  ],
+  "heapA": 61.5,
+  "heapB": 47.7,
+  "rssA": 925,
+  "rssB": 965,
+  "relay": {
+   "mb": 75,
+   "cpu": 23.4
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 20,
+  "sentA": 5710,
+  "sentB": 5599,
+  "latMs": [
+   59,
+   127,
+   171,
+   339,
+   376
+  ],
+  "heapA": 59.3,
+  "heapB": 58,
+  "rssA": 960,
+  "rssB": 970,
+  "relay": {
+   "mb": 75,
+   "cpu": 34.3
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 25,
+  "sentA": 7080,
+  "sentB": 6906,
+  "latMs": [
+   43,
+   75,
+   81,
+   151,
+   218
+  ],
+  "heapA": 62.1,
+  "heapB": 58.5,
+  "rssA": 981,
+  "rssB": 1045,
+  "relay": {
+   "mb": 90,
+   "cpu": 45.8
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 30,
+  "sentA": 8486,
+  "sentB": 8285,
+  "latMs": [
+   14,
+   30,
+   43,
+   107,
+   144
+  ],
+  "heapA": 64.8,
+  "heapB": 77.9,
+  "rssA": 1073,
+  "rssB": 1070,
+  "relay": {
+   "mb": 91,
+   "cpu": 58.8
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 35,
+  "sentA": 1165,
+  "sentB": 1130,
+  "latMs": [
+   42,
+   119,
+   211,
+   458,
+   601
+  ],
+  "heapA": 52.7,
+  "heapB": 70.1,
+  "rssA": 972,
+  "rssB": 1054,
+  "relay": {
+   "mb": 101,
+   "cpu": 74.1
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 40,
+  "sentA": 2405,
+  "sentB": 2304,
+  "latMs": [
+   30,
+   90,
+   224,
+   334,
+   495
+  ],
+  "heapA": 63.2,
+  "heapB": 66.8,
+  "rssA": 1032,
+  "rssB": 1040,
+  "relay": {
+   "mb": 74,
+   "cpu": 88.8
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 45,
+  "sentA": 3611,
+  "sentB": 3457,
+  "latMs": [
+   177,
+   295,
+   301,
+   461,
+   496
+  ],
+  "heapA": 69.1,
+  "heapB": 56.8,
+  "rssA": 1040,
+  "rssB": 981,
+  "relay": {
+   "mb": 69,
+   "cpu": 105.5
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 50,
+  "sentA": 4764,
+  "sentB": 4534,
+  "latMs": [
+   152,
+   167,
+   228,
+   256,
+   260
+  ],
+  "heapA": 77.8,
+  "heapB": 59.2,
+  "rssA": 981,
+  "rssB": 963,
+  "relay": {
+   "mb": 79,
+   "cpu": 119.6
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 55,
+  "sentA": 5939,
+  "sentB": 5629,
+  "latMs": [
+   336,
+   482,
+   500,
+   551,
+   608
+  ],
+  "heapA": 107.9,
+  "heapB": 50.9,
+  "rssA": 1037,
+  "rssB": 1038,
+  "relay": {
+   "mb": 69,
+   "cpu": 135.4
+  },
+  "statusA": "online",
+  "statusB": "online"
+ },
+ {
+  "minute": 60,
+  "sentA": 7057,
+  "sentB": 6666,
+  "latMs": [
+   330,
+   474,
+   616,
+   709,
+   869
+  ],
+  "heapA": 58.5,
+  "heapB": 64.1,
+  "rssA": 975,
+  "rssB": 1044,
+  "relay": {
+   "mb": 70,
+   "cpu": 152.2
+  },
+  "statusA": "online",
+  "statusB": "online"
+ }
+]

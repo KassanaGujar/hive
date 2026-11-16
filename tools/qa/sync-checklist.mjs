@@ -23,7 +23,11 @@ const results = [...history.values()].map((list) => ({ ...list.at(-1), everFaile
 
 /** Best result for a checklist line within its phase (word overlap; challenge items are "<title> — <item>"). */
 function match(phase, section, text) {
-  if (ALIAS[text]) return results.find((r) => r.phase === phase && r.name === ALIAS[text]) ?? null
+  if (ALIAS[text]) {
+    // 'P3|name' points at a result recorded in another phase
+    const [ph, nm] = ALIAS[text].includes('|') ? ALIAS[text].split('|') : [phase, ALIAS[text]]
+    return results.find((r) => r.phase === ph && r.name === nm) ?? null
+  }
   const tw = words(text)
   let best = null, score = 0
   for (const r of results) {

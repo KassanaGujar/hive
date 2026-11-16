@@ -232,6 +232,7 @@ export class ProjectSession {
 
   private saveNow() {
     invoke('fs:write', STATE, toB64(Y.encodeStateAsUpdate(this.doc))).catch(() => {})
+    invoke('fs:write', SYNCED, JSON.stringify(this.synced)).catch(() => {})
   }
 
   // ---------- connection ----------
@@ -392,9 +393,9 @@ export class ProjectSession {
    * together, so a crash between the two can't make the base look stale (a false "conflict" on rejoin).
    */
   private saveSynced() {
-    clearTimeout(this.saveTimer)
-    this.saveNow()
-    invoke('fs:write', SYNCED, JSON.stringify(this.synced)).catch(() => {})
+    // written together with the state in saveNow (debounced): re-encoding the whole document on every
+    // file write made long sessions slower and slower
+    this.scheduleSave()
   }
 
   private observeFiles() {

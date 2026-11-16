@@ -31,7 +31,12 @@ export const ALIAS = {
   'Run a program with external dependencies': 'Run a program with external dependencies (npm install runs first)',
   // Phase 3
   'Two collaborators send AI requests simultaneously': 'Two collaborators send AI requests simultaneously; they do not overwrite each other',
-  "Simultaneous AI requests don't overwrite each other's changes": 'Two collaborators send AI requests simultaneously; they do not overwrite each other'
+  "Simultaneous AI requests don't overwrite each other's changes": 'Two collaborators send AI requests simultaneously; they do not overwrite each other',
+  // Phase 5
+  'Repeated AI requests': 'P3|Repeated AI requests (5 in a row) all answer',
+  'Measure AI response time': 'P3|AI response time (measured)',
+  'Open a very large source file and measure editor responsiveness': 'Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness',
+  'Performance stays acceptable during concurrent use': 'Performance stays acceptable during concurrent use'
 }
 
 // app bugs found by a test and fixed (test name → what was wrong); these get [!] once they pass again
