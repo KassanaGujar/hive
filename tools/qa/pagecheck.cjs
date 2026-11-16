@@ -1,9 +1,14 @@
 // Load a web page in a hidden Electron window, run a probe script in it, print JSON.
-//   electron tools/qa/pagecheck.cjs <url> <probe.js> <out.json> [screenshot.png]
+//   PAGECHECK_URL=<url> electron tools/qa/pagecheck.cjs <probe.js> <out.json> [screenshot.png]
+// (the URL goes in an env var: Electron ignores the script entirely when an argument is a URL)
 // The probe file's body runs as an async function in the page and must return a JSON value.
 const { app, BrowserWindow } = require('electron')
 const fs = require('node:fs')
-const [url, probeFile, outFile, shotFile] = process.argv.slice(-4).filter((x) => !x.startsWith('--'))
+const url = process.env.PAGECHECK_URL
+const [probeFile, outFile, shotFile] = process.argv.slice(2).filter((x) => !x.startsWith('--')).slice(-3)
+const trace = (m) => process.env.PAGECHECK_TRACE && console.log('[pagecheck]', m)
+trace('args ' + JSON.stringify([url, probeFile, outFile, shotFile]))
+process.on('uncaughtException', (e) => { console.error('[pagecheck] crash', e); try { fs.writeFileSync(outFile, JSON.stringify({ result: { probeError: 'checker crashed: ' + e.message }, errors: [] })) } catch {} ; app.exit(1) })
 app.commandLine.appendSwitch('disable-gpu-sandbox')
 app.whenReady().then(async () => {
   const win = new BrowserWindow({ show: false, width: 1000, height: 760, webPreferences: { backgroundThrottling: false } })

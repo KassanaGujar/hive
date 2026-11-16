@@ -612,3 +612,21 @@
 {"phase":"P5","name":"Monitor server resource consumption","status":"PASS","detail":"relay process 57→69 MB RSS, 158.2 CPU-s over 60 min","at":"2026-11-16T20:56:40.231Z"}
 {"phase":"P5","name":"Identify memory leaks","status":"PASS","detail":"renderer heap from min 5 to min 60: A 39.4→69.8 MB, B 57.3→80 MB; RSS A 883→952 MB","at":"2026-11-16T20:56:40.232Z"}
 {"phase":"P5","name":"Performance stays acceptable during concurrent use","status":"PASS","detail":"20 people joined at once and converged (p95 1.8 s); 2 people typing non-stop for an hour: every check identical, median sync latency 80-130 ms in the first 30 min rising to ~220 ms by 60 min (was 616 ms before the save fix); no memory growth","at":"2026-11-16T20:57:58.043Z"}
+{"phase":"P6","name":"1. Snake Game — Create a playable Snake game","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.784Z"}
+{"phase":"P6","name":"1. Snake Game — Directional movement","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.789Z"}
+{"phase":"P6","name":"1. Snake Game — Food generation","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.790Z"}
+{"phase":"P6","name":"1. Snake Game — Snake growth","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.791Z"}
+{"phase":"P6","name":"1. Snake Game — Wall collision","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.792Z"}
+{"phase":"P6","name":"1. Snake Game — Self-collision","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.793Z"}
+{"phase":"P6","name":"1. Snake Game — Score tracking","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.794Z"}
+{"phase":"P6","name":"1. Snake Game — Game-over functionality","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.795Z"}
+{"phase":"P6","name":"1. Snake Game — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.796Z"}
+{"phase":"P6","name":"1. Snake Game — The game runs without errors","status":"FAIL","detail":"not checked","at":"2026-11-16T21:39:46.796Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A functional game board","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.495Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Two-player gameplay","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.496Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Turn management","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.497Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects winning combinations","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.498Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects draws","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.499Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A scoreboard","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.499Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.500Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Illegal moves are prevented","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.501Z"}

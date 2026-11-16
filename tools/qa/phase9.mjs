@@ -64,7 +64,7 @@ async function probe(app, c, dir, tag) {
   if (!st.previewUrl) return { result: { _run: st.message }, errors: [] }
   const pf = `${dir}/.probe.js`, of = `${dir}/.probe-${tag}.json`
   writeFileSync(pf, c.probe)
-  spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), st.previewUrl, pf, of, `${OUT}/collab-${c.id}-${tag}.png`], { timeout: 120000, stdio: 'ignore' })
+  spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), pf, of, `${OUT}/collab-${c.id}-${tag}.png`], { timeout: 120000, stdio: 'ignore', env: { ...process.env, PAGECHECK_URL: st.previewUrl } })
   await app.invoke('run:stop')
   return existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: {}, errors: ['probe produced no output'] }
 }

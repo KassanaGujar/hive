@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FileDiff, Send, Square, Trash2 } from 'lucide-react'
-import { stripThinking } from '@hive/models'
+import { stripThinking, parseProposals } from '@hive/models'
 import type { ChatMessage } from '@hive/shared'
 import { invoke, on } from '../lib/api'
 import { useStore } from '../store'
@@ -29,18 +29,8 @@ string is the file's path relative to the project root:
 - If instructions contradict each other, say which parts conflict and ask which one to follow.
 The user sees each file as a diff and can accept or reject it.`
 
-/** Code blocks tagged with a file path = proposed edits. */
-export function parseProposals(text: string): { path: string; content: string }[] {
-  const out: { path: string; content: string }[] = []
-  const re = /```([^\s`]+\.[A-Za-z0-9]+)\s*\n([\s\S]*?)```/g
-  let m: RegExpExecArray | null
-  while ((m = re.exec(text))) {
-    const path = m[1].replace(/^\.?\//, '')
-    if (/^(js|ts|tsx|jsx|py|html|css|json|bash|sh)$/i.test(path)) continue
-    out.push({ path, content: m[2] })
-  }
-  return out
-}
+/** Files an AI reply proposes (shared parser; also understands `html index.html` and a file name heading). */
+export { parseProposals }
 
 export function ChatPanel() {
   const models = useStore((s) => s.models)

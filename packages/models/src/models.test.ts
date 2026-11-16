@@ -3,6 +3,7 @@ import type { Hardware, InstalledModel } from '@hive/shared'
 import { filterCatalog, fitLabel, recommendStarter } from './catalog'
 import { rankTeam } from './ranking'
 import { extractJson, parseJsonToolCall } from './client'
+import { parseProposals } from './proposals'
 import catalogJson from '../../../catalog/catalog.json'
 
 const hw16: Hardware = { totalRamGB: 16, freeRamGB: 8, gpuName: null, vramGB: 0, freeDiskGB: 200, cpuCores: 8, platform: 'win32' }
@@ -115,5 +116,26 @@ describe('small-model tool calls seen in the Snake test', () => {
     expect(c?.name).toBe('write_file')
     expect(c?.arguments).toEqual({ file: 'style.css', content: 'body {\n  color: #fff;\n}' })
     expect(parseLenient('{"a":"x\ny"}')).toEqual({ a: 'x\ny' })
+  })
+})
+
+describe('parseProposals (files an AI reply proposes)', () => {
+  const F = '```'
+  it('path as the info string', () => {
+    expect(parseProposals(F + 'src/app.js\nconst a = 1\n' + F)).toEqual([{ path: 'src/app.js', content: 'const a = 1\n' }])
+  })
+  it('language then path', () => {
+    expect(parseProposals(F + 'html index.html\n<h1>x</h1>\n' + F)[0].path).toBe('index.html')
+  })
+  it('file name on the line before a language block', () => {
+    const r = parseProposals('### index.html\n' + F + 'html\n<p>a</p>\n' + F + '\n\n**game.js**\n' + F + 'javascript\nlet x\n' + F)
+    expect(r.map((p) => p.path)).toEqual(['index.html', 'game.js'])
+  })
+  it('a plain language block without a file name is not a proposal', () => {
+    expect(parseProposals('Run this:\n' + F + 'bash\nnpm test\n' + F)).toEqual([])
+  })
+  it('later block for the same file wins; no paths outside the project', () => {
+    const r = parseProposals(F + 'a.js\n1\n' + F + F + 'a.js\n2\n' + F + F + '../x.js\nbad\n' + F)
+    expect(r).toEqual([{ path: 'a.js', content: '2\n' }])
   })
 })

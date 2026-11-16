@@ -47,7 +47,7 @@ async function probeWeb(c, dir, round) {
   if (!st.previewUrl) return { result: { _run: st.message ?? 'no preview' }, errors: [] }
   const probeFile = `${dir}/.probe.js`, outFile = `${dir}/.probe-out.json`
   writeFileSync(probeFile, c.probe)
-  spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), st.previewUrl, probeFile, outFile, `${OUT}/challenge-${c.id}-r${round}.png`], { timeout: 120000, stdio: 'ignore' })
+  spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), probeFile, outFile, `${OUT}/challenge-${c.id}-r${round}.png`], { timeout: 120000, stdio: 'ignore', env: { ...process.env, PAGECHECK_URL: st.previewUrl } })
   await a.invoke('run:stop')
   return existsSync(outFile) ? JSON.parse(readFileSync(outFile, 'utf8')) : { result: { _run: 'probe produced no output' }, errors: [] }
 }
@@ -70,7 +70,7 @@ for (const c of list) {
     errors = res.errors ?? []
     const failing = c.items.filter((it) => final[it] !== true)
     failing.forEach((f) => everFailed.add(f))
-    log.rounds.push({ round, aiMs: r.ms, aiError: r.err, filesWritten: r.files, passed: c.items.length - failing.length, failing: Object.fromEntries(failing.map((f) => [f, final[f] ?? 'not checked'])), consoleErrors: errors.slice(0, 5), probeError: final.probeError ?? final._run })
+    log.rounds.push({ round, aiMs: r.ms, aiError: r.err, filesWritten: r.files, reply: (r.reply ?? '').slice(0, 2500), passed: c.items.length - failing.length, failing: Object.fromEntries(failing.map((f) => [f, final[f] ?? 'not checked'])), consoleErrors: errors.slice(0, 5), probeError: final.probeError ?? final._run })
     console.log(`[${c.id}] round ${round}: ${c.items.length - failing.length}/${c.items.length} pass (AI ${Math.round(r.ms / 1000)} s, files ${r.files.join(',') || 'none'})`)
     writeFileSync(`${OUT}/challenges.json`, JSON.stringify({ ...summary, [c.id]: log }, null, 1))
     if (!failing.length && !errors.length) break

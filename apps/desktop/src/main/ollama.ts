@@ -119,12 +119,18 @@ async function installMac(): Promise<{ ok: boolean; message: string }> {
   }
 }
 
+/**
+ * Models Ollama has. While Ollama is busy generating it can take longer than the timeout to answer; then the
+ * last good list is used, so a model that is installed is never reported as missing mid-conversation.
+ */
+let lastLocal: { name: string; size: number }[] = []
 export async function listLocal(): Promise<{ name: string; size: number }[]> {
   try {
     const j = await fetchJson(`${OLLAMA_URL}/api/tags`, { timeoutMs: 15000 })
-    return (j.models ?? []).map((m: any) => ({ name: m.name as string, size: m.size as number }))
+    lastLocal = (j.models ?? []).map((m: any) => ({ name: m.name as string, size: m.size as number }))
+    return lastLocal
   } catch {
-    return []
+    return lastLocal
   }
 }
 
