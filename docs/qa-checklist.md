@@ -40,13 +40,13 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 ## PHASE 2 — Multiplayer Collaboration
 - [x] Invite one collaborator using a project link
 - [x] Invite multiple collaborators simultaneously
-- [x] All collaborators see the same project files — 4 files identical on all three (on disk after 110 ms)
+- [x] All collaborators see the same project files — 4 files identical on all three (on disk after 460 ms)
 - [x] Two people edit different files simultaneously
 - [x] Two people edit the same file simultaneously
 - [x] Two people edit the exact same line simultaneously
 - [x] Two people type at the exact same cursor position
 - [x] One person deletes code while another edits that code
-- [F] One person renames a file while another edits it — old file still on b's disk
+- [!] One person renames a file while another edits it — fixed: the teammate's in-flight edits were lost and the old file came back on disk
 - [x] One person creates a file while another navigates the file explorer
 - [!] One person deletes a file while another has it open — fixed: no notice and the tab stayed open; now closed with a notice
 - [x] Simultaneous changes don't silently disappear — 300/300 edits present on all three
@@ -66,11 +66,11 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 - [x] Remaining collaborators can continue working
 - [x] Rejoin the project using the original invitation link
 - [!] Collaborators can't accidentally overwrite the whole project with stale data — fixed: an offline copy overwrote the team's newer work; now a 3-way merge
-- [ ] Synchronization with five people editing simultaneously
-- [ ] Synchronization with ten people editing simultaneously
-- [ ] Synchronization with twenty people joining simultaneously
+- [x] Synchronization with five people editing simultaneously — 300/300 edits on all 5; latency p50 100 ms, p95 563 ms
+- [x] Synchronization with ten people editing simultaneously — 10 online, 400/400 edits converged; latency p50 232 ms, p95 534 ms
+- [x] Synchronization with twenty people joining simultaneously — 20/20 got in (refused: none); join 603 ms; 400/400 edits converged; p95 1756 ms
 - [x] Concurrent operations are handled consistently
-- [F] Project state stays consistent after a server restart — not converged on a.js: a:doc=83 disk=83 b:doc=83 disk=83 c:doc=49 disk=49
+- [!] Project state stays consistent after a server restart — fixed: a stale snapshot could delete entries after a restart; dead connections now detected
 
 ## PHASE 3 — AI / Vibe-Coding Functionality
 - [ ] AI creates a simple program from a natural-language prompt

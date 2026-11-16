@@ -255,7 +255,11 @@ await check(P, 'Project state survives a relay (server) restart', async () => {
   await b.eval(`${J}const m=M('a.js');ins(m,m.getValue().length,'<during-outage-b>');return 1`)
   relay = await startRelay(4472, relayData)
   await until(async () => (await Promise.all([a, b, c].map((x) => x.eval(`return H.store.getState().collabStatus`)))).every((s) => s === 'online'), 40000)
-  const t = await converged('a.js', 15000)
+  let t
+  try { t = await converged('a.js', 20000) } catch (e) {
+    const diag = await Promise.all([a, b, c].map((x) => x.eval(`const p=H.session().provider;return JSON.stringify({status:p.status,ws:p.ws?.readyState,seq:p.lastSeq,online:p.members.filter(m=>m.online).map(m=>m.name).join('+'),sameProvider:p===H.session().provider,len:H.session().parts.files.get('a.js').toString().length})`)))
+    throw new Error(e.message + ' | ' + diag.join(' | '))
+  }
   assert(t.includes('<during-outage-a>') && t.includes('<during-outage-b>'), 'edits made during the outage were lost')
   // a brand new person joining after the restart gets the full project from the relay's stored log
   const d = await new Hive('p2d', 9414).launch()

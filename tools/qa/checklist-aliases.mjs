@@ -37,5 +37,7 @@ export const FIXED = {
   'Undo/redo while several people edit: undo only removes your own change': "Ctrl+Z did nothing after a teammate's edit; now a shared undo of your own edits",
   'A stale copy cannot overwrite the project (edited outside Hive while closed)': "an offline copy overwrote the team's newer work; now a 3-way merge",
   'One person deletes a file while another has it open': 'no notice and the tab stayed open; now closed with a notice',
-  'Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs': 'background windows were throttled, delaying sync by minutes'
+  'Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs': 'background windows were throttled, delaying sync by minutes',
+  'One person renames a file while another edits it': "the teammate's in-flight edits were lost and the old file came back on disk",
+  'Project state survives a relay (server) restart': 'a stale snapshot could delete entries after a restart; dead connections now detected'
 }

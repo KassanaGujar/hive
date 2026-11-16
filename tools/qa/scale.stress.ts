@@ -84,7 +84,11 @@ async function typeTogether(n: number, edits: number) {
       for (let k = 0; k < edits; k++) {
         const mark = `{${i}:${k}}`
         const sent = Date.now()
-        t.insert(Math.floor(Math.random() * (t.length + 1)), mark)
+        // insert between lines, so one person's marker can never land inside another's
+        const str = t.toString()
+        const starts = [0]
+        for (let q = 0; q < str.length; q++) if (str[q] === '\n') starts.push(q + 1)
+        t.insert(starts[Math.floor(Math.random() * starts.length)], mark + '\n')
         if (k % 10 === 0) {
           // latency: time until the next peer sees this edit
           const other = online[(i + 1) % online.length]

@@ -205,6 +205,7 @@ export class Room extends DurableObject<Env> {
       case 'snapshot': {
         if (!me || this.members().get(me)?.role === 'viewer') return
         const upTo = Number(msg.upTo)
+        if (!Number.isFinite(upTo) || upTo > this.seq()) return // can't cover entries never handed out
         // keep entries newer than the snapshot so concurrent edits aren't lost
         this.sql.exec('DELETE FROM log WHERE seq <= ?', upTo)
         this.append(upTo, String(msg.data))

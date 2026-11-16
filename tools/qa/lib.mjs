@@ -58,10 +58,12 @@ async function attach(port) {
         const pending = new Map()
         const errors = []
         const warnings = []
+        const infos = []
         ws.onmessage = (e) => {
           const m = JSON.parse(e.data)
           if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) }
           if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text)
+          if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'info') infos.push(m.params.args.map((x) => x.value ?? '').join(' ').slice(0, 300))
           if (m.method === 'Runtime.consoleAPICalled' && (m.params.type === 'warning' || m.params.type === 'error')) {
             warnings.push(m.params.args.map((x) => x.value ?? x.description ?? '').join(' ').slice(0, 300))
           }
@@ -75,7 +77,7 @@ async function attach(port) {
         })
         ws.onclose = () => { for (const [i, f] of pending) { pending.delete(i); f({ result: { exceptionDetails: { exception: { description: 'DevTools connection closed' } } } }) } }
         await send('Runtime.enable')
-        return { ws, send, errors, warnings }
+        return { ws, send, errors, warnings, infos }
       }
     } catch {}
     await wait(500)
@@ -120,6 +122,7 @@ export class Hive {
   }
   get errors() { return this.cdp.errors }
   get warnings() { return this.cdp.warnings }
+  get infos() { return this.cdp.infos }
   /** Run async JS in the page. `H` = __hive handle, `h` = IPC bridge, `w(ms)` = sleep. */
   async eval(body) {
     const expr = `(async()=>{const H=window.__hive,h=window.hive,w=(ms)=>new Promise(r=>setTimeout(r,ms));${body}})()`

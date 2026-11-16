@@ -51,6 +51,29 @@ describe('roles are enforced by the relay', () => {
   })
 })
 
+describe('relay restart safety', () => {
+  it('a snapshot claiming entries the relay never handed out is ignored (stale client counter)', async () => {
+    const room = newRoomId()
+    const key = newRoomKey()
+    const a = new Y.Doc(), b = new Y.Doc()
+    const pa = new HiveProvider(a, { relayUrl: url, roomId: room, roomKey: key, member: member('sa'), adminToken: 'z'.repeat(32) })
+    await pa.connect()
+    await until(() => pa.status === 'online')
+    docParts(a).files.set('f.js', new Y.Text('one'))
+    await wait(200)
+    // a client with a stale, too-high counter tries to compact the log
+    ;(pa as any).send({ t: 'snapshot', data: await (pa as any).seal(Y.encodeStateAsUpdate(new Y.Doc())), upTo: 999999 })
+    await wait(200)
+    docParts(a).files.get('f.js')!.insert(3, ' two')
+    await wait(300)
+    const pb = new HiveProvider(b, { relayUrl: url, roomId: room, roomKey: key, member: member('sb') })
+    await pb.connect()
+    await until(() => docParts(b).files.get('f.js')?.toString() === 'one two', 5000)
+    expect(docParts(b).files.get('f.js')!.toString()).toBe('one two')
+    pa.destroy(); pb.destroy()
+  })
+})
+
 describe('relay + provider', () => {
   it('syncs edits both ways within 2 seconds, encrypted', async () => {
     const room = newRoomId()

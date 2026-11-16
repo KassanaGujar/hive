@@ -43,8 +43,7 @@ export async function ensureModel(path: string): Promise<monaco.editor.ITextMode
   } else watchForAutosave(path, model)
   model.onWillDispose(() => {
     const b = bindings.get(path) as Binding | undefined
-    if (b) session()?.provider?.awareness.off('change', b._rerenderDecorations)
-    b?.destroy()
+    b?.destroy() // also unsubscribes the cursor renderer from awareness
     bindings.delete(path)
     undoManagers.get(path)?.destroy()
     undoManagers.delete(path)

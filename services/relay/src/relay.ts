@@ -100,6 +100,15 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
     }
   }
   const saveTimer = setInterval(() => saveAll().catch((e) => log(`save failed: ${e}`)), 5_000)
+  // Save soon after a change too: a crash or hard kill between periodic saves would lose recent edits.
+  let soon: ReturnType<typeof setTimeout> | undefined
+  const saveSoon = () => {
+    if (!dataDir || soon) return
+    soon = setTimeout(() => {
+      soon = undefined
+      saveAll().catch((e) => log(`save failed: ${e}`))
+    }, 250)
+  }
 
   // ---------- http + ws ----------
   const server: Server = createServer((req, res) => {
@@ -188,6 +197,7 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
             r.log.push({ seq, data: msg.data })
             if (r.log.length > maxLog) r.log.splice(0, r.log.length - maxLog)
             r.dirty = true
+            saveSoon()
             broadcast(r, { t: 'update', seq, from: meta.memberId, data: msg.data }, ws)
             return
           }
@@ -198,6 +208,8 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
             if (!r || !meta.memberId) return
             // a snapshot replaces stored history: viewers must never be able to do that
             if (r.members.get(meta.memberId)?.info.role === 'viewer') return
+            // A snapshot can't cover entries this relay never handed out (a stale client counter).
+            if (typeof msg.upTo !== 'number' || msg.upTo > r.seq) return
             // Keep entries newer than the snapshot so concurrent edits aren't lost.
             r.log = [{ seq: msg.upTo, data: msg.data }, ...r.log.filter((e) => e.seq > msg.upTo)]
             r.dirty = true
@@ -267,6 +279,7 @@ export async function startRelay(opts: RelayOptions = {}): Promise<RelayHandle> 
     stats: () => ({ rooms: rooms.size, sockets: wss.clients.size }),
     async close() {
       clearInterval(saveTimer)
+      clearTimeout(soon)
       await saveAll().catch(() => {})
       for (const c of wss.clients) c.terminate()
       wss.close()

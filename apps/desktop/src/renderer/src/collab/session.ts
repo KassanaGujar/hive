@@ -118,6 +118,7 @@ export class ProjectSession {
   /** Before syncing: remember the last-synced text of every file that was changed on disk while closed. */
   private async captureOfflineBases() {
     const disk = await invoke('fs:hashTree').catch(() => ({}) as Record<string, string>)
+    console.info(`[sync] offline check: ${Object.keys(disk).length} files on disk, ${Object.keys(this.synced).length} last-synced, ${this.parts.files.size} in local state`)
     for (const [p, ytext] of this.parts.files.entries()) {
       if (disk[p] && this.synced[p] && disk[p] !== this.synced[p]) this.offlineBase.set(p, ytext.toString())
     }
@@ -360,6 +361,7 @@ export class ProjectSession {
         const diskText = await invoke('fs:read', p)
         const base = this.offlineBase.get(p)
         this.offlineBase.delete(p)
+        console.info(`[sync] ${p} changed on disk while Hive was closed (merge base ${base === undefined ? 'missing' : 'known'})`)
         const next = base !== undefined ? applyChangeOnto(base, diskText, docText) : docHash === this.synced[p] ? diskText : false
         if (next === false) {
           const dot = p.lastIndexOf('.')
@@ -385,7 +387,13 @@ export class ProjectSession {
     useStore.getState().set({ tree: await invoke('fs:tree') })
   }
 
+  /**
+   * The sync record and the local state are the merge base for edits made while Hive is closed: save them
+   * together, so a crash between the two can't make the base look stale (a false "conflict" on rejoin).
+   */
   private saveSynced() {
+    clearTimeout(this.saveTimer)
+    this.saveNow()
     invoke('fs:write', SYNCED, JSON.stringify(this.synced)).catch(() => {})
   }
 

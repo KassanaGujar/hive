@@ -42,6 +42,8 @@ export class HiveProvider {
   private listeners = new Map<string, Set<Listener>>()
   private pending: ((m: ServerMsg) => boolean)[] = []
   private pingTimer?: ReturnType<typeof setInterval>
+  /** Last time anything arrived from the relay (pong included). */
+  private lastHeard = 0
 
   constructor(doc: Y.Doc, private opts: ProviderOptions) {
     this.doc = doc
@@ -80,9 +82,22 @@ export class HiveProvider {
           ? { t: 'create', room: this.opts.roomId, adminToken: this.opts.adminToken, member: m, editHash: this.opts.editHash }
           : { t: 'join', room: this.opts.roomId, member: m, editToken: this.opts.editToken }
       )
-      this.pingTimer = setInterval(() => this.send({ t: 'ping' }), 25_000)
+      this.lastHeard = Date.now()
+      // Ping, and treat 60 s of silence as a dead connection: a socket can look open after the relay or the
+      // network went away, and the app would show "online" while nothing syncs.
+      this.pingTimer = setInterval(() => {
+        if (Date.now() - this.lastHeard > 60_000) {
+          try {
+            ws.close()
+          } catch {
+            /* already closed */
+          }
+          return
+        }
+        this.send({ t: 'ping' })
+      }, 20_000)
     }
-    ws.onmessage = (ev) => this.onMessage(JSON.parse(String(ev.data)) as ServerMsg).catch((e) => this.fail(String(e?.message ?? e)))
+    ws.onmessage = (ev) => (this.lastHeard = Date.now(), this.onMessage(JSON.parse(String(ev.data)) as ServerMsg).catch((e) => this.fail(String(e?.message ?? e))))
     ws.onclose = () => {
       clearInterval(this.pingTimer)
       if (this.status === 'online') this.hadOfflinePeriod = true
@@ -161,6 +176,10 @@ export class HiveProvider {
         this.members = m.members
         this.emit('members', m.members)
         // Rebuild what the relay has, then send only what it lacks (our offline edits).
+        // The relay's numbering is the truth: after a relay restart it can be lower than what we saw before,
+        // so never carry our old counter into this connection (a snapshot labelled with it would delete
+        // entries the relay received after the restart).
+        this.lastSeq = 0
         const remote = new Y.Doc()
         for (const e of m.log) {
           const u = await this.open(e.data)
