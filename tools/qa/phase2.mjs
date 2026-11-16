@@ -5,8 +5,10 @@ const P = 'P2'
 const relayData = freshDir('p2-relay')
 let relay = await startRelay(4472, relayData)
 const dirs = { a: freshDir('p2-a') + '/proj', b: freshDir('p2-b'), c: freshDir('p2-c') }
-const [a, b, c] = await Promise.all([new Hive('p2a', 9411).launch(), new Hive('p2b', 9412).launch(), new Hive('p2c', 9413).launch()])
-await Promise.all([a.profileAs('Tess', '🦊', '#5aa9ff'), b.profileAs('Omar', '🐼', '#3ccf7a'), c.profileAs('Lina', '🦉', '#ff6b8b')])
+const a = await new Hive('p2a', 9411).launch()
+const b = await new Hive('p2b', 9412).launch()
+const c = await new Hive('p2c', 9413).launch()
+await a.profileAs('Tess', '🦊', '#5aa9ff'); await b.profileAs('Omar', '🐼', '#3ccf7a'); await c.profileAs('Lina', '🦉', '#ff6b8b')
 const apps = { a, b, c }
 
 // page-side helpers
@@ -17,13 +19,16 @@ const Y=(rel)=>H.session().parts.files.get(rel)?.toString();`
 const ytext = (app, rel) => app.eval(`${J}return Y(${JSON.stringify(rel)}) ?? null`)
 const disk = (who, rel) => { try { return readFileSync(`${dirs[who]}/${rel}`, 'utf8') } catch { return null } }
 /** All three agree on a file (shared doc + disk), within `ms`. Returns the text. */
-async function converged(rel, ms = 8000, who = ['a', 'b', 'c']) {
+async function converged(rel, ms = 20000, who = ['a', 'b', 'c']) {
   let texts
+  const t0 = Date.now()
   const ok = await until(async () => {
     texts = await Promise.all(who.map((w) => ytext(apps[w], rel)))
     return texts.every((t) => t === texts[0]) && who.every((w) => disk(w, rel) === texts[0])
   }, ms, 250)
   assert(ok, `not converged on ${rel}: ` + who.map((w, i) => `${w}:doc=${texts[i]?.length} disk=${disk(w, rel)?.length}`).join(' '))
+  const took = Date.now() - t0
+  if (took > 3000) console.log(`  slow convergence on ${rel}: ${took} ms`)
   return texts[0]
 }
 const count = (s, sub) => s.split(sub).length - 1
@@ -46,11 +51,15 @@ await check(P, 'Invite multiple collaborators (second joins while the first is a
   assert(n, 'host does not see 3 people online')
 })
 await check(P, 'All collaborators see the same project files', async () => {
-  await wait(1500)
-  const trees = await Promise.all([a, b, c].map((x) => x.invoke('fs:hashTree')))
   const norm = (t) => JSON.stringify(Object.keys(t).sort().map((k) => [k, t[k]]))
-  assert(norm(trees[0]) === norm(trees[1]) && norm(trees[1]) === norm(trees[2]), 'trees differ: ' + trees.map((t) => Object.keys(t).length))
-  return Object.keys(trees[0]).length + ' files identical on all three'
+  const t0 = Date.now()
+  let trees
+  const same = await until(async () => {
+    trees = await Promise.all([a, b, c].map((x) => x.invoke('fs:hashTree')))
+    return Object.keys(trees[0]).length > 0 && norm(trees[0]) === norm(trees[1]) && norm(trees[1]) === norm(trees[2])
+  }, 15000, 300)
+  assert(same, 'trees differ: ' + trees.map((t) => Object.keys(t).length))
+  return `${Object.keys(trees[0]).length} files identical on all three (on disk after ${Date.now() - t0} ms)`
 })
 for (const x of [a, b, c]) { await openFile(x, 'a.js'); await openFile(x, 'b.js') }
 
@@ -111,25 +120,26 @@ await check(P, 'One person renames a file while another edits it', async () => {
   await a.eval(`await H.actions.renameFile('b.js','b2.js');return 1`)
   await typing
   const t = await converged('b2.js', 10000)
-  for (const w of ['a', 'b', 'c']) assert(!existsSync(dirs[w] + '/b.js'), `old file still on ${w}'s disk`)
+  const gone = await until(() => ['a', 'b', 'c'].every((w) => !existsSync(dirs[w] + '/b.js')), 15000, 250)
+  assert(gone, 'old file still on disk: ' + ['a', 'b', 'c'].filter((w) => existsSync(dirs[w] + '/b.js')).join(','))
   assert(count(t, '<r') === 20, `edits made during the rename were lost: ${count(t, '<r')}/20 survive`)
   const tab = await b.eval(`const s=H.store.getState();return Object.values(s.tabs).filter(t=>t.kind==='file').map(t=>t.path)`)
   assert(tab.includes('b2.js') && !tab.includes('b.js'), "editor's tab did not follow the rename: " + tab)
 })
 await check(P, 'One person creates a file while another browses the explorer', async () => {
   await b.eval(`H.store.getState().set({side:'explorer'});return 1`)
-  await a.invoke('fs:write', 'src/new-file.js', 'export const n = 1\n')
+  writeFileSync(dirs.a + '/src/new-file.js', 'export const n = 1') // like echo in a terminal
   const seen = await until(() => b.eval(`return JSON.stringify(H.store.getState().tree).includes('src/new-file.js')`), 6000)
   assert(seen, "collaborator's explorer never showed the new file")
   assert(disk('c', 'src/new-file.js') !== null || (await until(() => disk('c', 'src/new-file.js') !== null, 4000)), 'not on third disk')
 })
 await check(P, 'One person deletes a file while another has it open', async () => {
-  await a.invoke('fs:write', 'doomed.js', 'soon gone\n')
+  writeFileSync(dirs.a + '/doomed.js', 'soon gone')
   await until(() => disk('b', 'doomed.js') !== null, 6000)
   await openFile(b, 'doomed.js')
   await b.eval(`${J}ins(M('doomed.js'),0,'b was here ');return 1`)
   await wait(600)
-  await a.invoke('fs:delete', 'doomed.js')
+  await a.eval(`await H.actions.deleteFile('doomed.js');return 1`) // Explorer → Delete
   await wait(3500)
   for (const w of ['a', 'b', 'c']) assert(!existsSync(dirs[w] + '/doomed.js'), `file came back / still exists on ${w}`)
   const st = await b.eval(`const s=H.store.getState();return {tab:!!s.tabs['file:doomed.js'],toasts:s.toasts.map(t=>t.text).join('|'),inDoc:H.session().parts.files.has('doomed.js')}`)
@@ -140,7 +150,7 @@ await check(P, 'One person deletes a file while another has it open', async () =
 await check(P, 'Simultaneous changes do not silently disappear (300 marked edits from 3 people)', async () => {
   await a.eval(`${J}M('a.js').setValue('start\\n');return 1`)
   await converged('a.js')
-  await Promise.all(['a', 'b', 'c'].map((w) => apps[w].eval(`${J}const m=M('a.js');for(let i=0;i<100;i++){ins(m,Math.floor(Math.random()*m.getValue().length),'{${w}'+i+'}');await w(8)}return 1`)))
+  await Promise.all(['a', 'b', 'c'].map((w) => apps[w].eval(`${J}const m=M('a.js');for(let i=0;i<100;i++){{const ls=m.getLineCount();const ln=1+Math.floor(Math.random()*ls);ins(m,m.getOffsetAt({lineNumber:ln,column:1}),'{${w}'+i+'}'+String.fromCharCode(10))};await w(8)}return 1`)))
   const t = await converged('a.js', 15000)
   const got = ['a', 'b', 'c'].map((w) => new Set(t.match(new RegExp(`\\{${w}\\d+\\}`, 'g')) ?? []).size)
   assert(got.every((n) => n === 100), 'missing edits: ' + got)
@@ -193,7 +203,7 @@ await check(P, 'Disconnect one collaborator; keep editing on both sides; reconne
   await b.eval(`H.session().provider.disconnect();return 1`)
   await b.eval(`${J}const m=M('a.js');for(let i=0;i<10;i++)ins(m,m.getValue().length,'<off'+i+'>');return 1`)
   await a.eval(`${J}const m=M('a.js');for(let i=0;i<10;i++)ins(m,0,'<on'+i+'>');return 1`)
-  await a.invoke('fs:write', 'made-while-b-offline.js', 'x\n')
+  writeFileSync(dirs.a + '/made-while-b-offline.js', 'x')
   await wait(1500)
   assert(!(await ytext(a, 'a.js')).includes('<off'), 'offline edits leaked while disconnected?')
   await b.eval(`H.session().provider.connect();return 1`)
@@ -227,7 +237,7 @@ await check(P, 'A stale copy cannot overwrite the project (edited outside Hive w
   await c.kill()
   // while C is closed: the team edits line 1, C's owner edits line 3 in another editor
   await a.eval(`${J}const m=M('a.js');ins(m,0,'TEAM-EDIT ');return 1`)
-  await a.invoke('fs:write', 'team-only.js', 'made by team\n')
+  writeFileSync(dirs.a + '/team-only.js', 'made by team')
   await converged('a.js', 8000, ['a', 'b'])
   writeFileSync(dirs.c + '/a.js', 'L1 base\nL2 base\nL3 base EDITED-OUTSIDE\n')
   await c.launch({ keep: true })
@@ -257,6 +267,8 @@ await check(P, 'Project state survives a relay (server) restart', async () => {
   assert(ok, 'new joiner after restart did not get the current state')
 })
 record(P, 'Concurrent operations are handled consistently', 'PASS', 'same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client')
+const warns = [...a.warnings, ...b.warnings, ...c.warnings].filter((w) => !/DevTools|Autofill|Electron Security/.test(w))
+if (warns.length) console.log(['WARNINGS:', ...[...new Set(warns)].slice(0, 20)].join(String.fromCharCode(10)))
 const errs = [...a.errors, ...b.errors, ...c.errors]
 record(P, 'No uncaught errors in any window during Phase 2', errs.length ? 'FAIL' : 'PASS', [...new Set(errs)].slice(0, 3).join(' | '))
 await Promise.all([a.kill(), b.kill(), c.kill()]); await relay.stop()

@@ -7,6 +7,7 @@ import {
   toB64,
   fromB64,
   makeFeedEvent,
+  applyChangeOnto,
   shouldCoalesce,
   diffPreview,
   newRoomId,
@@ -67,6 +68,8 @@ export class ProjectSession {
   private synced: Record<string, string> = {}
   private offs: (() => void)[] = []
   private applyingDisk = false
+  /** Files edited on disk while Hive was closed: the text they had at the last sync (merge base). */
+  private offlineBase = new Map<string, string>()
 
   constructor(public root: string) {}
 
@@ -105,8 +108,112 @@ export class ProjectSession {
     this.offs.push(on('fs:changed', (e) => this.onDiskChange(e.kind, e.path)))
     // show local history immediately
     for (const ev of this.parts.feed.toArray()) useStore.getState().addFeed(ev)
-    if (this.config) await this.connect()
+    this.observeRenames()
+    if (this.config) {
+      await this.captureOfflineBases()
+      await this.connect()
+    }
   }
+
+  /** Before syncing: remember the last-synced text of every file that was changed on disk while closed. */
+  private async captureOfflineBases() {
+    const disk = await invoke('fs:hashTree').catch(() => ({}) as Record<string, string>)
+    for (const [p, ytext] of this.parts.files.entries()) {
+      if (disk[p] && this.synced[p] && disk[p] !== this.synced[p]) this.offlineBase.set(p, ytext.toString())
+    }
+  }
+
+  // ---------- rename (shared) ----------
+
+  private get renames() {
+    return this.doc.getMap<{ from: string; to: string; snapshot: string; by: string; byId: string; at: number }>('renames')
+  }
+
+  /** A rename less than a minute old (its old path must not be treated as a real delete). */
+  private recentlyRenamed(path: string) {
+    const r = this.renames.get(path)
+    return !!r && Date.now() - r.at < 60_000
+  }
+
+  /** Path that a file was just renamed into: its disk copy lags the shared copy, so disk must not win. */
+  private recentlyRenamedInto(path: string) {
+    for (const r of this.renames.values()) if (r.to === path && Date.now() - r.at < 15_000) return true
+    return false
+  }
+
+  /**
+   * Rename a file or folder in the shared project. The new file is created now; the old shared text stays
+   * for a short grace period so edits a teammate made to it at the same moment are carried over (deleting
+   * it at once would delete their in-flight edits with it). Disk is renamed by the caller.
+   */
+  renamePath(from: string, to: string) {
+    const by = actorName()
+    const byId = memberId()
+    const moves: [string, string][] = []
+    for (const key of this.parts.files.keys()) {
+      if (key === from) moves.push([key, to])
+      else if (key.startsWith(from + '/')) moves.push([key, to + key.slice(from.length)])
+    }
+    this.doc.transact(() => {
+      for (const [a, b] of moves) {
+        const text = this.parts.files.get(a)!.toString()
+        this.parts.files.set(b, new Y.Text(text))
+        this.renames.set(a, { from: a, to: b, snapshot: text, by, byId, at: Date.now() })
+        delete this.synced[a]
+      }
+    }, 'disk-local')
+    for (const [a, b] of moves) {
+      clearTimeout(this.writeTimers.get(a)) // a write queued just before the rename must not recreate the old file
+      sha256Hex(this.parts.files.get(b)!.toString()).then((h) => (this.synced[b] = h))
+      this.carryOver(a, b, this.renames.get(a)!.snapshot)
+    }
+    this.saveSynced()
+    this.pushFeed(makeFeedEvent({ actor: by, kind: 'file.renamed', files: [from, to] }))
+    return moves.length
+  }
+
+  /** Renamer only: move late edits from the old text into the new one, then remove the old text. */
+  private carryOver(from: string, to: string, snapshot: string) {
+    const old = this.parts.files.get(from)
+    if (!old) return
+    let last = snapshot
+    const sync = () => {
+      const now = old.toString()
+      const target = this.parts.files.get(to)
+      if (!target || now === last) return
+      const merged = applyChangeOnto(last, now, target.toString())
+      if (merged !== false && merged !== target.toString()) this.doc.transact(() => setText(target, merged), 'rename-carry')
+      last = now
+    }
+    old.observe(sync)
+    setTimeout(() => {
+      sync()
+      old.unobserve(sync)
+      if (this.parts.files.get(from) === old) this.doc.transact(() => this.parts.files.delete(from), 'disk-local')
+    }, 10_000)
+  }
+
+  private observeRenames() {
+    this.renames.observe((ev, tr) => {
+      if (tr.local) return
+      for (const [key, change] of ev.changes.keys) {
+        if (change.action === 'delete') continue
+        const r = this.renames.get(key)
+        if (!r) continue
+        // the old file leaves my disk now; its shared text is removed by the renamer after the grace period
+        if (this.shared) {
+          invoke('fs:delete', r.from).catch(() => {})
+          // a disk write already in flight when the rename arrived could land after the delete: delete again
+          setTimeout(() => invoke('fs:delete', r.from).catch(() => {}), 1500)
+        }
+        window.dispatchEvent(new CustomEvent('hive:remoteRename', { detail: r }))
+      }
+    })
+    // tidy up after a renamer that closed Hive during the grace period
+    const stale = [...this.renames.values()].filter((r) => Date.now() - r.at > 30_000 && this.parts.files.has(r.from) && this.parts.files.has(r.to))
+    if (stale.length) this.doc.transact(() => stale.forEach((r) => this.parts.files.delete(r.from)), 'disk-local')
+  }
+
 
   destroy() {
     this.offs.forEach((f) => f())
@@ -248,13 +355,27 @@ export class ProjectSession {
         continue
       }
       if (diskHash && this.synced[p] && diskHash !== this.synced[p]) {
-        // changed locally while offline → merge into the doc
-        const text = await invoke('fs:read', p)
-        this.applyingDisk = true
-        this.doc.transact(() => setText(ytext, text), 'disk')
-        this.applyingDisk = false
-        this.pushFeed(makeFeedEvent({ actor: actorName(), kind: 'file.edited', files: [p], summary: `edited ${p} (offline)`, syncedLate: true }))
-        this.synced[p] = diskHash
+        // Changed on disk while Hive was closed. The team may have changed it too: 3-way merge against
+        // the last-synced text, never a blind overwrite of their work.
+        const diskText = await invoke('fs:read', p)
+        const base = this.offlineBase.get(p)
+        this.offlineBase.delete(p)
+        const next = base !== undefined ? applyChangeOnto(base, diskText, docText) : docHash === this.synced[p] ? diskText : false
+        if (next === false) {
+          const dot = p.lastIndexOf('.')
+          const copy = dot > p.lastIndexOf('/') ? `${p.slice(0, dot)} (your offline edits)${p.slice(dot)}` : `${p} (your offline edits)`
+          await invoke('fs:write', p, docText)
+          await invoke('fs:write', copy, diskText)
+          useStore.getState().toast(`${p} was changed by the team and by you while offline, in the same place. The team's version is kept; yours is saved as "${copy}".`, 'error')
+          this.synced[p] = docHash
+        } else {
+          this.applyingDisk = true
+          this.doc.transact(() => setText(ytext, next), 'disk')
+          this.applyingDisk = false
+          if (next !== diskText) await invoke('fs:write', p, next)
+          this.pushFeed(makeFeedEvent({ actor: actorName(), kind: 'file.edited', files: [p], summary: `edited ${p} (offline)`, syncedLate: true }))
+          this.synced[p] = await sha256Hex(next)
+        }
       } else {
         await invoke('fs:write', p, docText)
         this.synced[p] = docHash
@@ -279,6 +400,8 @@ export class ProjectSession {
         } else if (change.action === 'delete' && !tr.local) {
           invoke('fs:delete', key).catch(() => {})
           delete this.synced[key]
+          // a rename is handled by observeRenames; a real delete closes my editor with a notice
+          if (!this.recentlyRenamed(key)) window.dispatchEvent(new CustomEvent('hive:remoteDelete', { detail: { path: key } }))
         }
       }
       // the tree refreshes after scheduleWrite puts new files on disk (see scheduleWrite)
@@ -298,12 +421,14 @@ export class ProjectSession {
   }
 
   private scheduleWrite(path: string) {
+    // late edits to a just-renamed file are carried to the new name; never recreate the old file on disk
+    if (this.recentlyRenamed(path)) return
     clearTimeout(this.writeTimers.get(path))
     this.writeTimers.set(
       path,
       setTimeout(async () => {
         const t = this.parts.files.get(path)
-        if (!t) return
+        if (!t || this.recentlyRenamed(path)) return
         const text = t.toString()
         const isNew = !(path in this.synced)
         await invoke('fs:write', path, text).catch((e) => console.warn('write', path, e))
@@ -325,9 +450,16 @@ export class ProjectSession {
           return
         }
         if (text.length > MAX_SHARED_FILE_BYTES) return
+        if (this.recentlyRenamedInto(path) && this.parts.files.has(path)) {
+          this.scheduleWrite(path) // the shared copy is newer: put it on disk instead
+          return
+        }
+        if (this.recentlyRenamed(path)) return
         const existing = this.parts.files.get(path)
         const before = existing?.toString() ?? ''
         if (existing && before === text) return
+        // our own last write echoing back late: the shared copy is already newer
+        if (existing && this.synced[path] && (await sha256Hex(text)) === this.synced[path]) return
         this.applyingDisk = true
         this.doc.transact(() => {
           if (existing) setText(existing, text)
@@ -338,7 +470,7 @@ export class ProjectSession {
         this.recordEdit(path, before, text, existing ? 'file.edited' : 'file.created')
       }
     } else if (kind === 'unlink') {
-      if (this.shared && this.parts.files.has(path)) {
+      if (this.shared && this.parts.files.has(path) && !this.recentlyRenamed(path)) {
         this.doc.transact(() => this.parts.files.delete(path), 'disk-local')
         delete this.synced[path]
         this.pushFeed(makeFeedEvent({ actor: actorName(), kind: 'file.deleted', files: [path] }))

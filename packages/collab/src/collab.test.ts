@@ -4,7 +4,7 @@ import { applyPlannerEdits, humanEdit, planToMarkdown, undoEdit, type PlanItem }
 import { diffPreview, makeFeedEvent, shouldCoalesce } from './feed'
 import { decrypt, encrypt, importKey, newRoomKey } from './crypto'
 import { newInviteCode, parseInvite, inviteLink } from './invite'
-import { setText } from './doc'
+import { setText, applyChangeOnto } from './doc'
 
 describe('planner edits', () => {
   it('adds items traced to their messages and dedupes', () => {
@@ -75,5 +75,38 @@ describe('setText', () => {
     t.insert(0, 'hello world')
     setText(t, 'hello brave world')
     expect(t.toString()).toBe('hello brave world')
+  })
+})
+
+describe('applyChangeOnto (accepting an AI proposal made against an older copy)', () => {
+  const base = ['function alpha() { return 1 }', '', 'function beta() { return 2 }', '', 'function gamma() { return 3 }', ''].join('\n')
+  it('keeps a teammate edit made elsewhere in the file', () => {
+    const ai = base.replace('return 1', "return 'A'")
+    const teammate = base.replace('return 3', 'return 33')
+    expect(applyChangeOnto(base, ai, teammate)).toBe(base.replace('return 1', "return 'A'").replace('return 3', 'return 33'))
+  })
+  it('two AI proposals from the same base both land', () => {
+    const p1 = base.replace('return 2', "return 'B'")
+    const p2 = base.replace('return 3', "return 'C'")
+    const after1 = applyChangeOnto(base, p1, base) as string
+    expect(applyChangeOnto(base, p2, after1)).toBe(base.replace('return 2', "return 'B'").replace('return 3', "return 'C'"))
+  })
+  it('refuses when both changed the same line', () => {
+    expect(applyChangeOnto(base, base.replace('return 1', 'return 10'), base.replace('return 1', 'return 11'))).toBe(false)
+  })
+  it('is a plain replace when nothing changed meanwhile', () => {
+    expect(applyChangeOnto(base, 'x', base)).toBe('x')
+  })
+})
+
+describe('invite links', () => {
+  it('editor links carry the edit token; viewer links do not', () => {
+    const info = { relayUrl: 'wss://r', roomId: 'abcdef12', roomKey: 'KEY', projectName: 'p', role: 'editor' as const, editToken: 'TOK' }
+    const ed = parseInvite(inviteLink(info, 'ABCDEF'))
+    expect(ed.roomKey).toBe('KEY')
+    expect(ed.editToken).toBe('TOK')
+    const vw = parseInvite(inviteLink({ ...info, role: 'viewer', editToken: undefined }, 'ABCDEF'))
+    expect(vw.roomKey).toBe('KEY')
+    expect(vw.editToken).toBeUndefined()
   })
 })

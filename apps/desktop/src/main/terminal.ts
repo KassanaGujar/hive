@@ -1,7 +1,7 @@
 import os from 'node:os'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { spawn as spawnChild, execFileSync } from 'node:child_process'
+import { spawn as spawnChild, execFile } from 'node:child_process'
 import type { IPty } from '@lydell/node-pty'
 import { emit } from './ipc'
 import { currentProject } from './project'
@@ -37,18 +37,37 @@ export function shellCommandArgs(command: string): { file: string; args: string[
   return { file: defaultShell().file, args: ['-lc', command] }
 }
 
+/*
+ * Tool lookups (`where` / `which`) run asynchronously and are cached. A synchronous lookup used to freeze
+ * the whole main process for up to 4 s on a busy PC, stalling every window's calls.
+ */
 const whichCache = new Map<string, string | null>()
+const whichPending = new Map<string, Promise<string | null>>()
+
+export function which(tool: string): Promise<string | null> {
+  if (whichCache.has(tool)) return Promise.resolve(whichCache.get(tool)!)
+  const pending = whichPending.get(tool)
+  if (pending) return pending
+  const p = new Promise<string | null>((resolve) => {
+    execFile(process.platform === 'win32' ? 'where.exe' : 'which', [tool], { encoding: 'utf8', timeout: 8000, windowsHide: true }, (err, out) => {
+      const found = err ? null : (String(out).split(/\r?\n/).find(Boolean) ?? null)
+      whichCache.set(tool, found)
+      whichPending.delete(tool)
+      resolve(found)
+    })
+  })
+  whichPending.set(tool, p)
+  return p
+}
+
+/** Cached answer only (never blocks). Call `which()`/`prefetchTools()` first for a fresh answer. */
 export function whichSync(tool: string): string | null {
-  if (whichCache.has(tool)) return whichCache.get(tool)!
-  let found: string | null = null
-  try {
-    const out = execFileSync(process.platform === 'win32' ? 'where.exe' : 'which', [tool], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 4000 })
-    found = out.split(/\r?\n/).find(Boolean) ?? null
-  } catch {
-    found = null
-  }
-  whichCache.set(tool, found)
-  return found
+  return whichCache.get(tool) ?? null
+}
+
+export const RUNTIME_TOOLS = ['pwsh', 'git', 'node', 'npm', 'pnpm', 'yarn', 'bun', 'python', 'python3', 'py', 'go', 'cargo', 'java', 'mvn', 'gcc', 'g++', 'ollama', 'winget']
+export async function prefetchTools(tools: string[] = RUNTIME_TOOLS) {
+  await Promise.all(tools.map(which))
 }
 
 export function clearWhichCache() {

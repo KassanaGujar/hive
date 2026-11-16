@@ -5,7 +5,7 @@ import { detectProject, RUNTIME_DOWNLOADS } from '@hive/editor'
 import type { RunConfig, RunState } from '@hive/shared'
 import { emit } from './ipc'
 import { abs, projectRoot } from './project'
-import { createTerminal, killTerminal, whichSync, clearWhichCache } from './terminal'
+import { createTerminal, killTerminal, whichSync, clearWhichCache, prefetchTools } from './terminal'
 import { recordFeed } from './feed'
 import { getSettings } from './store'
 
@@ -23,7 +23,8 @@ export const runState = () => state
 async function detect(dir?: string): Promise<RunConfig | null> {
   const root = dir ? abs(dir) : projectRoot()
   const files = await fs.readdir(root)
-  clearWhichCache()
+  clearWhichCache() // pick up tools installed since last time
+  await prefetchTools()
   return detectProject(
     {
       files,

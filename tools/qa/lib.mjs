@@ -57,14 +57,25 @@ async function attach(port) {
         let id = 0
         const pending = new Map()
         const errors = []
+        const warnings = []
         ws.onmessage = (e) => {
           const m = JSON.parse(e.data)
           if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) }
           if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text)
+          if (m.method === 'Runtime.consoleAPICalled' && (m.params.type === 'warning' || m.params.type === 'error')) {
+            warnings.push(m.params.args.map((x) => x.value ?? x.description ?? '').join(' ').slice(0, 300))
+          }
         }
-        const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })) })
+        // every call gets a deadline, and a dropped connection fails pending calls instead of hanging forever
+        const send = (method, params = {}, timeoutMs = Number(process.env.QA_EVAL_TIMEOUT ?? 300000)) => new Promise((r, j) => {
+          const i = ++id
+          const timer = setTimeout(() => { pending.delete(i); j(new Error(`${method} got no answer within ${Math.round(timeoutMs / 1000)} s`)) }, timeoutMs)
+          pending.set(i, (m) => { clearTimeout(timer); r(m) })
+          try { ws.send(JSON.stringify({ id: i, method, params })) } catch (e) { clearTimeout(timer); pending.delete(i); j(e) }
+        })
+        ws.onclose = () => { for (const [i, f] of pending) { pending.delete(i); f({ result: { exceptionDetails: { exception: { description: 'DevTools connection closed' } } } }) } }
         await send('Runtime.enable')
-        return { ws, send, errors }
+        return { ws, send, errors, warnings }
       }
     } catch {}
     await wait(500)
@@ -108,10 +119,23 @@ export class Hive {
     this.cdp = await attach(this.port)
   }
   get errors() { return this.cdp.errors }
+  get warnings() { return this.cdp.warnings }
   /** Run async JS in the page. `H` = __hive handle, `h` = IPC bridge, `w(ms)` = sleep. */
   async eval(body) {
     const expr = `(async()=>{const H=window.__hive,h=window.hive,w=(ms)=>new Promise(r=>setTimeout(r,ms));${body}})()`
-    const r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })
+    const t0 = Date.now()
+    if (process.env.QA_TRACE) console.log(`  > [${this.name}] ${body.replace(/\s+/g, ' ').slice(0, 90)}`)
+    let r
+    try {
+      r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })
+    } catch (e) {
+      // The DevTools socket can die silently (Chromium restarts its network service under load). Reconnect once.
+      if (!/no answer within/.test(e.message)) throw e
+      console.log(`  ! [${this.name}] no answer; reconnecting and retrying: ${body.replace(/\s+/g, ' ').slice(0, 70)}`)
+      await this.connect()
+      r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })
+    }
+    if (process.env.QA_TRACE) console.log(`  < [${this.name}] ${Date.now() - t0} ms`)
     if (r.result?.exceptionDetails) throw new Error(`[${this.name}] ` + (r.result.exceptionDetails.exception?.description ?? 'eval failed').slice(0, 400))
     return r.result?.result?.value
   }
@@ -131,8 +155,8 @@ export class Hive {
   }
   /** Skip the setup wizard and set who this person is. */
   async profileAs(displayName, avatar = '🐝', color = '#5aa9ff') {
-    await this.invoke('settings:set', { profile: { name: displayName, avatar, color }, setupComplete: true })
-    await this.reload()
+    // apply without a page reload (simultaneous reloads under heavy load sometimes left a renderer unresponsive)
+    await this.eval(`const s=await h.invoke('settings:set',${JSON.stringify({ profile: { name: displayName, avatar, color }, setupComplete: true })});H.store.getState().set({settings:s});await w(300);return 1`)
   }
   async openProject(dir) {
     await this.eval(`await H.actions.openProject(${JSON.stringify(dir)});return 1`)

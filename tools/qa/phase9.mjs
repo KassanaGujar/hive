@@ -42,19 +42,19 @@ async function ask(app, dir, prompt) {
   const files = (await app.invoke('fs:hashTree')) ?? {}
   const ctxFiles = Object.keys(files).filter((f) => /\.(html|js|css|json)$/.test(f) && !f.startsWith('.'))
   const r = await app.eval(`
-    const files=${JSON.stringify(ctxFiles)};let ctx='';for(const f of files){const t=await h.invoke('fs:read',f);if(t.length<40000)ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
+    const files=${JSON.stringify(ctxFiles)};let ctx='';const bases={};for(const f of files){const t=await h.invoke('fs:read',f);bases[f]=t;if(t.length<40000)ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
     const msgs=[{role:'system',content:H.chat.SYSTEM},{role:'user',content:ctx+${JSON.stringify(prompt)}}];
     let text='',err=null,done=false,id=null;const early=[];
     const off=h.on('chat:chunk',(c)=>{if(id===null){early.push(c);return}if(c.streamId!==id)return;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true});
     id=await h.invoke('chat:stream',${JSON.stringify(model)},msgs);
     for(const c of early){if(c.streamId!==id)continue;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true}
-    const end=Date.now()+900000;while(!done&&!err&&Date.now()<end)await w(300);off();return {text,err}`)
-  const proposals = await app.eval(`return H.chat.parseProposals(${JSON.stringify(r.text.replace(/<think>[\s\S]*?<\/think>/g, ''))})`)
+    const end=Date.now()+900000;while(!done&&!err&&Date.now()<end)await w(300);off();return {text,err,bases}`)
+  const proposals = (await app.eval(`return H.chat.parseProposals(${JSON.stringify(r.text.replace(/<think>[\s\S]*?<\/think>/g, ''))})`)).map((p) => ({ ...p, base: r.bases?.[p.path] }))
   return { ...r, proposals }
 }
 async function acceptOwned(app, proposals, allowed) {
   const ok = proposals.filter((p) => allowed.some((f) => p.path === f || p.path.endsWith('/' + f)))
-  for (const p of ok) await app.eval(`await H.files.applyContent(${JSON.stringify(p.path)},${JSON.stringify(p.content)});return 1`)
+  for (const p of ok) await app.eval(`const __r=await H.files.applyProposal(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??(await h.invoke('fs:read',${JSON.stringify(p.path)}).catch(()=>'')),${JSON.stringify(p.content)});if(!__r.ok)throw new Error('Accept refused: '+${JSON.stringify(p.path)}+' changed in the same place since the AI read it');return 1`)
   await wait(1500)
   return ok.map((p) => p.path)
 }

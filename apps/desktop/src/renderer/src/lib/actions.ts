@@ -46,11 +46,16 @@ function soloFeed(kind: 'file.created' | 'file.renamed' | 'file.deleted', files:
 
 /** Rename or move a file/folder; open editor tabs follow it. */
 export async function renameFile(from: string, to: string) {
+  const st = useStore.getState()
+  const wasOpen = !!st.tabs[`file:${from}`]
+  const s = session()
+  if (s?.shared && s.renamePath(from, to) > 0) {
+    // the open editor was tied to the old shared text: drop it, reopen bound to the new one
+    disposeModel(from)
+  } else if (wasOpen) renameModel(from, to)
   await invoke('fs:rename', from, to)
   soloFeed('file.renamed', [from, to])
-  const st = useStore.getState()
-  if (st.tabs[`file:${from}`]) {
-    renameModel(from, to)
+  if (wasOpen) {
     st.closeTab(`file:${from}`)
     st.openFile(to)
   }

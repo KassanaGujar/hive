@@ -27,18 +27,18 @@ async function ask(dir, prompt) {
   const files = projectFiles(dir)
   const t0 = Date.now()
   const r = await a.eval(`
-    const files=${JSON.stringify(files)};let ctx='';
-    for(const f of files){const t=await h.invoke('fs:read',f);ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
+    const files=${JSON.stringify(files)};let ctx='';const bases={};
+    for(const f of files){const t=await h.invoke('fs:read',f);bases[f]=t;ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
     const msgs=[{role:'system',content:H.chat.SYSTEM},{role:'user',content:ctx+${JSON.stringify(prompt)}}];
     let text='',err=null,done=false,id=null;const early=[];
     const off=h.on('chat:chunk',(c)=>{if(id===null){early.push(c);return}if(c.streamId!==id)return;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true});
     id=await h.invoke('chat:stream',${JSON.stringify(model)},msgs);
     for(const c of early){if(c.streamId!==id)continue;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true}
     const end=Date.now()+900000;while(!done&&!err&&Date.now()<end)await w(300);off();if(!done&&!err){await h.invoke('chat:abort',id);err='timeout'}
-    return {text,err}`)
+    return {text,err,bases}`)
   const text = r.text.replace(/<think>[\s\S]*?<\/think>/g, '')
-  const proposals = await a.eval(`return H.chat.parseProposals(${JSON.stringify(text)})`)
-  for (const p of proposals) await a.eval(`await H.files.applyContent(${JSON.stringify(p.path)},${JSON.stringify(p.content)});return 1`)
+  const proposals = (await a.eval(`return H.chat.parseProposals(${JSON.stringify(text)})`)).map((p) => ({ ...p, base: r.bases?.[p.path] }))
+  for (const p of proposals) await a.eval(`const __r=await H.files.applyProposal(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??(await h.invoke('fs:read',${JSON.stringify(p.path)}).catch(()=>'')),${JSON.stringify(p.content)});if(!__r.ok)throw new Error('Accept refused: '+${JSON.stringify(p.path)}+' changed in the same place since the AI read it');return 1`)
   await wait(800)
   return { ms: Date.now() - t0, err: r.err, files: proposals.map((p) => p.path), reply: text }
 }

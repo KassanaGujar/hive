@@ -170,3 +170,107 @@
 {"phase":"P1","name":"Open the project link in another session","status":"PASS","detail":"friend received the project files","at":"2026-11-15T22:36:07.185Z"}
 {"phase":"P1","name":"Unauthorized users cannot read a private project","status":"PASS","detail":"wrong key → no files; wrong room id → no files","at":"2026-11-15T22:41:29.067Z"}
 {"phase":"P1","name":"Project permissions and ownership (viewer cannot change files; host can)","status":"PASS","detail":"view-only link has no edit token; relay made Vera a viewer even though her app claimed \"editor\"; her edit never reached the host; host keeps ownership","at":"2026-11-15T22:42:16.598Z"}
+{"phase":"P1","name":"Errors are communicated clearly to users","status":"PASS","detail":"Couldn't find \"does/not/exist.txt\". It may have been moved, renamed or deleted. || \"../../outside.txt\" is outside the project || A folder named \"alpha\" already exists there. || toast: ","at":"2026-11-15T22:45:05.370Z"}
+{"phase":"P1","name":"No uncaught errors in the app during Phase 1","status":"PASS","detail":"","at":"2026-11-15T22:45:05.371Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"FAIL","detail":"files missing for the collaborator","at":"2026-11-15T22:57:04.071Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-15T23:00:32.977Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"FAIL","detail":"trees differ: 4,4,0","at":"2026-11-15T23:01:14.433Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-15T23:55:57.921Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-15T23:56:02.236Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"PASS","detail":"4 files identical on all three","at":"2026-11-15T23:56:03.812Z"}
+{"phase":"P2","name":"Two people edit different files simultaneously","status":"PASS","detail":"","at":"2026-11-15T23:56:06.943Z"}
+{"phase":"P2","name":"Two people edit the same file simultaneously","status":"PASS","detail":"","at":"2026-11-15T23:56:08.062Z"}
+{"phase":"P2","name":"Two people edit the exact same line simultaneously","status":"PASS","detail":"","at":"2026-11-15T23:56:09.749Z"}
+{"phase":"P2","name":"Two people type at the exact same cursor position","status":"PASS","detail":"result: [AAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBB]","at":"2026-11-15T23:56:11.108Z"}
+{"phase":"P2","name":"One person deletes code while another edits that code","status":"PASS","detail":"converged; the concurrent insert survived the delete","at":"2026-11-15T23:56:11.935Z"}
+{"phase":"P2","name":"One person renames a file while another edits it","status":"FAIL","detail":"old file still on b's disk","at":"2026-11-15T23:56:14.400Z"}
+{"phase":"P2","name":"One person creates a file while another browses the explorer","status":"FAIL","detail":"collaborator's explorer never showed the new file","at":"2026-11-15T23:56:20.777Z"}
+{"phase":"P2","name":"One person deletes a file while another has it open","status":"FAIL","detail":"[p2b] Error: model never loaded: doomed.js\n    at <anonymous>:1:252","at":"2026-11-15T23:56:35.958Z"}
+{"phase":"P2","name":"Simultaneous changes do not silently disappear (300 marked edits from 3 people)","status":"FAIL","detail":"missing edits: 39,80,49","at":"2026-11-15T23:56:43.778Z"}
+{"phase":"P2","name":"Changes synchronize across all connected clients","status":"PASS","detail":"every test above compares the shared doc and the disk copy on all three machines","at":"2026-11-15T23:56:43.792Z"}
+{"phase":"P2","name":"Collaborators can see each other's cursors","status":"FAIL","detail":"remote cursor of Tess not rendered in Omar's editor","at":"2026-11-15T23:56:50.316Z"}
+{"phase":"P2","name":"Presence indicators update correctly","status":"PASS","detail":"","at":"2026-11-15T23:56:50.431Z"}
+{"phase":"P2","name":"Users can tell their own changes from other people's","status":"PASS","detail":"history shows who changed what, with a diff","at":"2026-11-15T23:56:50.568Z"}
+{"phase":"P2","name":"Undo/redo while several people edit: undo only removes your own change","status":"FAIL","detail":"undo did not remove own change: \"MINEundo test\\nTHEIRS\\n\"","at":"2026-11-15T23:56:52.735Z"}
+{"phase":"P2","name":"Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs","status":"FAIL","detail":"file created while offline never arrived","at":"2026-11-15T23:57:00.586Z"}
+{"phase":"P2","name":"Refresh one collaborator's window while everyone works; it restores","status":"PASS","detail":"","at":"2026-11-15T23:57:04.556Z"}
+{"phase":"P2","name":"A collaborator leaves; the others keep working; they rejoin with the original link","status":"PASS","detail":"","at":"2026-11-15T23:57:55.309Z"}
+{"phase":"P2","name":"A stale copy cannot overwrite the project (edited outside Hive while closed)","status":"FAIL","detail":"the team's edit was overwritten by the stale copy: \"L1 base\\nL2 base\\nL3 base EDITED-OUTSIDE\\n\"","at":"2026-11-15T23:58:36.373Z"}
+{"phase":"P2","name":"Project state survives a relay (server) restart","status":"PASS","detail":"","at":"2026-11-15T23:59:10.120Z"}
+{"phase":"P2","name":"Concurrent operations are handled consistently","status":"PASS","detail":"same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client","at":"2026-11-15T23:59:10.121Z"}
+{"phase":"P2","name":"No uncaught errors in any window during Phase 2","status":"PASS","detail":"","at":"2026-11-15T23:59:10.122Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-16T00:10:48.619Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-16T00:10:57.830Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"PASS","detail":"4 files identical on all three","at":"2026-11-16T00:10:59.897Z"}
+{"phase":"P2","name":"Two people edit different files simultaneously","status":"PASS","detail":"","at":"2026-11-16T00:11:51.191Z"}
+{"phase":"P2","name":"Two people edit the same file simultaneously","status":"FAIL","detail":"not converged on a.js: a:doc=439 disk=439 b:doc=439 disk=439 c:doc=414 disk=409","at":"2026-11-16T00:12:31.916Z"}
+{"phase":"P2","name":"Two people edit the exact same line simultaneously","status":"FAIL","detail":"not converged on b.js: a:doc=59 disk=59 b:doc=59 disk=59 c:doc=59 disk=48","at":"2026-11-16T00:12:59.634Z"}
+{"phase":"P2","name":"Two people type at the exact same cursor position","status":"PASS","detail":"result: [BBAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBAA]","at":"2026-11-16T00:13:33.942Z"}
+{"phase":"P2","name":"One person deletes code while another edits that code","status":"PASS","detail":"converged; text inside the deleted block went with it","at":"2026-11-16T00:13:42.871Z"}
+{"phase":"P2","name":"One person renames a file while another edits it","status":"FAIL","detail":"edits made during the rename were lost: 0/20 survive","at":"2026-11-16T00:13:49.415Z"}
+{"phase":"P2","name":"One person creates a file while another browses the explorer","status":"PASS","detail":"","at":"2026-11-16T00:13:50.128Z"}
+{"phase":"P2","name":"One person deletes a file while another has it open","status":"PASS","detail":"tab closed","at":"2026-11-16T00:14:03.396Z"}
+{"phase":"P2","name":"Simultaneous changes do not silently disappear (300 marked edits from 3 people)","status":"FAIL","detail":"[p2b] SyntaxError: Invalid or unexpected token","at":"2026-11-16T00:14:04.769Z"}
+{"phase":"P2","name":"Changes synchronize across all connected clients","status":"PASS","detail":"every test above compares the shared doc and the disk copy on all three machines","at":"2026-11-16T00:14:04.770Z"}
+{"phase":"P2","name":"Collaborators can see each other's cursors","status":"PASS","detail":"remote selection rendered with the name label","at":"2026-11-16T00:14:05.516Z"}
+{"phase":"P2","name":"Presence indicators update correctly","status":"PASS","detail":"","at":"2026-11-16T00:14:06.111Z"}
+{"phase":"P2","name":"Users can tell their own changes from other people's","status":"PASS","detail":"history shows who changed what, with a diff","at":"2026-11-16T00:14:06.506Z"}
+{"phase":"P2","name":"Undo/redo while several people edit: undo only removes your own change","status":"PASS","detail":"","at":"2026-11-16T00:14:09.425Z"}
+{"phase":"P2","name":"Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs","status":"PASS","detail":"","at":"2026-11-16T00:14:12.469Z"}
+{"phase":"P2","name":"Refresh one collaborator's window while everyone works; it restores","status":"PASS","detail":"","at":"2026-11-16T00:14:16.582Z"}
+{"phase":"P2","name":"A collaborator leaves; the others keep working; they rejoin with the original link","status":"PASS","detail":"","at":"2026-11-16T00:14:31.765Z"}
+{"phase":"P2","name":"A stale copy cannot overwrite the project (edited outside Hive while closed)","status":"PASS","detail":"both edits merged: \"TEAM-EDIT L1 base\\nL2 base\\nL3 base EDITED-OUTSIDE\\n\"","at":"2026-11-16T00:14:47.826Z"}
+{"phase":"P2","name":"Project state survives a relay (server) restart","status":"PASS","detail":"","at":"2026-11-16T00:15:19.460Z"}
+{"phase":"P2","name":"Concurrent operations are handled consistently","status":"PASS","detail":"same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client","at":"2026-11-16T00:15:19.461Z"}
+{"phase":"P2","name":"No uncaught errors in any window during Phase 2","status":"PASS","detail":"","at":"2026-11-16T00:15:19.462Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-16T00:37:34.161Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-16T00:38:03.418Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"PASS","detail":"4 files identical on all three","at":"2026-11-16T00:38:21.922Z"}
+{"phase":"P2","name":"Two people edit different files simultaneously","status":"PASS","detail":"","at":"2026-11-16T00:40:08.294Z"}
+{"phase":"P2","name":"Two people edit the same file simultaneously","status":"FAIL","detail":"lost: a=0 b=7","at":"2026-11-16T00:43:11.721Z"}
+{"phase":"P2","name":"Two people edit the exact same line simultaneously","status":"FAIL","detail":"not converged on b.js: a:doc=9 disk=9 b:doc=9 disk=115 c:doc=9 disk=115","at":"2026-11-16T00:43:46.555Z"}
+{"phase":"P2","name":"Two people type at the exact same cursor position","status":"FAIL","detail":"not converged on b.js: a:doc=3 disk=3 b:doc=3 disk=9 c:doc=3 disk=3","at":"2026-11-16T00:44:25.172Z"}
+{"phase":"P2","name":"One person deletes code while another edits that code","status":"FAIL","detail":"not converged on b.js: a:doc=49 disk=49 b:doc=49 disk=3 c:doc=49 disk=49","at":"2026-11-16T00:44:56.025Z"}
+{"phase":"P2","name":"One person renames a file while another edits it","status":"FAIL","detail":"not converged on b.js: a:doc=12 disk=12 b:doc=12 disk=49 c:doc=12 disk=12","at":"2026-11-16T00:45:24.446Z"}
+{"phase":"P2","name":"One person creates a file while another browses the explorer","status":"FAIL","detail":"collaborator's explorer never showed the new file","at":"2026-11-16T00:45:49.334Z"}
+{"phase":"P2","name":"One person deletes a file while another has it open","status":"FAIL","detail":"[p2b] Error: model never loaded: doomed.js\n    at <anonymous>:1:252","at":"2026-11-16T00:49:04.260Z"}
+{"phase":"P2","name":"Simultaneous changes do not silently disappear (300 marked edits from 3 people)","status":"PASS","detail":"300/300 edits present on all three","at":"2026-11-16T00:49:37.162Z"}
+{"phase":"P2","name":"Changes synchronize across all connected clients","status":"PASS","detail":"every test above compares the shared doc and the disk copy on all three machines","at":"2026-11-16T00:49:37.163Z"}
+{"phase":"P2","name":"Collaborators can see each other's cursors","status":"FAIL","detail":"remote cursor of Tess not rendered in Omar's editor","at":"2026-11-16T00:49:54.276Z"}
+{"phase":"P2","name":"Presence indicators update correctly","status":"PASS","detail":"","at":"2026-11-16T00:50:04.053Z"}
+{"phase":"P2","name":"Users can tell their own changes from other people's","status":"PASS","detail":"history shows who changed what, with a diff","at":"2026-11-16T00:50:10.479Z"}
+{"phase":"P2","name":"Undo/redo while several people edit: undo only removes your own change","status":"PASS","detail":"","at":"2026-11-16T00:51:04.073Z"}
+{"phase":"P2","name":"Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs","status":"PASS","detail":"","at":"2026-11-16T00:51:29.933Z"}
+{"phase":"P2","name":"Refresh one collaborator's window while everyone works; it restores","status":"FAIL","detail":"not converged on a.js: a:doc=433 disk=433 b:doc=433 disk=433 c:doc=433 disk=123","at":"2026-11-16T00:53:42.371Z"}
+{"phase":"P2","name":"A collaborator leaves; the others keep working; they rejoin with the original link","status":"PASS","detail":"","at":"2026-11-16T00:54:24.146Z"}
+{"phase":"P2","name":"A stale copy cannot overwrite the project (edited outside Hive while closed)","status":"FAIL","detail":"not converged on a.js: a:doc=34 disk=34 b:doc=34 disk=24","at":"2026-11-16T00:54:54.332Z"}
+{"phase":"P2","name":"Project state survives a relay (server) restart","status":"FAIL","detail":"check did not finish within 600 s","at":"2026-11-16T01:04:54.341Z"}
+{"phase":"P2","name":"Concurrent operations are handled consistently","status":"PASS","detail":"same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client","at":"2026-11-16T01:04:54.344Z"}
+{"phase":"P2","name":"No uncaught errors in any window during Phase 2","status":"PASS","detail":"","at":"2026-11-16T01:04:54.345Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-16T01:36:44.691Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-16T01:46:04.604Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"FAIL","detail":"trees differ: 4,4,0","at":"2026-11-16T01:47:06.758Z"}
+{"phase":"P2","name":"Invite one collaborator using a project link","status":"PASS","detail":"","at":"2026-11-16T03:44:17.981Z"}
+{"phase":"P2","name":"Invite multiple collaborators (second joins while the first is active)","status":"PASS","detail":"","at":"2026-11-16T03:44:20.042Z"}
+{"phase":"P2","name":"All collaborators see the same project files","status":"PASS","detail":"4 files identical on all three (on disk after 110 ms)","at":"2026-11-16T03:44:20.155Z"}
+{"phase":"P2","name":"Two people edit different files simultaneously","status":"PASS","detail":"","at":"2026-11-16T03:44:24.847Z"}
+{"phase":"P2","name":"Two people edit the same file simultaneously","status":"PASS","detail":"","at":"2026-11-16T03:44:26.320Z"}
+{"phase":"P2","name":"Two people edit the exact same line simultaneously","status":"PASS","detail":"","at":"2026-11-16T03:44:29.551Z"}
+{"phase":"P2","name":"Two people type at the exact same cursor position","status":"PASS","detail":"result: [BBBBAAAAAAAAAAAAABBBAAABBBBBBBBBBBBBAAAA]","at":"2026-11-16T03:44:31.657Z"}
+{"phase":"P2","name":"One person deletes code while another edits that code","status":"PASS","detail":"converged; the concurrent insert survived the delete","at":"2026-11-16T03:44:33.037Z"}
+{"phase":"P2","name":"One person renames a file while another edits it","status":"FAIL","detail":"old file still on b's disk","at":"2026-11-16T03:44:36.313Z"}
+{"phase":"P2","name":"One person creates a file while another browses the explorer","status":"PASS","detail":"","at":"2026-11-16T03:44:37.588Z"}
+{"phase":"P2","name":"One person deletes a file while another has it open","status":"PASS","detail":"tab closed","at":"2026-11-16T03:44:54.757Z"}
+{"phase":"P2","name":"Simultaneous changes do not silently disappear (300 marked edits from 3 people)","status":"PASS","detail":"300/300 edits present on all three","at":"2026-11-16T03:44:57.879Z"}
+{"phase":"P2","name":"Changes synchronize across all connected clients","status":"PASS","detail":"every test above compares the shared doc and the disk copy on all three machines","at":"2026-11-16T03:44:57.881Z"}
+{"phase":"P2","name":"Collaborators can see each other's cursors","status":"PASS","detail":"remote selection rendered with the name label","at":"2026-11-16T03:44:58.793Z"}
+{"phase":"P2","name":"Presence indicators update correctly","status":"PASS","detail":"","at":"2026-11-16T03:44:59.486Z"}
+{"phase":"P2","name":"Users can tell their own changes from other people's","status":"PASS","detail":"history shows who changed what, with a diff","at":"2026-11-16T03:44:59.570Z"}
+{"phase":"P2","name":"Undo/redo while several people edit: undo only removes your own change","status":"PASS","detail":"","at":"2026-11-16T03:45:04.360Z"}
+{"phase":"P2","name":"Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs","status":"PASS","detail":"","at":"2026-11-16T03:45:09.019Z"}
+{"phase":"P2","name":"Refresh one collaborator's window while everyone works; it restores","status":"PASS","detail":"","at":"2026-11-16T03:45:15.934Z"}
+{"phase":"P2","name":"A collaborator leaves; the others keep working; they rejoin with the original link","status":"PASS","detail":"","at":"2026-11-16T03:46:37.065Z"}
+{"phase":"P2","name":"A stale copy cannot overwrite the project (edited outside Hive while closed)","status":"PASS","detail":"both edits merged: \"TEAM-EDIT L1 base\\nL2 base\\nL3 base EDITED-OUTSIDE\\n\"","at":"2026-11-16T03:47:35.827Z"}
+{"phase":"P2","name":"Project state survives a relay (server) restart","status":"FAIL","detail":"not converged on a.js: a:doc=83 disk=83 b:doc=83 disk=83 c:doc=49 disk=49","at":"2026-11-16T03:47:59.814Z"}
+{"phase":"P2","name":"Concurrent operations are handled consistently","status":"PASS","detail":"same-file, same-line, same-position, delete-vs-edit and offline merges all converged to identical text on every client","at":"2026-11-16T03:47:59.816Z"}
+{"phase":"P2","name":"No uncaught errors in any window during Phase 2","status":"PASS","detail":"","at":"2026-11-16T03:47:59.817Z"}

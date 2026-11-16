@@ -11,8 +11,18 @@ import { getSettings, setSettings } from './store'
 
 let root: string | null = null
 let watcher: FSWatcher | null = null
-/** Content hashes of writes Hive itself made, so the watcher doesn't echo them back. */
-const selfWrites = new Map<string, string>()
+/**
+ * Content hashes of Hive's own recent writes per file, so the watcher never reports them back as outside
+ * edits. Several are kept: under load the watcher can read a file between two quick writes, and an echo of
+ * an older write of ours must not be mistaken for someone else's change (it would overwrite newer edits).
+ */
+const selfWrites = new Map<string, string[]>()
+function rememberWrite(rel: string, h: string) {
+  const list = selfWrites.get(rel) ?? []
+  list.push(h)
+  if (list.length > 24) list.shift()
+  selfWrites.set(rel, list)
+}
 
 export const MAX_TREE_NODES = 20000
 
@@ -59,7 +69,7 @@ export async function openProject(dir: string) {
       const mine = selfWrites.get(rel)
       if (mine) {
         try {
-          if (hash(await fs.readFile(p)) === mine) return
+          if (mine.includes(hash(await fs.readFile(p)))) return
         } catch {
           /* fall through */
         }
@@ -187,7 +197,7 @@ export async function readFile(rel: string) {
 export async function writeFile(rel: string, content: string) {
   const p = abs(rel)
   await fs.mkdir(path.dirname(p), { recursive: true })
-  selfWrites.set(toPosix(rel), hash(content))
+  rememberWrite(toPosix(rel), hash(content))
   await fs.writeFile(p, content, 'utf8')
 }
 

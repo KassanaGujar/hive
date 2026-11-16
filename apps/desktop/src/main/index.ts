@@ -1,6 +1,6 @@
 import { app, BrowserWindow, dialog, Menu, Notification, shell } from 'electron'
 import path from 'node:path'
-import { handle, emit } from './ipc'
+import { handle, emit, watchEventLoop } from './ipc'
 import { fixPath } from './shellEnv'
 import { initStore, getSettings, setSettings, secrets, StoreBusyError } from './store'
 import * as project from './project'
@@ -67,7 +67,10 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      webviewTag: true
+      webviewTag: true,
+      // Keep syncing at full speed when minimised or behind other windows: teammates' edits are written
+      // to disk on short timers, which Chromium would otherwise slow to roughly once a minute.
+      backgroundThrottling: false
     }
   })
   mainWindow.once('ready-to-show', () => {
@@ -272,6 +275,7 @@ function registerHandlers() {
 }
 
 app.whenReady().then(async () => {
+  watchEventLoop()
   for (;;) {
     try {
       initStore()
@@ -295,6 +299,7 @@ app.whenReady().then(async () => {
   buildMenu()
   createWindow()
   initUpdater()
+  term.prefetchTools().catch(() => {}) // warm the tool cache without blocking
   // Background: catalog refresh, resume interrupted downloads, start Ollama if installed.
   models.loadCatalog().catch(() => {})
   ollama.start().then(() => ollama.resumePulls()).catch(() => {})

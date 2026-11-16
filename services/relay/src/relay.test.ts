@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import * as Y from 'yjs'
-import { HiveProvider, newRoomId, newRoomKey, newInviteCode, sealInvite, openInvite, docParts } from '@hive/collab'
+import { HiveProvider, newRoomId, newRoomKey, newInviteCode, sealInvite, openInvite, docParts, sha256Hex } from '@hive/collab'
 import { startRelay, type RelayHandle } from './relay'
 
 let relay: RelayHandle
@@ -22,6 +22,34 @@ async function until(fn: () => boolean, ms = 3000) {
   }
 }
 const member = (id: string) => ({ id, name: id, color: '#f00', avatar: '🐝' })
+
+describe('roles are enforced by the relay', () => {
+  it('a join without the edit token is a viewer whose edits never reach anyone; with it, an editor', async () => {
+    const room = newRoomId()
+    const key = newRoomKey()
+    const token = 'edit-token-for-test'
+    const host = new Y.Doc(), viewer = new Y.Doc(), editor = new Y.Doc()
+    const ph = new HiveProvider(host, { relayUrl: url, roomId: room, roomKey: key, member: member('h'), adminToken: 'y'.repeat(32), editHash: await sha256Hex(token) })
+    await ph.connect()
+    await until(() => ph.status === 'online')
+    docParts(host).files.set('a.js', new Y.Text('start'))
+    const pv = new HiveProvider(viewer, { relayUrl: url, roomId: room, roomKey: key, member: member('v') })
+    const pe = new HiveProvider(editor, { relayUrl: url, roomId: room, roomKey: key, member: member('e'), editToken: token })
+    await pv.connect()
+    await pe.connect()
+    await until(() => pv.status === 'online' && pe.status === 'online' && ph.members.length === 3)
+    expect(ph.members.find((m) => m.id === 'v')?.role).toBe('viewer')
+    expect(ph.members.find((m) => m.id === 'e')?.role).toBe('editor')
+    await until(() => docParts(viewer).files.get('a.js')?.toString() === 'start')
+    docParts(viewer).files.get('a.js')!.insert(0, 'VIEWER ')
+    docParts(editor).files.get('a.js')!.insert(5, ' EDITOR')
+    await until(() => docParts(host).files.get('a.js')!.toString().includes('EDITOR'))
+    await wait(500)
+    expect(docParts(host).files.get('a.js')!.toString()).not.toContain('VIEWER')
+    expect(pv.status).toBe('online')
+    ;[ph, pv, pe].forEach((p) => p.destroy())
+  })
+})
 
 describe('relay + provider', () => {
   it('syncs edits both ways within 2 seconds, encrypted', async () => {

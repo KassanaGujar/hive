@@ -125,12 +125,12 @@ describe('collaboration under load', () => {
     r.close()
   })
 
-  it('the 11th person is turned away (10-person limit)', async () => {
-    const r = await room(10)
+  it('the 26th person is turned away (25-person limit)', async () => {
+    const r = await room(25)
     const extra = new HiveProvider(new Y.Doc(), { relayUrl: url, roomId: r.roomId, roomKey: r.roomKey, member: { id: 'eleven', name: 'x', color: '#fff', avatar: '🐝' } })
     await extra.connect()
-    await until(() => extra.status === 'error', 15_000, '11th rejected')
-    log(`11th member rejected: "${extra.error}"`)
+    await until(() => extra.status === 'error', 15_000, '26th rejected')
+    log(`26th member rejected: "${extra.error}"`)
     expect(extra.error).toMatch(/full/)
     extra.destroy()
     r.close()

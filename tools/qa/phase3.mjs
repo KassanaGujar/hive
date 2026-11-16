@@ -23,8 +23,8 @@ async function ask(prompt, ctxFiles = [], { app = a, mdl = model, timeoutMs = 30
   const t0 = Date.now()
   const r = await app.eval(`
     const ctx=${JSON.stringify(ctxFiles)};
-    let user='';
-    for(const f of ctx){const t=await h.invoke('fs:read',f);user+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
+    let user='';const bases={};
+    for(const f of ctx){const t=await h.invoke('fs:read',f);bases[f]=t;user+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
     user+=${JSON.stringify(prompt)};
     const msgs=[{role:'system',content:H.chat.SYSTEM},{role:'user',content:user}];
     let text='',err=null,done=false,id=null;const early=[];
@@ -34,18 +34,18 @@ async function ask(prompt, ctxFiles = [], { app = a, mdl = model, timeoutMs = 30
     const end=Date.now()+${timeoutMs};while(!done&&!err&&Date.now()<end)await w(200);
     off();
     if(!done&&!err){await h.invoke('chat:abort',id);err='TEST-TIMEOUT'}
-    return {text,err}`)
+    return {text,err,bases}`)
   const ms = Date.now() - t0
   timings.push(ms)
   const visible = r.text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
-  const proposals = await app.eval(`return H.chat.parseProposals(${JSON.stringify(visible)})`)
+  const proposals = (await app.eval(`return H.chat.parseProposals(${JSON.stringify(visible)})`)).map((p) => ({ ...p, base: r.bases?.[p.path] }))
   transcript.push({ prompt, ctxFiles, ms, err: r.err, reply: visible.slice(0, 4000) })
   writeFileSync(`${OUT}/phase3-transcript.json`, JSON.stringify(transcript, null, 1))
   return { text: visible, err: r.err, proposals, ms }
 }
 /** Accept every proposal (what pressing Accept does). */
 async function accept(proposals, app = a) {
-  for (const p of proposals) await app.eval(`await H.files.applyContent(${JSON.stringify(p.path)},${JSON.stringify(p.content)});return 1`)
+  for (const p of proposals) await app.eval(`const __r=await H.files.applyProposal(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??(await h.invoke('fs:read',${JSON.stringify(p.path)}).catch(()=>'')),${JSON.stringify(p.content)});if(!__r.ok)throw new Error('Accept refused: '+${JSON.stringify(p.path)}+' changed in the same place since the AI read it');return 1`)
   await wait(1200)
 }
 const write = (rel, text) => { mkdirSync(`${proj}/${rel}`.replace(/\/[^/]+$/, ''), { recursive: true }); writeFileSync(`${proj}/${rel}`, text) }

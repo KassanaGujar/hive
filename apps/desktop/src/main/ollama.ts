@@ -9,7 +9,7 @@ import { pipeline } from 'node:stream/promises'
 import type { PullProgress } from '@hive/shared'
 import { emit } from './ipc'
 import { store } from './store'
-import { whichSync, clearWhichCache } from './terminal'
+import { whichSync, which, clearWhichCache } from './terminal'
 
 export const OLLAMA_URL = 'http://127.0.0.1:11434'
 
@@ -52,6 +52,7 @@ export async function status() {
 }
 
 export async function start(): Promise<boolean> {
+  await which('ollama')
   if ((await status()).running) return true
   const exe = ollamaExe()
   if (!exe) return false

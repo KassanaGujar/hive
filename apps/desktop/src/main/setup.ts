@@ -1,6 +1,6 @@
 import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-import { clearWhichCache, whichSync } from './terminal'
+import { clearWhichCache, which } from './terminal'
 
 const run = promisify(execFile)
 
@@ -26,7 +26,7 @@ export async function installGit(): Promise<{ ok: boolean; message: string }> {
   if (process.platform !== 'win32') {
     return { ok: false, message: 'Install git with your package manager (for example: sudo apt install git), then press Check again.' }
   }
-  if (!whichSync('winget')) {
+  if (!(await which('winget'))) {
     return { ok: false, message: 'Download Git for Windows from https://git-scm.com/download/win, install it, then press Check again.' }
   }
   try {

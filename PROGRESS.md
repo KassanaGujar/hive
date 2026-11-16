@@ -1,21 +1,25 @@
 # Hive — build progress (resume file)
 
-## 🔖 BOOKMARK 2026-11-15 — QA plan, stopped at usage limit (resume here)
-- node_modules lost native binaries + big files (OneDrive?). A background `rm -rf node_modules && npm ci` was running
-  when the session stopped. FIRST: check `ls node_modules | wc -l`; if incomplete run `npm ci`, then
-  `cd apps/desktop && npx electron-vite build` and `npx vitest run` (61 tests passed before the reinstall).
-- Uncommitted, NOT yet built or tested: project rename/delete/forget (ipc.ts, main/project.ts, main/index.ts,
-  Welcome.tsx), `window.__hive` test handle (renderer main.tsx), QA harness `tools/qa/{lib,phase1,phase2}.mjs`.
-- phase2.mjs calls `H.actions.renameFile` which does not exist yet: move Explorer's moveTo/deleteItem into actions.ts.
-- Predicted collab bugs to confirm then fix: (1) rename while a teammate edits loses their edits/tab, (2) no notice
-  when an open file is deleted remotely, (3) Monaco undo may undo teammates' edits (use Y.UndoManager),
-  (4) file edited outside Hive while closed overwrites team edits on rejoin (import disk into local doc BEFORE
-  connect), (5) setText is single-hunk (use `diff` package), (6) room cap is 10, plan wants 20.
-- Research done: Jev (TypeSafe AI) = closed-weight paid API typed-decision model via Vercel AI Gateway
-  ($0.042/M input) — usable only as an OPTIONAL router/command gate with a user key, never the free default.
-  Amoeba gaps vs Hive: overlap warnings before a prompt runs, per-person agent lanes in one session, shared
-  "Brain" notes pinned to files, plan-step ownership + handoffs, comments on code/diffs, conflict sidebar.
-- Phases 1–11 of the user's QA plan: none executed yet. Report should go to docs/qa-report.md.
+## 🔖 BOOKMARK 2026-11-15 evening — QA plan in progress (resume here)
+**Checklist (live, every item from the user's plan):** `docs/qa-checklist.md` — sync it with
+`node tools/qa/sync-checklist.mjs` after every test batch (reads `docs/qa/results.jsonl`, latest result wins).
+**Harness:** `tools/qa/` — `lib.mjs` (launches real Hive windows, drives them over CDP), `phase1..5.mjs`,
+`phase9.mjs`, `soak.mjs`, `scale.stress.ts` (5/10/20 people, run via `npx vitest run --config vitest.stress.mts tools/qa/scale.stress.ts`),
+`run-challenges.mjs` + `challenges.mjs` + `pagecheck.cjs` + `chat-probe.mjs` (Phases 6–8), `summarize.mjs`.
+Test projects/profiles go to `%USERPROFILE%\dev-cache\hive\qa` (outside OneDrive); results/screens to `docs/qa/`.
+**Environment notes:** node_modules lives in OneDrive and got corrupted once (a stray `rm -rf` + OneDrive locks);
+reinstall with `npm install` (not `npm ci`). OneDrive + Explorer keep the CPU at 100% while syncing node_modules,
+which slows convergence. Model for AI phases: `qwen2.5-coder:7b` (downloaded with the user's OK).
+**Status:** Phase 1 done (18/19, 1 N/A). Phase 2 being re-run after fixes. Phases 3–11 scripts written, not run.
+**Fixed so far:** terminal/run processes left running in old projects (locked folders); view-only links could edit
+(relay now enforces an edit token; room cap 25); settings silently reset when the DB was briefly locked; raw
+ENOENT errors; background windows throttled (sync lag); remote cursors never sent/drawn; Ctrl+Z after teammates'
+edits did nothing (Y.UndoManager); rename while a teammate edits lost edits (rename with 10 s carry-over);
+stale offline copy overwrote team work (3-way merge on rejoin); remote delete gave no notice; AI Accept
+overwrote concurrent edits (applyProposal 3-way merge); late watcher echo of Hive's own write could overwrite
+newer edits (remember recent write hashes).
+**Not done / needs the user:** redeploy the Cloudflare relay (`cd services/relay-cf && npx wrangler deploy`) so
+the live relay enforces view-only links and the 25-person cap; Phase 10 needs two real people.
 
 ## 2026-11-12 — IDE + redesign + models (latest work, done in the main session)
 - **Watch/test/edit agent work:** agents announce each write (`agents:file`); "Follow along" opens files live;

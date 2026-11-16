@@ -1,3 +1,4 @@
+import { diffArrays } from 'diff'
 import * as Y from 'yjs'
 import type { FeedEvent } from '@hive/shared'
 import type { AppliedEdit, PlanItem, Proposal } from './plan'
@@ -75,4 +76,52 @@ export function setArray<T>(arr: Y.Array<T>, items: T[]) {
     arr.delete(0, arr.length)
     arr.insert(0, items)
   })
+}
+
+/** Line changes from a → b, as replacements of base line ranges [start, end). */
+function lineChanges(a: string[], b: string[]) {
+  const out: { start: number; end: number; lines: string[] }[] = []
+  let i = 0
+  for (const part of diffArrays(a, b)) {
+    if (part.added) {
+      const last = out[out.length - 1]
+      if (last && last.end === i) last.lines.push(...part.value)
+      else out.push({ start: i, end: i, lines: [...part.value] })
+    } else if (part.removed) {
+      const last = out[out.length - 1]
+      if (last && last.end === i) last.end += part.count ?? part.value.length
+      else out.push({ start: i, end: i + (part.count ?? part.value.length), lines: [] })
+      i += part.count ?? part.value.length
+    } else i += part.count ?? part.value.length
+  }
+  return out
+}
+
+/**
+ * Apply the change base → proposed on top of current: a line-based 3-way merge for AI proposals made
+ * against an older copy. Returns the merged text, or false when both sides changed the same lines.
+ */
+export function applyChangeOnto(base: string, proposed: string, current: string): string | false {
+  if (current === base) return proposed
+  if (current === proposed || base === proposed) return current
+  const B = base.split('\n')
+  const mine = lineChanges(B, proposed.split('\n'))
+  const theirs = lineChanges(B, current.split('\n'))
+  // conflict: ranges overlap, or both insert at the same spot
+  for (const x of mine)
+    for (const y of theirs) {
+      const overlap = x.start < y.end && y.start < x.end
+      const sameInsert = x.start === x.end && y.start === y.end && x.start === y.start
+      const insertInside = (x.start === x.end && x.start > y.start && x.start < y.end) || (y.start === y.end && y.start > x.start && y.start < x.end)
+      if (overlap || sameInsert || insertInside) return false
+    }
+  const all = [...mine, ...theirs].sort((p, q) => p.start - q.start || p.end - q.end)
+  const out: string[] = []
+  let i = 0
+  for (const c of all) {
+    out.push(...B.slice(i, c.start), ...c.lines)
+    i = Math.max(i, c.end)
+  }
+  out.push(...B.slice(i))
+  return out.join('\n')
 }

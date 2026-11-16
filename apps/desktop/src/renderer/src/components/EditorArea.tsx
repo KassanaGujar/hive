@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Columns2, RotateCw, X } from 'lucide-react'
 import { monaco } from '../lib/monaco'
-import { ensureModel, attachEditor, applyContent, startDiskReload } from '../lib/files'
+import { ensureModel, attachEditor, applyProposal, startDiskReload } from '../lib/files'
 import { useStore, type Tab } from '../store'
 import { languageFor } from '@hive/editor'
 import { ModelStore } from '../pages/ModelStore'
@@ -184,8 +184,13 @@ function DiffView({ tab }: { tab: Extract<Tab, { kind: 'diff' }> }) {
     const st = useStore.getState()
     if (accept) {
       const m = (window as any).__hiveDiff?.[tab.id] as monaco.editor.ITextModel | undefined
-      await applyContent(tab.path, m?.getValue() ?? tab.modified)
-      st.toast(`Applied changes to ${tab.path}`, 'ok')
+      const r = await applyProposal(tab.path, tab.original, m?.getValue() ?? tab.modified)
+      if (!r.ok) {
+        // keep the tab open so nothing is lost
+        st.toast(`${tab.path} changed in the same place since the AI read it. Ask again, or copy the parts you want from the right side.`, 'error')
+        return
+      }
+      st.toast(r.merged ? `Applied the AI's changes to ${tab.path}, keeping the edits made since` : `Applied changes to ${tab.path}`, 'ok')
       st.openFile(tab.path)
     }
     st.closeTab(tab.id)

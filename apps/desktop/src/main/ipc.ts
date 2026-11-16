@@ -53,8 +53,11 @@ export function friendlyError(err: unknown): string {
 /** Register a typed handler for a renderer → main call. */
 export function handle<C extends IpcChannel>(channel: C, fn: Handler<C>) {
   ipcMain.handle(channel, async (_e, ...args) => {
+    const t0 = Date.now()
     try {
-      return { ok: true, value: await (fn as (...a: unknown[]) => unknown)(...args) }
+      const value = await (fn as (...a: unknown[]) => unknown)(...args)
+      if (Date.now() - t0 > 2000) console.warn(`[ipc] ${new Date().toISOString().slice(11, 23)} slow: ${channel} took ${Date.now() - t0} ms`)
+      return { ok: true, value }
     } catch (err) {
       const e = err as Error
       if ((e as NodeJS.ErrnoException)?.code !== 'ENOENT') console.error(`[ipc] ${channel} failed:`, e)
@@ -68,4 +71,15 @@ export function emit<E extends IpcEventName>(event: E, payload: IpcEvents[E]) {
   for (const w of BrowserWindow.getAllWindows()) {
     if (!w.isDestroyed()) w.webContents.send(event, payload)
   }
+}
+
+/** Log when the main process's event loop stalls (anything synchronous blocking every window's calls). */
+export function watchEventLoop() {
+  let last = Date.now()
+  setInterval(() => {
+    const now = Date.now()
+    const lag = now - last - 500
+    if (lag > 1000) console.warn(`[main] ${new Date(now).toISOString().slice(11, 23)} event loop blocked for ${lag} ms (${Math.round(process.uptime())} s after start)`)
+    last = now
+  }, 500).unref()
 }
