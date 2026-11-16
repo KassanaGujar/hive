@@ -1,286 +1,286 @@
 [
  {
   "minute": 0,
-  "sentA": 101,
-  "sentB": 101,
+  "sentA": 58,
+  "sentB": 57,
   "latMs": [
-   6,
-   8,
-   8,
-   10,
-   67
+   31,
+   32,
+   64,
+   65,
+   160
   ],
-  "heapA": 27.1,
-  "heapB": 28.1,
-  "rssA": 626,
-  "rssB": 735,
+  "heapA": 25.8,
+  "heapB": 25.9,
+  "rssA": 586,
+  "rssB": 593,
   "relay": {
-   "mb": 62,
-   "cpu": 1.3
+   "mb": 57,
+   "cpu": 0.9
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 5,
-  "sentA": 1555,
-  "sentB": 1532,
+  "sentA": 1634,
+  "sentB": 1643,
   "latMs": [
-   31,
-   52,
-   54,
-   182,
-   184
+   84,
+   101,
+   109,
+   131,
+   140
   ],
-  "heapA": 65,
-  "heapB": 48.7,
-  "rssA": 930,
-  "rssB": 952,
+  "heapA": 39.4,
+  "heapB": 57.3,
+  "rssA": 883,
+  "rssB": 919,
   "relay": {
-   "mb": 84,
-   "cpu": 6.8
+   "mb": 76,
+   "cpu": 6.3
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 10,
-  "sentA": 2922,
-  "sentB": 2889,
+  "sentA": 3232,
+  "sentB": 3242,
   "latMs": [
-   10,
-   13,
-   27,
-   29,
-   31
+   7,
+   11,
+   80,
+   94,
+   170
   ],
-  "heapA": 46.5,
-  "heapB": 65.6,
-  "rssA": 931,
-  "rssB": 971,
+  "heapA": 51.6,
+  "heapB": 58.4,
+  "rssA": 886,
+  "rssB": 942,
   "relay": {
-   "mb": 64,
-   "cpu": 14.7
+   "mb": 68,
+   "cpu": 14
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 15,
-  "sentA": 4346,
-  "sentB": 4275,
+  "sentA": 4797,
+  "sentB": 4821,
   "latMs": [
-   20,
-   58,
-   69,
-   76,
-   142
+   190,
+   206,
+   243,
+   267,
+   323
   ],
-  "heapA": 61.5,
-  "heapB": 47.7,
-  "rssA": 925,
-  "rssB": 965,
+  "heapA": 47.2,
+  "heapB": 40,
+  "rssA": 932,
+  "rssB": 929,
   "relay": {
-   "mb": 75,
-   "cpu": 23.4
+   "mb": 74,
+   "cpu": 23.6
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 20,
-  "sentA": 5710,
-  "sentB": 5599,
+  "sentA": 6365,
+  "sentB": 6384,
   "latMs": [
-   59,
-   127,
-   171,
-   339,
-   376
+   53,
+   54,
+   152,
+   154,
+   309
   ],
-  "heapA": 59.3,
-  "heapB": 58,
-  "rssA": 960,
-  "rssB": 970,
+  "heapA": 53.2,
+  "heapB": 67.1,
+  "rssA": 969,
+  "rssB": 899,
   "relay": {
-   "mb": 75,
-   "cpu": 34.3
+   "mb": 79,
+   "cpu": 33.5
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 25,
-  "sentA": 7080,
-  "sentB": 6906,
+  "sentA": 7924,
+  "sentB": 7956,
   "latMs": [
-   43,
-   75,
-   81,
-   151,
-   218
+   92,
+   168,
+   180,
+   235,
+   363
   ],
-  "heapA": 62.1,
-  "heapB": 58.5,
-  "rssA": 981,
-  "rssB": 1045,
+  "heapA": 93.7,
+  "heapB": 82,
+  "rssA": 1031,
+  "rssB": 927,
   "relay": {
-   "mb": 90,
-   "cpu": 45.8
+   "mb": 91,
+   "cpu": 46.9
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 30,
-  "sentA": 8486,
-  "sentB": 8285,
+  "sentA": 9474,
+  "sentB": 9523,
   "latMs": [
-   14,
-   30,
-   43,
-   107,
-   144
+   72,
+   73,
+   132,
+   150,
+   219
   ],
-  "heapA": 64.8,
-  "heapB": 77.9,
-  "rssA": 1073,
-  "rssB": 1070,
+  "heapA": 93.3,
+  "heapB": 63.3,
+  "rssA": 1015,
+  "rssB": 955,
   "relay": {
-   "mb": 91,
-   "cpu": 58.8
+   "mb": 100,
+   "cpu": 61.2
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 35,
-  "sentA": 1165,
-  "sentB": 1130,
+  "sentA": 1492,
+  "sentB": 1471,
   "latMs": [
-   42,
-   119,
-   211,
-   458,
-   601
+   29,
+   53,
+   116,
+   268,
+   281
   ],
-  "heapA": 52.7,
-  "heapB": 70.1,
-  "rssA": 972,
-  "rssB": 1054,
+  "heapA": 63.4,
+  "heapB": 79.4,
+  "rssA": 1040,
+  "rssB": 926,
   "relay": {
-   "mb": 101,
-   "cpu": 74.1
+   "mb": 69,
+   "cpu": 76.8
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 40,
-  "sentA": 2405,
-  "sentB": 2304,
+  "sentA": 3028,
+  "sentB": 3025,
   "latMs": [
-   30,
-   90,
-   224,
-   334,
-   495
+   116,
+   180,
+   186,
+   190,
+   228
   ],
-  "heapA": 63.2,
-  "heapB": 66.8,
-  "rssA": 1032,
-  "rssB": 1040,
+  "heapA": 78.1,
+  "heapB": 87.6,
+  "rssA": 1046,
+  "rssB": 951,
   "relay": {
-   "mb": 74,
-   "cpu": 88.8
+   "mb": 80,
+   "cpu": 92.3
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 45,
-  "sentA": 3611,
-  "sentB": 3457,
+  "sentA": 4583,
+  "sentB": 4598,
   "latMs": [
-   177,
-   295,
-   301,
-   461,
-   496
+   353,
+   455,
+   487,
+   499,
+   585
   ],
-  "heapA": 69.1,
-  "heapB": 56.8,
-  "rssA": 1040,
-  "rssB": 981,
+  "heapA": 70.5,
+  "heapB": 59.5,
+  "rssA": 977,
+  "rssB": 906,
   "relay": {
    "mb": 69,
-   "cpu": 105.5
+   "cpu": 108.8
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 50,
-  "sentA": 4764,
-  "sentB": 4534,
+  "sentA": 6079,
+  "sentB": 6098,
   "latMs": [
-   152,
-   167,
-   228,
-   256,
-   260
+   193,
+   233,
+   246,
+   258,
+   338
   ],
-  "heapA": 77.8,
-  "heapB": 59.2,
-  "rssA": 981,
-  "rssB": 963,
+  "heapA": 64.2,
+  "heapB": 62.2,
+  "rssA": 997,
+  "rssB": 941,
   "relay": {
-   "mb": 79,
-   "cpu": 119.6
+   "mb": 71,
+   "cpu": 125.5
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 55,
-  "sentA": 5939,
-  "sentB": 5629,
+  "sentA": 7626,
+  "sentB": 7661,
   "latMs": [
-   336,
-   482,
-   500,
-   551,
-   608
+   151,
+   191,
+   218,
+   288,
+   447
   ],
-  "heapA": 107.9,
-  "heapB": 50.9,
-  "rssA": 1037,
-  "rssB": 1038,
+  "heapA": 49.5,
+  "heapB": 70.1,
+  "rssA": 933,
+  "rssB": 851,
   "relay": {
-   "mb": 69,
-   "cpu": 135.4
+   "mb": 71,
+   "cpu": 141.7
   },
   "statusA": "online",
   "statusB": "online"
  },
  {
   "minute": 60,
-  "sentA": 7057,
-  "sentB": 6666,
+  "sentA": 9153,
+  "sentB": 9200,
   "latMs": [
-   330,
-   474,
-   616,
-   709,
-   869
+   177,
+   221,
+   226,
+   400,
+   426
   ],
-  "heapA": 58.5,
-  "heapB": 64.1,
-  "rssA": 975,
-  "rssB": 1044,
+  "heapA": 69.8,
+  "heapB": 80,
+  "rssA": 952,
+  "rssB": 875,
   "relay": {
-   "mb": 70,
-   "cpu": 152.2
+   "mb": 69,
+   "cpu": 159.1
   },
   "statusA": "online",
   "statusB": "online"
