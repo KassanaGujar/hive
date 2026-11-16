@@ -152,9 +152,11 @@ function registerHandlers() {
   // project / files
   // A project's terminals and Run process live in its folder: end them when leaving the project,
   // otherwise they keep running in the background and Windows refuses to rename/delete the folder.
-  const leaveProject = async () => {
+  // Waiting for terminals to exit takes ~2 s on Windows; only renaming/deleting the folder needs it.
+  const leaveProject = async (waitForExit = false) => {
     await runner.stopRun(true)
-    await term.killAllTerminalsAndWait()
+    if (waitForExit) await term.killAllTerminalsAndWait()
+    else term.killAllTerminals()
   }
   handle('project:open', async (dir) => {
     const cur = project.currentProject()
@@ -170,11 +172,11 @@ function registerHandlers() {
     await project.closeProject()
   })
   handle('project:rename', async (dir, name) => {
-    await leaveProject()
+    await leaveProject(true)
     return project.renameProject(dir, name)
   })
   handle('project:delete', async (dir) => {
-    await leaveProject()
+    await leaveProject(true)
     return project.deleteProject(dir)
   })
   handle('project:forget', (dir) => project.forgetProject(dir))

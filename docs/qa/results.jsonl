@@ -535,3 +535,45 @@
 {"phase":"P3","name":"AI response time (measured)","status":"PASS","detail":"1 requests on qwen2.5-coder-7b: median 277.5 s, max 277.5 s","at":"2026-11-16T18:17:06.797Z"}
 {"phase":"P3","name":"No uncaught errors in the app during Phase 3","status":"PASS","detail":"","at":"2026-11-16T18:17:06.800Z"}
 {"phase":"P3","name":"AI response time (measured)","status":"PASS","detail":"27 requests on qwen2.5-coder-7b: median 53.1 s, max 231.2 s (full Phase 3 run; the codebase-explanation recheck alone took 277 s)","at":"2026-11-16T18:19:18.870Z"}
+{"phase":"P5","name":"Open a project with 100 files","status":"PASS","detail":"open 954 ms, search 3732 ms (100 hits), full-tree hash 68 ms","at":"2026-11-16T18:21:37.942Z"}
+{"phase":"P5","name":"Open a project with 500 files","status":"PASS","detail":"open 2245 ms, search 12899 ms (500 hits), full-tree hash 323 ms","at":"2026-11-16T18:21:55.013Z"}
+{"phase":"P5","name":"Open a project with 1000 files","status":"PASS","detail":"open 2302 ms, search 19251 ms (1000 hits), full-tree hash 789 ms","at":"2026-11-16T18:22:20.387Z"}
+{"phase":"P5","name":"Open a source file with 1,000 lines","status":"PASS","detail":"open 264 ms; keystroke→frame p50 10.4 ms, p95 20.3 ms, max 175.9 ms","at":"2026-11-16T18:22:26.748Z"}
+{"phase":"P5","name":"Open a source file with 10,000 lines","status":"PASS","detail":"open 399 ms; keystroke→frame p50 9.5 ms, p95 18.6 ms, max 105.1 ms","at":"2026-11-16T18:22:29.918Z"}
+{"phase":"P5","name":"Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness","status":"FAIL","detail":"typing p95 75.2 ms","at":"2026-11-16T18:22:33.759Z"}
+{"phase":"P5","name":"Rapid typing and deletion","status":"PASS","detail":"3,000 keystrokes + 2,000 deletes in 4138 ms; text intact","at":"2026-11-16T18:22:40.360Z"}
+{"phase":"P5","name":"Rapid switching between files","status":"FAIL","detail":"avg 50.715 ms per switch","at":"2026-11-16T18:22:50.721Z"}
+{"phase":"P5","name":"Rapid project navigation","status":"PASS","detail":"15 project switches in 75991 ms","at":"2026-11-16T18:24:06.770Z"}
+{"phase":"P5","name":"A project with 50 dependencies","status":"PASS","detail":"open 2969 ms; node_modules (550 files) skipped by search (1 hits) and sharing (2 files hashed)","at":"2026-11-16T18:24:11.326Z"}
+{"phase":"P5","name":"A project with hundreds of dependencies","status":"PASS","detail":"open 2256 ms; node_modules (4400 files) skipped by search (1 hits) and sharing (2 files hashed)","at":"2026-11-16T18:24:24.287Z"}
+{"phase":"P5","name":"A project with deeply nested directories (60 levels)","status":"PASS","detail":"open 2322 ms; path length 509 chars works","at":"2026-11-16T18:24:27.323Z"}
+{"phase":"P5","name":"Repeated project creation and deletion (20 cycles)","status":"PASS","detail":"92156 ms; renderer heap -0.3 MB","at":"2026-11-16T18:25:59.576Z"}
+{"phase":"P5","name":"Measure project loading time","status":"PASS","detail":"100 files 954 ms · 500 files 2245 ms · 1,000 files 2302 ms","at":"2026-11-16T18:25:59.577Z"}
+{"phase":"P5","name":"Measure editor responsiveness","status":"PASS","detail":"keystroke→frame p95: 1k lines 20.3 ms, 10k lines 18.6 ms, 100k lines 75.2 ms","at":"2026-11-16T18:25:59.578Z"}
+{"phase":"P5","name":"Monitor memory consumption","status":"PASS","detail":"all Hive processes 859 MB RSS (4 processes); renderer JS heap 27.5 MB","at":"2026-11-16T18:26:03.194Z"}
+{"phase":"P5","name":"Monitor CPU consumption (idle 20 s)","status":"PASS","detail":"idle: 0.5% of one core","at":"2026-11-16T18:26:29.102Z"}
+{"phase":"P5","name":"Identify unnecessary network requests (60 s idle, solo project)","status":"PASS","detail":"0 renderer requests in 60 s idle: {}","at":"2026-11-16T18:27:29.122Z"}
+{"phase":"P5","name":"Identify redundant storage operations (writes while typing)","status":"PASS","detail":"1 disk writes for 100 keystrokes over 10 s (autosave debounced at 0.9 s)","at":"2026-11-16T18:27:41.959Z"}
+{"phase":"P5","name":"Redundant storage operations in a shared project (state file rewrites)","status":"PASS","detail":"1 full rewrites of a 936 KB state file during 10 s of typing (debounced 1.5 s; each rewrite re-encodes the whole project)","at":"2026-11-16T18:28:13.297Z"}
+{"phase":"P5","name":"No uncaught errors during Phase 5","status":"PASS","detail":"","at":"2026-11-16T18:28:13.720Z"}
+{"phase":"P5","name":"Open a project with 100 files","status":"PASS","detail":"open 1075 ms, search 1981 ms (100 hits), full-tree hash 111 ms","at":"2026-11-16T18:38:21.766Z"}
+{"phase":"P5","name":"Open a project with 500 files","status":"PASS","detail":"open 421 ms, search 4436 ms (500 hits), full-tree hash 400 ms","at":"2026-11-16T18:38:29.913Z"}
+{"phase":"P5","name":"Open a project with 1000 files","status":"PASS","detail":"open 342 ms, search 13712 ms (1000 hits), full-tree hash 600 ms","at":"2026-11-16T18:38:48.024Z"}
+{"phase":"P5","name":"Open a source file with 1,000 lines","status":"PASS","detail":"open 320 ms; keystroke→frame p50 12.3 ms, p95 31.6 ms, max 161.9 ms","at":"2026-11-16T18:38:53.228Z"}
+{"phase":"P5","name":"Open a source file with 10,000 lines","status":"PASS","detail":"open 544 ms; keystroke→frame p50 11.1 ms, p95 18 ms, max 76.2 ms","at":"2026-11-16T18:38:56.736Z"}
+{"phase":"P5","name":"Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness","status":"FAIL","detail":"typing p95 76.1 ms","at":"2026-11-16T18:39:01.115Z"}
+{"phase":"P5","name":"Rapid typing and deletion","status":"PASS","detail":"3,000 keystrokes + 2,000 deletes in 4202 ms; text intact","at":"2026-11-16T18:39:07.787Z"}
+{"phase":"P5","name":"Rapid switching between files","status":"FAIL","detail":"avg 54.62 ms per switch","at":"2026-11-16T18:39:18.979Z"}
+{"phase":"P5","name":"Rapid project navigation","status":"PASS","detail":"15 project switches in 11234 ms","at":"2026-11-16T18:39:30.708Z"}
+{"phase":"P5","name":"A project with 50 dependencies","status":"PASS","detail":"open 843 ms; node_modules (550 files) skipped by search (1 hits) and sharing (2 files hashed)","at":"2026-11-16T18:39:35.844Z"}
+{"phase":"P5","name":"A project with hundreds of dependencies","status":"PASS","detail":"open 239 ms; node_modules (4400 files) skipped by search (1 hits) and sharing (2 files hashed)","at":"2026-11-16T18:39:50.396Z"}
+{"phase":"P5","name":"A project with deeply nested directories (60 levels)","status":"PASS","detail":"open 938 ms; path length 509 chars works","at":"2026-11-16T18:39:52.311Z"}
+{"phase":"P5","name":"Repeated project creation and deletion (20 cycles)","status":"PASS","detail":"106080 ms; renderer heap +1.6 MB","at":"2026-11-16T18:41:38.479Z"}
+{"phase":"P5","name":"Measure project loading time","status":"PASS","detail":"100 files 1075 ms · 500 files 421 ms · 1,000 files 342 ms","at":"2026-11-16T18:41:38.480Z"}
+{"phase":"P5","name":"Measure editor responsiveness","status":"PASS","detail":"keystroke→frame p95: 1k lines 31.6 ms, 10k lines 18 ms, 100k lines 76.1 ms","at":"2026-11-16T18:41:38.481Z"}
+{"phase":"P5","name":"Monitor memory consumption","status":"PASS","detail":"all Hive processes 936 MB RSS (4 processes); renderer JS heap 29.3 MB","at":"2026-11-16T18:41:43.079Z"}
+{"phase":"P5","name":"Monitor CPU consumption (idle 20 s)","status":"PASS","detail":"idle: 1.0% of one core","at":"2026-11-16T18:42:10.736Z"}
+{"phase":"P5","name":"Identify unnecessary network requests (60 s idle, solo project)","status":"PASS","detail":"0 renderer requests in 60 s idle: {}","at":"2026-11-16T18:43:10.779Z"}
+{"phase":"P5","name":"Identify redundant storage operations (writes while typing)","status":"PASS","detail":"1 disk writes for 100 keystrokes over 10 s (autosave debounced at 0.9 s)","at":"2026-11-16T18:43:23.734Z"}
+{"phase":"P5","name":"Redundant storage operations in a shared project (state file rewrites)","status":"PASS","detail":"1 full rewrites of a 936 KB state file during 10 s of typing (debounced 1.5 s; each rewrite re-encodes the whole project)","at":"2026-11-16T18:43:59.532Z"}
+{"phase":"P5","name":"No uncaught errors during Phase 5","status":"PASS","detail":"","at":"2026-11-16T18:43:59.964Z"}

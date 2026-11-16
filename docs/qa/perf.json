@@ -1,0 +1,94 @@
+{
+ "open_100_files": {
+  "openMs": 1075,
+  "searchMs": 1981,
+  "hits": 100,
+  "hashMs": 111,
+  "files": 101
+ },
+ "open_500_files": {
+  "openMs": 421,
+  "searchMs": 4436,
+  "hits": 500,
+  "hashMs": 400,
+  "files": 501
+ },
+ "open_1000_files": {
+  "openMs": 342,
+  "searchMs": 13712,
+  "hits": 1000,
+  "hashMs": 600,
+  "files": 1001
+ },
+ "file_lines1000.js": {
+  "openMs": 320,
+  "typing": {
+   "p50": 12.3,
+   "p95": 31.6,
+   "max": 161.9
+  },
+  "bytes": 51670
+ },
+ "file_lines10000.js": {
+  "openMs": 544,
+  "typing": {
+   "p50": 11.1,
+   "p95": 18,
+   "max": 76.2
+  },
+  "bytes": 546670
+ },
+ "file_huge.js": {
+  "openMs": 622,
+  "typing": {
+   "p50": 9,
+   "p95": 76.1,
+   "max": 230.6
+  },
+  "bytes": 4977780
+ },
+ "rapid_typing": {
+  "ms": 4202,
+  "same": true
+ },
+ "switch_200": 10924,
+ "project_nav_15": 11234,
+ "deps_50": {
+  "openMs": 843,
+  "searchMs": 331,
+  "hits": 1,
+  "hashMs": 270,
+  "files": 2
+ },
+ "deps_400": {
+  "openMs": 239,
+  "searchMs": 74,
+  "hits": 1,
+  "hashMs": 95,
+  "files": 2
+ },
+ "deep60": {
+  "openMs": 938,
+  "searchMs": 292,
+  "hits": 1,
+  "hashMs": 306,
+  "files": 1
+ },
+ "churn20": {
+  "ms": 106080,
+  "heapGrowthMB": 1.6
+ },
+ "memory": {
+  "processes": 4,
+  "rssMB": 936,
+  "cpuSec": 89.4,
+  "rendererHeapMB": 29.3
+ },
+ "idle_cpu_pct": 1,
+ "idle_requests_60s": 0,
+ "autosave_writes_100_keys": 1,
+ "shared_state_rewrites": {
+  "writes": 1,
+  "sizeKB": 936
+ }
+}

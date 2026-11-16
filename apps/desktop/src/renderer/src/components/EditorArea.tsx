@@ -132,6 +132,17 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
       .then((model) => {
         if (disposed) return
         editor.setModel(model)
+        // Very large files: drop the per-keystroke extras so typing stays smooth.
+        if (model.getLineCount() > 50_000) {
+          editor.updateOptions({
+            minimap: { enabled: false },
+            folding: false,
+            bracketPairColorization: { enabled: false },
+            occurrencesHighlight: 'off',
+            renderLineHighlight: 'none',
+            matchBrackets: 'never'
+          })
+        }
         detach = attachEditor(path, editor)
         const r = useStore.getState().reveal
         if (r && r.path === path) jump(editor, r.line, r.col)
