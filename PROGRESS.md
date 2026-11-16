@@ -1,5 +1,18 @@
 # Hive — build progress (resume file)
 
+## 🔖 2026-11-15 23:20 — PROJECT MOVED to C:\dev\hive (resume here)
+- User approved moving out of OneDrive. Backups: OneDrive\Hive-backup-2026-11-15.bundle (git, all refs) and
+  OneDrive\Hive-source-2026-11-15.zip. C:\dev\hive copy verified: same commit 0b839fc, clean tree.
+- `npm ci` was started in C:\dev\hive; check it finished, run `node node_modules/electron/install.js`,
+  build (`cd apps/desktop && npx electron-vite build`) and `npx vitest run`.
+- The old folder "OneDrive\Desktop\Collab site" is NOT deleted yet. Ask the user before deleting it
+  (node_modules permanently, the rest to the Recycle Bin). Switch the Claude session to C:\dev\hive.
+- QA: Phase 1 done (18/19, 1 N/A). Phase 2: 22/24 pass. Open: rename leftover file (fix written, untested)
+  and relay restart (third client stale; reproduce with the dbg-restart idea: 3 windows, edits during outage).
+- Under 100% CPU, simultaneous reloads of 3 windows sometimes left a renderer unresponsive (harness now
+  avoids reloads; record in the report as an open observation).
+
+
 ## 🔖 BOOKMARK 2026-11-15 evening — QA plan in progress (resume here)
 **Checklist (live, every item from the user's plan):** `docs/qa-checklist.md` — sync it with
 `node tools/qa/sync-checklist.mjs` after every test batch (reads `docs/qa/results.jsonl`, latest result wins).
