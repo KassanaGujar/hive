@@ -73,7 +73,7 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 - [!] Project state stays consistent after a server restart — fixed: a stale snapshot could delete entries after a restart; dead connections now detected
 
 ## PHASE 3 — AI / Vibe-Coding Functionality
-- [F] AI creates a simple program from a natural-language prompt — output: node:internal/modules/cjs/loader:1607
+- [!] AI creates a simple program from a natural-language prompt — fixed: the AI put files under an invented src/ folder; prompt now keeps the given paths
   throw err;
   ^
 
@@ -84,7 +84,7 @@ Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\fib.js'
 
 Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\fib.js'
     at Module._resolveFilename (node:internal/modules/cjs/loader:1
-- [F] AI creates a multi-file project — node:internal/modules/cjs/loader:1607
+- [!] AI creates a multi-file project — fixed: the AI put files under an invented src/ folder; prompt now keeps the given paths
   throw err;
   ^
 
@@ -104,7 +104,15 @@ Error: Cannot find module 'C:\Users\User\dev-cache\hive\qa\p3\ai\app.js'
 - [x] AI explains an unfamiliar codebase
 - [x] AI explains a specific function
 - [x] Ambiguous prompt: AI handles uncertainty appropriately
-- [F] Contradictory instructions: AI identifies the contradiction — no contradiction flagged: ```src/sum.js
+- [F] Contradictory instructions: AI identifies the contradiction — no contradiction flagged: ```sum.js
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 function sum(a, b) {
   return (a + b).toString();
 }
@@ -124,25 +132,41 @@ const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'
 
 TypeError: p is not a function
 
-- [x] AI optimizes a slow algorithm — fib(35): 630 ms → 0 ms
-- [F] AI writes unit tests — tests fail on correct code: Could not find 'strings.test.js'
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+- [x] AI optimizes a slow algorithm — fib(35): 802 ms → 0 ms
+- [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
 
 
 - [x] AI fixes failing unit tests
-- [F] AI implements a feature across multiple files — milk
+- [!] AI implements a feature across multiple files — fixed: the AI put files under an invented src/ folder; prompt now keeps the given paths
 eggs
 
 eggs
 
-- [F] AI modifies code another collaborator is currently editing — accepting the AI change wiped out Omar's concurrent edit
-- [ ] Two collaborators send AI requests simultaneously
-- [ ] Simultaneous AI requests don't overwrite each other's changes
+- [x] AI modifies code another collaborator is currently editing
+- [x] Two collaborators send AI requests simultaneously
+- [x] Simultaneous AI requests don't overwrite each other's changes
 - [x] AI-generated changes are synchronized with all collaborators
 - [x] Users can inspect AI-generated changes before accepting them
 - [x] AI doesn't silently remove unrelated functionality
 - [x] Requesting broken code: the app reports execution errors — Exited with code 1. See the Run terminal for details.
 - [x] AI references nonexistent files or dependencies: what happens — Run fails with Node's "Cannot find module" in the terminal + "Exited with code 1. See the Run terminal for details.". Hive does not warn about missing packages 
-- [F] An AI request times out: what happens — a provider that never answers leaves Ask AI waiting forever (test gave up after 150 s); only the Stop button ends it
+- [!] An AI request times out: what happens — fixed: a silent provider left Ask AI waiting forever; now 120 s / 60 s timeouts
 - [x] The AI provider returns an error: what happens — shown to the user as: Model request failed (500): {"error":{"message":"upstream exploded"}}
 - [x] Users can recover from unsuccessful AI modifications
 

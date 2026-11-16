@@ -28,7 +28,10 @@ export const ALIAS = {
   'Run a program with missing dependencies; the error is understandable': 'Missing dependency: the error is understandable',
   'Modify code while a previous version is running': 'Modify code while a previous version is running; running program keeps a consistent version',
   'The running program uses a consistent source version': 'Modify code while a previous version is running; running program keeps a consistent version',
-  'Run a program with external dependencies': 'Run a program with external dependencies (npm install runs first)'
+  'Run a program with external dependencies': 'Run a program with external dependencies (npm install runs first)',
+  // Phase 3
+  'Two collaborators send AI requests simultaneously': 'Two collaborators send AI requests simultaneously; they do not overwrite each other',
+  "Simultaneous AI requests don't overwrite each other's changes": 'Two collaborators send AI requests simultaneously; they do not overwrite each other'
 }
 
 // app bugs found by a test and fixed (test name → what was wrong); these get [!] once they pass again
@@ -44,5 +47,9 @@ export const FIXED = {
   'One person deletes a file while another has it open': 'no notice and the tab stayed open; now closed with a notice',
   'Disconnect one collaborator; keep editing on both sides; reconnect; everything syncs': 'background windows were throttled, delaying sync by minutes',
   'One person renames a file while another edits it': "the teammate's in-flight edits were lost and the old file came back on disk",
-  'Project state survives a relay (server) restart': 'a stale snapshot could delete entries after a restart; dead connections now detected'
+  'Project state survives a relay (server) restart': 'a stale snapshot could delete entries after a restart; dead connections now detected',
+  'AI creates a simple program from a natural-language prompt': 'the AI put files under an invented src/ folder; prompt now keeps the given paths',
+  'AI creates a multi-file project': 'the AI put files under an invented src/ folder; prompt now keeps the given paths',
+  'AI implements a feature across multiple files': 'the AI put files under an invented src/ folder; prompt now keeps the given paths',
+  'An AI request times out': 'a silent provider left Ask AI waiting forever; now 120 s / 60 s timeouts'
 }

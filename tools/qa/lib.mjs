@@ -24,6 +24,7 @@ export function record(phase, name, status, detail = '') {
 }
 /** Run a check; throwing or returning false is a FAIL. A string return is the detail. */
 export async function check(phase, name, fn, timeoutMs = Number(process.env.QA_CHECK_TIMEOUT ?? 600000)) {
+  if (process.env.QA_ONLY && !new RegExp(process.env.QA_ONLY, 'i').test(name)) return true // rerun selected checks only
   try {
     let timer
     const r = await Promise.race([fn(), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`check did not finish within ${Math.round(timeoutMs / 1000)} s`)), timeoutMs) })]).finally(() => clearTimeout(timer))
