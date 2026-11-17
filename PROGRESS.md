@@ -1,14 +1,13 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (paused 2026-11-17 ~05:00): Ollama hung, needs a restart by the user
-1. Ollama's server stopped answering (even "Say hi" via its own API timed out; 0% CPU, runner process gone). Killing it
-   was blocked by the permission classifier — the user must quit Ollama from the tray and start it again.
-2. Then verify the UNVERIFIED change: model requests use undici's own fetch with no 5-min header timeout
-   (packages/models/src/client.ts setModelFetch; apps/desktop/src/main/models.ts). Test: scratchpad dbg-ctx-short.mjs
-   (69 tokens) then dbg-ctx.mjs (~9.5k tokens, expect PINEAPPLE). Evidence for the bug: both team runs died with
-   "fetch failed" after exactly 21 min = 4 retries x Node fetch's 300 s headers timeout.
-3. Rerun the AI team on Snake + Tic-Tac-Toe: `QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs snake tictactoe`
-   (one run at a time — never run other Ollama tests alongside).
+## 🔖 RESUME HERE (2026-11-17 08:20): AI team rerun in progress
+1. ✅ Ollama restarted (it had been quit, not restarted); answering again.
+2. ✅ VERIFIED: model requests have no 5-min header timeout. tools/qa/slow-headers.test.mjs: after 330 s Hive's model
+   fetch got its answer; plain Node fetch failed with UND_ERR_HEADERS_TIMEOUT (the bug that killed both team runs).
+   In-app: 69-token and ~9.5k-token prompts both answered PINEAPPLE, no fetch errors in the log.
+3. ⏳ AI team rerun on Snake + Tic-Tac-Toe started 08:17 (log: ~/dev-cache/hive/qa/team-run.out). If interrupted, rerun:
+   `QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs snake tictactoe` (one Ollama job at a time).
+   Then: node tools/qa/report.mjs, update report-notes + checklist, commit.
 4. If the user adds an Anthropic key (Models → Your own keys → Anthropic), rerun with Claude as architect.
 
 ## 🔁 Follow-up in progress (2026-11-17 night)
