@@ -1,5 +1,12 @@
 # Hive — build progress (resume file)
 
+## 🔁 Follow-up in progress (2026-11-17 night)
+- The user (via the side session) disputed "7B model too weak": Phases 6–8 used Ask AI directly, never the AI team.
+  Snake probe had a timing false negative (fixed: restart before measuring). Running Phase 6 through the team now:
+  `node tools/qa/run-challenges-team.mjs` → results "(AI team)", docs/qa/challenges-team.json.
+- Claude as architect needs the user to add an Anthropic key in Models → Your own keys (custom models rank top tier).
+- Don't call failures "model mistakes" without a strong-model or team control.
+
 ## ✅ QA plan complete (2026-11-17)
 Report: `docs/qa-report.md` (regenerate: `node tools/qa/report.mjs`). Checklist: `docs/qa-checklist.md` — every line
 resolved ([x] pass, [!] fixed+pass, [F] fail with reason, [~] blocked with reason). Overall score 76/100.

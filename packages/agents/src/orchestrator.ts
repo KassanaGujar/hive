@@ -259,6 +259,7 @@ ${ctl.prd.slice(0, 8000)}`
     this.host.feed({ actor: worker.name, actorType: 'agent', kind: 'agent.task', files: task.files, summary: `started "${task.title}"` })
 
     let notes: string | undefined
+    let approved = false
     for (let round = 1; round <= MAX_REVIEW_ROUNDS; round++) {
       task.attempts = round
       task.status = 'running'
@@ -278,6 +279,7 @@ ${ctl.prd.slice(0, 8000)}`
         : await this.review(ctl, task)
       if (review.approved) {
         task.reviewNotes = review.notes
+        approved = true
         break
       }
       notes = review.notes
@@ -287,6 +289,23 @@ ${ctl.prd.slice(0, 8000)}`
       if (round === MAX_REVIEW_ROUNDS) {
         this.log(ctl, 'lead', task.id, `Max ${MAX_REVIEW_ROUNDS} review rounds reached; passing it on with notes for your final check.`)
       }
+    }
+    // A weak worker that couldn't satisfy the lead hands the task to the strongest model on the team for one
+    // last attempt (the "router head" steps in), instead of the task failing or merging unapproved work.
+    const strongest = ctl.team.architect
+    if (!approved && strongest && strongest.id !== worker.model.id && !ctl.abort.signal.aborted) {
+      this.log(ctl, 'architect', task.id, `Taking over "${task.title}" from ${worker.name} (${worker.model.name}) after ${MAX_REVIEW_ROUNDS} review rounds.`)
+      task.model = strongest.name
+      task.status = 'running'
+      this.emit(ctl)
+      const summary = await this.workerLoop(ctl, task, { name: worker.name, model: strongest }, wt, notes)
+      await this.host.git.commitAll(wt, `${task.title} (finished by ${strongest.name})\n\n${summary}`)
+      task.diff = await this.host.git.diff(wt, ctl.run.integrationBranch!, 'HEAD')
+      task.status = 'review'
+      this.emit(ctl)
+      const review = task.diff?.trim() ? await this.review(ctl, task) : { approved: false, notes: 'No files were produced.' }
+      task.reviewNotes = review.notes
+      this.log(ctl, 'lead', task.id, review.approved ? 'Approved after the architect took over.' : `Still not approved after the architect took over: ${review.notes}`)
     }
     if (!task.diff?.trim()) {
       // Never merge empty work; dependants get cancelled and the user sees why.

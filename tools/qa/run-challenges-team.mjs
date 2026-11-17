@@ -1,0 +1,83 @@
+// Coding challenges through Hive's AI TEAM (architect plans → workers build in worktrees → lead reviews →
+// integration smoke test → merge), the way a user would press "Build with the AI team". Same briefs and
+// probes as run-challenges.mjs. Results are recorded as "<title> (AI team) — <item>".
+//   node tools/qa/run-challenges-team.mjs [id ...]
+import { writeFileSync, readFileSync, existsSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import path from 'node:path'
+import { Hive, record, assert, wait, freshDir, OUT, REPO } from './lib.mjs'
+import { CHALLENGES } from './challenges.mjs'
+import { testChatServer } from './chat-probe.mjs'
+const RUN_TIMEOUT_MS = Number(process.env.QA_TEAM_TIMEOUT ?? 90 * 60000)
+const only = process.argv.slice(2)
+const list = CHALLENGES.filter((c) => (only.length ? only.includes(c.id) : c.phase === 'P6'))
+const a = await new Hive('team', 9460).launch()
+await a.profileAs('Tess')
+const team = await a.invoke('agents:team')
+const teamDesc = `architect ${team.architect?.name ?? '-'}, leads ${team.leads.map((m) => m.name).join('/') || '-'}, workers ${team.workers.map((m) => m.name).join('/') || '-'}`
+console.log('team:', teamDesc)
+const summaryFile = `${OUT}/challenges-team.json`
+const summary = existsSync(summaryFile) ? JSON.parse(readFileSync(summaryFile, 'utf8')) : {}
+
+async function waitPhase(runId, phases, ms) {
+  const end = Date.now() + ms
+  let run
+  while (Date.now() < end) {
+    // approve the commands agents ask for (these are throwaway test projects; Hive's policy already blocks dangerous ones)
+    for (const ap of await a.invoke('agents:approvals')) if (ap.runId === runId) await a.invoke('agents:approveCommand', ap.id, true)
+    run = (await a.invoke('agents:runs')).find((r) => r.id === runId)
+    if (run && phases.includes(run.phase)) return run
+    if (run && ['failed', 'cancelled'].includes(run.phase)) return run
+    await wait(5000)
+  }
+  return run
+}
+async function probe(c, dir) {
+  if (c.kind === 'server') return testChatServer(a, dir)
+  const st = await a.invoke('run:start')
+  if (!st.previewUrl) return { result: { _run: st.message ?? 'no preview' }, errors: [] }
+  const pf = `${dir}/.probe.js`, of = `${dir}/.probe-out.json`
+  writeFileSync(pf, c.probe)
+  spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), pf, of, `${OUT}/team-${c.id}.png`], { timeout: 120000, stdio: 'ignore', env: { ...process.env, PAGECHECK_URL: st.previewUrl } })
+  await a.invoke('run:stop')
+  return existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: { _run: 'probe produced no output' }, errors: [] }
+}
+
+for (const c of list) {
+  const dir = freshDir(`team-${c.id}`)
+  await a.invoke('project:open', dir)
+  await a.invoke('fs:write', 'README.md', `# ${c.title}\n`)
+  await a.openProject(dir)
+  const t0 = Date.now()
+  const log = { title: c.title, team: teamDesc }
+  try {
+    const runId = await a.invoke('agents:start', c.brief)
+    let run = await waitPhase(runId, ['awaiting-plan-approval'], 30 * 60000)
+    log.plan = run?.tasks?.map((t) => `${t.title}: ${(t.files ?? []).join(', ')}`)
+    assert(run?.phase === 'awaiting-plan-approval', 'no plan: ' + (run?.phase ?? 'timeout') + ' ' + (run?.error ?? ''))
+    await a.invoke('agents:approvePlan', runId, true)
+    run = await waitPhase(runId, ['awaiting-merge-approval', 'done'], RUN_TIMEOUT_MS)
+    log.tasks = run?.tasks?.map((t) => ({ title: t.title, status: t.status, reviews: t.reviewRounds }))
+    assert(run?.phase === 'awaiting-merge-approval' || run?.phase === 'done', 'team did not finish: ' + (run?.phase ?? 'timeout') + ' ' + (run?.error ?? ''))
+    if (run.phase === 'awaiting-merge-approval') {
+      await a.invoke('agents:approveMerge', runId, true)
+      run = await waitPhase(runId, ['done'], 10 * 60000)
+    }
+    log.phase = run?.phase
+  } catch (e) {
+    log.error = String(e.message ?? e).slice(0, 400)
+  }
+  log.minutes = Math.round((Date.now() - t0) / 60000)
+  const res = log.error ? { result: {}, errors: [] } : await probe(c, dir)
+  const final = res.result ?? {}
+  if (c.items.includes('The game runs without errors')) final['The game runs without errors'] = !log.error && !final._run && !(res.errors ?? []).length && !final.probeError ? true : String((res.errors ?? [])[0] ?? final.probeError ?? final._run ?? log.error ?? 'not run').slice(0, 200)
+  log.final = Object.fromEntries(c.items.map((it) => [it, final[it] === true ? true : final[it] ?? (log.error ? 'team run failed: ' + log.error : 'not checked')]))
+  log.probeError = final.probeError
+  summary[c.id] = log
+  writeFileSync(summaryFile, JSON.stringify(summary, null, 1))
+  const pass = c.items.filter((it) => log.final[it] === true).length
+  console.log(`[${c.id}] AI team: ${pass}/${c.items.length} in ${log.minutes} min${log.error ? ' — ' + log.error : ''}`)
+  for (const it of c.items) record(c.phase, `${c.title} (AI team) — ${it}`, log.final[it] === true ? 'PASS' : 'FAIL', log.final[it] === true ? `AI team (${teamDesc})` : String(log.final[it]).slice(0, 200))
+}
+await a.kill()
+process.exit(0)

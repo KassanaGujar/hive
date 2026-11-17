@@ -16,7 +16,7 @@ Rules: eating food grows the snake by 1 and adds 1 to score and spawns new food 
     probe: `
 const g=window.game,R={};if(!g)return {'Create a playable Snake game':'window.game missing'};
 const S=()=>JSON.parse(JSON.stringify(g.state()));
-const t0=S().snake[0];await new Promise(r=>setTimeout(r,1200));const t1=S().snake[0];
+g.reset();await new Promise(r=>setTimeout(r,50));const t0=S().snake[0];await new Promise(r=>setTimeout(r,600));const t1=S().snake[0];
 R['Create a playable Snake game']=!!document.querySelector('canvas')&&(t0.x!==t1.x||t0.y!==t1.y)||'no canvas or snake does not move on its own';
 g.pause();g.reset();g.pause();
 let h=S().snake[0];g.setDir('down');g.step();let h2=S().snake[0];

@@ -157,7 +157,16 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -225,6 +234,9 @@ TypeError: p is not a function
 
 - [x] AI optimizes a slow algorithm — fib(35): 2461 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
@@ -338,16 +350,16 @@ eggs
 *(each built in Hive through natural-language prompts and AI assistance)*
 
 ### 1. Snake Game
-- [F] Create a playable Snake game — no canvas or snake does not move on its own
-- [x] Directional movement — after 3 round(s)
-- [x] Food generation — after 3 round(s)
-- [F] Snake growth — length 1→1
-- [x] Wall collision — after 3 round(s)
-- [F] Self-collision — length 1 looped into itself without game over
-- [F] Score tracking — score 0→0
-- [F] Game-over functionality — over=true moved after over=false message=false
-- [F] Restart functionality — {"over":false,"score":0,"len":1}
-- [x] The game runs without errors — after 3 round(s)
+- [x] Create a playable Snake game
+- [x] Directional movement
+- [x] Food generation
+- [F] Snake growth — length 1→1 (re-checked with the fixed probe)
+- [x] Wall collision
+- [F] Self-collision — length 1 looped into itself without game over (re-checked with the fixed probe)
+- [F] Score tracking — score 0→0 (re-checked with the fixed probe)
+- [F] Game-over functionality — over=true moved after over=false message=false (re-checked with the fixed probe)
+- [F] Restart functionality — {"over":false,"score":0,"len":1} (re-checked with the fixed probe)
+- [x] The game runs without errors
 
 ### 2. Tic-Tac-Toe
 - [x] A functional game board — after 1 round(s)
