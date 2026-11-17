@@ -1,0 +1,1060 @@
+{
+ "snake": {
+  "title": "1. Snake Game",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 175890,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "game.js"
+    ],
+    "reply": "Sure, here is a complete implementation of a Snake game in `index.html` and `game.js`:\n\n```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Snake Game</title>\n    <style>\n        body {\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            margin: 0;\n            background-color: #000;\n            font-family: monospace;\n        }\n        canvas {\n            border: 1px solid #fff;\n        }\n        #score {\n            color: #fff;\n            position: absolute;\n            top: 10px;\n            left: 10px;\n        }\n        #game-over {\n            display: none;\n            color: #fff;\n            font-size: 2em;\n            text-align: center;\n        }\n        #restart {\n            display: none;\n            color: #fff;\n            font-size: 1em;\n            cursor: pointer;\n        }\n    </style>\n</head>\n<body>\n    <canvas id=\"gameCanvas\"></canvas>\n    <div id=\"score\">Score: 0</div>\n    <div id=\"game-over\">Game Over</div>\n    <div id=\"restart\">Restart</div>\n    <script src=\"game.js\"></script>\n</body>\n</html>\n```\n\n```game.js\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\nconst scoreDisplay = document.getElementById('score');\nconst gameOverDisplay = document.getElementById('game-over');\nconst restartButton = document.getElementById('restart');\n\ncanvas.width = 400;\ncanvas.height = 400;\n\nconst cols = 20;\nconst rows = 20;\nconst cellSize = canvas.width / cols;\n\nlet snake = [{ x: 10, y: 10 }];\nlet food = { x: 15, y: 15 };\nlet dir = 'right';\nlet score = 0;\nlet over = false;\nlet intervalId;\n\nfunction state() {\n    return {\n        snake,\n        food,\n        dir,\n        score,\n        over,\n        cols,\n        rows\n    };\n}\n\nfunction step() {\n    if (over) return;\n\n    const head = { x: snake[0].x, y: snake[0].y };\n\n    switch (dir) {\n        case 'up':\n            head.y--;\n            break;\n        case 'down':\n            head.y++;\n            break;\n        case 'left':\n            head.x--;\n            break;\n        case 'right':\n            head.x++;\n            break;\n    }\n\n    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(segment => segment.x === head.x && segment.y === head.y)) {\n        over = true;\n        return;\n    }\n\n    snake.unshift(head);\n\n    if (head.x === ",
+    "passed": 1,
+    "failing": {
+     "Create a playable Snake game": "window.game missing",
+     "Directional movement": "not checked",
+     "Food generation": "not checked",
+     "Snake growth": "not checked",
+     "Wall collision": "not checked",
+     "Self-collision": "not checked",
+     "Score tracking": "not checked",
+     "Game-over functionality": "not checked",
+     "Restart functionality": "not checked"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 2,
+    "aiMs": 149565,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "To fix the issues and create a playable Snake game, I'll address each requirement one by one. Here's the updated content for both `game.js` and `index.html`.\n\n### game.js\n```javascript\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\nconst scoreDisplay = document.getElementById('score');\nconst gameOverDisplay = document.getElementById('game-over');\nconst restartButton = document.getElementById('restart');\n\ncanvas.width = 400;\ncanvas.height = 400;\n\nconst cols = 20;\nconst rows = 20;\nconst cellSize = canvas.width / cols;\n\nlet snake = [{ x: 10, y: 10 }];\nlet food = { x: 15, y: 15 };\nlet dir = 'right';\nlet score = 0;\nlet over = false;\nlet intervalId;\n\nfunction state() {\n    return {\n        snake,\n        food,\n        dir,\n        score,\n        over,\n        cols,\n        rows\n    };\n}\n\nfunction step() {\n    if (over) return;\n\n    const head = { x: snake[0].x, y: snake[0].y };\n\n    switch (dir) {\n        case 'up':\n            head.y--;\n            break;\n        case 'down':\n            head.y++;\n            break;\n        case 'left':\n            head.x--;\n            break;\n        case 'right':\n            head.x++;\n            break;\n    }\n\n    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(segment => segment.x === head.x && segment.y === head.y)) {\n        over = true;\n        return;\n    }\n\n    snake.unshift(head);\n\n    if (head.x === food.x && head.y === food.y) {\n        score++;\n        placeFood();\n    } else {\n        snake.pop();\n    }\n}\n\nfunction setDir(d) {\n    if (dir === 'up' && d === 'down' || dir === 'down' && d === 'up' || dir === 'left' && d === 'right' || dir === 'right' && d === 'left') return;\n    dir = d;\n}\n\nfunction reset() {\n    snake = [{ x: 10, y: 10 }];\n    food = { x: 15, y: 15 };\n    dir = 'right';\n    score = 0;\n    over = false;\n    clearInterval(intervalId);\n    intervalId = setInterval(step, 100);\n    updateDisplay();\n}\n\nfunction placeFood() {\n    food = {\n        x: Math.floor(Math.random() * cols),\n        y: Math.floor(Math.random() * rows)\n    };\n}\n\nfunction updateDisplay() {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n    ctx.fillStyle = 'white';\n    snake.forEach(segment => ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize));\n    ctx.fillStyle = 'red';\n    ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);\n    scoreDisplay.textContent = `Score: ${score}`;\n    gameOverDisplay.style.display ",
+    "passed": 4,
+    "failing": {
+     "Create a playable Snake game": "no canvas or snake does not move on its own",
+     "Snake growth": "length 1→1",
+     "Self-collision": "length 1 looped into itself without game over",
+     "Score tracking": "score 0→0",
+     "Game-over functionality": "over=true moved after over=false message=false",
+     "Restart functionality": "{\"over\":false,\"score\":0,\"len\":1}"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 3,
+    "aiMs": 133784,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "```game.js\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\nconst scoreDisplay = document.getElementById('score');\nconst gameOverDisplay = document.getElementById('game-over');\nconst restartButton = document.getElementById('restart');\n\ncanvas.width = 400;\ncanvas.height = 400;\n\nconst cols = 20;\nconst rows = 20;\nconst cellSize = canvas.width / cols;\n\nlet snake = [{ x: 10, y: 10 }];\nlet food = { x: 15, y: 15 };\nlet dir = 'right';\nlet score = 0;\nlet over = false;\nlet intervalId;\n\nfunction state() {\n    return {\n        snake,\n        food,\n        dir,\n        score,\n        over,\n        cols,\n        rows\n    };\n}\n\nfunction step() {\n    if (over) return;\n\n    const head = { x: snake[0].x, y: snake[0].y };\n\n    switch (dir) {\n        case 'up':\n            head.y--;\n            break;\n        case 'down':\n            head.y++;\n            break;\n        case 'left':\n            head.x--;\n            break;\n        case 'right':\n            head.x++;\n            break;\n    }\n\n    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(segment => segment.x === head.x && segment.y === head.y)) {\n        over = true;\n        return;\n    }\n\n    snake.unshift(head);\n\n    if (head.x === food.x && head.y === food.y) {\n        score++;\n        placeFood();\n    } else {\n        snake.pop();\n    }\n}\n\nfunction setDir(d) {\n    if (dir === 'up' && d === 'down' || dir === 'down' && d === 'up' || dir === 'left' && d === 'right' || dir === 'right' && d === 'left') return;\n    dir = d;\n}\n\nfunction reset() {\n    snake = [{ x: 10, y: 10 }];\n    food = { x: 15, y: 15 };\n    dir = 'right';\n    score = 0;\n    over = false;\n    clearInterval(intervalId);\n    intervalId = setInterval(step, 100);\n    updateDisplay();\n}\n\nfunction placeFood() {\n    food = {\n        x: Math.floor(Math.random() * cols),\n        y: Math.floor(Math.random() * rows)\n    };\n}\n\nfunction updateDisplay() {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n    ctx.fillStyle = 'white';\n    snake.forEach(segment => ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize));\n    ctx.fillStyle = 'red';\n    ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);\n    scoreDisplay.textContent = `Score: ${score}`;\n    gameOverDisplay.style.display = over ? 'block' : 'none';\n    restartButton.style.display = over ? 'block' : 'none';\n}\n\ndocument.addEventListener('keydown', (e) => {\n    switch (e.key) {\n        case 'Arro",
+    "passed": 4,
+    "failing": {
+     "Create a playable Snake game": "no canvas or snake does not move on its own",
+     "Snake growth": "length 1→1",
+     "Self-collision": "length 1 looped into itself without game over",
+     "Score tracking": "score 0→0",
+     "Game-over functionality": "over=true moved after over=false message=false",
+     "Restart functionality": "{\"over\":false,\"score\":0,\"len\":1}"
+    },
+    "consoleErrors": []
+   }
+  ],
+  "bugsFound": 9,
+  "final": {
+   "Create a playable Snake game": "no canvas or snake does not move on its own",
+   "Directional movement": true,
+   "Food generation": true,
+   "Snake growth": "length 1→1",
+   "Wall collision": true,
+   "Self-collision": "length 1 looped into itself without game over",
+   "Score tracking": "score 0→0",
+   "Game-over functionality": "over=true moved after over=false message=false",
+   "Restart functionality": "{\"over\":false,\"score\":0,\"len\":1}",
+   "The game runs without errors": true
+  }
+ },
+ "tictactoe": {
+  "title": "2. Tic-Tac-Toe",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 138643,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "app.js"
+    ],
+    "reply": "Sure, here's a complete implementation of a two-player Tic-Tac-Toe game in `index.html` and `app.js`:\n\n```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Tic-Tac-Toe</title>\n    <style>\n        .board {\n            display: grid;\n            grid-template-columns: repeat(3, 100px);\n            grid-gap: 10px;\n        }\n        .cell {\n            width: 100px;\n            height: 100px;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            font-size: 2em;\n            cursor: pointer;\n            background-color: #f0f0f0;\n        }\n        .status {\n            margin-top: 20px;\n            font-size: 1.5em;\n        }\n        .scoreboard {\n            margin-top: 20px;\n            font-size: 1.2em;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"board\" id=\"board\">\n        <div class=\"cell\" data-index=\"0\"></div>\n        <div class=\"cell\" data-index=\"1\"></div>\n        <div class=\"cell\" data-index=\"2\"></div>\n        <div class=\"cell\" data-index=\"3\"></div>\n        <div class=\"cell\" data-index=\"4\"></div>\n        <div class=\"cell\" data-index=\"5\"></div>\n        <div class=\"cell\" data-index=\"6\"></div>\n        <div class=\"cell\" data-index=\"7\"></div>\n        <div class=\"cell\" data-index=\"8\"></div>\n    </div>\n    <div class=\"status\" id=\"status\">X's turn</div>\n    <div class=\"scoreboard\" id=\"scoreboard\">X: 0, O: 0, Draws: 0</div>\n    <button id=\"restart\">Restart</button>\n\n    <script src=\"app.js\"></script>\n</body>\n</html>\n```\n\n```app.js\nwindow.game = {\n    state: function() {\n        return {\n            board: this.board,\n            turn: this.turn,\n            winner: this.winner,\n            score: this.score\n        };\n    },\n    play: function(i) {\n        if (this.board[i] || this.winner) return false;\n        this.board[i] = this.turn;\n        this.updateBoard();\n        if (this.checkWin(i)) {\n            this.winner = this.turn;\n            this.updateScore();\n            this.updateStatus();\n            return true;\n        }\n        if (this.checkDraw()) {\n            this.winner = 'draw';\n            this.updateScore();\n            this.updateStatus();\n            return true;\n        }\n        this.turn = this.turn === 'X' ? 'O' : 'X';\n        this.updateStatus();\n        return true;\n    },\n    reset: function() {\n        this.board = Array(9).fill(null);\n        this.turn = 'X';",
+    "passed": 8,
+    "failing": {},
+    "consoleErrors": []
+   }
+  ],
+  "bugsFound": 0,
+  "final": {
+   "A functional game board": true,
+   "Two-player gameplay": true,
+   "Turn management": true,
+   "Detects winning combinations": true,
+   "Detects draws": true,
+   "A scoreboard": true,
+   "Restart functionality": true,
+   "Illegal moves are prevented": true
+  }
+ },
+ "invaders": {
+  "title": "3. Space Invaders",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 159359,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "game.js"
+    ],
+    "reply": "Sure, here's a basic implementation of a Space Invaders game in `index.html` and `game.js`:\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Space Invaders</title>\n    <style>\n        canvas {\n            display: block;\n            margin: 0 auto;\n            background: #000;\n        }\n    </style>\n</head>\n<body>\n    <canvas id=\"gameCanvas\" width=\"480\" height=\"640\"></canvas>\n    <script src=\"game.js\"></script>\n</body>\n</html>\n```\n\n### game.js\n```javascript\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\n\nconst state = () => ({\n    player: { x: 220, y: 580, w: 40, h: 20 },\n    enemies: Array.from({ length: 32 }, (_, i) => ({\n        x: (i % 8) * 50 + 20,\n        y: Math.floor(i / 8) * 30 + 50,\n        w: 30,\n        h: 20,\n        alive: true\n    })),\n    bullets: [],\n    score: 0,\n    lives: 3,\n    level: 1,\n    enemySpeed: 1,\n    over: false\n});\n\nconst pause = () => {\n    clearInterval(timer);\n};\n\nconst step = () => {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n\n    // Draw player\n    ctx.fillStyle = 'lime';\n    ctx.fillRect(state().player.x, state().player.y, state().player.w, state().player.h);\n\n    // Draw enemies\n    state().enemies.forEach(enemy => {\n        if (enemy.alive) {\n            ctx.fillStyle = 'red';\n            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);\n        }\n    });\n\n    // Draw bullets\n    state().bullets.forEach(bullet => {\n        ctx.fillStyle = 'yellow';\n        ctx.fillRect(bullet.x, bullet.y, 5, 10);\n    });\n\n    // Move enemies\n    state().enemies.forEach(enemy => {\n        enemy.x += state().enemySpeed;\n        if (enemy.x + enemy.w > canvas.width || enemy.x < 0) {\n            state().enemySpeed *= -1;\n            state().enemies.forEach(e => e.y += 20);\n        }\n    });\n\n    // Move bullets\n    state().bullets.forEach((bullet, i) => {\n        bullet.y -= 5;\n        if (bullet.y < 0) {\n            state().bullets.splice(i, 1);\n        }\n    });\n\n    // Collision detection\n    state().bullets.forEach((bullet, i) => {\n        state().enemies.forEach((enemy, j) => {\n            if (bullet.x < enemy.x + enemy.w &&\n                bullet.x + 5 > enemy.x &&\n                bullet.y < enemy.y + enemy.h &&\n                bullet.y + 10 > enemy.y) {\n                state().bullets.splice(i, 1);\n                state().enemies[j].alive = false;\n  ",
+    "passed": 0,
+    "failing": {
+     "Player movement": "window.game missing",
+     "Projectile shooting": "not checked",
+     "Enemy formations": "not checked",
+     "Projectile collisions": "not checked",
+     "Player-enemy collisions": "not checked",
+     "Scoring": "not checked",
+     "Increasing difficulty": "not checked",
+     "Game-over and restart states": "not checked"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 2,
+    "aiMs": 171371,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "```game.js\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\n\nconst state = () => ({\n    player: { x: 220, y: 580, w: 40, h: 20 },\n    enemies: Array.from({ length: 32 }, (_, i) => ({\n        x: (i % 8) * 50 + 20,\n        y: Math.floor(i / 8) * 30 + 50,\n        w: 30,\n        h: 20,\n        alive: true\n    })),\n    bullets: [],\n    score: 0,\n    lives: 3,\n    level: 1,\n    enemySpeed: 1,\n    over: false\n});\n\nconst pause = () => {\n    clearInterval(timer);\n};\n\nconst step = () => {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n\n    // Draw player\n    ctx.fillStyle = 'lime';\n    ctx.fillRect(state().player.x, state().player.y, state().player.w, state().player.h);\n\n    // Draw enemies\n    state().enemies.forEach(enemy => {\n        if (enemy.alive) {\n            ctx.fillStyle = 'red';\n            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);\n        }\n    });\n\n    // Draw bullets\n    state().bullets.forEach(bullet => {\n        ctx.fillStyle = 'yellow';\n        ctx.fillRect(bullet.x, bullet.y, 5, 10);\n    });\n\n    // Move enemies\n    state().enemies.forEach(enemy => {\n        enemy.x += state().enemySpeed;\n        if (enemy.x + enemy.w > canvas.width || enemy.x < 0) {\n            state().enemySpeed *= -1;\n            state().enemies.forEach(e => e.y += 20);\n        }\n    });\n\n    // Move bullets\n    state().bullets.forEach((bullet, i) => {\n        bullet.y -= 5;\n        if (bullet.y < 0) {\n            state().bullets.splice(i, 1);\n        }\n    });\n\n    // Collision detection\n    state().bullets.forEach((bullet, i) => {\n        state().enemies.forEach((enemy, j) => {\n            if (bullet.x < enemy.x + enemy.w &&\n                bullet.x + 5 > enemy.x &&\n                bullet.y < enemy.y + enemy.h &&\n                bullet.y + 10 > enemy.y) {\n                state().bullets.splice(i, 1);\n                state().enemies[j].alive = false;\n                state().score += 10;\n            }\n        });\n    });\n\n    // Player collision with enemies\n    state().enemies.forEach(enemy => {\n        if (enemy.alive && enemy.x < state().player.x + state().player.w &&\n            enemy.x + enemy.w > state().player.x &&\n            enemy.y < state().player.y + state().player.h &&\n            enemy.y + enemy.h > state().player.y) {\n            state().lives--;\n            if (state().lives === 0) {\n                state().over = true;\n            }\n            resetEnemies();\n        }\n    });\n\n    // Next level\n    if (s",
+    "passed": 1,
+    "failing": {
+     "Player movement": "x 220→220",
+     "Projectile shooting": "no bullet or bullet does not move up",
+     "Projectile collisions": "enemy count 32→32",
+     "Player-enemy collisions": "lives 3→3",
+     "Scoring": "score 0→0",
+     "Increasing difficulty": "level 1→1, speed 1→1",
+     "Game-over and restart states": "over=false after reset over=false"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 3,
+    "aiMs": 161320,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "```game.js\nconst canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\n\nconst state = () => ({\n    player: { x: 220, y: 580, w: 40, h: 20 },\n    enemies: Array.from({ length: 32 }, (_, i) => ({\n        x: (i % 8) * 50 + 20,\n        y: Math.floor(i / 8) * 30 + 50,\n        w: 30,\n        h: 20,\n        alive: true\n    })),\n    bullets: [],\n    score: 0,\n    lives: 3,\n    level: 1,\n    enemySpeed: 1,\n    over: false\n});\n\nconst pause = () => {\n    clearInterval(timer);\n};\n\nconst step = () => {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n\n    // Draw player\n    ctx.fillStyle = 'lime';\n    ctx.fillRect(state().player.x, state().player.y, state().player.w, state().player.h);\n\n    // Draw enemies\n    state().enemies.forEach(enemy => {\n        if (enemy.alive) {\n            ctx.fillStyle = 'red';\n            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);\n        }\n    });\n\n    // Draw bullets\n    state().bullets.forEach(bullet => {\n        ctx.fillStyle = 'yellow';\n        ctx.fillRect(bullet.x, bullet.y, 5, 10);\n    });\n\n    // Move enemies\n    state().enemies.forEach(enemy => {\n        enemy.x += state().enemySpeed;\n        if (enemy.x + enemy.w > canvas.width || enemy.x < 0) {\n            state().enemySpeed *= -1;\n            state().enemies.forEach(e => e.y += 20);\n        }\n    });\n\n    // Move bullets\n    state().bullets.forEach((bullet, i) => {\n        bullet.y -= 5;\n        if (bullet.y < 0) {\n            state().bullets.splice(i, 1);\n        }\n    });\n\n    // Collision detection\n    state().bullets.forEach((bullet, i) => {\n        state().enemies.forEach((enemy, j) => {\n            if (bullet.x < enemy.x + enemy.w &&\n                bullet.x + 5 > enemy.x &&\n                bullet.y < enemy.y + enemy.h &&\n                bullet.y + 10 > enemy.y) {\n                state().bullets.splice(i, 1);\n                state().enemies[j].alive = false;\n                state().score += 10;\n            }\n        });\n    });\n\n    // Player collision with enemies\n    state().enemies.forEach(enemy => {\n        if (enemy.alive && enemy.x < state().player.x + state().player.w &&\n            enemy.x + enemy.w > state().player.x &&\n            enemy.y < state().player.y + state().player.h &&\n            enemy.y + enemy.h > state().player.y) {\n            state().lives--;\n            if (state().lives === 0) {\n                state().over = true;\n            }\n            resetEnemies();\n        }\n    });\n\n    // Next level\n    if (s",
+    "passed": 1,
+    "failing": {
+     "Player movement": "x 220→220",
+     "Projectile shooting": "no bullet or bullet does not move up",
+     "Projectile collisions": "enemy count 32→32",
+     "Player-enemy collisions": "lives 3→3",
+     "Scoring": "score 0→0",
+     "Increasing difficulty": "level 1→1, speed 1→1",
+     "Game-over and restart states": "over=false after reset over=false"
+    },
+    "consoleErrors": []
+   }
+  ],
+  "bugsFound": 8,
+  "final": {
+   "Player movement": "x 220→220",
+   "Projectile shooting": "no bullet or bullet does not move up",
+   "Enemy formations": true,
+   "Projectile collisions": "enemy count 32→32",
+   "Player-enemy collisions": "lives 3→3",
+   "Scoring": "score 0→0",
+   "Increasing difficulty": "level 1→1, speed 1→1",
+   "Game-over and restart states": "over=false after reset over=false"
+  }
+ },
+ "breakout": {
+  "title": "4. Breakout",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 185772,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "game.js"
+    ],
+    "reply": "Sure, here's the complete content of `index.html` and `game.js` to build a Breakout game as described:\n\n```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Breakout Game</title>\n    <style>\n        canvas {\n            display: block;\n            margin: 0 auto;\n            background: #000;\n        }\n    </style>\n</head>\n<body>\n    <canvas id=\"gameCanvas\" width=\"480\" height=\"600\"></canvas>\n    <script src=\"game.js\"></script>\n</body>\n</html>\n```\n\n```game.js\nwindow.game = {\n    state: function() {\n        return {\n            paddle: { x: 200, y: 550, w: 100, h: 10 },\n            ball: { x: 240, y: 240, vx: 2, vy: 2, r: 10 },\n            bricks: Array.from({ length: 40 }, (_, i) => ({\n                x: (i % 8) * 50 + 20,\n                y: Math.floor(i / 8) * 30 + 50,\n                w: 40,\n                h: 20,\n                alive: true\n            })),\n            lives: 3,\n            score: 0,\n            won: false,\n            over: false,\n            width: 480,\n            height: 600\n        };\n    },\n    pause: function() {\n        // Implement pause logic here\n    },\n    step: function() {\n        let state = this.state();\n        let { paddle, ball, bricks, lives, score, won, over } = state;\n\n        // Ball movement\n        ball.x += ball.vx;\n        ball.y += ball.vy;\n\n        // Ball collision with walls\n        if (ball.x - ball.r < 0 || ball.x + ball.r > state.width) ball.vx = -ball.vx;\n        if (ball.y - ball.r < 0) ball.vy = -ball.vy;\n        if (ball.y + ball.r > state.height) {\n            lives--;\n            if (lives === 0) over = true;\n            ball.x = 240;\n            ball.y = 240;\n            ball.vx = 2;\n            ball.vy = 2;\n        }\n\n        // Ball collision with paddle\n        if (ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {\n            ball.vy = -ball.vy;\n        }\n\n        // Ball collision with bricks\n        for (let i = bricks.length - 1; i >= 0; i--) {\n            let brick = bricks[i];\n            if (brick.alive && ball.y - ball.r < brick.y + brick.h && ball.y + ball.r > brick.y && ball.x > brick.x && ball.x < brick.x + brick.w) {\n                brick.alive = false;\n                score += 10;\n                ball.vy = -ball.vy;\n            }\n        }\n\n        // Check win condition\n        if (bricks.every(b => !b.alive)) won = true;\n\n        // Upda",
+    "passed": 1,
+    "failing": {
+     "Paddle movement": "paddle did not move",
+     "Ball physics": "ball at 200,400",
+     "Wall collisions": "left bounce=false top bounce=false",
+     "Paddle collisions": "ball vy after paddle 4",
+     "Brick destruction": "brick alive=true",
+     "Lives and scoring": "score 0→0, lives 3→3",
+     "Win and loss conditions": "won=false over=false"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 2,
+    "aiMs": 207982,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "```game.js\nwindow.game = {\n    state: function() {\n        return {\n            paddle: { x: 200, y: 550, w: 100, h: 10 },\n            ball: { x: 240, y: 240, vx: 2, vy: 2, r: 10 },\n            bricks: Array.from({ length: 40 }, (_, i) => ({\n                x: (i % 8) * 50 + 20,\n                y: Math.floor(i / 8) * 30 + 50,\n                w: 40,\n                h: 20,\n                alive: true\n            })),\n            lives: 3,\n            score: 0,\n            won: false,\n            over: false,\n            width: 480,\n            height: 600\n        };\n    },\n    pause: function() {\n        // Implement pause logic here\n    },\n    step: function() {\n        let state = this.state();\n        let { paddle, ball, bricks, lives, score, won, over } = state;\n\n        // Ball movement\n        ball.x += ball.vx;\n        ball.y += ball.vy;\n\n        // Ball collision with walls\n        if (ball.x - ball.r < 0 || ball.x + ball.r > state.width) ball.vx = -ball.vx;\n        if (ball.y - ball.r < 0) ball.vy = -ball.vy;\n        if (ball.y + ball.r > state.height) {\n            lives--;\n            if (lives === 0) over = true;\n            ball.x = 240;\n            ball.y = 240;\n            ball.vx = 2;\n            ball.vy = 2;\n        }\n\n        // Ball collision with paddle\n        if (ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {\n            ball.vy = -ball.vy;\n        }\n\n        // Ball collision with bricks\n        for (let i = bricks.length - 1; i >= 0; i--) {\n            let brick = bricks[i];\n            if (brick.alive && ball.y - ball.r < brick.y + brick.h && ball.y + ball.r > brick.y && ball.x > brick.x && ball.x < brick.x + brick.w) {\n                brick.alive = false;\n                score += 10;\n                ball.vy = -ball.vy;\n            }\n        }\n\n        // Check win condition\n        if (bricks.every(b => !b.alive)) won = true;\n\n        // Update state\n        state.paddle = paddle;\n        state.ball = ball;\n        state.bricks = bricks;\n        state.lives = lives;\n        state.score = score;\n        state.won = won;\n        state.over = over;\n\n        return state;\n    },\n    moveLeft: function() {\n        let state = this.state();\n        let paddle = state.paddle;\n        if (paddle.x > 0) paddle.x -= 5;\n        this.step();\n    },\n    moveRight: function() {\n        let state = this.state();\n        let paddle = state.paddle;\n        if (paddle.x < state.width - paddle.w) paddle.x += 5;\n    ",
+    "passed": 1,
+    "failing": {
+     "Paddle movement": "paddle did not move",
+     "Ball physics": "ball at 200,400",
+     "Wall collisions": "left bounce=false top bounce=false",
+     "Paddle collisions": "ball vy after paddle 4",
+     "Brick destruction": "brick alive=true",
+     "Lives and scoring": "score 0→0, lives 3→3",
+     "Win and loss conditions": "won=false over=false"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 3,
+    "aiMs": 193442,
+    "aiError": null,
+    "filesWritten": [
+     "game.js",
+     "index.html"
+    ],
+    "reply": "```game.js\nwindow.game = {\n    state: function() {\n        return {\n            paddle: { x: 200, y: 550, w: 100, h: 10 },\n            ball: { x: 240, y: 240, vx: 2, vy: 2, r: 10 },\n            bricks: Array.from({ length: 40 }, (_, i) => ({\n                x: (i % 8) * 50 + 20,\n                y: Math.floor(i / 8) * 30 + 50,\n                w: 40,\n                h: 20,\n                alive: true\n            })),\n            lives: 3,\n            score: 0,\n            won: false,\n            over: false,\n            width: 480,\n            height: 600\n        };\n    },\n    pause: function() {\n        // Implement pause logic here\n    },\n    step: function() {\n        let state = this.state();\n        let { paddle, ball, bricks, lives, score, won, over } = state;\n\n        // Ball movement\n        ball.x += ball.vx;\n        ball.y += ball.vy;\n\n        // Ball collision with walls\n        if (ball.x - ball.r < 0 || ball.x + ball.r > state.width) ball.vx = -ball.vx;\n        if (ball.y - ball.r < 0) ball.vy = -ball.vy;\n        if (ball.y + ball.r > state.height) {\n            lives--;\n            if (lives === 0) over = true;\n            ball.x = 240;\n            ball.y = 240;\n            ball.vx = 2;\n            ball.vy = 2;\n        }\n\n        // Ball collision with paddle\n        if (ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {\n            ball.vy = -ball.vy;\n        }\n\n        // Ball collision with bricks\n        for (let i = bricks.length - 1; i >= 0; i--) {\n            let brick = bricks[i];\n            if (brick.alive && ball.y - ball.r < brick.y + brick.h && ball.y + ball.r > brick.y && ball.x > brick.x && ball.x < brick.x + brick.w) {\n                brick.alive = false;\n                score += 10;\n                ball.vy = -ball.vy;\n            }\n        }\n\n        // Check win condition\n        if (bricks.every(b => !b.alive)) won = true;\n\n        // Update state\n        state.paddle = paddle;\n        state.ball = ball;\n        state.bricks = bricks;\n        state.lives = lives;\n        state.score = score;\n        state.won = won;\n        state.over = over;\n\n        return state;\n    },\n    moveLeft: function() {\n        let state = this.state();\n        let paddle = state.paddle;\n        if (paddle.x > 0) paddle.x -= 5;\n        this.step();\n    },\n    moveRight: function() {\n        let state = this.state();\n        let paddle = state.paddle;\n        if (paddle.x < state.width - paddle.w) paddle.x += 5;\n    ",
+    "passed": 1,
+    "failing": {
+     "Paddle movement": "paddle did not move",
+     "Ball physics": "ball at 200,400",
+     "Wall collisions": "left bounce=false top bounce=false",
+     "Paddle collisions": "ball vy after paddle 4",
+     "Brick destruction": "brick alive=true",
+     "Lives and scoring": "score 0→0, lives 3→3",
+     "Win and loss conditions": "won=false over=false"
+    },
+    "consoleErrors": []
+   }
+  ],
+  "bugsFound": 7,
+  "final": {
+   "Paddle movement": "paddle did not move",
+   "Ball physics": "ball at 200,400",
+   "Wall collisions": "left bounce=false top bounce=false",
+   "Paddle collisions": "ball vy after paddle 4",
+   "Brick destruction": "brick alive=true",
+   "Lives and scoring": "score 0→0, lives 3→3",
+   "Win and loss conditions": "won=false over=false",
+   "The game behaves consistently": true
+  }
+ },
+ "kanban": {
+  "title": "5. Kanban Task Manager",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 163229,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "app.js",
+     "style.css"
+    ],
+    "reply": "Sure, let's start by creating the basic structure of the Kanban task manager. We'll need three files: `index.html`, `app.js`, and `style.css`.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Kanban Task Manager</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n    <div id=\"app\">\n        <div class=\"column\" data-column=\"todo\">\n            <h2>To do</h2>\n            <ul id=\"todo\"></ul>\n        </div>\n        <div class=\"column\" data-column=\"doing\">\n            <h2>Doing</h2>\n            <ul id=\"doing\"></ul>\n        </div>\n        <div class=\"column\" data-column=\"done\">\n            <h2>Done</h2>\n            <ul id=\"done\"></ul>\n        </div>\n        <form id=\"taskForm\">\n            <input type=\"text\" id=\"title\" placeholder=\"Task Title\" required>\n            <input type=\"text\" id=\"assignee\" placeholder=\"Assignee\" required>\n            <button type=\"submit\">Add Task</button>\n        </form>\n    </div>\n    <script src=\"app.js\"></script>\n</body>\n</html>\n```\n\n### app.js\n```javascript\nwindow.board = {\n    tasks: () => {\n        return JSON.parse(localStorage.getItem('kanban')) || [];\n    },\n    addTask: (title, assignee, column = 'todo') => {\n        const tasks = window.board.tasks();\n        const id = Date.now().toString();\n        tasks.push({ id, title, assignee, column });\n        localStorage.setItem('kanban', JSON.stringify(tasks));\n        return id;\n    },\n    editTask: (id, { title, assignee } = {}) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            if (title) task.title = title;\n            if (assignee) task.assignee = assignee;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    deleteTask: (id) => {\n        const tasks = window.board.tasks();\n        const index = tasks.findIndex(t => t.id === id);\n        if (index !== -1) {\n            tasks.splice(index, 1);\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    moveTask: (id, column) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            task.column = column;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    assign: (id, person) => {\n        const tasks = window.board.tasks();\n        const t",
+    "passed": 5,
+    "failing": {
+     "A task management application": "see creation/columns",
+     "Task creation": "task not created or not shown",
+     "Task editing": "edit not applied",
+     "Draggable task cards": "card element not found",
+     "Task assignments": "assign not applied",
+     "Real-time collaboration": "second window did not update live"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')"
+    ]
+   },
+   {
+    "round": 2,
+    "aiMs": 125041,
+    "aiError": null,
+    "filesWritten": [
+     "app.js"
+    ],
+    "reply": "To fix the issues, we need to ensure that the DOM elements are correctly selected and that the event listeners are properly attached. Let's update the `renderBoard` function and ensure that all elements are correctly referenced.\n\n```app.js\nwindow.board = {\n    tasks: () => {\n        return JSON.parse(localStorage.getItem('kanban')) || [];\n    },\n    addTask: (title, assignee, column = 'todo') => {\n        const tasks = window.board.tasks();\n        const id = Date.now().toString();\n        tasks.push({ id, title, assignee, column });\n        localStorage.setItem('kanban', JSON.stringify(tasks));\n        return id;\n    },\n    editTask: (id, { title, assignee } = {}) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            if (title) task.title = title;\n            if (assignee) task.assignee = assignee;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    deleteTask: (id) => {\n        const tasks = window.board.tasks();\n        const index = tasks.findIndex(t => t.id === id);\n        if (index !== -1) {\n            tasks.splice(index, 1);\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    moveTask: (id, column) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            task.column = column;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    assign: (id, person) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            task.assignee = person;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    }\n};\n\nwindow.addEventListener('storage', (event) => {\n    if (event.key === 'kanban') {\n        renderBoard();\n    }\n});\n\nconst renderBoard = () => {\n    const columns = document.querySelectorAll('.column');\n    columns.forEach(column => {\n        column.innerHTML = '';\n    });\n\n    const tasks = window.board.tasks();\n    tasks.forEach(task => {\n        const li = document.createElement('li');\n        li.className = 'card';\n        li.draggable = true;\n        li.dataset.taskId = task.id;\n        li.innerHTML = `\n            <span>${task.title}</span>\n            <span>${task.assignee}</span>\n            <button class=\"edit\">Edit</button>\n            <button class=\"delete\">Delete</button>\n        `;\n\n        li.addE",
+    "passed": 5,
+    "failing": {
+     "A task management application": "see creation/columns",
+     "Task creation": "task not created or not shown",
+     "Task editing": "edit not applied",
+     "Draggable task cards": "card element not found",
+     "Task assignments": "assign not applied",
+     "Real-time collaboration": "second window did not update live"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')"
+    ]
+   },
+   {
+    "round": 3,
+    "aiMs": 110235,
+    "aiError": null,
+    "filesWritten": [
+     "app.js"
+    ],
+    "reply": "To fix the issues, we need to ensure that the DOM elements are correctly selected and that the event listeners are properly attached. Let's update the `app.js` file to address these issues.\n\n```app.js\nwindow.board = {\n    tasks: () => {\n        return JSON.parse(localStorage.getItem('kanban')) || [];\n    },\n    addTask: (title, assignee, column = 'todo') => {\n        const tasks = window.board.tasks();\n        const id = Date.now().toString();\n        tasks.push({ id, title, assignee, column });\n        localStorage.setItem('kanban', JSON.stringify(tasks));\n        return id;\n    },\n    editTask: (id, { title, assignee } = {}) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            if (title) task.title = title;\n            if (assignee) task.assignee = assignee;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    deleteTask: (id) => {\n        const tasks = window.board.tasks();\n        const index = tasks.findIndex(t => t.id === id);\n        if (index !== -1) {\n            tasks.splice(index, 1);\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    moveTask: (id, column) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            task.column = column;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    },\n    assign: (id, person) => {\n        const tasks = window.board.tasks();\n        const task = tasks.find(t => t.id === id);\n        if (task) {\n            task.assignee = person;\n            localStorage.setItem('kanban', JSON.stringify(tasks));\n        }\n    }\n};\n\nwindow.addEventListener('storage', (event) => {\n    if (event.key === 'kanban') {\n        renderBoard();\n    }\n});\n\nconst renderBoard = () => {\n    const columns = document.querySelectorAll('.column');\n    columns.forEach(column => {\n        column.innerHTML = '';\n    });\n\n    const tasks = window.board.tasks();\n    tasks.forEach(task => {\n        const li = document.createElement('li');\n        li.className = 'card';\n        li.draggable = true;\n        li.dataset.taskId = task.id;\n        li.innerHTML = `\n            <span>${task.title}</span>\n            <span>${task.assignee}</span>\n            <button class=\"edit\">Edit</button>\n            <button class=\"delete\">Delete</button>\n        `;\n\n        li.addEventListener('dragstart', (event) => {\n",
+    "passed": 5,
+    "failing": {
+     "A task management application": "see creation/columns",
+     "Task creation": "task not created or not shown",
+     "Task editing": "edit not applied",
+     "Draggable task cards": "card element not found",
+     "Task assignments": "assign not applied",
+     "Real-time collaboration": "second window did not update live"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')",
+     "Uncaught TypeError: Cannot read properties of null (reading 'appendChild')"
+    ]
+   }
+  ],
+  "bugsFound": 6,
+  "final": {
+   "A task management application": "see creation/columns",
+   "Task creation": "task not created or not shown",
+   "Task deletion": true,
+   "Task editing": "edit not applied",
+   "Draggable task cards": "card element not found",
+   "Multiple task columns": true,
+   "Task assignments": "assign not applied",
+   "Persistent storage": true,
+   "Real-time collaboration": "second window did not update live",
+   "Multiple users see the same task updates": true,
+   "Refreshing doesn't lose tasks": true
+  }
+ },
+ "pathfinding": {
+  "title": "6. Pathfinding Visualizer",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 336792,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "app.js",
+     "style.css"
+    ],
+    "reply": "Sure! Below is the complete content for `index.html`, `app.js`, and `style.css` as per your requirements.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Pathfinding Visualizer</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n    <div id=\"grid\"></div>\n    <button onclick=\"setMode('start')\">Set Start</button>\n    <button onclick=\"setMode('end')\">Set End</button>\n    <button onclick=\"setMode('wall')\">Set Wall</button>\n    <button onclick=\"run('astar')\">Run A*</button>\n    <button onclick=\"run('dijkstra')\">Run Dijkstra</button>\n    <button onclick=\"run('bfs')\">Run BFS</button>\n    <div id=\"results\"></div>\n    <script src=\"app.js\"></script>\n</body>\n</html>\n```\n\n### app.js\n```javascript\nwindow.pf = {\n    grid: [],\n    rows: 20,\n    cols: 30,\n    start: null,\n    end: null,\n    mode: 'wall',\n    animate: true,\n    visited: 0,\n    ms: 0,\n    path: [],\n    algorithms: {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    }\n};\n\nfunction reset(rows = 20, cols = 30) {\n    window.pf.rows = rows;\n    window.pf.cols = cols;\n    window.pf.grid = Array.from({ length: rows }, () => Array(cols).fill(false));\n    window.pf.start = null;\n    window.pf.end = null;\n    window.pf.mode = 'wall';\n    window.pf.animate = true;\n    window.pf.visited = 0;\n    window.pf.ms = 0;\n    window.pf.path = [];\n    window.pf.algorithms = {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    };\n    document.getElementById('grid').innerHTML = '';\n    createGrid();\n}\n\nfunction createGrid() {\n    const grid = document.getElementById('grid');\n    for (let r = 0; r < window.pf.rows; r++) {\n        for (let c = 0; c < window.pf.cols; c++) {\n            const cell = document.createElement('div');\n            cell.classList.add('cell');\n            cell.dataset.row = r;\n            cell.dataset.col = c;\n            cell.addEventListener('click', toggleCell);\n            grid.appendChild(cell);\n        }\n    }\n}\n\nfunction toggleCell(event) {\n    const cell = event.target;\n    const r = parseInt(cell.dataset.row);\n    const c = parseInt(cell.dataset.col);\n    if (window.pf.mode === 'wall') {\n        window.pf.grid[r][c] = !window.pf.grid[r][c];\n        cell.classLi",
+    "passed": 0,
+    "failing": {
+     "An interactive grid": "not checked",
+     "Users can place walls and obstacles": "not checked",
+     "Users can select a start point and destination": "not checked",
+     "A* pathfinding": "not checked",
+     "Dijkstra's algorithm": "not checked",
+     "Breadth-First Search": "not checked",
+     "Animated search process": "not checked",
+     "Displays the resulting path": "not checked",
+     "Compares the algorithms' performance": "not checked",
+     "Handles unreachable destinations": "not checked",
+     "Each algorithm returns correct results": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: p.reset is not a function\n    at <anonymous>:7:3\n    at <anonymous>:19:63"
+   },
+   {
+    "round": 2,
+    "aiMs": 440816,
+    "aiError": null,
+    "filesWritten": [
+     "app.js",
+     "index.html",
+     "style.css"
+    ],
+    "reply": "To fix the issues and meet the requirements, we need to address several areas in the code. Let's start by fixing the `reset` function and ensuring that the grid is properly initialized and interacted with.\n\n### app.js\n```javascript\nwindow.pf = {\n    grid: [],\n    rows: 20,\n    cols: 30,\n    start: null,\n    end: null,\n    mode: 'wall',\n    animate: true,\n    visited: 0,\n    ms: 0,\n    path: [],\n    algorithms: {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    }\n};\n\nfunction reset(rows = 20, cols = 30) {\n    window.pf.rows = rows;\n    window.pf.cols = cols;\n    window.pf.grid = Array.from({ length: rows }, () => Array(cols).fill(false));\n    window.pf.start = null;\n    window.pf.end = null;\n    window.pf.mode = 'wall';\n    window.pf.animate = true;\n    window.pf.visited = 0;\n    window.pf.ms = 0;\n    window.pf.path = [];\n    window.pf.algorithms = {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    };\n    document.getElementById('grid').innerHTML = '';\n    createGrid();\n}\n\nfunction createGrid() {\n    const grid = document.getElementById('grid');\n    for (let r = 0; r < window.pf.rows; r++) {\n        for (let c = 0; c < window.pf.cols; c++) {\n            const cell = document.createElement('div');\n            cell.classList.add('cell');\n            cell.dataset.row = r;\n            cell.dataset.col = c;\n            cell.addEventListener('click', toggleCell);\n            grid.appendChild(cell);\n        }\n    }\n}\n\nfunction toggleCell(event) {\n    const cell = event.target;\n    const r = parseInt(cell.dataset.row);\n    const c = parseInt(cell.dataset.col);\n    if (window.pf.mode === 'wall') {\n        window.pf.grid[r][c] = !window.pf.grid[r][c];\n        cell.classList.toggle('wall', window.pf.grid[r][c]);\n    } else if (window.pf.mode === 'start') {\n        if (window.pf.start) {\n            const [sr, sc] = window.pf.start;\n            document.querySelector(`.cell[data-row=\"${sr}\"][data-col=\"${sc}\"]`).classList.remove('start');\n        }\n        window.pf.start = [r, c];\n        cell.classList.add('start');\n    } else if (window.pf.mode === 'end') {\n        if (window.pf.end) {\n            const [er, ec] = window.pf.end;\n            document.querySelector(`.cell[data-row=\"${er}\"][data-col=\"${ec}\"]`).classList.remove('end');\n        }\n        window.pf.end = [",
+    "passed": 0,
+    "failing": {
+     "An interactive grid": "not checked",
+     "Users can place walls and obstacles": "not checked",
+     "Users can select a start point and destination": "not checked",
+     "A* pathfinding": "not checked",
+     "Dijkstra's algorithm": "not checked",
+     "Breadth-First Search": "not checked",
+     "Animated search process": "not checked",
+     "Displays the resulting path": "not checked",
+     "Compares the algorithms' performance": "not checked",
+     "Handles unreachable destinations": "not checked",
+     "Each algorithm returns correct results": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: p.reset is not a function\n    at <anonymous>:7:3\n    at <anonymous>:19:63"
+   },
+   {
+    "round": 3,
+    "aiMs": 402589,
+    "aiError": null,
+    "filesWritten": [
+     "app.js",
+     "index.html",
+     "style.css"
+    ],
+    "reply": "```app.js\nwindow.pf = {\n    grid: [],\n    rows: 20,\n    cols: 30,\n    start: null,\n    end: null,\n    mode: 'wall',\n    animate: true,\n    visited: 0,\n    ms: 0,\n    path: [],\n    algorithms: {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    }\n};\n\nfunction reset(rows = 20, cols = 30) {\n    window.pf.rows = rows;\n    window.pf.cols = cols;\n    window.pf.grid = Array.from({ length: rows }, () => Array(cols).fill(false));\n    window.pf.start = null;\n    window.pf.end = null;\n    window.pf.mode = 'wall';\n    window.pf.animate = true;\n    window.pf.visited = 0;\n    window.pf.ms = 0;\n    window.pf.path = [];\n    window.pf.algorithms = {\n        astar: { visited: 0, ms: 0, length: 0 },\n        dijkstra: { visited: 0, ms: 0, length: 0 },\n        bfs: { visited: 0, ms: 0, length: 0 }\n    };\n    document.getElementById('grid').innerHTML = '';\n    createGrid();\n}\n\nfunction createGrid() {\n    const grid = document.getElementById('grid');\n    for (let r = 0; r < window.pf.rows; r++) {\n        for (let c = 0; c < window.pf.cols; c++) {\n            const cell = document.createElement('div');\n            cell.classList.add('cell');\n            cell.dataset.row = r;\n            cell.dataset.col = c;\n            cell.addEventListener('click', toggleCell);\n            grid.appendChild(cell);\n        }\n    }\n}\n\nfunction toggleCell(event) {\n    const cell = event.target;\n    const r = parseInt(cell.dataset.row);\n    const c = parseInt(cell.dataset.col);\n    if (window.pf.mode === 'wall') {\n        window.pf.grid[r][c] = !window.pf.grid[r][c];\n        cell.classList.toggle('wall', window.pf.grid[r][c]);\n    } else if (window.pf.mode === 'start') {\n        if (window.pf.start) {\n            const [sr, sc] = window.pf.start;\n            document.querySelector(`.cell[data-row=\"${sr}\"][data-col=\"${sc}\"]`).classList.remove('start');\n        }\n        window.pf.start = [r, c];\n        cell.classList.add('start');\n    } else if (window.pf.mode === 'end') {\n        if (window.pf.end) {\n            const [er, ec] = window.pf.end;\n            document.querySelector(`.cell[data-row=\"${er}\"][data-col=\"${ec}\"]`).classList.remove('end');\n        }\n        window.pf.end = [r, c];\n        cell.classList.add('end');\n    }\n}\n\nfunction setMode(mode) {\n    window.pf.mode = mode;\n}\n\nfunction run(alg, options = {}) {\n    window.pf.animate = options.animate || true;\n    const startTime = performance",
+    "passed": 2,
+    "failing": {
+     "Users can select a start point and destination": "not checked",
+     "A* pathfinding": "not checked",
+     "Dijkstra's algorithm": "not checked",
+     "Breadth-First Search": "not checked",
+     "Animated search process": "not checked",
+     "Displays the resulting path": "not checked",
+     "Compares the algorithms' performance": "not checked",
+     "Handles unreachable destinations": "not checked",
+     "Each algorithm returns correct results": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: p.reset is not a function\n    at <anonymous>:7:3\n    at <anonymous>:19:83"
+   }
+  ],
+  "bugsFound": 11,
+  "final": {
+   "An interactive grid": true,
+   "Users can place walls and obstacles": true,
+   "Users can select a start point and destination": "not checked",
+   "A* pathfinding": "not checked",
+   "Dijkstra's algorithm": "not checked",
+   "Breadth-First Search": "not checked",
+   "Animated search process": "not checked",
+   "Displays the resulting path": "not checked",
+   "Compares the algorithms' performance": "not checked",
+   "Handles unreachable destinations": "not checked",
+   "Each algorithm returns correct results": "not checked"
+  }
+ },
+ "world": {
+  "title": "7. Procedural World Generator",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 155180,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "world.js"
+    ],
+    "reply": "Sure, let's break down the requirements and create the necessary files.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Procedural World Generator</title>\n    <style>\n        canvas {\n            border: 1px solid black;\n        }\n    </style>\n</head>\n<body>\n    <input type=\"number\" id=\"seedInput\" placeholder=\"Enter seed\">\n    <button onclick=\"generate()\">Generate</button>\n    <button onclick=\"regenerate()\">Random seed</button>\n    <canvas id=\"worldCanvas\" width=\"1280\" height=\"1280\"></canvas>\n    <script src=\"world.js\"></script>\n</body>\n</html>\n```\n\n### world.js\n```javascript\nwindow.world = {\n    size: 128,\n    seed: 0,\n    player: { x: 64, y: 64 },\n    generate(seed) {\n        this.seed = seed;\n        this.heightMap = this.generateHeightMap(seed);\n        this.tileMap = this.generateTileMap(this.heightMap);\n    },\n    regenerate() {\n        this.generate(Math.floor(Math.random() * 1000000));\n    },\n    generateHeightMap(seed) {\n        // Implement Perlin or Simplex noise here\n        // For simplicity, using a placeholder function\n        const noise = (x, y) => {\n            // Placeholder noise function\n            return Math.sin(x * 0.1 + seed) * Math.cos(y * 0.1 + seed);\n        };\n\n        const heightMap = [];\n        for (let y = 0; y < this.size; y++) {\n            heightMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                heightMap[y][x] = noise(x, y);\n            }\n        }\n        return heightMap;\n    },\n    generateTileMap(heightMap) {\n        const tileMap = [];\n        for (let y = 0; y < this.size; y++) {\n            tileMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                const h = heightMap[y][x];\n                if (h < 0.2) tileMap[y][x] = 'water';\n                else if (h < 0.3) tileMap[y][x] = 'river';\n                else if (h < 0.4) tileMap[y][x] = 'sand';\n                else if (h < 0.6) tileMap[y][x] = 'grass';\n                else if (h < 0.7) tileMap[y][x] = 'forest';\n                else if (h < 0.8) tileMap[y][x] = 'mountain';\n                else tileMap[y][x] = 'snow';\n            }\n        }\n        return tileMap;\n    },\n    tile(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return null;\n        return this.tileMap[y][x];\n    },\n    height(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) ",
+    "passed": 9,
+    "failing": {
+     "A controllable character": "moved=false blocked by water=not tested"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 2,
+    "aiMs": 167002,
+    "aiError": null,
+    "filesWritten": [
+     "world.js"
+    ],
+    "reply": "To fix the issue with the controllable character being blocked by water and mountains, we need to ensure that the `move` function correctly checks for these conditions. Additionally, we need to ensure that the player's position is updated correctly when moving.\n\nHere is the updated `world.js` file:\n\n```world.js\nwindow.world = {\n    size: 128,\n    seed: 0,\n    player: { x: 64, y: 64 },\n    generate(seed) {\n        this.seed = seed;\n        this.heightMap = this.generateHeightMap(seed);\n        this.tileMap = this.generateTileMap(this.heightMap);\n    },\n    regenerate() {\n        this.generate(Math.floor(Math.random() * 1000000));\n    },\n    generateHeightMap(seed) {\n        // Implement Perlin or Simplex noise here\n        // For simplicity, using a placeholder function\n        const noise = (x, y) => {\n            // Placeholder noise function\n            return Math.sin(x * 0.1 + seed) * Math.cos(y * 0.1 + seed);\n        };\n\n        const heightMap = [];\n        for (let y = 0; y < this.size; y++) {\n            heightMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                heightMap[y][x] = noise(x, y);\n            }\n        }\n        return heightMap;\n    },\n    generateTileMap(heightMap) {\n        const tileMap = [];\n        for (let y = 0; y < this.size; y++) {\n            tileMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                const h = heightMap[y][x];\n                if (h < 0.2) tileMap[y][x] = 'water';\n                else if (h < 0.3) tileMap[y][x] = 'river';\n                else if (h < 0.4) tileMap[y][x] = 'sand';\n                else if (h < 0.6) tileMap[y][x] = 'grass';\n                else if (h < 0.7) tileMap[y][x] = 'forest';\n                else if (h < 0.8) tileMap[y][x] = 'mountain';\n                else tileMap[y][x] = 'snow';\n            }\n        }\n        return tileMap;\n    },\n    tile(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return null;\n        return this.tileMap[y][x];\n    },\n    height(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return null;\n        return this.heightMap[y][x];\n    },\n    move(dx, dy) {\n        const newX = this.player.x + dx;\n        const newY = this.player.y + dy;\n        if (newX < 0 || newX >= this.size || newY < 0 || newY >= this.size) return false;\n        if (this.tile(newX, newY) === 'water' || this.tile(newX, newY) === 'mountain') return false;\n        this.player.x = newX;\n        this.player.",
+    "passed": 9,
+    "failing": {
+     "A controllable character": "moved=false blocked by water=not tested"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 3,
+    "aiMs": 146179,
+    "aiError": null,
+    "filesWritten": [
+     "world.js"
+    ],
+    "reply": "To fix the issue with the controllable character being blocked by water, we need to ensure that the `move` function correctly checks if the target tile is water before allowing the player to move there. Here is the updated `world.js` file:\n\n```world.js\nwindow.world = {\n    size: 128,\n    seed: 0,\n    player: { x: 64, y: 64 },\n    generate(seed) {\n        this.seed = seed;\n        this.heightMap = this.generateHeightMap(seed);\n        this.tileMap = this.generateTileMap(this.heightMap);\n    },\n    regenerate() {\n        this.generate(Math.floor(Math.random() * 1000000));\n    },\n    generateHeightMap(seed) {\n        // Implement Perlin or Simplex noise here\n        // For simplicity, using a placeholder function\n        const noise = (x, y) => {\n            // Placeholder noise function\n            return Math.sin(x * 0.1 + seed) * Math.cos(y * 0.1 + seed);\n        };\n\n        const heightMap = [];\n        for (let y = 0; y < this.size; y++) {\n            heightMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                heightMap[y][x] = noise(x, y);\n            }\n        }\n        return heightMap;\n    },\n    generateTileMap(heightMap) {\n        const tileMap = [];\n        for (let y = 0; y < this.size; y++) {\n            tileMap[y] = [];\n            for (let x = 0; x < this.size; x++) {\n                const h = heightMap[y][x];\n                if (h < 0.2) tileMap[y][x] = 'water';\n                else if (h < 0.3) tileMap[y][x] = 'river';\n                else if (h < 0.4) tileMap[y][x] = 'sand';\n                else if (h < 0.6) tileMap[y][x] = 'grass';\n                else if (h < 0.7) tileMap[y][x] = 'forest';\n                else if (h < 0.8) tileMap[y][x] = 'mountain';\n                else tileMap[y][x] = 'snow';\n            }\n        }\n        return tileMap;\n    },\n    tile(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return null;\n        return this.tileMap[y][x];\n    },\n    height(x, y) {\n        if (x < 0 || x >= this.size || y < 0 || y >= this.size) return null;\n        return this.heightMap[y][x];\n    },\n    move(dx, dy) {\n        const newX = this.player.x + dx;\n        const newY = this.player.y + dy;\n        if (newX < 0 || newX >= this.size || newY < 0 || newY >= this.size) return false;\n        if (this.tile(newX, newY) === 'water' || this.tile(newX, newY) === 'mountain') return false;\n        this.player.x = newX;\n        this.player.y = newY;\n        return true;\n    }\n};\n\nfunction generate()",
+    "passed": 9,
+    "failing": {
+     "A controllable character": "moved=false blocked by water=not tested"
+    },
+    "consoleErrors": []
+   }
+  ],
+  "bugsFound": 1,
+  "final": {
+   "A random terrain map": true,
+   "Perlin or Simplex noise": true,
+   "Mountains": true,
+   "Lakes and rivers": true,
+   "Forests": true,
+   "World seeds": true,
+   "Identical seeds produce identical worlds": true,
+   "Users can regenerate worlds": true,
+   "A controllable character": "moved=false blocked by water=not tested",
+   "Terrain generation performs efficiently": true
+  }
+ },
+ "chat": {
+  "title": "8. Real-Time Chat Application",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 208798,
+    "aiError": null,
+    "filesWritten": [
+     "server.js",
+     "public/index.html",
+     "public/client.js",
+     "hive.json"
+    ],
+    "reply": "Sure, let's build the real-time chat app step by step. We'll start with the `server.js` file, then the `public/index.html`, and finally the `public/client.js`.\n\n### server.js\n```javascript\nconst http = require('node:http');\nconst fs = require('node:fs');\nconst crypto = require('node:crypto');\n\nconst PORT = process.env.PORT || 3000;\nconst messagesFile = 'data/messages.json';\n\n// Load messages from file\nfunction loadMessages() {\n  try {\n    return JSON.parse(fs.readFileSync(messagesFile, 'utf8'));\n  } catch (e) {\n    return [];\n  }\n}\n\n// Save messages to file\nfunction saveMessages(messages) {\n  fs.writeFileSync(messagesFile, JSON.stringify(messages, null, 2));\n}\n\n// Generate a unique ID\nfunction generateId() {\n  return crypto.randomBytes(16).toString('hex');\n}\n\n// Create server\nconst server = http.createServer((req, res) => {\n  const url = new URL(req.url, `http://${req.headers.host}`);\n  const pathname = url.pathname;\n\n  if (pathname === '/') {\n    res.setHeader('Content-Type', 'text/html');\n    fs.createReadStream('public/index.html').pipe(res);\n  } else if (pathname === '/events') {\n    const { user, room } = url.searchParams;\n    if (!user || !room) {\n      res.statusCode = 400;\n      res.end('Missing user or room');\n      return;\n    }\n\n    res.setHeader('Content-Type', 'text/event-stream');\n    res.setHeader('Cache-Control', 'no-cache');\n    res.setHeader('Connection', 'keep-alive');\n\n    const sendEvent = (event) => {\n      res.write(`data: ${JSON.stringify(event)}\\n\\n`);\n    };\n\n    const sendTyping = () => {\n      sendEvent({ type: 'typing', user, room });\n    };\n\n    const sendPresence = (online) => {\n      sendEvent({ type: 'presence', room, online });\n    };\n\n    const interval = setInterval(sendTyping, 1000);\n\n    req.on('close', () => {\n      clearInterval(interval);\n      sendEvent({ type: 'presence', room, online: [] });\n    });\n\n    sendPresence([user]);\n\n    // Broadcast typing events\n    req.on('data', (chunk) => {\n      const data = JSON.parse(chunk.toString());\n      if (data.type === 'typing') {\n        sendTyping();\n      }\n    });\n\n    // Broadcast messages\n    req.on('data', (chunk) => {\n      const data = JSON.parse(chunk.toString());\n      if (data.type === 'message') {\n        const messages = loadMessages();\n        const message = {\n          id: generateId(),\n          user: data.user,\n          room: data.room,\n          text: data.text,\n          ts: Date.now()\n        };\n        messages.push(message);\n        saveMessages(m",
+    "passed": 1,
+    "failing": {
+     "Multiple users": "online list []",
+     "Sending and receiving messages": "not checked",
+     "Persistent message history": "not checked",
+     "Timestamps": "not checked",
+     "Online indicators": "no presence event listing Ana",
+     "Typing indicators": "not checked",
+     "Private chat rooms": "not checked",
+     "Handles simultaneous messages": "not checked",
+     "Handles disconnected users": "not checked",
+     "Messages aren't lost or duplicated": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "fetch failed"
+   },
+   {
+    "round": 2,
+    "aiMs": 262775,
+    "aiError": null,
+    "filesWritten": [
+     "server.js",
+     "public/client.js",
+     "public/index.html"
+    ],
+    "reply": "To fix the issues with the chat app, we need to address several key areas: handling multiple users, sending and receiving messages, persistent message history, timestamps, online indicators, typing indicators, private chat rooms, simultaneous messages, disconnected users, and ensuring messages aren't lost or duplicated. Below are the changes to the `server.js`, `public/client.js`, and `public/index.html` files to address these issues.\n\n### server.js\n```javascript\nconst http = require('node:http');\nconst fs = require('node:fs');\nconst crypto = require('node:crypto');\n\nconst PORT = process.env.PORT || 3000;\nconst messagesFile = 'data/messages.json';\n\n// Load messages from file\nfunction loadMessages() {\n  try {\n    return JSON.parse(fs.readFileSync(messagesFile, 'utf8'));\n  } catch (e) {\n    return [];\n  }\n}\n\n// Save messages to file\nfunction saveMessages(messages) {\n  fs.writeFileSync(messagesFile, JSON.stringify(messages, null, 2));\n}\n\n// Generate a unique ID\nfunction generateId() {\n  return crypto.randomBytes(16).toString('hex');\n}\n\n// Create server\nconst server = http.createServer((req, res) => {\n  const url = new URL(req.url, `http://${req.headers.host}`);\n  const pathname = url.pathname;\n\n  if (pathname === '/') {\n    res.setHeader('Content-Type', 'text/html');\n    fs.createReadStream('public/index.html').pipe(res);\n  } else if (pathname === '/events') {\n    const { user, room } = url.searchParams;\n    if (!user || !room) {\n      res.statusCode = 400;\n      res.end('Missing user or room');\n      return;\n    }\n\n    res.setHeader('Content-Type', 'text/event-stream');\n    res.setHeader('Cache-Control', 'no-cache');\n    res.setHeader('Connection', 'keep-alive');\n\n    const sendEvent = (event) => {\n      res.write(`data: ${JSON.stringify(event)}\\n\\n`);\n    };\n\n    const sendTyping = () => {\n      sendEvent({ type: 'typing', user, room });\n    };\n\n    const sendPresence = (online) => {\n      sendEvent({ type: 'presence', room, online });\n    };\n\n    const interval = setInterval(sendTyping, 1000);\n\n    req.on('close', () => {\n      clearInterval(interval);\n      sendEvent({ type: 'presence', room, online: [] });\n    });\n\n    sendPresence([user]);\n\n    // Broadcast typing events\n    req.on('data', (chunk) => {\n      const data = JSON.parse(chunk.toString());\n      if (data.type === 'typing') {\n        sendTyping();\n      }\n    });\n\n    // Broadcast messages\n    req.on('data', (chunk) => {\n      const data = JSON.parse(chunk.toString());\n      if (data.type === ",
+    "passed": 0,
+    "failing": {
+     "A chat interface": "server did not start on port 3000: {\"status\":\"running\",\"config\":{\"kind\":\"custom\",\"command\":\"node server.js\",\"cwd\":\"C:\\\\Users\\\\User\\\\dev-cache\\\\hive\\\\qa\\\\chal-chat\",\"env\":{},\"port\":3000},\"terminalId\":\"t10\",\"previewUrl\":\"http://localhost:3000\"}",
+     "Multiple users": "not checked",
+     "Sending and receiving messages": "not checked",
+     "Persistent message history": "not checked",
+     "Timestamps": "not checked",
+     "Online indicators": "not checked",
+     "Typing indicators": "not checked",
+     "Private chat rooms": "not checked",
+     "Handles simultaneous messages": "not checked",
+     "Handles disconnected users": "not checked",
+     "Messages aren't lost or duplicated": "not checked"
+    },
+    "consoleErrors": []
+   },
+   {
+    "round": 3,
+    "aiMs": 278375,
+    "aiError": null,
+    "filesWritten": [
+     "server.js",
+     "public/client.js",
+     "public/index.html",
+     "hive.json"
+    ],
+    "reply": "To fix the issues, we need to address several areas in the code. Let's go through them step by step.\n\n### 1. Server Configuration and Event Handling\n\nThe server should correctly handle events and broadcast them to the appropriate clients. We need to ensure that the `connect` function in `client.js` is correctly setting up the `EventSource` and handling events.\n\n### 2. Message Persistence\n\nThe server should correctly save and load messages from `data/messages.json`.\n\n### 3. Typing and Presence Indicators\n\nThe server should handle typing and presence events and broadcast them to the room.\n\n### 4. Private Chat Rooms\n\nThe server should correctly handle messages and events for private chat rooms.\n\n### 5. Simultaneous Messages and Disconnected Users\n\nThe server should handle simultaneous messages and disconnected users correctly.\n\n### 6. Timestamps\n\nThe server should include timestamps in the messages.\n\n### 7. Online Indicators\n\nThe server should correctly update and broadcast online users.\n\n### 8. Private Chat Rooms\n\nThe server should correctly handle messages and events for private chat rooms.\n\n### Updated `server.js`\n\n```javascript\nconst http = require('node:http');\nconst fs = require('node:fs');\nconst crypto = require('node:crypto');\n\nconst PORT = process.env.PORT || 3000;\nconst messagesFile = 'data/messages.json';\n\n// Load messages from file\nfunction loadMessages() {\n  try {\n    return JSON.parse(fs.readFileSync(messagesFile, 'utf8'));\n  } catch (e) {\n    return [];\n  }\n}\n\n// Save messages to file\nfunction saveMessages(messages) {\n  fs.writeFileSync(messagesFile, JSON.stringify(messages, null, 2));\n}\n\n// Generate a unique ID\nfunction generateId() {\n  return crypto.randomBytes(16).toString('hex');\n}\n\n// Create server\nconst server = http.createServer((req, res) => {\n  const url = new URL(req.url, `http://${req.headers.host}`);\n  const pathname = url.pathname;\n\n  if (pathname === '/') {\n    res.setHeader('Content-Type', 'text/html');\n    fs.createReadStream('public/index.html').pipe(res);\n  } else if (pathname === '/events') {\n    const { user, room } = url.searchParams;\n    if (!user || !room) {\n      res.statusCode = 400;\n      res.end('Missing user or room');\n      return;\n    }\n\n    res.setHeader('Content-Type', 'text/event-stream');\n    res.setHeader('Cache-Control', 'no-cache');\n    res.setHeader('Connection', 'keep-alive');\n\n    const sendEvent = (event) => {\n      res.write(`data: ${JSON.stringify(event)}\\n\\n`);\n    };\n\n    const sendTyping = () => {\n ",
+    "passed": 1,
+    "failing": {
+     "Multiple users": "online list []",
+     "Sending and receiving messages": "not checked",
+     "Persistent message history": "not checked",
+     "Timestamps": "not checked",
+     "Online indicators": "no presence event listing Ana",
+     "Typing indicators": "not checked",
+     "Private chat rooms": "not checked",
+     "Handles simultaneous messages": "not checked",
+     "Handles disconnected users": "not checked",
+     "Messages aren't lost or duplicated": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "fetch failed"
+   }
+  ],
+  "bugsFound": 11,
+  "final": {
+   "A chat interface": true,
+   "Multiple users": "online list []",
+   "Sending and receiving messages": "not checked",
+   "Persistent message history": "not checked",
+   "Timestamps": "not checked",
+   "Online indicators": "no presence event listing Ana",
+   "Typing indicators": "not checked",
+   "Private chat rooms": "not checked",
+   "Handles simultaneous messages": "not checked",
+   "Handles disconnected users": "not checked",
+   "Messages aren't lost or duplicated": "not checked"
+  }
+ },
+ "voxel": {
+  "title": "9. Minecraft-Style Voxel Engine",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 332284,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "engine.js"
+    ],
+    "reply": "Sure, let's start by setting up the basic structure of the project. We'll need an `index.html` file to host our Three.js scene and a `engine.js` file to contain the game logic.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Minecraft Voxel Engine</title>\n    <style>\n        body { margin: 0; }\n        canvas { display: block; }\n    </style>\n</head>\n<body>\n    <script type=\"module\" src=\"engine.js\"></script>\n</body>\n</html>\n```\n\n### engine.js\n```javascript\nwindow.engine = {\n    chunkSize: 16,\n    player: {\n        position: { x: 0, y: 0, z: 0 },\n        velocity: { x: 0, y: 0, z: 0 }\n    },\n    getBlock(x, y, z) {\n        const chunkX = Math.floor(x / this.chunkSize);\n        const chunkZ = Math.floor(z / this.chunkSize);\n        const localX = x % this.chunkSize;\n        const localZ = z % this.chunkSize;\n        const chunkKey = `${chunkX},${chunkZ}`;\n        if (this.chunks[chunkKey]) {\n            return this.chunks[chunkKey].getBlock(localX, y, localZ);\n        }\n        return 0;\n    },\n    setBlock(x, y, z, id) {\n        const chunkX = Math.floor(x / this.chunkSize);\n        const chunkZ = Math.floor(z / this.chunkSize);\n        const localX = x % this.chunkSize;\n        const localZ = z % this.chunkSize;\n        const chunkKey = `${chunkX},${chunkZ}`;\n        if (!this.chunks[chunkKey]) {\n            this.chunks[chunkKey] = new Chunk(chunkX, chunkZ);\n        }\n        this.chunks[chunkKey].setBlock(localX, y, localZ, id);\n        this.updateChunkMesh(chunkKey);\n    },\n    loadedChunks() {\n        return Object.keys(this.chunks);\n    },\n    teleport(x, y, z) {\n        this.player.position = { x, y, z };\n    },\n    update(dt) {\n        this.updatePhysics(dt);\n        this.updateChunks();\n    },\n    updatePhysics(dt) {\n        // Simple gravity\n        this.player.velocity.y -= 0.05 * dt;\n        this.player.position.y += this.player.velocity.y * dt;\n\n        // Collision detection\n        const playerHeight = 1.8;\n        const playerRadius = 0.5;\n        const stepHeight = 0.5;\n        const stepDistance = 0.6;\n        const stepAngle = Math.PI / 6;\n\n        // Simplified collision detection\n        if (this.getBlock(Math.floor(this.player.position.x), Math.floor(this.player.position.y), Math.floor(this.player.position.z)) !== 0) {\n            this.player.position.y = Math.ceil(this.player.position.y);\n        }\n    },\n    ",
+    "passed": 0,
+    "failing": {
+     "A 3D environment": "no WebGL canvas",
+     "A voxel-based world": "not checked",
+     "Block rendering": "not checked",
+     "Procedural terrain generation": "not checked",
+     "Chunk generation": "not checked",
+     "Chunk loading and unloading": "not checked",
+     "Player movement": "not checked",
+     "Collision detection": "not checked",
+     "Block placement": "not checked",
+     "Block destruction": "not checked",
+     "World persistence": "not checked",
+     "Optimized rendering and chunk management": "not checked",
+     "Stays playable as the world grows": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught ReferenceError: Stats is not defined"
+    ],
+    "probeError": "ReferenceError: SimplexNoise is not defined\n    at Chunk.generate (http://localhost:54797/engine.js:111:23)\n    at new Chunk (http://localhost:54797/engine.js:95:14)\n    at Object.updateChunks (http://localhost:54797/engine.js:65:45)\n    at Object.update (http://localhost:54797/engine.js:38:14)\n    at <anonymous>:4:24\n    at <anonymous>:23:83"
+   },
+   {
+    "round": 2,
+    "aiMs": 491802,
+    "aiError": null,
+    "filesWritten": [
+     "engine.js",
+     "index.html"
+    ],
+    "reply": "To fix the issues and meet the requirements, we need to address several key areas:\n\n1. **WebGL Canvas**: Ensure the canvas element is correctly set up in the HTML.\n2. **Voxel-Based World**: Implement the voxel world generation and rendering.\n3. **Block Rendering**: Ensure blocks are rendered correctly.\n4. **Procedural Terrain Generation**: Implement the procedural terrain generation using noise.\n5. **Chunk Generation**: Generate chunks based on the player's position.\n6. **Chunk Loading and Unloading**: Implement chunk loading and unloading logic.\n7. **Player Movement**: Implement first-person controls.\n8. **Collision Detection**: Implement AABB collision detection.\n9. **Block Placement and Destruction**: Implement raycasting for block placement and destruction.\n10. **World Persistence**: Persist world edits in localStorage.\n11. **Optimized Rendering and Chunk Management**: Optimize rendering and chunk management.\n12. **Stays Playable as the World Grows**: Ensure the game remains playable as the world grows.\n\nHere is the updated `engine.js` and `index.html` files:\n\n### engine.js\n```javascript\nwindow.engine = {\n    chunkSize: 16,\n    player: {\n        position: { x: 0, y: 0, z: 0 },\n        velocity: { x: 0, y: 0, z: 0 },\n        rotation: { x: 0, y: 0 }\n    },\n    chunks: {},\n    scene: null,\n    camera: null,\n    renderer: null,\n    stats: null,\n    raycaster: null,\n    mouse: new THREE.Vector2(),\n    init() {\n        this.scene = new THREE.Scene();\n        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);\n        this.renderer = new THREE.WebGLRenderer();\n        this.renderer.setSize(window.innerWidth, window.innerHeight);\n        document.body.appendChild(this.renderer.domElement);\n\n        this.stats = new Stats();\n        this.stats.setMode(0);\n        document.body.appendChild(this.stats.dom);\n\n        this.raycaster = new THREE.Raycaster();\n\n        this.load();\n        this.stats = new Stats();\n        this.stats.setMode(0);\n        document.body.appendChild(this.stats.dom);\n\n        document.addEventListener('click', () => {\n            document.body.requestPointerLock();\n        });\n\n        document.addEventListener('pointerlockchange', () => {\n            if (document.pointerLockElement === document.body) {\n                document.addEventListener('mousemove', this.onPointerMove.bind(this), false);\n            } else {\n                document.removeEventListener('mousemove', this.onPointerMove, ",
+    "passed": 0,
+    "failing": {
+     "A 3D environment": "window.engine missing (Three.js may have failed to load)",
+     "A voxel-based world": "not checked",
+     "Block rendering": "not checked",
+     "Procedural terrain generation": "not checked",
+     "Chunk generation": "not checked",
+     "Chunk loading and unloading": "not checked",
+     "Player movement": "not checked",
+     "Collision detection": "not checked",
+     "Block placement": "not checked",
+     "Block destruction": "not checked",
+     "World persistence": "not checked",
+     "Optimized rendering and chunk management": "not checked",
+     "Stays playable as the world grows": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught ReferenceError: THREE is not defined"
+    ]
+   },
+   {
+    "round": 3,
+    "aiMs": 64656,
+    "aiError": null,
+    "filesWritten": [
+     "index.html"
+    ],
+    "reply": "It looks like the issue is that Three.js is not being loaded correctly. The browser console is showing a `ReferenceError: THREE is not defined`, which means that the Three.js library is not being loaded into the global scope.\n\nTo fix this, we need to ensure that the Three.js script is loaded before the `engine.js` script. We can do this by moving the Three.js script tag before the `engine.js` script tag in the `index.html` file.\n\nHere is the updated `index.html` file:\n\n```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Minecraft Voxel Engine</title>\n    <style>\n        body { margin: 0; }\n        canvas { display: block; }\n    </style>\n</head>\n<body>\n    <script type=\"module\" src=\"https://unpkg.com/three@0.160.0/build/three.module.js\"></script>\n    <script type=\"module\" src=\"engine.js\"></script>\n</body>\n</html>\n```\n\nAfter making this change, the Three.js library should be loaded before the `engine.js` script, and the `THREE` object should be available in the global scope. This should resolve the `ReferenceError: THREE is not defined` error and allow the voxel engine to run correctly.",
+    "passed": 0,
+    "failing": {
+     "A 3D environment": "window.engine missing (Three.js may have failed to load)",
+     "A voxel-based world": "not checked",
+     "Block rendering": "not checked",
+     "Procedural terrain generation": "not checked",
+     "Chunk generation": "not checked",
+     "Chunk loading and unloading": "not checked",
+     "Player movement": "not checked",
+     "Collision detection": "not checked",
+     "Block placement": "not checked",
+     "Block destruction": "not checked",
+     "World persistence": "not checked",
+     "Optimized rendering and chunk management": "not checked",
+     "Stays playable as the world grows": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught ReferenceError: THREE is not defined"
+    ]
+   }
+  ],
+  "bugsFound": 13,
+  "final": {
+   "A 3D environment": "window.engine missing (Three.js may have failed to load)",
+   "A voxel-based world": "not checked",
+   "Block rendering": "not checked",
+   "Procedural terrain generation": "not checked",
+   "Chunk generation": "not checked",
+   "Chunk loading and unloading": "not checked",
+   "Player movement": "not checked",
+   "Collision detection": "not checked",
+   "Block placement": "not checked",
+   "Block destruction": "not checked",
+   "World persistence": "not checked",
+   "Optimized rendering and chunk management": "not checked",
+   "Stays playable as the world grows": "not checked"
+  }
+ },
+ "physics": {
+  "title": "10. Physics Simulator",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 185586,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "physics.js"
+    ],
+    "reply": "Sure, let's start by creating the `index.html` and `physics.js` files as described.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>2D Physics Simulator</title>\n    <style>\n        body { margin: 0; }\n        canvas { display: block; }\n    </style>\n</head>\n<body>\n    <canvas id=\"canvas\" width=\"800\" height=\"500\"></canvas>\n    <div>\n        <label for=\"gravity\">Gravity:</label>\n        <input type=\"range\" id=\"gravity\" min=\"0\" max=\"10\" value=\"1\">\n        <label for=\"restitution\">Restitution:</label>\n        <input type=\"range\" id=\"restitution\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.5\">\n        <label for=\"friction\">Friction:</label>\n        <input type=\"range\" id=\"friction\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.1\">\n        <button id=\"spawn300\">Spawn 300</button>\n    </div>\n    <div id=\"stats\"></div>\n    <script src=\"physics.js\"></script>\n    <script>\n        const canvas = document.getElementById('canvas');\n        const ctx = canvas.getContext('2d');\n        const gravity = document.getElementById('gravity');\n        const restitution = document.getElementById('restitution');\n        const friction = document.getElementById('friction');\n        const spawn300 = document.getElementById('spawn300');\n        const stats = document.getElementById('stats');\n\n        window.sim = {\n            bodies: [],\n            add(x, y, vx, vy, r, m) {\n                this.bodies.push({ x, y, vx, vy, r, m });\n            },\n            clear() {\n                this.bodies = [];\n            },\n            step(dt) {\n                // Physics step logic here\n            },\n            params: {\n                gravity: parseFloat(gravity.value),\n                restitution: parseFloat(restitution.value),\n                friction: parseFloat(friction.value)\n            },\n            emit(x, y, n) {\n                // Particle emitter logic here\n            },\n            particles: [],\n            pause() {\n                // Pause logic here\n            }\n        };\n\n        canvas.addEventListener('click', (e) => {\n            const rect = canvas.getBoundingClientRect();\n            const x = e.clientX - rect.left;\n            const y = e.clientY - rect.top;\n            window.sim.add(x, y, 0, 0, 10, 1);\n        });\n\n        spawn300.addEventListener('click', () => {\n            for (let i = 0; i < 300; i++) {\n                const x = Math.random()",
+    "passed": 1,
+    "failing": {
+     "Gravity": "not checked",
+     "Elastic collisions": "not checked",
+     "Friction": "not checked",
+     "Particle systems": "not checked",
+     "Users can create objects": "not checked",
+     "Users can modify simulation parameters": "not checked",
+     "Interactions between hundreds of objects": "not checked",
+     "Conservation of momentum in appropriate collisions": "not checked",
+     "Numerical stability": "not checked",
+     "Measured simulation performance": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'vy')\n    at <anonymous>:5:26\n    at <anonymous>:27:83"
+   },
+   {
+    "round": 2,
+    "aiMs": 211216,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "physics.js"
+    ],
+    "reply": "```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>2D Physics Simulator</title>\n    <style>\n        body { margin: 0; }\n        canvas { display: block; }\n    </style>\n</head>\n<body>\n    <canvas id=\"canvas\" width=\"800\" height=\"500\"></canvas>\n    <div>\n        <label for=\"gravity\">Gravity:</label>\n        <input type=\"range\" id=\"gravity\" min=\"0\" max=\"10\" value=\"1\">\n        <label for=\"restitution\">Restitution:</label>\n        <input type=\"range\" id=\"restitution\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.5\">\n        <label for=\"friction\">Friction:</label>\n        <input type=\"range\" id=\"friction\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.1\">\n        <button id=\"spawn300\">Spawn 300</button>\n    </div>\n    <div id=\"stats\"></div>\n    <script src=\"physics.js\"></script>\n    <script>\n        const canvas = document.getElementById('canvas');\n        const ctx = canvas.getContext('2d');\n        const gravity = document.getElementById('gravity');\n        const restitution = document.getElementById('restitution');\n        const friction = document.getElementById('friction');\n        const spawn300 = document.getElementById('spawn300');\n        const stats = document.getElementById('stats');\n\n        window.sim = {\n            bodies: [],\n            add(x, y, vx, vy, r, m) {\n                this.bodies.push({ x, y, vx, vy, r, m });\n            },\n            clear() {\n                this.bodies = [];\n            },\n            step(dt) {\n                // Physics step logic here\n            },\n            params: {\n                gravity: parseFloat(gravity.value),\n                restitution: parseFloat(restitution.value),\n                friction: parseFloat(friction.value)\n            },\n            emit(x, y, n) {\n                // Particle emitter logic here\n            },\n            particles: [],\n            pause() {\n                // Pause logic here\n            }\n        };\n\n        canvas.addEventListener('click', (e) => {\n            const rect = canvas.getBoundingClientRect();\n            const x = e.clientX - rect.left;\n            const y = e.clientY - rect.top;\n            window.sim.add(x, y, 0, 0, 10, 1);\n        });\n\n        spawn300.addEventListener('click', () => {\n            for (let i = 0; i < 300; i++) {\n                const x = Math.random() * canvas.width;\n                const y = Math.random() * canvas.height;\n                cons",
+    "passed": 1,
+    "failing": {
+     "Gravity": "not checked",
+     "Elastic collisions": "not checked",
+     "Friction": "not checked",
+     "Particle systems": "not checked",
+     "Users can create objects": "not checked",
+     "Users can modify simulation parameters": "not checked",
+     "Interactions between hundreds of objects": "not checked",
+     "Conservation of momentum in appropriate collisions": "not checked",
+     "Numerical stability": "not checked",
+     "Measured simulation performance": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'vy')\n    at <anonymous>:5:26\n    at <anonymous>:27:83"
+   },
+   {
+    "round": 3,
+    "aiMs": 298888,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "physics.js"
+    ],
+    "reply": "To fix the issues and meet the requirements, we need to address several aspects of the code. Here are the changes needed:\n\n1. **Gravity**: Ensure gravity is applied correctly.\n2. **Elastic Collisions**: Resolve collisions correctly.\n3. **Friction**: Apply friction to the floor.\n4. **Particle Systems**: Implement particle emission.\n5. **User Interactions**: Allow users to create objects and modify simulation parameters.\n6. **Interactions Between Hundreds of Objects**: Ensure performance is acceptable.\n7. **Conservation of Momentum**: Ensure momentum is conserved in collisions.\n8. **Numerical Stability**: Ensure the simulation remains stable.\n9. **Measured Simulation Performance**: Display FPS and step-time.\n\nHere is the updated `index.html` and `physics.js`:\n\n```index.html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>2D Physics Simulator</title>\n    <style>\n        body { margin: 0; }\n        canvas { display: block; }\n    </style>\n</head>\n<body>\n    <canvas id=\"canvas\" width=\"800\" height=\"500\"></canvas>\n    <div>\n        <label for=\"gravity\">Gravity:</label>\n        <input type=\"range\" id=\"gravity\" min=\"0\" max=\"10\" value=\"1\">\n        <label for=\"restitution\">Restitution:</label>\n        <input type=\"range\" id=\"restitution\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.5\">\n        <label for=\"friction\">Friction:</label>\n        <input type=\"range\" id=\"friction\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.1\">\n        <button id=\"spawn300\">Spawn 300</button>\n    </div>\n    <div id=\"stats\"></div>\n    <script src=\"physics.js\"></script>\n    <script>\n        const canvas = document.getElementById('canvas');\n        const ctx = canvas.getContext('2d');\n        const gravity = document.getElementById('gravity');\n        const restitution = document.getElementById('restitution');\n        const friction = document.getElementById('friction');\n        const spawn300 = document.getElementById('spawn300');\n        const stats = document.getElementById('stats');\n\n        window.sim = {\n            bodies: [],\n            add(x, y, vx, vy, r, m) {\n                this.bodies.push({ x, y, vx, vy, r, m });\n            },\n            clear() {\n                this.bodies = [];\n            },\n            step(dt) {\n                const bodies = this.bodies;\n                const params = this.params;\n                const gravity = params.gravity;\n                const restitution = para",
+    "passed": 1,
+    "failing": {
+     "Gravity": "not checked",
+     "Elastic collisions": "not checked",
+     "Friction": "not checked",
+     "Particle systems": "not checked",
+     "Users can create objects": "not checked",
+     "Users can modify simulation parameters": "not checked",
+     "Interactions between hundreds of objects": "not checked",
+     "Conservation of momentum in appropriate collisions": "not checked",
+     "Numerical stability": "not checked",
+     "Measured simulation performance": "not checked"
+    },
+    "consoleErrors": [],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'vy')\n    at <anonymous>:5:26\n    at <anonymous>:27:83"
+   }
+  ],
+  "bugsFound": 10,
+  "final": {
+   "An interactive physics simulation": true,
+   "Gravity": "not checked",
+   "Elastic collisions": "not checked",
+   "Friction": "not checked",
+   "Particle systems": "not checked",
+   "Users can create objects": "not checked",
+   "Users can modify simulation parameters": "not checked",
+   "Interactions between hundreds of objects": "not checked",
+   "Conservation of momentum in appropriate collisions": "not checked",
+   "Numerical stability": "not checked",
+   "Measured simulation performance": "not checked"
+  }
+ },
+ "chess": {
+  "title": "11. Chess Engine",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 112090,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "chess.js",
+     "ui.js"
+    ],
+    "reply": "To build a chess game with the specified features, we need to create several files: `index.html`, `chess.js`, and `ui.js`. Below is the complete content for each file.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Chess Game</title>\n    <style>\n        body {\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            margin: 0;\n            background-color: #f0d9b5;\n        }\n        #board {\n            display: grid;\n            grid-template-columns: repeat(8, 50px);\n            grid-template-rows: repeat(8, 50px);\n            gap: 1px;\n        }\n        .square {\n            width: 50px;\n            height: 50px;\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            font-size: 24px;\n        }\n        .white {\n            background-color: #f0d9b5;\n        }\n        .black {\n            background-color: #b58863;\n        }\n    </style>\n</head>\n<body>\n    <div id=\"board\"></div>\n    <script src=\"chess.js\"></script>\n    <script src=\"ui.js\"></script>\n</body>\n</html>\n```\n\n### chess.js\n```javascript\nwindow.chess = (function() {\n    const board = Array(64).fill(null);\n    const pieceValues = {\n        'P': 100, 'N': 300, 'B': 300, 'R': 500, 'Q': 900, 'K': 20000,\n        'p': -100, 'n': -300, 'b': -300, 'r': -500, 'q': -900, 'k': -20000\n    };\n\n    function init() {\n        // Initialize the board with starting positions\n        // ...\n    }\n\n    function load(fen) {\n        // Load the board from a FEN string\n        // ...\n    }\n\n    function fen() {\n        // Return the current board state as a FEN string\n        // ...\n    }\n\n    function moves() {\n        // Return a list of legal moves in UCI format\n        // ...\n    }\n\n    function move(uci) {\n        // Play a move in UCI format\n        // ...\n    }\n\n    function turn() {\n        // Return the current turn ('w' or 'b')\n        // ...\n    }\n\n    function inCheck() {\n        // Check if the current player is in check\n        // ...\n    }\n\n    function isCheckmate() {\n        // Check if the game is in checkmate\n        // ...\n    }\n\n    function isStalemate() {\n        // Check if the game is in stalemate\n        // ...\n    }\n\n    function evaluate() {\n        // Evaluate the current board position from White's perspective\n        // ...\n    }\n\n",
+    "passed": 0,
+    "failing": {
+     "A functional chessboard": "0 squares, pieces shown=false",
+     "Legal move generation": "not checked",
+     "Piece movement": "not checked",
+     "Check detection": "not checked",
+     "Checkmate detection": "not checked",
+     "Stalemate detection": "not checked",
+     "Castling": "not checked",
+     "En passant": "not checked",
+     "Pawn promotion": "not checked",
+     "Board evaluation": "not checked",
+     "Minimax": "not checked",
+     "Alpha-beta pruning": "not checked",
+     "A playable computer opponent": "not checked",
+     "Tested against known chess positions": "not checked",
+     "Illegal moves are never accepted": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: chess.board is not a function"
+    ],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at <anonymous>:4:51\n    at <anonymous>:22:83"
+   },
+   {
+    "round": 2,
+    "aiMs": 155267,
+    "aiError": null,
+    "filesWritten": [
+     "chess.js",
+     "index.html",
+     "ui.js"
+    ],
+    "reply": "To fix the issues and implement the required features, we need to address several aspects of the code. Here is the complete content of the updated files:\n\n```chess.js\nwindow.chess = (function() {\n    const board = Array(64).fill(null);\n    const pieceValues = {\n        'P': 100, 'N': 300, 'B': 300, 'R': 500, 'Q': 900, 'K': 20000,\n        'p': -100, 'n': -300, 'b': -300, 'r': -500, 'q': -900, 'k': -20000\n    };\n\n    const initialFEN = \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1\";\n\n    function init() {\n        load(initialFEN);\n    }\n\n    function load(fen) {\n        const rows = fen.split('/');\n        let index = 0;\n        for (let row of rows) {\n            for (let char of row) {\n                if (char >= '1' && char <= '8') {\n                    index += parseInt(char);\n                } else {\n                    board[index] = char;\n                    index++;\n                }\n            }\n        }\n    }\n\n    function fen() {\n        let fen = '';\n        let empty = 0;\n        for (let i = 0; i < 64; i++) {\n            if (board[i] === null) {\n                empty++;\n            } else {\n                if (empty > 0) {\n                    fen += empty;\n                    empty = 0;\n                }\n                fen += board[i];\n            }\n            if ((i + 1) % 8 === 0) {\n                if (empty > 0) {\n                    fen += empty;\n                    empty = 0;\n                }\n                fen += '/';\n            }\n        }\n        return fen.slice(0, -1) + ' ' + (turn() === 'w' ? 'w' : 'b') + ' - - 0 1';\n    }\n\n    function moves() {\n        // Implement legal move generation\n        // ...\n    }\n\n    function move(uci) {\n        // Implement piece movement\n        // ...\n    }\n\n    function turn() {\n        // Implement turn management\n        // ...\n    }\n\n    function inCheck() {\n        // Implement check detection\n        // ...\n    }\n\n    function isCheckmate() {\n        // Implement checkmate detection\n        // ...\n    }\n\n    function isStalemate() {\n        // Implement stalemate detection\n        // ...\n    }\n\n    function evaluate() {\n        // Implement material+piece-square evaluation\n        // ...\n    }\n\n    function perft(depth) {\n        // Implement performance test\n        // ...\n    }\n\n    function search(depth, {alphaBeta = true} = {}) {\n        // Implement minimax search with alpha-beta pruning\n        // ...\n    }\n\n    function bestMove(depth) {\n        // Implement best move cal",
+    "passed": 0,
+    "failing": {
+     "A functional chessboard": "0 squares, pieces shown=false",
+     "Legal move generation": "not checked",
+     "Piece movement": "not checked",
+     "Check detection": "not checked",
+     "Checkmate detection": "not checked",
+     "Stalemate detection": "not checked",
+     "Castling": "not checked",
+     "En passant": "not checked",
+     "Pawn promotion": "not checked",
+     "Board evaluation": "not checked",
+     "Minimax": "not checked",
+     "Alpha-beta pruning": "not checked",
+     "A playable computer opponent": "not checked",
+     "Tested against known chess positions": "not checked",
+     "Illegal moves are never accepted": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: chess.board is not a function"
+    ],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at <anonymous>:4:51\n    at <anonymous>:22:83"
+   },
+   {
+    "round": 3,
+    "aiMs": 154735,
+    "aiError": null,
+    "filesWritten": [
+     "chess.js",
+     "index.html",
+     "ui.js"
+    ],
+    "reply": "To fix the issues and implement the full functionality of a chess game, we need to address several key areas: board rendering, legal move generation, piece movement, and more. Below are the complete contents of the modified files:\n\n### chess.js\n```javascript\nwindow.chess = (function() {\n    const board = Array(64).fill(null);\n    const pieceValues = {\n        'P': 100, 'N': 300, 'B': 300, 'R': 500, 'Q': 900, 'K': 20000,\n        'p': -100, 'n': -300, 'b': -300, 'r': -500, 'q': -900, 'k': -20000\n    };\n\n    const initialFEN = \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1\";\n\n    function init() {\n        load(initialFEN);\n    }\n\n    function load(fen) {\n        const rows = fen.split('/');\n        let index = 0;\n        for (let row of rows) {\n            for (let char of row) {\n                if (char >= '1' && char <= '8') {\n                    index += parseInt(char);\n                } else {\n                    board[index] = char;\n                    index++;\n                }\n            }\n        }\n    }\n\n    function fen() {\n        let fen = '';\n        let empty = 0;\n        for (let i = 0; i < 64; i++) {\n            if (board[i] === null) {\n                empty++;\n            } else {\n                if (empty > 0) {\n                    fen += empty;\n                    empty = 0;\n                }\n                fen += board[i];\n            }\n            if ((i + 1) % 8 === 0) {\n                if (empty > 0) {\n                    fen += empty;\n                    empty = 0;\n                }\n                fen += '/';\n            }\n        }\n        return fen.slice(0, -1) + ' ' + (turn() === 'w' ? 'w' : 'b') + ' - - 0 1';\n    }\n\n    function moves() {\n        // Implement legal move generation\n        // ...\n    }\n\n    function move(uci) {\n        // Implement piece movement\n        // ...\n    }\n\n    function turn() {\n        // Implement turn management\n        // ...\n    }\n\n    function inCheck() {\n        // Implement check detection\n        // ...\n    }\n\n    function isCheckmate() {\n        // Implement checkmate detection\n        // ...\n    }\n\n    function isStalemate() {\n        // Implement stalemate detection\n        // ...\n    }\n\n    function evaluate() {\n        // Implement material+piece-square evaluation\n        // ...\n    }\n\n    function perft(depth) {\n        // Implement performance test\n        // ...\n    }\n\n    function search(depth, {alphaBeta = true} = {}) {\n        // Implement minimax search with alpha-beta pru",
+    "passed": 0,
+    "failing": {
+     "A functional chessboard": "0 squares, pieces shown=false",
+     "Legal move generation": "not checked",
+     "Piece movement": "not checked",
+     "Check detection": "not checked",
+     "Checkmate detection": "not checked",
+     "Stalemate detection": "not checked",
+     "Castling": "not checked",
+     "En passant": "not checked",
+     "Pawn promotion": "not checked",
+     "Board evaluation": "not checked",
+     "Minimax": "not checked",
+     "Alpha-beta pruning": "not checked",
+     "A playable computer opponent": "not checked",
+     "Tested against known chess positions": "not checked",
+     "Illegal moves are never accepted": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: chess.board is not a function"
+    ],
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at <anonymous>:4:51\n    at <anonymous>:22:83"
+   }
+  ],
+  "bugsFound": 15,
+  "final": {
+   "A functional chessboard": "0 squares, pieces shown=false",
+   "Legal move generation": "not checked",
+   "Piece movement": "not checked",
+   "Check detection": "not checked",
+   "Checkmate detection": "not checked",
+   "Stalemate detection": "not checked",
+   "Castling": "not checked",
+   "En passant": "not checked",
+   "Pawn promotion": "not checked",
+   "Board evaluation": "not checked",
+   "Minimax": "not checked",
+   "Alpha-beta pruning": "not checked",
+   "A playable computer opponent": "not checked",
+   "Tested against known chess positions": "not checked",
+   "Illegal moves are never accepted": "not checked"
+  }
+ },
+ "visual": {
+  "title": "12. Visual Programming Environment",
+  "model": "qwen2.5-coder-7b",
+  "rounds": [
+   {
+    "round": 1,
+    "aiMs": 197391,
+    "aiError": null,
+    "filesWritten": [
+     "index.html",
+     "app.js",
+     "style.css"
+    ],
+    "reply": "Sure, let's start by creating the basic structure of the project. We'll create three files: `index.html`, `app.js`, and `style.css`.\n\n### index.html\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Node-Based Visual Programming Environment</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n    <div id=\"canvas\"></div>\n    <button id=\"run\">Run</button>\n    <button id=\"save\">Save</button>\n    <button id=\"load\">Load</button>\n    <script src=\"app.js\"></script>\n</body>\n</html>\n```\n\n### app.js\n```javascript\nwindow.vp = {\n    nodes: [],\n    edges: [],\n    canvas: document.getElementById('canvas'),\n    runButton: document.getElementById('run'),\n    saveButton: document.getElementById('save'),\n    loadButton: document.getElementById('load'),\n\n    addNode(type, x, y, value) {\n        const node = document.createElement('div');\n        node.className = 'node';\n        node.style.left = `${x}px`;\n        node.style.top = `${y}px`;\n        node.innerHTML = `\n            <div class=\"ports\">\n                <div class=\"port in\" data-input=\"in\"></div>\n                <div class=\"port out\" data-output=\"out\"></div>\n            </div>\n            <div class=\"content\">${type}</div>\n        `;\n        if (type === 'number') {\n            const input = document.createElement('input');\n            input.type = 'number';\n            input.value = value || 0;\n            node.appendChild(input);\n        }\n        this.canvas.appendChild(node);\n        this.nodes.push({ id: this.nodes.length, type, x, y, value });\n        return this.nodes.length - 1;\n    },\n\n    connect(fromId, toId, inputName) {\n        const fromNode = this.nodes[fromId];\n        const toNode = this.nodes[toId];\n        if (!fromNode || !toNode) return false;\n\n        const fromPort = fromNode.element.querySelector(`.port.out[data-output=\"${inputName}\"]`);\n        const toPort = toNode.element.querySelector('.port.in');\n        if (!fromPort || !toPort) return false;\n\n        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');\n        path.className = 'wire';\n        path.setAttribute('d', `M${fromPort.offsetLeft + fromPort.offsetWidth / 2} ${fromPort.offsetTop + fromPort.offsetHeight / 2} L${toPort.offsetLeft + toPort.offsetWidth / 2} ${toPort.offsetTop + toPort.offsetHeight / 2}`);\n        this.canvas.appendChild(path);\n        this.edges.push({ from: fromId, ",
+    "passed": 0,
+    "failing": {
+     "Draggable programming nodes": "not checked",
+     "Node connections": "not checked",
+     "Input and output ports": "not checked",
+     "A node execution system": "not checked",
+     "Dependency resolution": "not checked",
+     "Detects circular dependencies": "not checked",
+     "Error handling": "not checked",
+     "Graph visualization": "not checked",
+     "Saving and loading": "not checked",
+     "A working example program built with the node system": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: this.nodes.push is not a function"
+    ],
+    "probeError": "TypeError: this.nodes.map is not a function\n    at Object.run (http://localhost:61599/app.js:50:34)\n    at <anonymous>:3:12\n    at <anonymous>:22:83"
+   },
+   {
+    "round": 2,
+    "aiMs": 247281,
+    "aiError": null,
+    "filesWritten": [
+     "app.js",
+     "index.html",
+     "style.css"
+    ],
+    "reply": "To fix the issues and implement the required features, we need to address several aspects of the code. Here are the changes needed:\n\n1. **Draggable Nodes**: Implement drag functionality using mouse events.\n2. **Node Connections**: Ensure connections are correctly drawn and managed.\n3. **Input and Output Ports**: Add functionality to connect nodes via ports.\n4. **Node Execution System**: Implement a dependency resolution system.\n5. **Dependency Resolution**: Detect and handle circular dependencies.\n6. **Error Handling**: Add error handling for missing inputs and division by zero.\n7. **Graph Visualization**: Ensure nodes and connections are visually correct.\n8. **Saving and Loading**: Implement save and load functionality using localStorage.\n9. **Example Program**: Provide an example program that works with the node system.\n\nHere is the updated code for `app.js`, `index.html`, and `style.css`:\n\n### app.js\n```javascript\nwindow.vp = {\n    nodes: [],\n    edges: [],\n    canvas: document.getElementById('canvas'),\n    runButton: document.getElementById('run'),\n    saveButton: document.getElementById('save'),\n    loadButton: document.getElementById('load'),\n\n    addNode(type, x, y, value) {\n        const node = document.createElement('div');\n        node.className = 'node';\n        node.style.left = `${x}px`;\n        node.style.top = `${y}px`;\n        node.innerHTML = `\n            <div class=\"ports\">\n                <div class=\"port in\" data-input=\"in\"></div>\n                <div class=\"port out\" data-output=\"out\"></div>\n            </div>\n            <div class=\"content\">${type}</div>\n        `;\n        if (type === 'number') {\n            const input = document.createElement('input');\n            input.type = 'number';\n            input.value = value || 0;\n            node.appendChild(input);\n        }\n        this.canvas.appendChild(node);\n        this.nodes.push({ id: this.nodes.length, type, x, y, value, element: node });\n        return this.nodes.length - 1;\n    },\n\n    connect(fromId, toId, inputName) {\n        const fromNode = this.nodes[fromId];\n        const toNode = this.nodes[toId];\n        if (!fromNode || !toNode) return false;\n\n        const fromPort = fromNode.element.querySelector(`.port.out[data-output=\"${inputName}\"]`);\n        const toPort = toNode.element.querySelector('.port.in');\n        if (!fromPort || !toPort) return false;\n\n        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');\n        path.className = 'wire",
+    "passed": 0,
+    "failing": {
+     "Draggable programming nodes": "not checked",
+     "Node connections": "not checked",
+     "Input and output ports": "not checked",
+     "A node execution system": "not checked",
+     "Dependency resolution": "not checked",
+     "Detects circular dependencies": "not checked",
+     "Error handling": "not checked",
+     "Graph visualization": "not checked",
+     "Saving and loading": "not checked",
+     "A working example program built with the node system": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: this.nodes.push is not a function"
+    ],
+    "probeError": "TypeError: this.nodes.map is not a function\n    at Object.run (http://localhost:50215/app.js:50:34)\n    at <anonymous>:3:12\n    at <anonymous>:22:83"
+   },
+   {
+    "round": 3,
+    "aiMs": 237276,
+    "aiError": null,
+    "filesWritten": [
+     "app.js",
+     "index.html",
+     "style.css"
+    ],
+    "reply": "To fix the issues and meet the requirements, we need to address several aspects of the code. Here are the changes needed:\n\n1. **Draggable Nodes**: Implement drag functionality using mouse events.\n2. **Node Connections**: Ensure connections are properly created and updated.\n3. **Input and Output Ports**: Ensure ports are correctly identified and connected.\n4. **Node Execution System**: Implement a topological sort for dependency resolution.\n5. **Dependency Resolution**: Detect and handle circular dependencies.\n6. **Error Handling**: Add error handling for missing inputs and division by zero.\n7. **Graph Visualization**: Ensure nodes and connections are visually represented.\n8. **Saving and Loading**: Implement save and load functionality.\n9. **Example Program**: Provide an example program that computes `(2 + 3) * 4`.\n\nHere is the updated code for `app.js`, `index.html`, and `style.css`:\n\n```app.js\nwindow.vp = {\n    nodes: [],\n    edges: [],\n    canvas: document.getElementById('canvas'),\n    runButton: document.getElementById('run'),\n    saveButton: document.getElementById('save'),\n    loadButton: document.getElementById('load'),\n\n    addNode(type, x, y, value) {\n        const node = document.createElement('div');\n        node.className = 'node';\n        node.style.left = `${x}px`;\n        node.style.top = `${y}px`;\n        node.innerHTML = `\n            <div class=\"ports\">\n                <div class=\"port in\" data-input=\"in\"></div>\n                <div class=\"port out\" data-output=\"out\"></div>\n            </div>\n            <div class=\"content\">${type}</div>\n        `;\n        if (type === 'number') {\n            const input = document.createElement('input');\n            input.type = 'number';\n            input.value = value || 0;\n            node.appendChild(input);\n        }\n        this.canvas.appendChild(node);\n        this.nodes.push({ id: this.nodes.length, type, x, y, value, element: node });\n        return this.nodes.length - 1;\n    },\n\n    connect(fromId, toId, inputName) {\n        const fromNode = this.nodes[fromId];\n        const toNode = this.nodes[toId];\n        if (!fromNode || !toNode) return false;\n\n        const fromPort = fromNode.element.querySelector(`.port.out[data-output=\"${inputName}\"]`);\n        const toPort = toNode.element.querySelector('.port.in');\n        if (!fromPort || !toPort) return false;\n\n        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');\n        path.className = 'wire';\n        path.setAtt",
+    "passed": 0,
+    "failing": {
+     "Draggable programming nodes": "not checked",
+     "Node connections": "not checked",
+     "Input and output ports": "not checked",
+     "A node execution system": "not checked",
+     "Dependency resolution": "not checked",
+     "Detects circular dependencies": "not checked",
+     "Error handling": "not checked",
+     "Graph visualization": "not checked",
+     "Saving and loading": "not checked",
+     "A working example program built with the node system": "not checked"
+    },
+    "consoleErrors": [
+     "Uncaught TypeError: this.nodes.push is not a function"
+    ],
+    "probeError": "TypeError: this.nodes.map is not a function\n    at Object.run (http://localhost:56751/app.js:50:34)\n    at <anonymous>:3:12\n    at <anonymous>:22:83"
+   }
+  ],
+  "bugsFound": 10,
+  "final": {
+   "Draggable programming nodes": "not checked",
+   "Node connections": "not checked",
+   "Input and output ports": "not checked",
+   "A node execution system": "not checked",
+   "Dependency resolution": "not checked",
+   "Detects circular dependencies": "not checked",
+   "Error handling": "not checked",
+   "Graph visualization": "not checked",
+   "Saving and loading": "not checked",
+   "A working example program built with the node system": "not checked"
+  }
+ }
+}

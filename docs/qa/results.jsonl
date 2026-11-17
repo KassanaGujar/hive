@@ -697,3 +697,129 @@
 {"phase":"P7","name":"7. Procedural World Generator — Users can regenerate worlds","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.278Z"}
 {"phase":"P7","name":"7. Procedural World Generator — A controllable character","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.279Z"}
 {"phase":"P7","name":"7. Procedural World Generator — Terrain generation performs efficiently","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.279Z"}
+{"phase":"P6","name":"1. Snake Game — Create a playable Snake game","status":"FAIL","detail":"no canvas or snake does not move on its own","at":"2026-11-17T00:25:13.284Z"}
+{"phase":"P6","name":"1. Snake Game — Directional movement","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:25:13.289Z"}
+{"phase":"P6","name":"1. Snake Game — Food generation","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:25:13.290Z"}
+{"phase":"P6","name":"1. Snake Game — Snake growth","status":"FAIL","detail":"length 1→1","at":"2026-11-17T00:25:13.291Z"}
+{"phase":"P6","name":"1. Snake Game — Wall collision","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:25:13.292Z"}
+{"phase":"P6","name":"1. Snake Game — Self-collision","status":"FAIL","detail":"length 1 looped into itself without game over","at":"2026-11-17T00:25:13.296Z"}
+{"phase":"P6","name":"1. Snake Game — Score tracking","status":"FAIL","detail":"score 0→0","at":"2026-11-17T00:25:13.298Z"}
+{"phase":"P6","name":"1. Snake Game — Game-over functionality","status":"FAIL","detail":"over=true moved after over=false message=false","at":"2026-11-17T00:25:13.301Z"}
+{"phase":"P6","name":"1. Snake Game — Restart functionality","status":"FAIL","detail":"{\"over\":false,\"score\":0,\"len\":1}","at":"2026-11-17T00:25:13.302Z"}
+{"phase":"P6","name":"1. Snake Game — The game runs without errors","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:25:13.303Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A functional game board","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.052Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Two-player gameplay","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.054Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Turn management","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.055Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects winning combinations","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.057Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects draws","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.062Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A scoreboard","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.063Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Restart functionality","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.065Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Illegal moves are prevented","status":"PASS","detail":"after 1 round(s)","at":"2026-11-17T00:28:01.067Z"}
+{"phase":"P6","name":"3. Space Invaders — Player movement","status":"FAIL","detail":"x 220→220","at":"2026-11-17T00:37:33.131Z"}
+{"phase":"P6","name":"3. Space Invaders — Projectile shooting","status":"FAIL","detail":"no bullet or bullet does not move up","at":"2026-11-17T00:37:33.132Z"}
+{"phase":"P6","name":"3. Space Invaders — Enemy formations","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:37:33.133Z"}
+{"phase":"P6","name":"3. Space Invaders — Projectile collisions","status":"FAIL","detail":"enemy count 32→32","at":"2026-11-17T00:37:33.134Z"}
+{"phase":"P6","name":"3. Space Invaders — Player-enemy collisions","status":"FAIL","detail":"lives 3→3","at":"2026-11-17T00:37:33.134Z"}
+{"phase":"P6","name":"3. Space Invaders — Scoring","status":"FAIL","detail":"score 0→0","at":"2026-11-17T00:37:33.135Z"}
+{"phase":"P6","name":"3. Space Invaders — Increasing difficulty","status":"FAIL","detail":"level 1→1, speed 1→1","at":"2026-11-17T00:37:33.136Z"}
+{"phase":"P6","name":"3. Space Invaders — Game-over and restart states","status":"FAIL","detail":"over=false after reset over=false","at":"2026-11-17T00:37:33.137Z"}
+{"phase":"P6","name":"4. Breakout — Paddle movement","status":"FAIL","detail":"paddle did not move","at":"2026-11-17T00:48:37.584Z"}
+{"phase":"P6","name":"4. Breakout — Ball physics","status":"FAIL","detail":"ball at 200,400","at":"2026-11-17T00:48:37.585Z"}
+{"phase":"P6","name":"4. Breakout — Wall collisions","status":"FAIL","detail":"left bounce=false top bounce=false","at":"2026-11-17T00:48:37.586Z"}
+{"phase":"P6","name":"4. Breakout — Paddle collisions","status":"FAIL","detail":"ball vy after paddle 4","at":"2026-11-17T00:48:37.587Z"}
+{"phase":"P6","name":"4. Breakout — Brick destruction","status":"FAIL","detail":"brick alive=true","at":"2026-11-17T00:48:37.587Z"}
+{"phase":"P6","name":"4. Breakout — Lives and scoring","status":"FAIL","detail":"score 0→0, lives 3→3","at":"2026-11-17T00:48:37.588Z"}
+{"phase":"P6","name":"4. Breakout — Win and loss conditions","status":"FAIL","detail":"won=false over=false","at":"2026-11-17T00:48:37.589Z"}
+{"phase":"P6","name":"4. Breakout — The game behaves consistently","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:48:37.590Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — A task management application","status":"FAIL","detail":"see creation/columns","at":"2026-11-17T00:56:41.961Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task creation","status":"FAIL","detail":"task not created or not shown","at":"2026-11-17T00:56:41.962Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task deletion","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:56:41.963Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task editing","status":"FAIL","detail":"edit not applied","at":"2026-11-17T00:56:41.963Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Draggable task cards","status":"FAIL","detail":"card element not found","at":"2026-11-17T00:56:41.964Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Multiple task columns","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:56:41.965Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task assignments","status":"FAIL","detail":"assign not applied","at":"2026-11-17T00:56:41.965Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Persistent storage","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:56:41.966Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Real-time collaboration","status":"FAIL","detail":"second window did not update live","at":"2026-11-17T00:56:41.967Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Multiple users see the same task updates","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:56:41.967Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Refreshing doesn't lose tasks","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T00:56:41.968Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — An interactive grid","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:17:58.482Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Users can place walls and obstacles","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:17:58.483Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Users can select a start point and destination","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.484Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — A* pathfinding","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.484Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Dijkstra's algorithm","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.485Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Breadth-First Search","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.486Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Animated search process","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.486Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Displays the resulting path","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.487Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Compares the algorithms' performance","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.488Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Handles unreachable destinations","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.488Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Each algorithm returns correct results","status":"FAIL","detail":"not checked","at":"2026-11-17T01:17:58.489Z"}
+{"phase":"P7","name":"7. Procedural World Generator — A random terrain map","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.528Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Perlin or Simplex noise","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.529Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Mountains","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.530Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Lakes and rivers","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.530Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Forests","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.531Z"}
+{"phase":"P7","name":"7. Procedural World Generator — World seeds","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.532Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Identical seeds produce identical worlds","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.533Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Users can regenerate worlds","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.534Z"}
+{"phase":"P7","name":"7. Procedural World Generator — A controllable character","status":"FAIL","detail":"moved=false blocked by water=not tested","at":"2026-11-17T01:27:00.534Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Terrain generation performs efficiently","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:27:00.535Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — A chat interface","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T01:40:23.251Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Multiple users","status":"FAIL","detail":"online list []","at":"2026-11-17T01:40:23.251Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Sending and receiving messages","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.252Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Persistent message history","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.253Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Timestamps","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.254Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Online indicators","status":"FAIL","detail":"no presence event listing Ana","at":"2026-11-17T01:40:23.254Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Typing indicators","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.255Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Private chat rooms","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.256Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Handles simultaneous messages","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.256Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Handles disconnected users","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.257Z"}
+{"phase":"P7","name":"8. Real-Time Chat Application — Messages aren't lost or duplicated","status":"FAIL","detail":"not checked","at":"2026-11-17T01:40:23.257Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — A 3D environment","status":"FAIL","detail":"window.engine missing (Three.js may have failed to load)","at":"2026-11-17T01:56:59.248Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — A voxel-based world","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.249Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Block rendering","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.249Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Procedural terrain generation","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.250Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Chunk generation","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.251Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Chunk loading and unloading","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.251Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Player movement","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.252Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Collision detection","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.252Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Block placement","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.253Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Block destruction","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.254Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — World persistence","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.254Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Optimized rendering and chunk management","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.255Z"}
+{"phase":"P8","name":"9. Minecraft-Style Voxel Engine — Stays playable as the world grows","status":"FAIL","detail":"not checked","at":"2026-11-17T01:56:59.256Z"}
+{"phase":"P8","name":"10. Physics Simulator — An interactive physics simulation","status":"PASS","detail":"after 3 round(s)","at":"2026-11-17T02:09:58.486Z"}
+{"phase":"P8","name":"10. Physics Simulator — Gravity","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.487Z"}
+{"phase":"P8","name":"10. Physics Simulator — Elastic collisions","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.488Z"}
+{"phase":"P8","name":"10. Physics Simulator — Friction","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.488Z"}
+{"phase":"P8","name":"10. Physics Simulator — Particle systems","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.489Z"}
+{"phase":"P8","name":"10. Physics Simulator — Users can create objects","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.490Z"}
+{"phase":"P8","name":"10. Physics Simulator — Users can modify simulation parameters","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.491Z"}
+{"phase":"P8","name":"10. Physics Simulator — Interactions between hundreds of objects","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.491Z"}
+{"phase":"P8","name":"10. Physics Simulator — Conservation of momentum in appropriate collisions","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.492Z"}
+{"phase":"P8","name":"10. Physics Simulator — Numerical stability","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.493Z"}
+{"phase":"P8","name":"10. Physics Simulator — Measured simulation performance","status":"FAIL","detail":"not checked","at":"2026-11-17T02:09:58.494Z"}
+{"phase":"P8","name":"11. Chess Engine — A functional chessboard","status":"FAIL","detail":"0 squares, pieces shown=false","at":"2026-11-17T02:18:15.878Z"}
+{"phase":"P8","name":"11. Chess Engine — Legal move generation","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.879Z"}
+{"phase":"P8","name":"11. Chess Engine — Piece movement","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.879Z"}
+{"phase":"P8","name":"11. Chess Engine — Check detection","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.880Z"}
+{"phase":"P8","name":"11. Chess Engine — Checkmate detection","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.881Z"}
+{"phase":"P8","name":"11. Chess Engine — Stalemate detection","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.881Z"}
+{"phase":"P8","name":"11. Chess Engine — Castling","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.882Z"}
+{"phase":"P8","name":"11. Chess Engine — En passant","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.883Z"}
+{"phase":"P8","name":"11. Chess Engine — Pawn promotion","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.883Z"}
+{"phase":"P8","name":"11. Chess Engine — Board evaluation","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.884Z"}
+{"phase":"P8","name":"11. Chess Engine — Minimax","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.885Z"}
+{"phase":"P8","name":"11. Chess Engine — Alpha-beta pruning","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.885Z"}
+{"phase":"P8","name":"11. Chess Engine — A playable computer opponent","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.886Z"}
+{"phase":"P8","name":"11. Chess Engine — Tested against known chess positions","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.887Z"}
+{"phase":"P8","name":"11. Chess Engine — Illegal moves are never accepted","status":"FAIL","detail":"not checked","at":"2026-11-17T02:18:15.887Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Draggable programming nodes","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.416Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Node connections","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.417Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Input and output ports","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.417Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — A node execution system","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.418Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Dependency resolution","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.419Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Detects circular dependencies","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.420Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Error handling","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.420Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Graph visualization","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.421Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — Saving and loading","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.422Z"}
+{"phase":"P8","name":"12. Visual Programming Environment — A working example program built with the node system","status":"FAIL","detail":"not checked","at":"2026-11-17T02:31:02.423Z"}

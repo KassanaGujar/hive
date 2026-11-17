@@ -23,11 +23,16 @@ app.whenReady().then(async () => {
   try {
     await win.loadURL(url)
     await new Promise((r) => setTimeout(r, 1500))
-    const body = fs.readFileSync(probeFile, 'utf8')
+    // Probes collect results in `R`; keep it on window so the checks done before an error still count.
+    const body = fs.readFileSync(probeFile, 'utf8').replace(/,R=\{\}/, ',R=(window.__R={})')
     result = await Promise.race([
-      win.webContents.executeJavaScript(`(async()=>{try{${body}}catch(e){return {probeError:String(e&&e.stack||e)}}})()`, true),
+      win.webContents.executeJavaScript(`(async()=>{try{${body}}catch(e){return {...(window.__R||{}),probeError:String(e&&e.stack||e)}}})()`, true),
       new Promise((r) => setTimeout(() => r({ probeError: 'probe timed out after 60 s' }), 60000))
     ])
+    if (result && result.probeError && result.probeError.includes('timed out')) {
+      const partial = await win.webContents.executeJavaScript('window.__R||{}', true).catch(() => ({}))
+      result = { ...partial, ...result }
+    }
     if (shotFile) fs.writeFileSync(shotFile, (await win.webContents.capturePage()).toPNG())
   } catch (e) {
     result = { probeError: String(e) }

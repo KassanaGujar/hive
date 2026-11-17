@@ -137,7 +137,25 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -180,6 +198,12 @@ TypeError: p is not a function
 
 - [x] AI optimizes a slow algorithm — fib(35): 802 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
@@ -279,34 +303,34 @@ eggs
 
 ### 1. Snake Game
 - [F] Create a playable Snake game — no canvas or snake does not move on its own
-- [x] Directional movement — after 4 round(s)
-- [x] Food generation — after 4 round(s)
-- [F] Snake growth — length 3→3
-- [x] Wall collision — after 4 round(s)
-- [F] Self-collision — length 3 looped into itself without game over
+- [x] Directional movement — after 3 round(s)
+- [x] Food generation — after 3 round(s)
+- [F] Snake growth — length 1→1
+- [x] Wall collision — after 3 round(s)
+- [F] Self-collision — length 1 looped into itself without game over
 - [F] Score tracking — score 0→0
-- [x] Game-over functionality — after 4 round(s)
-- [x] Restart functionality — after 4 round(s)
-- [x] The game runs without errors
+- [F] Game-over functionality — over=true moved after over=false message=false
+- [F] Restart functionality — {"over":false,"score":0,"len":1}
+- [x] The game runs without errors — after 3 round(s)
 
 ### 2. Tic-Tac-Toe
-- [F] A functional game board — not checked
-- [F] Two-player gameplay — not checked
-- [F] Turn management — not checked
-- [F] Detects winning combinations — not checked
-- [F] Detects draws — not checked
-- [F] A scoreboard — not checked
-- [F] Restart functionality — not checked
-- [F] Illegal moves are prevented — not checked
+- [x] A functional game board — after 1 round(s)
+- [x] Two-player gameplay — after 1 round(s)
+- [x] Turn management — after 1 round(s)
+- [x] Detects winning combinations — after 1 round(s)
+- [x] Detects draws — after 1 round(s)
+- [x] A scoreboard — after 1 round(s)
+- [x] Restart functionality — after 1 round(s)
+- [x] Illegal moves are prevented — after 1 round(s)
 
 ### 3. Space Invaders
 - [F] Player movement — x 220→220
 - [F] Projectile shooting — no bullet or bullet does not move up
-- [x] Enemy formations — after 4 round(s)
+- [x] Enemy formations — after 3 round(s)
 - [F] Projectile collisions — enemy count 32→32
 - [F] Player-enemy collisions — lives 3→3
 - [F] Scoring — score 0→0
-- [F] Increasing difficulty — level 1→1, speed 2→2
+- [F] Increasing difficulty — level 1→1, speed 1→1
 - [F] Game-over and restart states — over=false after reset over=false
 
 ### 4. Breakout
@@ -317,119 +341,119 @@ eggs
 - [F] Brick destruction — brick alive=true
 - [F] Lives and scoring — score 0→0, lives 3→3
 - [F] Win and loss conditions — won=false over=false
-- [x] The game behaves consistently — after 4 round(s)
+- [x] The game behaves consistently — after 3 round(s)
 
 ## PHASE 7 — Coding Challenge: Intermediate
 
 ### 5. Kanban Task Manager
-- [ ] A task management application
-- [ ] Task creation
-- [ ] Task deletion
-- [ ] Task editing
-- [ ] Draggable task cards
-- [ ] Multiple task columns
-- [ ] Task assignments
-- [ ] Persistent storage
-- [ ] Real-time collaboration
-- [ ] Multiple users see the same task updates
-- [ ] Refreshing doesn't lose tasks
+- [F] A task management application — see creation/columns
+- [F] Task creation — task not created or not shown
+- [x] Task deletion — after 3 round(s)
+- [F] Task editing — edit not applied
+- [F] Draggable task cards — card element not found
+- [x] Multiple task columns — after 3 round(s)
+- [F] Task assignments — assign not applied
+- [x] Persistent storage — after 3 round(s)
+- [F] Real-time collaboration — second window did not update live
+- [x] Multiple users see the same task updates — after 3 round(s)
+- [x] Refreshing doesn't lose tasks — after 3 round(s)
 
 ### 6. Pathfinding Visualizer
-- [ ] An interactive grid
-- [ ] Users can place walls and obstacles
-- [ ] Users can select a start point and destination
-- [ ] A* pathfinding
-- [ ] Dijkstra's algorithm
-- [ ] Breadth-First Search
-- [ ] Animated search process
-- [ ] Displays the resulting path
-- [ ] Compares the algorithms' performance
-- [ ] Handles unreachable destinations
-- [ ] Each algorithm returns correct results
+- [x] An interactive grid — after 3 round(s)
+- [x] Users can place walls and obstacles — after 3 round(s)
+- [F] Users can select a start point and destination — not checked
+- [F] A* pathfinding — not checked
+- [F] Dijkstra's algorithm — not checked
+- [F] Breadth-First Search — not checked
+- [F] Animated search process — not checked
+- [F] Displays the resulting path — not checked
+- [F] Compares the algorithms' performance — not checked
+- [F] Handles unreachable destinations — not checked
+- [F] Each algorithm returns correct results — not checked
 
 ### 7. Procedural World Generator
-- [ ] A random terrain map
-- [ ] Perlin or Simplex noise
-- [ ] Mountains
-- [ ] Lakes and rivers
-- [ ] Forests
-- [ ] World seeds
-- [ ] Identical seeds produce identical worlds
-- [ ] Users can regenerate worlds
-- [ ] A controllable character
-- [ ] Terrain generation performs efficiently
+- [x] A random terrain map — after 3 round(s)
+- [x] Perlin or Simplex noise — after 3 round(s)
+- [x] Mountains — after 3 round(s)
+- [x] Lakes and rivers — after 3 round(s)
+- [x] Forests — after 3 round(s)
+- [x] World seeds — after 3 round(s)
+- [x] Identical seeds produce identical worlds — after 3 round(s)
+- [x] Users can regenerate worlds — after 3 round(s)
+- [F] A controllable character — moved=false blocked by water=not tested
+- [x] Terrain generation performs efficiently — after 3 round(s)
 
 ### 8. Real-Time Chat Application
-- [ ] A chat interface
-- [ ] Multiple users
-- [ ] Sending and receiving messages
-- [ ] Persistent message history
-- [ ] Timestamps
-- [ ] Online indicators
-- [ ] Typing indicators
-- [ ] Private chat rooms
-- [ ] Handles simultaneous messages
-- [ ] Handles disconnected users
-- [ ] Messages aren't lost or duplicated
+- [x] A chat interface — after 3 round(s)
+- [F] Multiple users — online list []
+- [F] Sending and receiving messages — not checked
+- [F] Persistent message history — not checked
+- [F] Timestamps — not checked
+- [F] Online indicators — no presence event listing Ana
+- [F] Typing indicators — not checked
+- [F] Private chat rooms — not checked
+- [F] Handles simultaneous messages — not checked
+- [F] Handles disconnected users — not checked
+- [F] Messages aren't lost or duplicated — not checked
 
 ## PHASE 8 — Coding Challenge: Advanced
 
 ### 9. Minecraft-Style Voxel Engine
-- [ ] A 3D environment
-- [ ] A voxel-based world
-- [ ] Block rendering
-- [ ] Procedural terrain generation
-- [ ] Chunk generation
-- [ ] Chunk loading and unloading
-- [ ] Player movement
-- [ ] Collision detection
-- [ ] Block placement
-- [ ] Block destruction
-- [ ] World persistence
-- [ ] Optimized rendering and chunk management
-- [ ] Stays playable as the world grows
+- [F] A 3D environment — window.engine missing (Three.js may have failed to load)
+- [F] A voxel-based world — not checked
+- [F] Block rendering — not checked
+- [F] Procedural terrain generation — not checked
+- [F] Chunk generation — not checked
+- [F] Chunk loading and unloading — not checked
+- [F] Player movement — not checked
+- [F] Collision detection — not checked
+- [F] Block placement — not checked
+- [F] Block destruction — not checked
+- [F] World persistence — not checked
+- [F] Optimized rendering and chunk management — not checked
+- [F] Stays playable as the world grows — not checked
 
 ### 10. Physics Simulator
-- [ ] An interactive physics simulation
-- [ ] Gravity
-- [ ] Elastic collisions
-- [ ] Friction
-- [ ] Particle systems
-- [ ] Users can create objects
-- [ ] Users can modify simulation parameters
-- [ ] Interactions between hundreds of objects
-- [ ] Conservation of momentum in appropriate collisions
-- [ ] Numerical stability
-- [ ] Measured simulation performance
+- [x] An interactive physics simulation — after 3 round(s)
+- [F] Gravity — not checked
+- [F] Elastic collisions — not checked
+- [F] Friction — not checked
+- [F] Particle systems — not checked
+- [F] Users can create objects — not checked
+- [F] Users can modify simulation parameters — not checked
+- [F] Interactions between hundreds of objects — not checked
+- [F] Conservation of momentum in appropriate collisions — not checked
+- [F] Numerical stability — not checked
+- [F] Measured simulation performance — not checked
 
 ### 11. Chess Engine
-- [ ] A functional chessboard
-- [ ] Legal move generation
-- [ ] Piece movement
-- [ ] Check detection
-- [ ] Checkmate detection
-- [ ] Stalemate detection
-- [ ] Castling
-- [ ] En passant
-- [ ] Pawn promotion
-- [ ] Board evaluation
-- [ ] Minimax
-- [ ] Alpha-beta pruning
-- [ ] A playable computer opponent
-- [ ] Tested against known chess positions
-- [ ] Illegal moves are never accepted
+- [F] A functional chessboard — 0 squares, pieces shown=false
+- [F] Legal move generation — not checked
+- [F] Piece movement — not checked
+- [F] Check detection — not checked
+- [F] Checkmate detection — not checked
+- [F] Stalemate detection — not checked
+- [F] Castling — not checked
+- [F] En passant — not checked
+- [F] Pawn promotion — not checked
+- [F] Board evaluation — not checked
+- [F] Minimax — not checked
+- [F] Alpha-beta pruning — not checked
+- [F] A playable computer opponent — not checked
+- [F] Tested against known chess positions — not checked
+- [F] Illegal moves are never accepted — not checked
 
 ### 12. Visual Programming Environment
-- [ ] Draggable programming nodes
-- [ ] Node connections
-- [ ] Input and output ports
-- [ ] A node execution system
-- [ ] Dependency resolution
-- [ ] Detects circular dependencies
-- [ ] Error handling
-- [ ] Graph visualization
-- [ ] Saving and loading
-- [ ] A working example program built with the node system
+- [F] Draggable programming nodes — not checked
+- [F] Node connections — not checked
+- [F] Input and output ports — not checked
+- [F] A node execution system — not checked
+- [F] Dependency resolution — not checked
+- [F] Detects circular dependencies — not checked
+- [F] Error handling — not checked
+- [F] Graph visualization — not checked
+- [F] Saving and loading — not checked
+- [F] A working example program built with the node system — not checked
 
 ## PHASE 9 — Collaborative Coding Challenges
 *(two or more collaborators, each with different responsibilities)*
