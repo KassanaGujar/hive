@@ -1,23 +1,19 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (paused 2026-11-16 ~01:00, user closed Claude for the night)
-Project lives in **C:devhive** (moved out of OneDrive; old folder removed; backups in OneDrive:
-Hive-backup-2026-11-15.bundle + Hive-source-2026-11-15.zip). Deps installed, build OK, 67 unit tests pass.
+## 🔖 RESUME HERE (updated 2026-11-16 evening)
+Project: **C:devhive**. Checklist: `docs/qa-checklist.md` (sync: `node tools/qa/sync-checklist.mjs`).
+Report: `node tools/qa/report.mjs` builds `docs/qa-report.md` from results + `tools/qa/report-notes.mjs` (bugs, scores).
 
-**Exact next steps, in order:**
-1. Phase 2, rename-while-editing: the old b.js stays on a teammate's disk. A fix is committed but untested
-   (session.ts observeRenames deletes the old file again after 1.5 s; the test now waits up to 15 s).
-   Rerun: `node tools/qa/phase2.mjs > docs/qa/phase2-run.log 2>&1` (~15 min; one run at a time).
-2. Phase 2, relay restart: after the relay restarts, client C comes back "online" but keeps older text
-   (a/b converge). Reproduce with 3 windows: edits during the outage, then restart the relay, then log
-   each client's provider.lastSeq + text. Suspects: relay (services/relay) loses its last unflushed log on
-   a hard kill, and C's join/diff logic. Fix, then rerun phase2.
-3. Phase 2 scale (5/10/20 people): `npx vitest run --config vitest.stress.mts tools/qa/scale.stress.ts`.
-4. `node tools/qa/sync-checklist.mjs` (updates docs/qa-checklist.md), commit, then Phase 3 (phase3.mjs, uses
-   qwen2.5-coder:7b), Phase 4, Phase 5 (+ soak.mjs, 60 min), Phases 6–8 (run-challenges.mjs), Phase 9,
-   Phase 11 + the final report (docs/qa-report.md). Phase 10 needs two real people.
-**Harness tips:** launch windows one at a time (simultaneous reloads under load froze renderers); the harness
-reconnects once if DevTools stops answering; check the CPU first (OneDrive/Explorer were pinning it).
+**Done:** Phase 1 (18/19, 1 N/A), Phase 2 (33/33), Phase 3 (23/26; 3 fails are 7B-model mistakes), Phase 4 (21/25;
+4 by-design sandbox fails), Phase 5 (25/27; 100k-line typing p95 76 ms, tab switch 55 ms). 24 bugs found, 22 fixed.
+**Running/next:**
+1. Phases 6–8: `QA_ROUNDS=3 QA_EVAL_TIMEOUT=3600000 node tools/qa/run-challenges.mjs` (all 12; hours — the 7B model
+   reads prompts at ~15 tokens/s on this PC). Results in docs/qa/challenges.json; earlier 4k-context results kept in
+   challenges-4k-context.json for comparison.
+2. Rerun Phase 3 once (Ask AI now uses Ollama's native API with a 16k context): `node tools/qa/phase3.mjs`.
+3. Phase 9: `QA_EVAL_TIMEOUT=3600000 node tools/qa/phase9.mjs`.
+4. Sync checklist, fill `scores` in report-notes.mjs (Phase 11), `node tools/qa/report.mjs`, commit.
+Phase 10 needs two real people (recorded as blocked).
 
 ## 🔖 BOOKMARK 2026-11-15 evening — QA plan in progress (resume here)
 **Checklist (live, every item from the user's plan):** `docs/qa-checklist.md` — sync it with
