@@ -244,8 +244,8 @@ await check(P, 'The AI provider returns an error', async () => {
 })
 await check(P, 'An AI request times out', async () => {
   mode = 'hang'
-  const r = await ask('hello', [], { mdl: fakeId, timeoutMs: 150000 })
-  assert(r.err !== 'TEST-TIMEOUT', 'a provider that never answers leaves Ask AI waiting forever (test gave up after 150 s); only the Stop button ends it')
+  const r = await ask('hello', [], { mdl: fakeId, timeoutMs: 200000 })
+  assert(r.err !== 'TEST-TIMEOUT', 'a provider that never answers leaves Ask AI waiting forever (test gave up after 200 s); only the Stop button ends it')
   return 'error after ' + Math.round(r.ms / 1000) + ' s: ' + r.err
 })
 fake.close()

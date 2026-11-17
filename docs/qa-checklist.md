@@ -133,7 +133,16 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -171,6 +180,9 @@ TypeError: p is not a function
 
 - [x] AI optimizes a slow algorithm — fib(35): 802 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
@@ -266,46 +278,46 @@ eggs
 *(each built in Hive through natural-language prompts and AI assistance)*
 
 ### 1. Snake Game
-- [ ] Create a playable Snake game
-- [ ] Directional movement
-- [ ] Food generation
-- [ ] Snake growth
-- [ ] Wall collision
-- [ ] Self-collision
-- [ ] Score tracking
-- [ ] Game-over functionality
-- [ ] Restart functionality
-- [ ] The game runs without errors
+- [F] Create a playable Snake game — no canvas or snake does not move on its own
+- [x] Directional movement — after 4 round(s)
+- [x] Food generation — after 4 round(s)
+- [F] Snake growth — length 3→3
+- [x] Wall collision — after 4 round(s)
+- [F] Self-collision — length 3 looped into itself without game over
+- [F] Score tracking — score 0→0
+- [x] Game-over functionality — after 4 round(s)
+- [x] Restart functionality — after 4 round(s)
+- [x] The game runs without errors
 
 ### 2. Tic-Tac-Toe
-- [ ] A functional game board
-- [ ] Two-player gameplay
-- [ ] Turn management
-- [ ] Detects winning combinations
-- [ ] Detects draws
-- [ ] A scoreboard
-- [ ] Restart functionality
-- [ ] Illegal moves are prevented
+- [F] A functional game board — not checked
+- [F] Two-player gameplay — not checked
+- [F] Turn management — not checked
+- [F] Detects winning combinations — not checked
+- [F] Detects draws — not checked
+- [F] A scoreboard — not checked
+- [F] Restart functionality — not checked
+- [F] Illegal moves are prevented — not checked
 
 ### 3. Space Invaders
-- [ ] Player movement
-- [ ] Projectile shooting
-- [ ] Enemy formations
-- [ ] Projectile collisions
-- [ ] Player-enemy collisions
-- [ ] Scoring
-- [ ] Increasing difficulty
-- [ ] Game-over and restart states
+- [F] Player movement — x 220→220
+- [F] Projectile shooting — no bullet or bullet does not move up
+- [x] Enemy formations — after 4 round(s)
+- [F] Projectile collisions — enemy count 32→32
+- [F] Player-enemy collisions — lives 3→3
+- [F] Scoring — score 0→0
+- [F] Increasing difficulty — level 1→1, speed 2→2
+- [F] Game-over and restart states — over=false after reset over=false
 
 ### 4. Breakout
-- [ ] Paddle movement
-- [ ] Ball physics
-- [ ] Wall collisions
-- [ ] Paddle collisions
-- [ ] Brick destruction
-- [ ] Lives and scoring
-- [ ] Win and loss conditions
-- [ ] The game behaves consistently
+- [F] Paddle movement — paddle did not move
+- [F] Ball physics — ball at 200,400
+- [F] Wall collisions — left bounce=false top bounce=false
+- [F] Paddle collisions — ball vy after paddle 4
+- [F] Brick destruction — brick alive=true
+- [F] Lives and scoring — score 0→0, lives 3→3
+- [F] Win and loss conditions — won=false over=false
+- [x] The game behaves consistently — after 4 round(s)
 
 ## PHASE 7 — Coding Challenge: Intermediate
 

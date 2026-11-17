@@ -68,6 +68,7 @@ for (const c of list) {
     else res = await probeWeb(c, dir, round)
     final = res.result ?? {}
     errors = res.errors ?? []
+    if (c.items.includes('The game runs without errors')) final['The game runs without errors'] = !errors.length && !final.probeError ? true : String(errors[0] ?? final.probeError).slice(0, 200)
     const failing = c.items.filter((it) => final[it] !== true)
     failing.forEach((f) => everFailed.add(f))
     log.rounds.push({ round, aiMs: r.ms, aiError: r.err, filesWritten: r.files, reply: (r.reply ?? '').slice(0, 2500), passed: c.items.length - failing.length, failing: Object.fromEntries(failing.map((f) => [f, final[f] ?? 'not checked'])), consoleErrors: errors.slice(0, 5), probeError: final.probeError ?? final._run })

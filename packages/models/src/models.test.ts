@@ -139,3 +139,30 @@ describe('parseProposals (files an AI reply proposes)', () => {
     expect(r).toEqual([{ path: 'a.js', content: '2\n' }])
   })
 })
+
+describe('local Ollama uses the native API with a real context window', () => {
+  it('sends num_ctx and streams the reply', async () => {
+    const { createServer } = await import('node:http')
+    const { streamChat } = await import('./client')
+    let seen: any = null
+    const srv = createServer((req, res) => {
+      let body = ''
+      req.on('data', (d) => (body += d))
+      req.on('end', () => {
+        seen = { url: req.url, body: JSON.parse(body) }
+        res.writeHead(200, { 'content-type': 'application/x-ndjson' })
+        res.write(JSON.stringify({ message: { role: 'assistant', content: 'Hel' }, done: false }) + '\n')
+        res.write(JSON.stringify({ message: { role: 'assistant', content: 'lo' }, done: false }) + '\n')
+        res.end(JSON.stringify({ message: { role: 'assistant', content: '' }, done: true }) + '\n')
+      })
+    })
+    await new Promise<void>((r) => srv.listen(0, '127.0.0.1', () => r()))
+    const port = (srv.address() as { port: number }).port
+    let text = ''
+    for await (const c of streamChat({ baseUrl: `http://127.0.0.1:${port}/v1`, model: 'm', ollamaContext: 16384 }, [{ role: 'user', content: 'hi' }])) if (c.text) text += c.text
+    srv.close()
+    expect(seen.url).toBe('/api/chat')
+    expect(seen.body.options.num_ctx).toBe(16384)
+    expect(text).toBe('Hello')
+  })
+})

@@ -11,6 +11,11 @@ export interface Endpoint {
   /** false → tools are described in the prompt and parsed from JSON in the reply. */
   nativeTools?: boolean
   extraHeaders?: Record<string, string>
+  /**
+   * Local Ollama: context window to request. Ollama's OpenAI-compatible endpoint can't set it and defaults to
+   * 4096 tokens, which silently cuts long prompts (project files) from the start; the native API can.
+   */
+  ollamaContext?: number
 }
 
 export interface ChatOptions {
@@ -222,6 +227,7 @@ async function* streamOnce(
   native: boolean,
   tools: ToolSpec[]
 ): AsyncGenerator<ChatChunk> {
+  if (ep.ollamaContext) return yield* streamOllama(ep, messages, opts, native, tools)
   const body: Record<string, unknown> = {
     model: ep.model,
     messages: toOAI(messages),
@@ -299,6 +305,74 @@ async function* streamOnce(
     .map((p) => ({ id: p.id, name: canonicalToolName(p.name, tools), arguments: safeJson(p.args || '{}') }))
   // Some models answer with JSON in text even when native tools were offered.
   // Small models sometimes do both: a write as JSON text plus a native "done" call — run the text one first.
+  if (tools.length) {
+    const parsed = parseJsonToolCall(fullText, tools)
+    if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
+  }
+  yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
+}
+
+/** Ollama's native /api/chat (NDJSON stream), so the context window can be set with options.num_ctx. */
+async function* streamOllama(
+  ep: Endpoint,
+  messages: ChatMessage[],
+  opts: ChatOptions,
+  native: boolean,
+  tools: ToolSpec[]
+): AsyncGenerator<ChatChunk> {
+  const body: Record<string, unknown> = {
+    model: ep.model,
+    stream: true,
+    messages: messages.map((m) => ({
+      role: m.role,
+      content: m.content ?? '',
+      ...(m.toolCalls?.length ? { tool_calls: m.toolCalls.map((t) => ({ function: { name: t.name, arguments: t.arguments } })) } : {})
+    })),
+    options: { num_ctx: ep.ollamaContext, temperature: opts.temperature ?? 0.2, ...(opts.maxTokens ? { num_predict: opts.maxTokens } : {}) }
+  }
+  if (native) body.tools = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }))
+  const root = ep.baseUrl.replace(/\/$/, '').replace(/\/v1$/, '')
+  const res = await fetch(`${root}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: opts.signal })
+  if (!res.ok || !res.body) {
+    const text = await res.text().catch(() => '')
+    if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)
+    throw new Error(`Model request failed (${res.status}): ${text.slice(0, 400)}`)
+  }
+  const started = Date.now()
+  let tokenCount = 0
+  let fullText = ''
+  let toolCalls: ToolCall[] = []
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buf = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    let nl: number
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl).trim()
+      buf = buf.slice(nl + 1)
+      if (!line) continue
+      let json: any
+      try {
+        json = JSON.parse(line)
+      } catch {
+        continue
+      }
+      if (json.error) throw new Error(typeof json.error === 'string' ? json.error : JSON.stringify(json.error))
+      const msg = json.message ?? {}
+      if (typeof msg.content === 'string' && msg.content) {
+        tokenCount++
+        fullText += msg.content
+        yield { text: msg.content, tokensPerSec: rate(tokenCount, started) }
+      }
+      for (const [i, tc] of (msg.tool_calls ?? []).entries()) {
+        const args = tc.function?.arguments
+        toolCalls.push({ id: `call_${toolCalls.length}_${i}`, name: canonicalToolName(tc.function?.name ?? '', tools), arguments: typeof args === 'string' ? safeJson(args) : (args ?? {}) })
+      }
+    }
+  }
   if (tools.length) {
     const parsed = parseJsonToolCall(fullText, tools)
     if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]

@@ -67,10 +67,11 @@ md += '\n' + NOTES.collabNotes + '\n\n'
 
 md += `## 10. Coding challenge results\n\n`
 if (Object.keys(challenges).length) {
-  md += `| Challenge | Features working | AI rounds | Bugs the AI introduced (features that failed at some point) |\n|---|---|---|---|\n`
+  md += `| Challenge | Features working at the end | Best round | AI rounds | Features that failed at some point |\n|---|---|---|---|---|\n`
   for (const c of Object.values(challenges)) {
     const f = Object.values(c.final ?? {})
-    md += `| ${c.title} | ${f.filter((x) => x === true).length}/${f.length} | ${c.rounds?.length ?? 0} | ${c.bugsFound ?? '?'} |\n`
+    const best = Math.max(0, ...(c.rounds ?? []).map((r) => r.passed ?? 0))
+    md += `| ${c.title} | ${f.filter((x) => x === true).length}/${f.length} | ${best}/${f.length} | ${c.rounds?.length ?? 0} | ${c.bugsFound ?? '?'} |\n`
   }
   md += '\n'
   for (const c of Object.values(challenges)) {

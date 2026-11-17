@@ -134,7 +134,8 @@ export function setTier(id: string, tier: Tier | null) {
 }
 
 export function endpointFor(m: InstalledModel): Endpoint {
-  if (m.source === 'ollama') return { baseUrl: ollamaBaseUrl, model: m.model }
+  // 16k tokens fits a few project files plus a long reply; never more than the model supports
+  if (m.source === 'ollama') return { baseUrl: ollamaBaseUrl, model: m.model, ollamaContext: Math.max(4096, Math.min(m.contextTokens || 8192, 16384)) }
   if (m.source === 'custom') {
     const p = customProviders().find((x) => m.id.startsWith(`custom:${x.id}:`))
     if (!p) throw new Error('That provider was removed.')
@@ -181,7 +182,7 @@ const streams = new Map<string, AbortController>()
 
 /** First words can take a while (a local model loading into memory); after that, long silences mean trouble. */
 const FIRST_TOKEN_TIMEOUT_MS = Number(process.env.HIVE_FIRST_TOKEN_TIMEOUT_MS ?? 120_000)
-const STALL_TIMEOUT_MS = Number(process.env.HIVE_STALL_TIMEOUT_MS ?? 60_000)
+const STALL_TIMEOUT_MS = Number(process.env.HIVE_STALL_TIMEOUT_MS ?? 120_000)
 
 export async function chatStream(modelId: string, messages: ChatMessage[], tools?: ToolSpec[]): Promise<string> {
   const m = await findModel(modelId)
@@ -199,7 +200,11 @@ export async function chatStream(modelId: string, messages: ChatMessage[], tools
       ctl.abort()
     }, ms)
   }
-  arm(FIRST_TOKEN_TIMEOUT_MS, `The model didn't start answering within ${FIRST_TOKEN_TIMEOUT_MS / 1000} seconds. It may be overloaded or unreachable. Try again, or pick another model.`)
+  // A model has to read the whole prompt before its first word, so allow time per prompt token on top.
+  const promptTokens = Math.round(messages.reduce((n, msg) => n + (msg.content?.length ?? 0), 0) / 4)
+  // local models on a modest PC can read as slowly as ~15 tokens/s; hosted ones are far faster
+  const firstTokenMs = FIRST_TOKEN_TIMEOUT_MS + promptTokens * (ep.ollamaContext ? 100 : 20)
+  arm(firstTokenMs, `The model didn't start answering within ${Math.round(firstTokenMs / 1000)} seconds. It may be overloaded or unreachable. Try again, or pick another model.`)
   ;(async () => {
     try {
       for await (const chunk of streamChat(ep, messages, { tools, signal: ctl.signal })) {

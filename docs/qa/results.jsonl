@@ -630,3 +630,70 @@
 {"phase":"P6","name":"2. Tic-Tac-Toe — A scoreboard","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.499Z"}
 {"phase":"P6","name":"2. Tic-Tac-Toe — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.500Z"}
 {"phase":"P6","name":"2. Tic-Tac-Toe — Illegal moves are prevented","status":"FAIL","detail":"not checked","at":"2026-11-16T21:48:39.501Z"}
+{"phase":"P6","name":"1. Snake Game — Create a playable Snake game","status":"FAIL","detail":"no canvas or snake does not move on its own","at":"2026-11-16T22:02:53.471Z"}
+{"phase":"P6","name":"1. Snake Game — Directional movement","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:02:53.475Z"}
+{"phase":"P6","name":"1. Snake Game — Food generation","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:02:53.475Z"}
+{"phase":"P6","name":"1. Snake Game — Snake growth","status":"FAIL","detail":"length 3→3","at":"2026-11-16T22:02:53.476Z"}
+{"phase":"P6","name":"1. Snake Game — Wall collision","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:02:53.477Z"}
+{"phase":"P6","name":"1. Snake Game — Self-collision","status":"FAIL","detail":"length 3 looped into itself without game over","at":"2026-11-16T22:02:53.478Z"}
+{"phase":"P6","name":"1. Snake Game — Score tracking","status":"FAIL","detail":"score 0→0","at":"2026-11-16T22:02:53.479Z"}
+{"phase":"P6","name":"1. Snake Game — Game-over functionality","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:02:53.480Z"}
+{"phase":"P6","name":"1. Snake Game — Restart functionality","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:02:53.481Z"}
+{"phase":"P6","name":"1. Snake Game — The game runs without errors","status":"FAIL","detail":"not checked","at":"2026-11-16T22:02:53.482Z"}
+{"phase":"P6","name":"1. Snake Game — The game runs without errors","status":"PASS","detail":"no console errors while the game loaded and was exercised","at":"2026-11-16T22:10:21.465Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A functional game board","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.243Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Two-player gameplay","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.244Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Turn management","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.248Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects winning combinations","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.249Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Detects draws","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.250Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — A scoreboard","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.251Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.252Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe — Illegal moves are prevented","status":"FAIL","detail":"not checked","at":"2026-11-16T22:11:26.253Z"}
+{"phase":"P6","name":"3. Space Invaders — Player movement","status":"FAIL","detail":"x 220→220","at":"2026-11-16T22:21:07.989Z"}
+{"phase":"P6","name":"3. Space Invaders — Projectile shooting","status":"FAIL","detail":"no bullet or bullet does not move up","at":"2026-11-16T22:21:07.990Z"}
+{"phase":"P6","name":"3. Space Invaders — Enemy formations","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:21:07.991Z"}
+{"phase":"P6","name":"3. Space Invaders — Projectile collisions","status":"FAIL","detail":"enemy count 32→32","at":"2026-11-16T22:21:07.992Z"}
+{"phase":"P6","name":"3. Space Invaders — Player-enemy collisions","status":"FAIL","detail":"lives 3→3","at":"2026-11-16T22:21:07.993Z"}
+{"phase":"P6","name":"3. Space Invaders — Scoring","status":"FAIL","detail":"score 0→0","at":"2026-11-16T22:21:07.993Z"}
+{"phase":"P6","name":"3. Space Invaders — Increasing difficulty","status":"FAIL","detail":"level 1→1, speed 2→2","at":"2026-11-16T22:21:07.994Z"}
+{"phase":"P6","name":"3. Space Invaders — Game-over and restart states","status":"FAIL","detail":"over=false after reset over=false","at":"2026-11-16T22:21:07.998Z"}
+{"phase":"P6","name":"4. Breakout — Paddle movement","status":"FAIL","detail":"paddle did not move","at":"2026-11-16T22:30:48.882Z"}
+{"phase":"P6","name":"4. Breakout — Ball physics","status":"FAIL","detail":"ball at 200,400","at":"2026-11-16T22:30:48.883Z"}
+{"phase":"P6","name":"4. Breakout — Wall collisions","status":"FAIL","detail":"left bounce=false top bounce=false","at":"2026-11-16T22:30:48.884Z"}
+{"phase":"P6","name":"4. Breakout — Paddle collisions","status":"FAIL","detail":"ball vy after paddle 4","at":"2026-11-16T22:30:48.884Z"}
+{"phase":"P6","name":"4. Breakout — Brick destruction","status":"FAIL","detail":"brick alive=true","at":"2026-11-16T22:30:48.885Z"}
+{"phase":"P6","name":"4. Breakout — Lives and scoring","status":"FAIL","detail":"score 0→0, lives 3→3","at":"2026-11-16T22:30:48.886Z"}
+{"phase":"P6","name":"4. Breakout — Win and loss conditions","status":"FAIL","detail":"won=false over=false","at":"2026-11-16T22:30:48.886Z"}
+{"phase":"P6","name":"4. Breakout — The game behaves consistently","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:30:48.887Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — A task management application","status":"FAIL","detail":"see creation/columns","at":"2026-11-16T22:41:57.873Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task creation","status":"FAIL","detail":"task not created or not shown","at":"2026-11-16T22:41:57.875Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task deletion","status":"FAIL","detail":"task still there","at":"2026-11-16T22:41:57.876Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task editing","status":"FAIL","detail":"edit not applied","at":"2026-11-16T22:41:57.877Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Draggable task cards","status":"FAIL","detail":"card element not found","at":"2026-11-16T22:41:57.877Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Multiple task columns","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:41:57.878Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Task assignments","status":"FAIL","detail":"assign not applied","at":"2026-11-16T22:41:57.879Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Persistent storage","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:41:57.880Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Real-time collaboration","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:41:57.881Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Multiple users see the same task updates","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:41:57.881Z"}
+{"phase":"P7","name":"5. Kanban Task Manager — Refreshing doesn't lose tasks","status":"PASS","detail":"after 4 round(s)","at":"2026-11-16T22:41:57.882Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — An interactive grid","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.466Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Users can place walls and obstacles","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.467Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Users can select a start point and destination","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.468Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — A* pathfinding","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.468Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Dijkstra's algorithm","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.469Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Breadth-First Search","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.470Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Animated search process","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.470Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Displays the resulting path","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.471Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Compares the algorithms' performance","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.471Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Handles unreachable destinations","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.472Z"}
+{"phase":"P7","name":"6. Pathfinding Visualizer — Each algorithm returns correct results","status":"FAIL","detail":"not checked","at":"2026-11-16T22:56:12.473Z"}
+{"phase":"P7","name":"7. Procedural World Generator — A random terrain map","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.273Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Perlin or Simplex noise","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.274Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Mountains","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.275Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Lakes and rivers","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.275Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Forests","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.276Z"}
+{"phase":"P7","name":"7. Procedural World Generator — World seeds","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.277Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Identical seeds produce identical worlds","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.277Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Users can regenerate worlds","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.278Z"}
+{"phase":"P7","name":"7. Procedural World Generator — A controllable character","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.279Z"}
+{"phase":"P7","name":"7. Procedural World Generator — Terrain generation performs efficiently","status":"FAIL","detail":"not checked","at":"2026-11-16T23:15:14.279Z"}
