@@ -6,6 +6,9 @@ export const NOTES = {
     { name: 'Phase 10 — 30-minute challenge with two first-time users', why: 'Needs two real people who have never used Hive; an automated script cannot measure first-time understanding, coordination or give feedback. A script for the session is in the recommendations.' }
   ],
   bugs: [
+    {"bug":"After closing one project and opening another, files with the same path (README.md, index.html) reused the old project's editor document: the old text could show and edits synced into the old project's session","foundBy":"P9 general checks (History empty after several projects)","severity":"Critical (data integrity)","fixed":true,"fix":"Every file document is disposed when a project is closed or another is opened."},
+    {"bug":"History recorded your edit as nothing (its \"before\" text already contained the edit) and could attribute a teammate's simultaneous change to you","foundBy":"P9 general checks","severity":"High (collaboration clarity)","fixed":true,"fix":"Each file's last text is tracked; your pending entry is recorded up to the moment a teammate's change arrives."},
+    {"bug":"After switching between shared projects three times, each edit appeared twice in History","foundBy":"P9 investigation","severity":"Low (cosmetic)","fixed":false,"fix":"Not root-caused yet; entries are duplicated, not lost or misattributed."},
     {"bug":"Local Ollama models silently ran with a 4,096-token context: prompts with project files were cut from the start (Hive's instructions and the request lost) and long replies stalled","foundBy":"P7 challenges (replies cut off), confirmed with ollama ps","severity":"High (AI quality on real projects)","fixed":true,"fix":"Local models use Ollama's native API with a 16k context (capped at the model's maximum); a secret-word test confirmed the instructions survive a long prompt."},
     {"bug":"Ask AI ignored files labelled \"html index.html\" or named in a heading before the code","foundBy":"P6 challenges (AI wrote no files)","severity":"Medium","fixed":true,"fix":"Shared proposal parser understands the common labelling styles (unit-tested)."},
     {"bug":"A busy Ollama made Hive report an installed model as \"not installed\"","foundBy":"P6 challenges","severity":"Medium","fixed":true,"fix":"Last good model list kept (also across restarts); lookup retried with a longer wait."},
@@ -49,5 +52,56 @@ export const NOTES = {
     'Run Phase 10 with two real first-time users and record the measurements listed in the plan.',
     'Keep the QA harness (`tools/qa`) in CI for Phases 1, 2 and 4, which need no AI model.'
   ],
-  scores: []
+  scores: [
+    {
+      "category": "Core functionality",
+      "score": 90,
+      "why": "18/19 core items pass (5 after fixes); back/forward not applicable; moving a file does not update imports."
+    },
+    {
+      "category": "Multiplayer collaboration",
+      "score": 85,
+      "why": "33/33 Phase 2 items pass after 11 fixes; 20 people converge; latency drifts from ~80 ms to ~220 ms over an hour of non-stop typing; the live relay still needs redeploying."
+    },
+    {
+      "category": "AI coding capabilities",
+      "score": 45,
+      "why": "Ask AI handles small tasks (Phase 3: 23/26) but the local 7B model builds only simple apps (Phase 6: 14/34, Phase 7: 17/43, Phase 8: 1/49 features); Ask AI sees only the open file."
+    },
+    {
+      "category": "Code execution reliability",
+      "score": 80,
+      "why": "21/25: runs, input, streaming output, stop, restart and errors with file:line all work; no limits or sandbox (by design)."
+    },
+    {
+      "category": "Data persistence",
+      "score": 85,
+      "why": "Settings, projects and shared state survive restarts, crashes and a relay restart after fixes; offline edits merge 3-way with a conflict copy."
+    },
+    {
+      "category": "Performance",
+      "score": 75,
+      "why": "Projects open in under 2.5 s, typing p95 under 32 ms for normal files, idle CPU ~1%; 100k-line files reach 76 ms p95; local AI is slow on this PC (~15 prompt tokens/s)."
+    },
+    {
+      "category": "User experience",
+      "score": 65,
+      "why": "Clear errors and notices, follow-the-AI view, previews; but local AI replies take minutes on modest hardware and the 30-minute first-user study (Phase 10) is still to be run."
+    },
+    {
+      "category": "Security",
+      "score": 60,
+      "why": "End-to-end encrypted rooms, outsiders can't read projects, view-only links now enforced by the relay (needs deploy); Run executes code with full user rights."
+    },
+    {
+      "category": "Error handling",
+      "score": 80,
+      "why": "Plain-language errors, AI timeouts and provider errors surfaced; a few failures still only show in the terminal (missing npm packages)."
+    },
+    {
+      "category": "Recovery from failures",
+      "score": 85,
+      "why": "Reconnect, offline edits, relay restart, crash restart and AI undo all recover without data loss after fixes."
+    }
+  ]
 }

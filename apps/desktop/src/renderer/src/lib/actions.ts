@@ -1,14 +1,15 @@
 import { invoke } from './api'
 import { useStore, ask } from '../store'
 import { openSession, session } from '../collab/session'
-import { disposeModel, renameModel } from './monaco'
+import { disposeModel, renameModel, disposeAllFileModels } from './monaco'
 import { makeFeedEvent } from '@hive/collab'
 import { actorName } from '../store'
 
 export async function openProject(dir: string) {
   const s = useStore.getState()
-  // close old project's editors
-  for (const t of Object.values(s.tabs)) if (t.kind === 'file') disposeModel(t.path)
+  // close the old project's editors (all of them, not only open tabs)
+  session()?.destroy()
+  disposeAllFileModels()
   const { root, tree } = await invoke('project:open', dir)
   s.set({
     root,
@@ -34,6 +35,7 @@ export async function openProject(dir: string) {
 
 export function closeProject() {
   session()?.destroy()
+  disposeAllFileModels()
   invoke('project:close').catch(() => {})
   sessionStorage.setItem('hive.closedProject', '1')
   useStore.getState().set({ root: null, tree: [], tabs: {}, groups: [{ tabs: [], active: null }] })

@@ -71,6 +71,14 @@ export function disposeModel(path: string) {
   monaco.editor.getModel(uriFor(path))?.dispose()
 }
 
+/**
+ * Drop every open file document. Paths repeat between projects (README.md, index.html): a document left over
+ * from the previous project would be reused, showing its old text and syncing into the old project's session.
+ */
+export function disposeAllFileModels() {
+  for (const m of monaco.editor.getModels()) if (m.uri.scheme === 'hive') m.dispose()
+}
+
 export function renameModel(from: string, to: string) {
   const m = monaco.editor.getModel(uriFor(from))
   if (!m) return

@@ -36,7 +36,7 @@ const PAIRS = [
   { id: 'pathfinding', label: 'Pathfinding visualizer: one person on algorithms, another on the interface', challenge: 'pathfinding',
     a: { who: 'tess', files: 'algorithms.js', task: 'You own ONLY algorithms.js: pure functions window.Algorithms = {astar(grid,start,end), dijkstra(...), bfs(...)} where grid is {rows, cols, walls:Set of "r,c"} and start/end are [r,c]; each returns {path:[[r,c],...] or [], visitedOrder:[[r,c],...]}. 4-directional, cost 1.' },
     b: { who: 'omar', files: 'index.html, ui.js and style.css', task: 'You own ONLY index.html, ui.js and style.css. index.html loads algorithms.js then ui.js. ui.js builds the 20x30 grid of .cell divs, wall/start/end editing, animates visitedOrder with class "visited" and the path with class "path", shows a "No path" message and a comparison panel, and defines window.pf = {reset, setWall, setStart, setEnd, run(alg,{animate}), compare()} using window.Algorithms.' } }
-].filter((p) => !only.length || only.includes(p.id))
+].filter((p) => !process.env.QA_SKIP_PAIRS && (!only.length || only.includes(p.id)))
 
 async function ask(app, dir, prompt) {
   const files = (await app.invoke('fs:hashTree')) ?? {}
@@ -69,7 +69,7 @@ async function probe(app, c, dir, tag) {
   return existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: {}, errors: ['probe produced no output'] }
 }
 const filesOf = (s) => s.split(/,| and /).map((x) => x.trim()).filter(Boolean)
-const results = {}
+const results = process.env.QA_SKIP_PAIRS && existsSync(`${OUT}/phase9.json`) ? JSON.parse(readFileSync(`${OUT}/phase9.json`, 'utf8')) : {}
 for (const pair of PAIRS) {
   const c = C[pair.challenge]
   const tdir = freshDir(`p9-${pair.id}-tess`) + '/proj'

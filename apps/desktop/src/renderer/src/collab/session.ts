@@ -64,6 +64,8 @@ export class ProjectSession {
   private writeTimers = new Map<string, ReturnType<typeof setTimeout>>()
   private feedTimers = new Map<string, ReturnType<typeof setTimeout>>()
   private feedBase = new Map<string, string>()
+  /** Each shared file's text after the last change, so an edit's "before" is the text before it, not after. */
+  private lastText = new Map<string, string>()
   private textPaths = new WeakMap<Y.Text, string>()
   private synced: Record<string, string> = {}
   private offs: (() => void)[] = []
@@ -405,6 +407,7 @@ export class ProjectSession {
         if (change.action === 'add') {
           const t = this.parts.files.get(key)!
           this.textPaths.set(t, key)
+          this.lastText.set(key, t.toString())
           if (tr.origin !== 'disk' && tr.origin !== 'disk-local') this.scheduleWrite(key)
         } else if (change.action === 'delete' && !tr.local) {
           invoke('fs:delete', key).catch(() => {})
@@ -424,7 +427,10 @@ export class ProjectSession {
         this.textPaths.set(e.target, path)
         const fromDisk = tr.origin === 'disk' || tr.origin === 'disk-local'
         if (!fromDisk) this.scheduleWrite(path)
-        if (tr.local && !fromDisk && tr.origin !== 'restore') this.scheduleEditFeed(path)
+        const before = this.lastText.get(path)
+        if (tr.local && !fromDisk && tr.origin !== 'restore') this.scheduleEditFeed(path, before)
+        else if (!tr.local && this.feedBase.has(path)) this.flushEditFeed(path, before) // keep a teammate's change out of my entry
+        this.lastText.set(path, e.target.toString())
       }
     })
   }
@@ -496,26 +502,30 @@ export class ProjectSession {
       this.doc.transact(() => this.parts.files.set(path, t!), 'disk')
     }
     this.textPaths.set(t, path)
+    if (!this.lastText.has(path)) this.lastText.set(path, t.toString())
     return t
   }
 
   // ---------- feed ----------
 
-  private scheduleEditFeed(path: string) {
+  /** My edits to a file are grouped into one History entry after a 2.5 s pause. */
+  private scheduleEditFeed(path: string, textBefore?: string) {
     if (!this.feedBase.has(path)) {
-      // first keystroke: remember the text as of the last synced write
-      this.feedBase.set(path, this.parts.files.get(path)?.toString() ?? '')
+      // first keystroke: the text just before it (falls back to the current text if never seen before)
+      this.feedBase.set(path, textBefore ?? this.parts.files.get(path)?.toString() ?? '')
     }
     clearTimeout(this.feedTimers.get(path))
-    this.feedTimers.set(
-      path,
-      setTimeout(() => {
-        const before = this.feedBase.get(path) ?? ''
-        const after = this.parts.files.get(path)?.toString() ?? ''
-        this.feedBase.delete(path)
-        this.recordEdit(path, before, after, 'file.edited')
-      }, 2500)
-    )
+    this.feedTimers.set(path, setTimeout(() => this.flushEditFeed(path), 2500))
+  }
+
+  /** Record my pending edits now. `upTo` = the text before a teammate's change arrived (excludes it). */
+  private flushEditFeed(path: string, upTo?: string) {
+    clearTimeout(this.feedTimers.get(path))
+    const before = this.feedBase.get(path)
+    this.feedBase.delete(path)
+    if (before === undefined) return
+    const after = upTo ?? this.parts.files.get(path)?.toString() ?? ''
+    this.recordEdit(path, before, after, 'file.edited')
   }
 
   recordEdit(path: string, before: string, after: string, kind: FeedEvent['kind'] = 'file.edited') {
