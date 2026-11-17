@@ -163,6 +163,7 @@ describe('local Ollama uses the native API with a real context window', () => {
     srv.close()
     expect(seen.url).toBe('/api/chat')
     expect(seen.body.options.num_ctx).toBe(16384)
+    expect(seen.body.think).toBe(false) // thinking models would otherwise spend the whole reply on hidden reasoning
     expect(text).toBe('Hello')
   })
 })

@@ -338,7 +338,12 @@ async function* streamOllama(
       content: m.content ?? '',
       ...(m.toolCalls?.length ? { tool_calls: m.toolCalls.map((t) => ({ function: { name: t.name, arguments: t.arguments } })) } : {})
     })),
-    options: { num_ctx: ep.ollamaContext, temperature: opts.temperature ?? 0.2, ...(opts.maxTokens ? { num_predict: opts.maxTokens } : {}) }
+    options: { num_ctx: ep.ollamaContext, temperature: opts.temperature ?? 0.2, ...(opts.maxTokens ? { num_predict: opts.maxTokens } : {}) },
+    // Thinking models (Qwen 3.5, Qwen3, DeepSeek R1…) otherwise think first by default. Ollama streams that in a separate
+    // field Hive doesn't show, so the user sees nothing and the stall timer fires; on a modest GPU Qwen 3.5 4B spent
+    // 139 s and its whole token budget thinking without answering, vs 13 s for the answer with thinking off.
+    // Models that can't think accept the flag and ignore it.
+    think: false
   }
   if (native) body.tools = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }))
   const root = ep.baseUrl.replace(/\/$/, '').replace(/\/v1$/, '')

@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-11-12",
+ "updated": "2026-11-17",
  "providers": {
   "openrouter": { "name": "OpenRouter (free models)", "baseUrl": "https://openrouter.ai/api/v1", "keyUrl": "https://openrouter.ai/settings/keys", "testPath": "/key"
   },
@@ -78,6 +78,10 @@
   { "id": "qwen3-30b", "name": "Qwen3 30B (A3B)", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:30b", "sizeGB": 19, "minRamGB": 32, "minVramGB": 21, "contextTokens": 262144, "tier": "lead", "codingScore": 70, "free": true
   },
   { "id": "qwen3-32b", "name": "Qwen3 32B", "family": "Qwen 3", "source": "ollama", "pullName": "qwen3:32b", "sizeGB": 20, "minRamGB": 32, "minVramGB": 22, "contextTokens": 40960, "tier": "top", "codingScore": 72, "free": true
+  },
+  { "id": "qwen3.5-4b", "name": "Qwen3.5 4B", "family": "Qwen 3.5", "source": "ollama", "pullName": "qwen3.5:4b", "sizeGB": 3.4, "minRamGB": 8, "minVramGB": 5, "contextTokens": 262144, "tier": "worker", "codingScore": 57, "free": true
+  },
+  { "id": "qwen3.5-9b", "name": "Qwen3.5 9B", "family": "Qwen 3.5", "source": "ollama", "pullName": "qwen3.5:9b", "sizeGB": 6.6, "minRamGB": 12, "minVramGB": 8, "contextTokens": 262144, "tier": "lead", "codingScore": 64, "free": true
   },
   { "id": "qwen2.5-3b", "name": "Qwen2.5 3B", "family": "Qwen 2.5", "source": "ollama", "pullName": "qwen2.5:3b", "sizeGB": 1.9, "minRamGB": 8, "minVramGB": 4, "contextTokens": 32768, "tier": "worker", "codingScore": 40, "free": true
   },

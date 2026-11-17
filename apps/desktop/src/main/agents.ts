@@ -15,6 +15,8 @@ import { streamChat } from '@hive/models'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
+/** HIVE_TEAM_MODELS (QA/advanced): only these installed models (Ollama names or ids, comma-separated) join the AI team. */
+const teamOnly = (process.env.HIVE_TEAM_MODELS ?? '').split(',').map((x) => x.trim()).filter(Boolean)
 const persistTimers = new Map<string, NodeJS.Timeout>()
 
 export async function refreshModels() {
@@ -24,7 +26,7 @@ export async function refreshModels() {
 
 export const orchestrator = new Orchestrator({
   projectRoot,
-  models: () => modelsCache,
+  models: () => (teamOnly.length ? modelsCache.filter((m) => teamOnly.includes(m.model) || teamOnly.includes(m.id)) : modelsCache),
   tierOverrides: () => getSettings().tierOverrides,
   async chat(model, messages, tools, { signal, onText }) {
     return chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal }), onText)
