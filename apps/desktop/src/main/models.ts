@@ -1,4 +1,6 @@
 import { app } from 'electron'
+import { Agent as UndiciAgent, fetch as undiciFetch } from 'undici'
+import { setModelFetch } from '@hive/models'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { filterCatalog, streamChat, chatOnce, type Endpoint } from '@hive/models'
@@ -179,6 +181,11 @@ export async function testKey(provider: string, key: string): Promise<{ ok: bool
 // ---------- chat streaming to the renderer ----------
 
 const streams = new Map<string, AbortController>()
+
+// Model requests: no 5-minute header limit (see setModelFetch); our own timeouts apply. undici's own fetch is used
+// with its own Agent: mixing it with Electron's built-in fetch (a different undici) silently broke requests.
+const patientAgent = new UndiciAgent({ headersTimeout: 0, bodyTimeout: 0 })
+setModelFetch(((url: string, init?: RequestInit) => undiciFetch(url, { ...(init as object), dispatcher: patientAgent } as never)) as unknown as typeof fetch)
 
 /** First words can take a while (a local model loading into memory); after that, long silences mean trouble. */
 const FIRST_TOKEN_TIMEOUT_MS = Number(process.env.HIVE_FIRST_TOKEN_TIMEOUT_MS ?? 120_000)

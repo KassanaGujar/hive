@@ -1,5 +1,16 @@
 # Hive — build progress (resume file)
 
+## 🔖 RESUME HERE (paused 2026-11-17 ~05:00): Ollama hung, needs a restart by the user
+1. Ollama's server stopped answering (even "Say hi" via its own API timed out; 0% CPU, runner process gone). Killing it
+   was blocked by the permission classifier — the user must quit Ollama from the tray and start it again.
+2. Then verify the UNVERIFIED change: model requests use undici's own fetch with no 5-min header timeout
+   (packages/models/src/client.ts setModelFetch; apps/desktop/src/main/models.ts). Test: scratchpad dbg-ctx-short.mjs
+   (69 tokens) then dbg-ctx.mjs (~9.5k tokens, expect PINEAPPLE). Evidence for the bug: both team runs died with
+   "fetch failed" after exactly 21 min = 4 retries x Node fetch's 300 s headers timeout.
+3. Rerun the AI team on Snake + Tic-Tac-Toe: `QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs snake tictactoe`
+   (one run at a time — never run other Ollama tests alongside).
+4. If the user adds an Anthropic key (Models → Your own keys → Anthropic), rerun with Claude as architect.
+
 ## 🔁 Follow-up in progress (2026-11-17 night)
 - The user (via the side session) disputed "7B model too weak": Phases 6–8 used Ask AI directly, never the AI team.
   Snake probe had a timing false negative (fixed: restart before measuring). Running Phase 6 through the team now:

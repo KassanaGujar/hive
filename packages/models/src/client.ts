@@ -18,6 +18,16 @@ export interface Endpoint {
   ollamaContext?: number
 }
 
+/**
+ * Optional fetch for model requests. Node's built-in fetch gives up when response headers take more than 5 min, and a
+ * local model on a modest PC can need longer than that to read a long prompt before it answers. The app installs a
+ * fetch without that limit; Hive's own first-token/stall timeouts still apply.
+ */
+let modelFetch: typeof fetch = (...a) => fetch(...a)
+export function setModelFetch(f: typeof fetch) {
+  modelFetch = f
+}
+
 export interface ChatOptions {
   tools?: ToolSpec[]
   signal?: AbortSignal
@@ -241,7 +251,7 @@ async function* streamOnce(
       function: { name: t.name, description: t.description, parameters: t.parameters }
     }))
   }
-  const res = await fetch(`${ep.baseUrl.replace(/\/$/, '')}/chat/completions`, {
+  const res = await modelFetch(`${ep.baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -332,7 +342,7 @@ async function* streamOllama(
   }
   if (native) body.tools = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }))
   const root = ep.baseUrl.replace(/\/$/, '').replace(/\/v1$/, '')
-  const res = await fetch(`${root}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: opts.signal })
+  const res = await modelFetch(`${root}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: opts.signal })
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '')
     if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)

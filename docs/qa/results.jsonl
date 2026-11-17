@@ -978,3 +978,21 @@
 {"phase":"P6","name":"1. Snake Game (AI team) — Game-over functionality","status":"FAIL","detail":"not checked","at":"2026-11-17T08:57:22.079Z"}
 {"phase":"P6","name":"1. Snake Game (AI team) — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-17T08:57:22.080Z"}
 {"phase":"P6","name":"1. Snake Game (AI team) — The game runs without errors","status":"PASS","detail":"AI team (architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B)","at":"2026-11-17T08:57:22.081Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Create a playable Snake game","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.422Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Directional movement","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.438Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Food generation","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.439Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Snake growth","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.440Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Wall collision","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.441Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Self-collision","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.442Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Score tracking","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.443Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Game-over functionality","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.444Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — Restart functionality","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:26:03.444Z"}
+{"phase":"P6","name":"1. Snake Game (AI team) — The game runs without errors","status":"FAIL","detail":"no plan: failed fetch failed","at":"2026-11-17T09:26:03.445Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — A functional game board","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.245Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Two-player gameplay","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.246Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Turn management","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.246Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Detects winning combinations","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.247Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Detects draws","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.248Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — A scoreboard","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.248Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Restart functionality","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.249Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team) — Illegal moves are prevented","status":"FAIL","detail":"team run failed: no plan: failed fetch failed","at":"2026-11-17T09:46:56.250Z"}
