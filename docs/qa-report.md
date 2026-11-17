@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-17 07:07 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, 12 logical CPUs, Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-17 23:34 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -13,7 +13,7 @@ Every item of the plan was either run against the real app (real Electron window
 | AI / vibe coding | 25 | 3 | 0 |
 | Code execution | 21 | 4 | 0 |
 | Performance & stress | 25 | 2 | 0 |
-| Challenges: beginner | 14 | 20 | 0 |
+| Challenges: beginner | 24 | 90 | 0 |
 | Challenges: intermediate | 17 | 26 | 0 |
 | Challenges: advanced | 1 | 48 | 0 |
 | Collaborative challenges | 4 | 11 | 0 |
@@ -151,10 +151,11 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - Performance stays acceptable during concurrent use — 20 people joined at once and converged (p95 1.8 s); 2 people typing non-stop for an hour: every check identical, median sync latency 80-130 ms in the first 30 min rising to ~220 ms by 60 min (was 616 
 
 ### Challenges: beginner
-- 1. Snake Game — Directional movement _(passed after a fix)_ — after 3 round(s)
-- 1. Snake Game — Food generation _(passed after a fix)_ — after 3 round(s)
-- 1. Snake Game — Wall collision _(passed after a fix)_ — after 3 round(s)
-- 1. Snake Game — The game runs without errors _(passed after a fix)_ — after 3 round(s)
+- 1. Snake Game — Create a playable Snake game _(passed after a fix)_ — re-checked with the fixed probe (restart before measuring movement)
+- 1. Snake Game — Directional movement _(passed after a fix)_ — re-checked with the fixed probe (restart before measuring movement)
+- 1. Snake Game — Food generation _(passed after a fix)_ — re-checked with the fixed probe (restart before measuring movement)
+- 1. Snake Game — Wall collision _(passed after a fix)_ — re-checked with the fixed probe (restart before measuring movement)
+- 1. Snake Game — The game runs without errors _(passed after a fix)_ — no console errors (fixed probe)
 - 2. Tic-Tac-Toe — A functional game board _(passed after a fix)_ — after 1 round(s)
 - 2. Tic-Tac-Toe — Two-player gameplay _(passed after a fix)_ — after 1 round(s)
 - 2. Tic-Tac-Toe — Turn management _(passed after a fix)_ — after 1 round(s)
@@ -165,6 +166,15 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - 2. Tic-Tac-Toe — Illegal moves are prevented _(passed after a fix)_ — after 1 round(s)
 - 3. Space Invaders — Enemy formations — after 3 round(s)
 - 4. Breakout — The game behaves consistently — after 3 round(s)
+- 1. Snake Game (AI team qwen2.5-coder-7b-solo) — The game runs without errors — AI team (architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B)
+- 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — A functional game board — AI team (architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B)
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — A functional game board — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Two-player gameplay — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Turn management — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Detects winning combinations — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Detects draws — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Restart functionality — checked by clicking, like a player
+- 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Illegal moves are prevented — checked by clicking, like a player
 
 ### Challenges: intermediate
 - 5. Kanban Task Manager — Task deletion _(passed after a fix)_ — after 3 round(s)
@@ -205,12 +215,11 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **[Code execution] Resource limits and execution timeouts** — Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy
 - **[Performance & stress] Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness** — typing p95 76.1 ms
 - **[Performance & stress] Rapid switching between files** — avg 54.62 ms per switch
-- **[Challenges: beginner] 1. Snake Game — Create a playable Snake game** — no canvas or snake does not move on its own
-- **[Challenges: beginner] 1. Snake Game — Snake growth** — length 1→1
-- **[Challenges: beginner] 1. Snake Game — Self-collision** — length 1 looped into itself without game over
-- **[Challenges: beginner] 1. Snake Game — Score tracking** — score 0→0
-- **[Challenges: beginner] 1. Snake Game — Game-over functionality** — over=true moved after over=false message=false
-- **[Challenges: beginner] 1. Snake Game — Restart functionality** — {"over":false,"score":0,"len":1}
+- **[Challenges: beginner] 1. Snake Game — Snake growth** — length 1→1 (re-checked with the fixed probe)
+- **[Challenges: beginner] 1. Snake Game — Self-collision** — length 1 looped into itself without game over (re-checked with the fixed probe)
+- **[Challenges: beginner] 1. Snake Game — Score tracking** — score 0→0 (re-checked with the fixed probe)
+- **[Challenges: beginner] 1. Snake Game — Game-over functionality** — over=true moved after over=false message=false (re-checked with the fixed probe)
+- **[Challenges: beginner] 1. Snake Game — Restart functionality** — {"over":false,"score":0,"len":1} (re-checked with the fixed probe)
 - **[Challenges: beginner] 3. Space Invaders — Player movement** — x 220→220
 - **[Challenges: beginner] 3. Space Invaders — Projectile shooting** — no bullet or bullet does not move up
 - **[Challenges: beginner] 3. Space Invaders — Projectile collisions** — enemy count 32→32
@@ -310,6 +319,77 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **[Collaborative challenges] Collaborators debug each other's code** — player at 2,1
 - **[Collaborative challenges] Collaborators review AI-generated code** — Omar's AI change is not in Tess's History panel
 - **[Collaborative challenges] All collaborators can run the completed project** — no pair project ran fully on both machines: {"snake":"0/0 of 10","chess":"0/0 of 15","voxel":"0/0 of 13","chat":"1/1 of 11","physics":"1/1 of 11","pathfinding":"1/1 of 11"}
+- **[Challenges: beginner] 1. Snake Game (AI team) — Create a playable Snake game** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Directional movement** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Food generation** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Snake growth** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Wall collision** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Self-collision** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Score tracking** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Game-over functionality** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — Restart functionality** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team) — The game runs without errors** — team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — A functional game board** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Two-player gameplay** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Turn management** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Detects winning combinations** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Detects draws** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — A scoreboard** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Restart functionality** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team) — Illegal moves are prevented** — team run failed: team did not finish: working 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Create a playable Snake game** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Directional movement** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Food generation** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Snake growth** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Wall collision** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Self-collision** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Score tracking** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Game-over functionality** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — Restart functionality** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3.5-4b) — The game runs without errors** — no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — A functional game board** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Two-player gameplay** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Turn management** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Detects winning combinations** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Detects draws** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — A scoreboard** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Restart functionality** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3.5-4b) — Illegal moves are prevented** — team run failed: no plan: failed Model request failed (500): {"error":"timed out waiting for llama-server to start - "}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Create a playable Snake game** — no canvas or snake does not move on its own
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Directional movement** — down then ArrowLeft: [{"x":100,"y":100},{"x":100,"y":100},{"x":100,"y":100}]
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Food generation** — food {"x":200,"y":200}
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Snake growth** — length 3→3
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Wall collision** — never hit the wall in 40 steps
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Self-collision** — length 3 looped into itself without game over
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Score tracking** — score undefined→undefined
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Game-over functionality** — over=undefined moved after over=false message=false
+- **[Challenges: beginner] 1. Snake Game (AI team qwen2.5-coder-7b-solo) — Restart functionality** — {"len":3}
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Two-player gameplay** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Turn management** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Detects winning combinations** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Detects draws** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — A scoreboard** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Restart functionality** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen2.5-coder-7b-solo) — Illegal moves are prevented** — not checked
+- **[Challenges: beginner] 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — A scoreboard** — scoreboard "X: 0 \| O: 0" → "X: 0 \| O: 0"
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Create a playable Snake game** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Directional movement** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Food generation** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Snake growth** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Wall collision** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Self-collision** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Score tracking** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Game-over functionality** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — Restart functionality** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team qwen3-4b-solo) — The game runs without errors** — no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A functional game board** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Two-player gameplay** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Turn management** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Detects winning combinations** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Detects draws** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A scoreboard** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Restart functionality** — team run failed: no plan: planning 
+- **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Illegal moves are prevented** — team run failed: no plan: planning 
 
 ## 4. Blocked tests and why
 
@@ -364,6 +444,14 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 28 | A provider that never answered left Ask AI waiting forever | P3 timeout | Medium | Fixed |
 | 29 | Run has no sandbox, resource limits or timeout: programs can read any file, use the network and start processes as the user | P4 sandbox tests | By design (local IDE) | Open |
 | 30 | Under 100% CPU, three windows reloading at once sometimes left a renderer unresponsive | P2 harness | Low (not reproduced under normal load) | Open |
+| 31 | Switching projects while the AI team was working made it merge into the wrong folder ("--local can only be used inside a git repository") | P6 AI team Snake run (Hive reopened the last project at startup) | High | Fixed |
+| 32 | Long AI requests to a local model died after exactly 5 minutes (Node's fetch gives up waiting for the first byte) | P6 AI team runs (architect replies on a slow GPU) | High | Fixed |
+| 33 | Thinking models (Qwen 3.5, Qwen3) spent their whole reply thinking in a hidden field: nothing appeared and the stall timer fired | P6 model comparison | High | Fixed |
+| 34 | A small model could write one AI-team reply for an hour (Qwen3 4B, planning); the stall timer only catches silence | P6 Qwen3 4B run | Medium | Fixed |
+| 35 | Newer small models (Qwen 3.5 4B/9B) were missing from the model store | P6 model search | Low | Fixed |
+| 36 | Deleting a model in Models -> Installed failed silently when Ollama was down, and gave no sign of the space freed | P6 model clean-up | Low | Fixed |
+| 37 | The AI lead reviewer approved code that ignored the brief's required test hook (window.game) | P6 AI team Tic-Tac-Toe | Medium (AI quality) | Open |
+| 38 | Ollama hangs loading Qwen 3.5 models on this PC ("timed out waiting for llama-server to start"), while other models load | P6 model comparison | Low (Ollama / environment) | Open |
 
 ## 6. Bugs fixed
 
@@ -393,6 +481,12 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **Accepting an AI suggestion overwrote edits made after the AI read the file** — Accept applies only the AI's changes on top of the current file (3-way merge); refuses when both changed the same lines.
 - **Ask AI saved files under invented folders (src/…) instead of the name asked for** — System prompt: use exactly the given paths, keep untouched code, ask when vague, flag contradictions.
 - **A provider that never answered left Ask AI waiting forever** — 120 s first-token and 60 s stall timeouts with a clear message.
+- **Switching projects while the AI team was working made it merge into the wrong folder ("--local can only be used inside a git repository")** — Each team run remembers its own project folder for planning, worktrees, merge and cleanup (regression test added).
+- **Long AI requests to a local model died after exactly 5 minutes (Node's fetch gives up waiting for the first byte)** — Model calls use a fetch with no header deadline; Hive's own stall timer still applies (checked with a server that waits 330 s).
+- **Thinking models (Qwen 3.5, Qwen3) spent their whole reply thinking in a hidden field: nothing appeared and the stall timer fired** — Hive asks Ollama for answers without hidden thinking (139 s with nothing shown -> 13 s answer).
+- **A small model could write one AI-team reply for an hour (Qwen3 4B, planning); the stall timer only catches silence** — Each AI-team reply is capped at ~6,000 tokens (enough for a whole game file); the plan step retries and then falls back to a one-task plan.
+- **Newer small models (Qwen 3.5 4B/9B) were missing from the model store** — Added to the catalog with conservative scores.
+- **Deleting a model in Models -> Installed failed silently when Ollama was down, and gave no sign of the space freed** — Confirm shows the size freed; success and failure are both reported.
 
 ## 7. Unresolved bugs
 
@@ -400,6 +494,8 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **After switching between shared projects three times, each edit appeared twice in History** — Not root-caused yet; entries are duplicated, not lost or misattributed.
 - **Run has no sandbox, resource limits or timeout: programs can read any file, use the network and start processes as the user** — Same model as VS Code; recommendation below.
 - **Under 100% CPU, three windows reloading at once sometimes left a renderer unresponsive** — Not root-caused; main process stayed responsive. Harness avoids simultaneous reloads.
+- **The AI lead reviewer approved code that ignored the brief's required test hook (window.game)** — A model-quality limit of small local reviewers; the game was checked by clicking instead (7/8).
+- **Ollama hangs loading Qwen 3.5 models on this PC ("timed out waiting for llama-server to start"), while other models load** — Outside Hive; likely the 6 GB GPU being shared with games and launchers. Retry after restarting Ollama with GPU apps closed.
 
 ## 8. Performance measurements
 
@@ -504,7 +600,7 @@ Convergence was checked on every client by comparing both the shared document an
 | physics | engine.js | index.html, view.js | 3 | 1/11 · 1/11 |
 | pathfinding | algorithms.js | index.html, ui.js, style.css | 3 | 1/11 · 1/11 |
 
-Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to 3 rounds, like a user would, and every feature was checked mechanically in a hidden browser window. Results reflect a 7B local model on a modest PC; a larger or hosted model would do much better. The first run happened before the context-window fix (Ollama capped prompts at 4,096 tokens): fixing it took the world generator from 0/10 to 9/10, Tic-Tac-Toe from 4/8 (best round) to 8/8 and pathfinding from 0/11 to 2/11; simple games were unchanged. Typical AI failures were genuine code bugs: functions the spec required but left out (placeFood(x,y), pf.reset), game state rebuilt on every call (nothing persisted), libraries used without importing them (THREE, SimplexNoise), and runtime errors (`this.nodes.push is not a function`). In the two-person challenges the halves often disagreed about the shared interface (both sides defining window.game), which is exactly the integration risk Phase 9 is meant to expose.
+Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead review). Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to 3 rounds, like a user would, and every feature was checked mechanically in a hidden browser window. Results reflect a 7B local model on a modest PC; a larger or hosted model would do much better. The first run happened before the context-window fix (Ollama capped prompts at 4,096 tokens): fixing it took the world generator from 0/10 to 9/10, Tic-Tac-Toe from 4/8 (best round) to 8/8 and pathfinding from 0/11 to 2/11; simple games were unchanged. Typical AI failures were genuine code bugs: functions the spec required but left out (placeFood(x,y), pf.reset), game state rebuilt on every call (nothing persisted), libraries used without importing them (THREE, SimplexNoise), and runtime errors (`this.nodes.push is not a function`). In the two-person challenges the halves often disagreed about the shared interface (both sides defining window.game), which is exactly the integration risk Phase 9 is meant to expose. AI team re-run (architect plans, workers build in separate git worktrees, lead reviews, then merge), Snake and Tic-Tac-Toe, with each model setup the PC could run: (1) Qwen2.5 Coder 7B architect/lead + Llama 3.2 3B workers: Snake 0/10, unfinished after 184 min; most of the time went on swapping the two models in and out of the 6 GB GPU. (2) Qwen2.5 Coder 7B alone: Snake 1/10 in 57 min (runs without errors but the snake never moves); Tic-Tac-Toe 1/8 by the test hook, which the AI left out, but 7/8 when checked by clicking like a player (16 min; only the scoreboard never updates). (3) Qwen3 4B alone: no plan within 30 min, twice; measured at 3 tokens/s because 21% of the model spilled onto the CPU, so one capped reply takes ~30 min. (4) Qwen 3.5 4B/9B: Ollama could not load them on this PC. Conclusion: the team pipeline itself works (it planned, built in worktrees, reviewed and merged, after the fixes above); the limit is compute, about 3 GB of free GPU memory. A hosted or larger model would be expected to do far better; this was not measured because no API key was available.
 
 ## 11. Architectural weaknesses
 
@@ -513,6 +609,7 @@ Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder
 - The whole shared document is re-encoded and rewritten to `.hive/state.b64` after edits, which grows with project size.
 - Rooms are capped at 25 people and the relay keeps the full update log in memory per room.
 - The live Cloudflare relay runs older code until it is redeployed.
+- The AI team on one small GPU is slow: roles that use different models swap them in and out, and small reviewers approve code that misses parts of the brief.
 
 ## 12. Recommendations
 
@@ -522,7 +619,8 @@ Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder
 4. Save shared state incrementally (append updates, compact occasionally) instead of rewriting the whole state file.
 5. Run Phase 10 with two real first-time users: give them the brief ("Build a fully functional Snake game together in 30 minutes"), one shared project, a stronger model than 7B if possible, and record join time, time to first edit, conflicts, AI bugs, coding vs coordinating time and a short interview afterwards.
 6. Use a stronger default model for AI work when the PC allows it (or a free hosted model); a 7B model on CPU+GPU reads prompts at ~15 tokens/s here and cannot build mid-size apps.
-7. Keep the QA harness (`tools/qa`) in CI for Phases 1, 2 and 4, which need no AI model.
+7. For the AI team on a modest PC, use one model for every role (no swapping) or a hosted architect/lead; show the measured tokens/s so users know when a model is too slow.
+8. Keep the QA harness (`tools/qa`) in CI for Phases 1, 2 and 4, which need no AI model.
 
 ## Final quality assessment (Phase 11)
 
@@ -530,7 +628,7 @@ Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder
 |---|---|---|
 | Core functionality | 90 | 18/19 core items pass (5 after fixes); back/forward not applicable; moving a file does not update imports. |
 | Multiplayer collaboration | 85 | 33/33 Phase 2 items pass after 11 fixes; 20 people converge; latency drifts from ~80 ms to ~220 ms over an hour of non-stop typing; the live relay still needs redeploying. |
-| AI coding capabilities | 50 | Ask AI handles everyday tasks well (Phase 3: 25/28, the 3 misses are model mistakes) and follows the given file paths after the prompt fix; with the local 7B model it builds only simple apps (Phase 6: 14/34, Phase 7: 17/43, Phase 8: 1/49 features), and Ask AI sees only the open file. |
+| AI coding capabilities | 50 | Ask AI handles everyday tasks well (Phase 3: 25/28; in the 3 misses the AI's output was wrong — a renamed export, a test API that doesn't exist, an unflagged contradiction — not yet re-tested with a stronger model or through the AI team) and follows the given file paths after the prompt fix; built directly with Ask AI and the local 7B model the challenge apps mostly failed (Phase 6: 15/34, Phase 7: 17/43, Phase 8: 1/49 features). These runs did not use Hive's AI team (architect + lead review); a control by another session with Claude Sonnet on the same briefs scored 8/8 (Tic-Tac-Toe) and 9/10 (Snake), so the result says 'a single 7B model without the team', not 'Hive cannot build these'. Re-run through the AI team with every local model this PC could run, the best result was Tic-Tac-Toe 7/8 by clicking (Qwen2.5 Coder 7B); Snake reached 1/10; the limit was about 3 GB of free GPU memory, not the team pipeline. |
 | Code execution reliability | 80 | 21/25: runs, input, streaming output, stop, restart and errors with file:line all work; no limits or sandbox (by design). |
 | Data persistence | 85 | Settings, projects and shared state survive restarts, crashes and a relay restart after fixes; offline edits merge 3-way with a conflict copy. |
 | Performance | 75 | Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms p95, Run notices a program's exit 4-8 s late, and the local 7B model reads prompts at ~15 tokens/s on this PC. |

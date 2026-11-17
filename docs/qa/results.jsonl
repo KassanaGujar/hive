@@ -1086,3 +1086,21 @@
 {"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A scoreboard","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:27:20.488Z"}
 {"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Restart functionality","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:27:20.488Z"}
 {"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Illegal moves are prevented","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:27:20.489Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Create a playable Snake game","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.891Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Directional movement","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.910Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Food generation","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.911Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Snake growth","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.912Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Wall collision","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.913Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Self-collision","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.913Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Score tracking","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.914Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Game-over functionality","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.915Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — Restart functionality","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T22:59:37.916Z"}
+{"phase":"P6","name":"1. Snake Game (AI team qwen3-4b-solo) — The game runs without errors","status":"FAIL","detail":"no plan: planning ","at":"2026-11-17T22:59:37.917Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A functional game board","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.377Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Two-player gameplay","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.380Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Turn management","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.382Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Detects winning combinations","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.384Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Detects draws","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.385Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A scoreboard","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.385Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Restart functionality","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.386Z"}
+{"phase":"P6","name":"2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Illegal moves are prevented","status":"FAIL","detail":"team run failed: no plan: planning ","at":"2026-11-17T23:29:41.387Z"}

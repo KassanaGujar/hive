@@ -1,14 +1,12 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (2026-11-17 08:20): AI team rerun in progress
-1. ✅ Ollama restarted (it had been quit, not restarted); answering again.
-2. ✅ VERIFIED: model requests have no 5-min header timeout. tools/qa/slow-headers.test.mjs: after 330 s Hive's model
-   fetch got its answer; plain Node fetch failed with UND_ERR_HEADERS_TIMEOUT (the bug that killed both team runs).
-   In-app: 69-token and ~9.5k-token prompts both answered PINEAPPLE, no fetch errors in the log.
-3. ⏳ AI team rerun on Snake + Tic-Tac-Toe started 08:17 (log: ~/dev-cache/hive/qa/team-run.out). If interrupted, rerun:
-   `QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs snake tictactoe` (one Ollama job at a time).
-   Then: node tools/qa/report.mjs, update report-notes + checklist, commit.
-4. If the user adds an Anthropic key (Models → Your own keys → Anthropic), rerun with Claude as architect.
+## 🔖 RESUME HERE (2026-11-17 18:40): AI team rerun done, report updated
+1. ✅ All local model setups run through the AI team (see qa-checklist Phase 6 note, qa-report bugs + challengeNotes).
+   Best: Qwen2.5 Coder 7B alone, Tic-Tac-Toe 7/8 by clicking (tools/qa/ui-check.mjs). Limit = ~3 GB free VRAM.
+2. ✅ Fixed: project-switch merge (ctl.root), 5-min fetch timeout, think:false, 6k reply cap, model delete feedback.
+3. User actions left: add an Anthropic/OpenRouter key for a strong architect and rerun
+   (HIVE_TEAM_MODELS=... QA_TAG=... node tools/qa/run-challenges-team.mjs snake tictactoe); restart Ollama with GPU
+   apps closed to retry Qwen 3.5; wrangler deploy; Phase 10 with real users; delete unused models (user OK first).
 
 ## 🔁 Follow-up in progress (2026-11-17 night)
 - The user (via the side session) disputed "7B model too weak": Phases 6–8 used Ask AI directly, never the AI team.

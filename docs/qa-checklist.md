@@ -371,6 +371,14 @@ eggs
 - [x] Restart functionality — after 1 round(s)
 - [x] Illegal moves are prevented — after 1 round(s)
 
+> **AI team rerun (2026-11-17), local models only (6 GB GPU, ~3 GB free):**
+> - Qwen2.5 Coder 7B architect/lead + Llama 3.2 3B workers: Snake 0/10, unfinished after 184 min (model swapping).
+> - Qwen2.5 Coder 7B alone: Snake 1/10 (57 min); Tic-Tac-Toe 1/8 by test hook, **7/8 by clicking** (16 min; scoreboard never updates).
+> - Qwen3 4B alone: no plan within 30 min, twice (3 tokens/s, 21% of the model on the CPU).
+> - Qwen 3.5 4B / 9B: Ollama could not load them on this PC.
+> - Bugs found and fixed on the way: wrong-project merge, 5-minute fetch timeout, hidden thinking, runaway replies, silent model delete.
+> - Not run: hosted/Claude architect (needs a key from the user).
+
 ### 3. Space Invaders
 - [F] Player movement — x 220→220
 - [F] Projectile shooting — no bullet or bullet does not move up
