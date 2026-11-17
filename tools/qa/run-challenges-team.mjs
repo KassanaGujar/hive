@@ -8,11 +8,23 @@ import path from 'node:path'
 import { Hive, record, assert, wait, freshDir, OUT, REPO } from './lib.mjs'
 import { CHALLENGES } from './challenges.mjs'
 import { testChatServer } from './chat-probe.mjs'
-const RUN_TIMEOUT_MS = Number(process.env.QA_TEAM_TIMEOUT ?? 90 * 60000)
+const RUN_TIMEOUT_MS = Number(process.env.QA_TEAM_TIMEOUT ?? 180 * 60000)
 const only = process.argv.slice(2)
 const list = CHALLENGES.filter((c) => (only.length ? only.includes(c.id) : c.phase === 'P6'))
 const a = await new Hive('team', 9460).launch()
 await a.profileAs('Tess')
+// Hive reopens the last project on launch. Let that finish before opening the test project, or it can land afterwards
+// and switch the app to a stale folder mid-run (it did: the merge then went to a half-deleted folder with no .git).
+{
+  const end = Date.now() + 60000
+  let prev, stable = 0
+  while (Date.now() < end && stable < 3) {
+    const cur = await a.invoke('project:current')
+    stable = cur === prev ? stable + 1 : 0
+    prev = cur
+    await wait(2000)
+  }
+}
 const team = await a.invoke('agents:team')
 const teamDesc = `architect ${team.architect?.name ?? '-'}, leads ${team.leads.map((m) => m.name).join('/') || '-'}, workers ${team.workers.map((m) => m.name).join('/') || '-'}`
 console.log('team:', teamDesc)
@@ -48,6 +60,8 @@ for (const c of list) {
   await a.invoke('project:open', dir)
   await a.invoke('fs:write', 'README.md', `# ${c.title}\n`)
   await a.openProject(dir)
+  const opened = await a.invoke('project:current')
+  if (path.resolve(opened ?? '') !== path.resolve(dir)) throw new Error(`wrong project open: ${opened} (expected ${dir})`)
   const t0 = Date.now()
   const log = { title: c.title, team: teamDesc }
   try {

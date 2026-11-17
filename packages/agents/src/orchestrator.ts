@@ -73,6 +73,9 @@ const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefl
 
 interface RunCtl {
   run: AgentRun
+  /** The project the run started in. Fixed for the whole run: switching projects mid-run must not send worktrees,
+   *  merges or cleanup to a different folder. */
+  root: string
   abort: AbortController
   paused: Set<string>
   takenOver: Set<string>
@@ -107,7 +110,7 @@ export class Orchestrator {
         run.phase = 'cancelled'
         run.error = 'Hive was closed while this run was active.'
       }
-      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], waiters: new Map() })
+      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], waiters: new Map(), root: '' })
     }
   }
 
@@ -133,7 +136,7 @@ export class Orchestrator {
       ...workerPool.map((w) => ({ name: w.name, role: 'worker' as const, modelId: w.model.id, modelName: w.model.name, status: 'idle' as const }))
     ]
     const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now() }
-    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, waiters: new Map(), prd }
+    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, waiters: new Map(), prd, root: this.host.projectRoot() }
     this.runs.set(id, ctl)
     this.emit(ctl)
     this.plan(ctl, presetTasks).catch((e) => this.fail(ctl, e))
@@ -144,7 +147,7 @@ export class Orchestrator {
 
   private async plan(ctl: RunCtl, presetTasks?: { title: string; description: string }[]) {
     const { run } = ctl
-    const files = (await listFiles(this.host.projectRoot(), '.', 300)).join('\n')
+    const files = (await listFiles(ctl.root, '.', 300)).join('\n')
     const workers = ctl.workerPool.map((w) => w.name)
     let prompt = architectPlanPrompt(run.goal, files, workers)
     if (ctl.prd) prompt += `
@@ -180,7 +183,7 @@ ${ctl.prd.slice(0, 8000)}`
     const ctl = this.get(runId)
     if (ctl.run.phase !== 'awaiting-plan-approval') return
     if (!approved) return this.cancel(ctl, 'Plan rejected.')
-    const root = this.host.projectRoot()
+    const root = ctl.root
     ctl.run.baseBranch = await this.host.git.ensureRepo(root)
     const integration = `hive/run-${ctl.run.id.replace(/^run-/, '')}`
     ctl.run.integrationBranch = integration
@@ -247,7 +250,7 @@ ${ctl.prd.slice(0, 8000)}`
   }
 
   private async runTask(ctl: RunCtl, task: AgentTask, worker: { name: string; model: InstalledModel }) {
-    const root = this.host.projectRoot()
+    const root = ctl.root
     const branch = `hive/agent-${worker.name}/${task.id}`
     const wt = path.join(root, '.hive', 'worktrees', ctl.run.id, task.id)
     task.branch = branch
@@ -542,7 +545,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
     if (!approved) return this.cancel(ctl, 'Final merge rejected. Branches are kept so you can inspect them.', false)
     ctl.run.phase = 'merging'
     this.emit(ctl)
-    const root = this.host.projectRoot()
+    const root = ctl.root
     const res = await this.host.git.merge(root, ctl.run.integrationBranch!, `Hive: ${ctl.run.goal}`)
     if (!res.ok) return this.fail(ctl, new Error(`Final merge failed: ${res.conflicts}. Resolve it in the Git panel.`))
     this.host.feed({
@@ -560,7 +563,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
   }
 
   private async cleanup(ctl: RunCtl, deleteBranches = true) {
-    const root = this.host.projectRoot()
+    const root = ctl.root
     for (const t of ctl.run.tasks) {
       if (t.worktree) await this.host.git.removeWorktree(root, t.worktree).catch(() => {})
       if (deleteBranches && t.branch) await this.host.git.deleteBranch(root, t.branch).catch(() => {})

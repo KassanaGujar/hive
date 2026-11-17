@@ -171,3 +171,46 @@ describe('integration step after parallel work', () => {
     rmSync(root, { recursive: true, force: true })
   }, 180_000)
 })
+
+describe('orchestrator keeps its project when the user switches projects mid-run', () => {
+  it('merges into the folder the run started in, not the newly opened one', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-orch-a-'))
+    const other = mkdtempSync(path.join(tmpdir(), 'hive-orch-b-')) // not a git repo, like the QA run's stale folder
+    let current = root
+    const chat = scriptedChat()
+    const orch = new Orchestrator({
+      projectRoot: () => current,
+      models: () => [model('big', 'top'), model('small', 'worker')],
+      tierOverrides: () => ({}),
+      chat: (m, msgs) => chat(m, msgs),
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: 'ran' }),
+      requestApproval: async () => false,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8
+    })
+    const id = await orch.start('Build a todo page')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 4800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase) return r
+        if (r.phase === 'failed') throw new Error(r.error)
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error(`timeout waiting for ${phase}`)
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    current = other // the user opens a different project while the team works
+    await wait('awaiting-merge-approval')
+    await orch.approveMerge(id, true)
+    await wait('done')
+    expect(readFileSync(path.join(root, 'index.html'), 'utf8')).toContain('<title>Todo</title>')
+    expect(existsSync(path.join(other, 'index.html'))).toBe(false)
+    expect(existsSync(path.join(other, '.git'))).toBe(false)
+    rmSync(root, { recursive: true, force: true })
+    rmSync(other, { recursive: true, force: true })
+  }, 180_000)
+})

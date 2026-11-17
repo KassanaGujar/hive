@@ -2,37 +2,85 @@
  "snake": {
   "title": "1. Snake Game",
   "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
-  "plan": [],
-  "error": "no plan: failed fetch failed",
-  "minutes": 21,
+  "plan": [
+   "Create the HTML structure: index.html",
+   "Style the game: style.css",
+   "Initialize game state; Implement game logic; Add controls and UI elements: game.js"
+  ],
+  "tasks": [
+   {
+    "title": "Create the HTML structure",
+    "status": "merged"
+   },
+   {
+    "title": "Style the game",
+    "status": "merged"
+   },
+   {
+    "title": "Initialize game state; Implement game logic; Add controls and UI elements",
+    "status": "merged"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 1)",
+    "status": "failed"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 2)",
+    "status": "failed"
+   }
+  ],
+  "error": "[team] Error: fatal: --local can only be used inside a git repository\n",
+  "minutes": 41,
   "final": {
-   "Create a playable Snake game": "team run failed: no plan: failed fetch failed",
-   "Directional movement": "team run failed: no plan: failed fetch failed",
-   "Food generation": "team run failed: no plan: failed fetch failed",
-   "Snake growth": "team run failed: no plan: failed fetch failed",
-   "Wall collision": "team run failed: no plan: failed fetch failed",
-   "Self-collision": "team run failed: no plan: failed fetch failed",
-   "Score tracking": "team run failed: no plan: failed fetch failed",
-   "Game-over functionality": "team run failed: no plan: failed fetch failed",
-   "Restart functionality": "team run failed: no plan: failed fetch failed",
-   "The game runs without errors": "no plan: failed fetch failed"
+   "Create a playable Snake game": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Directional movement": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Food generation": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Snake growth": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Wall collision": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Self-collision": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Score tracking": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Game-over functionality": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "Restart functionality": "team run failed: [team] Error: fatal: --local can only be used inside a git repository\n",
+   "The game runs without errors": "[team] Error: fatal: --local can only be used inside a git repository\n"
   }
  },
  "tictactoe": {
   "title": "2. Tic-Tac-Toe",
   "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
-  "plan": [],
-  "error": "no plan: failed fetch failed",
-  "minutes": 21,
+  "plan": [
+   "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
+   "Style the Tic-Tac-Toe board and elements.: style.css",
+   "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button : app.js"
+  ],
+  "tasks": [
+   {
+    "title": "Create the HTML structure for the Tic-Tac-Toe board.",
+    "status": "merged"
+   },
+   {
+    "title": "Style the Tic-Tac-Toe board and elements.",
+    "status": "merged"
+   },
+   {
+    "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button ",
+    "status": "merged"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 1)",
+    "status": "review"
+   }
+  ],
+  "error": "team did not finish: working ",
+  "minutes": 93,
   "final": {
-   "A functional game board": "team run failed: no plan: failed fetch failed",
-   "Two-player gameplay": "team run failed: no plan: failed fetch failed",
-   "Turn management": "team run failed: no plan: failed fetch failed",
-   "Detects winning combinations": "team run failed: no plan: failed fetch failed",
-   "Detects draws": "team run failed: no plan: failed fetch failed",
-   "A scoreboard": "team run failed: no plan: failed fetch failed",
-   "Restart functionality": "team run failed: no plan: failed fetch failed",
-   "Illegal moves are prevented": "team run failed: no plan: failed fetch failed"
+   "A functional game board": "team run failed: team did not finish: working ",
+   "Two-player gameplay": "team run failed: team did not finish: working ",
+   "Turn management": "team run failed: team did not finish: working ",
+   "Detects winning combinations": "team run failed: team did not finish: working ",
+   "Detects draws": "team run failed: team did not finish: working ",
+   "A scoreboard": "team run failed: team did not finish: working ",
+   "Restart functionality": "team run failed: team did not finish: working ",
+   "Illegal moves are prevented": "team run failed: team did not finish: working "
   }
  }
 }
