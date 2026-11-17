@@ -69,5 +69,123 @@
    "Restart functionality": "team run failed: team did not finish: working ",
    "Illegal moves are prevented": "team run failed: team did not finish: working "
   }
+ },
+ "snake@qwen3.5-4b": {
+  "title": "1. Snake Game",
+  "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
+  "plan": [],
+  "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+  "minutes": 21,
+  "final": {
+   "Create a playable Snake game": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Directional movement": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Food generation": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Snake growth": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Wall collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Self-collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Score tracking": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Game-over functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "The game runs without errors": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
+  }
+ },
+ "tictactoe@qwen3.5-4b": {
+  "title": "2. Tic-Tac-Toe",
+  "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
+  "plan": [],
+  "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+  "minutes": 21,
+  "final": {
+   "A functional game board": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Two-player gameplay": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Turn management": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Detects winning combinations": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Detects draws": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "A scoreboard": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+   "Illegal moves are prevented": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
+  }
+ },
+ "snake@qwen2.5-coder-7b-solo": {
+  "title": "1. Snake Game",
+  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
+  "plan": [
+   "Create the HTML structure: index.html",
+   "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta: game.js"
+  ],
+  "tasks": [
+   {
+    "title": "Create the HTML structure",
+    "status": "merged"
+   },
+   {
+    "title": "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta",
+    "status": "merged"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 1)",
+    "status": "merged"
+   }
+  ],
+  "phase": "done",
+  "minutes": 57,
+  "final": {
+   "Create a playable Snake game": "no canvas or snake does not move on its own",
+   "Directional movement": "down then ArrowLeft: [{\"x\":100,\"y\":100},{\"x\":100,\"y\":100},{\"x\":100,\"y\":100}]",
+   "Food generation": "food {\"x\":200,\"y\":200}",
+   "Snake growth": "length 3→3",
+   "Wall collision": "never hit the wall in 40 steps",
+   "Self-collision": "length 3 looped into itself without game over",
+   "Score tracking": "score undefined→undefined",
+   "Game-over functionality": "over=undefined moved after over=false message=false",
+   "Restart functionality": "{\"len\":3}",
+   "The game runs without errors": true
+  }
+ },
+ "tictactoe@qwen2.5-coder-7b-solo": {
+  "title": "2. Tic-Tac-Toe",
+  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
+  "plan": [
+   "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
+   "Style the Tic-Tac-Toe board and elements.: style.css",
+   "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt: app.js"
+  ],
+  "tasks": [
+   {
+    "title": "Create the HTML structure for the Tic-Tac-Toe board.",
+    "status": "merged"
+   },
+   {
+    "title": "Style the Tic-Tac-Toe board and elements.",
+    "status": "merged"
+   },
+   {
+    "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt",
+    "status": "merged"
+   }
+  ],
+  "phase": "done",
+  "minutes": 16,
+  "final": {
+   "A functional game board": true,
+   "Two-player gameplay": "not checked",
+   "Turn management": "not checked",
+   "Detects winning combinations": "not checked",
+   "Detects draws": "not checked",
+   "A scoreboard": "not checked",
+   "Restart functionality": "not checked",
+   "Illegal moves are prevented": "not checked"
+  },
+  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:15:83",
+  "clickThrough": {
+   "A functional game board": true,
+   "Two-player gameplay": true,
+   "Turn management": true,
+   "Detects winning combinations": true,
+   "Detects draws": true,
+   "A scoreboard": "scoreboard \"X: 0 | O: 0\" → \"X: 0 | O: 0\"",
+   "Restart functionality": true,
+   "Illegal moves are prevented": true
+  }
  }
 }
