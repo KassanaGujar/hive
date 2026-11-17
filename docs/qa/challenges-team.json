@@ -176,16 +176,42 @@
    "Restart functionality": "not checked",
    "Illegal moves are prevented": "not checked"
   },
-  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:15:83",
-  "clickThrough": {
-   "A functional game board": true,
-   "Two-player gameplay": true,
-   "Turn management": true,
-   "Detects winning combinations": true,
-   "Detects draws": true,
-   "A scoreboard": "scoreboard \"X: 0 | O: 0\" → \"X: 0 | O: 0\"",
-   "Restart functionality": true,
-   "Illegal moves are prevented": true
+  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:15:83"
+ },
+ "snake@qwen3-4b-solo": {
+  "title": "1. Snake Game",
+  "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
+  "plan": [],
+  "error": "no plan: planning ",
+  "minutes": 30,
+  "final": {
+   "Create a playable Snake game": "team run failed: no plan: planning ",
+   "Directional movement": "team run failed: no plan: planning ",
+   "Food generation": "team run failed: no plan: planning ",
+   "Snake growth": "team run failed: no plan: planning ",
+   "Wall collision": "team run failed: no plan: planning ",
+   "Self-collision": "team run failed: no plan: planning ",
+   "Score tracking": "team run failed: no plan: planning ",
+   "Game-over functionality": "team run failed: no plan: planning ",
+   "Restart functionality": "team run failed: no plan: planning ",
+   "The game runs without errors": "no plan: planning "
+  }
+ },
+ "tictactoe@qwen3-4b-solo": {
+  "title": "2. Tic-Tac-Toe",
+  "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
+  "plan": [],
+  "error": "no plan: planning ",
+  "minutes": 30,
+  "final": {
+   "A functional game board": "team run failed: no plan: planning ",
+   "Two-player gameplay": "team run failed: no plan: planning ",
+   "Turn management": "team run failed: no plan: planning ",
+   "Detects winning combinations": "team run failed: no plan: planning ",
+   "Detects draws": "team run failed: no plan: planning ",
+   "A scoreboard": "team run failed: no plan: planning ",
+   "Restart functionality": "team run failed: no plan: planning ",
+   "Illegal moves are prevented": "team run failed: no plan: planning "
   }
  }
 }

@@ -16,7 +16,8 @@ import { streamChat } from '@hive/models'
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
 /** HIVE_TEAM_MODELS (QA/advanced): only these installed models (Ollama names or ids, comma-separated) join the AI team. */
-const teamOnly = (process.env.HIVE_TEAM_MODELS ?? '').split(',').map((x) => x.trim()).filter(Boolean)
+const AGENT_MAX_REPLY_TOKENS = Number(process.env.HIVE_AGENT_MAX_REPLY_TOKENS ?? 6144)
+const teamOnly =(process.env.HIVE_TEAM_MODELS ?? '').split(',').map((x) => x.trim()).filter(Boolean)
 const persistTimers = new Map<string, NodeJS.Timeout>()
 
 export async function refreshModels() {
@@ -29,7 +30,9 @@ export const orchestrator = new Orchestrator({
   models: () => (teamOnly.length ? modelsCache.filter((m) => teamOnly.includes(m.model) || teamOnly.includes(m.id)) : modelsCache),
   tierOverrides: () => getSettings().tierOverrides,
   async chat(model, messages, tools, { signal, onText }) {
-    return chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal }), onText)
+    // Cap each reply: a small local model can loop without ever going quiet (Qwen3 4B produced one plan reply for an
+    // hour, past its whole context), and the stall timer only catches silence. 6k tokens fits a whole game file.
+    return chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
   },
   git: gitOps,
   exec: execCapture,
