@@ -207,7 +207,7 @@ await check(P, 'Requesting broken code: the app reports execution errors', async
   await accept([needProposal(r, 'crash.js')])
   write('hive.json', '{"command":"node crash.js"}')
   await a.invoke('run:start')
-  await until(async () => (await a.invoke('run:state')).status !== 'running', 15000)
+  await until(async () => (await a.invoke('run:state')).status !== 'running', 45000)
   const s = await a.invoke('run:state')
   assert(s.status === 'failed' && /code/.test(s.message ?? ''), JSON.stringify(s))
   return s.message
@@ -217,7 +217,7 @@ await check(P, 'AI references nonexistent files or dependencies', async () => {
   await accept([needProposal(r, 'uses-lib.js')])
   write('hive.json', '{"command":"node uses-lib.js"}')
   await a.invoke('run:start')
-  await until(async () => (await a.invoke('run:state')).status !== 'running', 15000)
+  await until(async () => (await a.invoke('run:state')).status !== 'running', 45000)
   const s = await a.invoke('run:state')
   assert(s.status === 'failed', 'ran without the package?! ' + JSON.stringify(s))
   return 'Run fails with Node\'s "Cannot find module" in the terminal + "' + s.message + '". Hive does not warn about missing packages before running.'

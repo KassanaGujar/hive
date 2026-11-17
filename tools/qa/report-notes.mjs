@@ -6,6 +6,9 @@ export const NOTES = {
     { name: 'Phase 10 — 30-minute challenge with two first-time users', why: 'Needs two real people who have never used Hive; an automated script cannot measure first-time understanding, coordination or give feedback. A script for the session is in the recommendations.' }
   ],
   bugs: [
+    {"bug":"Every Run (and AI agent command) went through Windows PowerShell 5.1, which took ~14 s just to start on this PC","foundBy":"P3 broken-code check (Run still \"running\" after 15 s)","severity":"High (performance)","fixed":true,"fix":"Run and agent commands use cmd.exe on Windows (starts instantly, handles &&); the interactive terminal stays PowerShell."},
+    {"bug":"Run spent ~9 s looking up 18 tools before starting (cache cleared on every press)","foundBy":"P3 broken-code investigation","severity":"Medium","fixed":true,"fix":"Found tools stay cached and \"not found\" expires after a minute; only runtime tools are looked up (run:start 9 s to 40 ms)."},
+    {"bug":"Run reports a program's exit 4–8 s (sometimes 15 s+) after it actually ended","foundBy":"P3/P4 timing","severity":"Low","fixed":false,"fix":"Exit codes are correct; the delay is in the Windows pseudo-console (ConPTY) on this busy PC. Not fixed."},
     {"bug":"After closing one project and opening another, files with the same path (README.md, index.html) reused the old project's editor document: the old text could show and edits synced into the old project's session","foundBy":"P9 general checks (History empty after several projects)","severity":"Critical (data integrity)","fixed":true,"fix":"Every file document is disposed when a project is closed or another is opened."},
     {"bug":"History recorded your edit as nothing (its \"before\" text already contained the edit) and could attribute a teammate's simultaneous change to you","foundBy":"P9 general checks","severity":"High (collaboration clarity)","fixed":true,"fix":"Each file's last text is tracked; your pending entry is recorded up to the moment a teammate's change arrives."},
     {"bug":"After switching between shared projects three times, each edit appeared twice in History","foundBy":"P9 investigation","severity":"Low (cosmetic)","fixed":false,"fix":"Not root-caused yet; entries are duplicated, not lost or misattributed."},
@@ -36,7 +39,7 @@ export const NOTES = {
   ],
   performanceNotes: 'Numbers were taken on a heavily loaded machine (CPU often 90–100% from OneDrive, Explorer and other apps); on an idle PC expect them to be lower. Search over 1,000 files took 0.6–1.1 s on files already read once, but up to 14–19 s right after the 1,000 test files were created, which matches Windows Defender scanning each new file on first read (the full-tree hash that ran straight after over the same files took 0.6 s). Typing in a 100,000-line (4.5 MB) file stays usable (p50 ~11 ms) but its slowest 5% of keystrokes take ~76 ms, above the 50 ms target, even with the minimap, folding and bracket colouring turned off for such files. AI responses with the local 7B model took a median of 53 s per request (max 231 s) on this CPU.',
   collabNotes: 'Convergence was checked on every client by comparing both the shared document and the file on disk.',
-  challengeNotes: 'Each challenge was built only through Hive\'s Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to four rounds, like a user would. Results reflect a 7B local model; a larger or hosted model would do better.',
+  challengeNotes: "Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to 3 rounds, like a user would, and every feature was checked mechanically in a hidden browser window. Results reflect a 7B local model on a modest PC; a larger or hosted model would do much better. The first run happened before the context-window fix (Ollama capped prompts at 4,096 tokens): fixing it took the world generator from 0/10 to 9/10, Tic-Tac-Toe from 4/8 (best round) to 8/8 and pathfinding from 0/11 to 2/11; simple games were unchanged. Typical AI failures were genuine code bugs: functions the spec required but left out (placeFood(x,y), pf.reset), game state rebuilt on every call (nothing persisted), libraries used without importing them (THREE, SimplexNoise), and runtime errors (`this.nodes.push is not a function`). In the two-person challenges the halves often disagreed about the shared interface (both sides defining window.game), which is exactly the integration risk Phase 9 is meant to expose.",
   weaknesses: [
     'Ask AI sees only the open file; it has no project-wide context or code search, so multi-file work depends on the user pasting context.',
     'Run executes code with the user\'s full rights and no time or memory limits (fine for a local IDE, but there is no isolation option).',
@@ -49,7 +52,8 @@ export const NOTES = {
     'Give Ask AI project context (file list + search + selected files) and a "files touched" summary on each proposal.',
     'Add an optional Run sandbox: time limit, memory limit, and a "no network" toggle (e.g. a job object on Windows).',
     'Save shared state incrementally (append updates, compact occasionally) instead of rewriting the whole state file.',
-    'Run Phase 10 with two real first-time users and record the measurements listed in the plan.',
+    'Run Phase 10 with two real first-time users: give them the brief ("Build a fully functional Snake game together in 30 minutes"), one shared project, a stronger model than 7B if possible, and record join time, time to first edit, conflicts, AI bugs, coding vs coordinating time and a short interview afterwards.',
+    'Use a stronger default model for AI work when the PC allows it (or a free hosted model); a 7B model on CPU+GPU reads prompts at ~15 tokens/s here and cannot build mid-size apps.',
     'Keep the QA harness (`tools/qa`) in CI for Phases 1, 2 and 4, which need no AI model.'
   ],
   scores: [
@@ -65,8 +69,8 @@ export const NOTES = {
     },
     {
       "category": "AI coding capabilities",
-      "score": 45,
-      "why": "Ask AI handles small tasks (Phase 3: 23/26) but the local 7B model builds only simple apps (Phase 6: 14/34, Phase 7: 17/43, Phase 8: 1/49 features); Ask AI sees only the open file."
+      "score": 50,
+      "why": "Ask AI handles everyday tasks well (Phase 3: 25/28, the 3 misses are model mistakes) and follows the given file paths after the prompt fix; with the local 7B model it builds only simple apps (Phase 6: 14/34, Phase 7: 17/43, Phase 8: 1/49 features), and Ask AI sees only the open file."
     },
     {
       "category": "Code execution reliability",
@@ -81,7 +85,7 @@ export const NOTES = {
     {
       "category": "Performance",
       "score": 75,
-      "why": "Projects open in under 2.5 s, typing p95 under 32 ms for normal files, idle CPU ~1%; 100k-line files reach 76 ms p95; local AI is slow on this PC (~15 prompt tokens/s)."
+      "why": "Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms p95, Run notices a program's exit 4-8 s late, and the local 7B model reads prompts at ~15 tokens/s on this PC."
     },
     {
       "category": "User experience",

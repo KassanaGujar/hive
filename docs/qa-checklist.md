@@ -40,7 +40,7 @@ Test scripts: `tools/qa/`. Results log and screenshots: `docs/qa/`. Throwaway te
 ## PHASE 2 — Multiplayer Collaboration
 - [x] Invite one collaborator using a project link
 - [x] Invite multiple collaborators simultaneously
-- [x] All collaborators see the same project files — 4 files identical on all three (on disk after 48 ms)
+- [x] All collaborators see the same project files — 4 files identical on all three (on disk after 754 ms)
 - [x] Two people edit different files simultaneously
 - [x] Two people edit the same file simultaneously
 - [x] Two people edit the exact same line simultaneously
@@ -145,6 +145,18 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
@@ -196,8 +208,32 @@ const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'
 
 TypeError: p is not a function
 
-- [x] AI optimizes a slow algorithm — fib(35): 802 ms → 0 ms
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+- [x] AI optimizes a slow algorithm — fib(35): 2461 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
@@ -245,7 +281,7 @@ eggs
 ## PHASE 4 — Code Execution and Runtime
 - [x] Run a basic Hello World program
 - [x] Run a program that accepts user input
-- [x] Run a program that produces continuous output — 33 lines streamed in 2.5 s
+- [x] Run a program that produces continuous output — 32 lines streamed in 2.5 s
 - [x] Run a program with multiple files
 - [x] Run a program with external dependencies
 - [x] Run a program with missing dependencies; the error is understandable — Node error shown + Hive status message: Exited with code 1. See the Run terminal for details.
@@ -253,7 +289,7 @@ eggs
 - [x] Run a program with runtime errors
 - [x] Run a program that intentionally throws an exception
 - [x] Run a program that uses significant memory — 1 GB allocated, status exited, Hive UI responsive (complete). No memory limit is enforced.
-- [x] Run a program that uses significant CPU — UI stayed responsive (worst 101 ms)
+- [x] Run a program that uses significant CPU — UI stayed responsive (worst 31 ms)
 - [x] Run an infinite loop
 - [x] An infinite loop can be terminated
 - [x] Stopping execution actually releases its resources
@@ -264,7 +300,7 @@ eggs
 - [x] Execution output is displayed correctly
 - [x] Errors include useful file names and line numbers — file and line (t.js:4) present
 - [x] Execution environments don't expose other users' project files
-- [F] Attempts to access unauthorized filesystem locations — a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794850098811.txt). Hive's own file API: refused: "../../../../hive-qa-secret.txt" is outside the project
+- [F] Attempts to access unauthorized filesystem locations — a program you run can read any file your account can (C:/Users/User/hive-qa-secret-1794896116262.txt). Hive's own file API: refused: "../../../../hive-qa-secret.txt" is outside the project
 - [F] Attempts to access unauthorized network resources — programs have full network access (no network policy for Run)
 - [F] Attempts to escape the execution sandbox — no sandbox: programs can start other processes as the user (WHOAMI:User)
 - [F] Resource limits and execution timeouts — Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy
@@ -282,14 +318,14 @@ eggs
 - [x] Rapid typing and deletion — 3,000 keystrokes + 2,000 deletes in 4202 ms; text intact
 - [F] Rapid switching between files — avg 54.62 ms per switch
 - [x] Rapid project navigation — 15 project switches in 11234 ms
-- [x] Repeated AI requests — times: 2.9 s, 3.3 s, 3.8 s, 2.7 s, 1.6 s
+- [x] Repeated AI requests — times: 4.4 s, 14.7 s, 12.5 s, 3.0 s, 0.7 s
 - [x] Repeated project creation and deletion — 106080 ms; renderer heap +1.6 MB
 - [x] Multiple collaborators continuously editing for 30 minutes — 18997 edits; files identical everywhere: {"a.js":true,"b.js":true,"shared.js":true}; sync latency median 132 ms; renderer heap 39.4→93.3 MB (A), 57.3→63.3 MB (B
 - [x] Multiple collaborators continuously editing for one hour — 18353 edits; files identical everywhere: {"a.js":true,"b.js":true,"shared.js":true}; sync latency median 226 ms; renderer heap 39.4→69.8 MB (A), 57.3→80 MB (B);
 - [x] Measure synchronization latency — 65 samples over 60 min on the local relay: p50 180 ms, p95 455 ms (Cloudflare relay measured separately)
 - [x] Measure project loading time — 100 files 1075 ms · 500 files 421 ms · 1,000 files 342 ms
 - [x] Measure editor responsiveness — keystroke→frame p95: 1k lines 31.6 ms, 10k lines 18 ms, 100k lines 76.1 ms
-- [x] Measure AI response time — 27 requests on qwen2.5-coder-7b: median 53.1 s, max 231.2 s (full Phase 3 run; the codebase-explanation recheck alone took 277 s)
+- [x] Measure AI response time — 28 requests on qwen2.5-coder-7b: median 14.7 s, max 126.8 s (full Phase 3 run with the 16k-context native API, night-time load)
 - [x] Monitor memory consumption — all Hive processes 936 MB RSS (4 processes); renderer JS heap 29.3 MB
 - [x] Monitor CPU consumption — idle: 1.0% of one core
 - [x] Monitor server resource consumption — relay process 57→69 MB RSS, 158.2 CPU-s over 60 min
@@ -457,62 +493,62 @@ eggs
 
 ## PHASE 9 — Collaborative Coding Challenges
 *(two or more collaborators, each with different responsibilities)*
-- [ ] Snake: one person on game mechanics, another on rendering and UI
-- [ ] Chess: one on move validation, another on the AI opponent
-- [ ] Minecraft clone: one on terrain generation, another on player mechanics
-- [ ] Chat application: one on the backend, another on the frontend
-- [ ] Physics simulator: one on the physics engine, another on visualization
-- [ ] Pathfinding visualizer: one on algorithms, another on the interface
-- [ ] Collaborators independently modify the same feature
-- [ ] Collaborators integrate code written in separate files
-- [ ] Collaborators debug each other's code
-- [ ] Collaborators review AI-generated code
-- [ ] Collaborators ask AI to modify separate parts of the same project
-- [ ] Collaborators can understand each other's changes
-- [ ] Code integration doesn't silently overwrite existing functionality
-- [ ] Collaborators can recover from conflicting changes
-- [ ] All collaborators can run the completed project
+- [F] Snake: one person on game mechanics, another on rendering and UI — Tess wrote logic.js; Omar wrote index.html, ui.js; 3 round(s); features working: 0/10 on Tess's machine, 0/10 on Omar's; failing: Create a playable Snake game; Directional movement; Food generation; Snake growth
+- [F] Chess: one on move validation, another on the AI opponent — Tess wrote rules.js; Omar wrote index.html, engine.js, ui.js; 3 round(s); features working: 0/15 on Tess's machine, 0/15 on Omar's; failing: A functional chessboard; Legal move generation; Piece movement; Check detection
+- [F] Minecraft clone: one on terrain generation, another on player mechanics — Tess wrote nothing; Omar wrote index.html, player.js; 3 round(s); features working: 0/13 on Tess's machine, 0/13 on Omar's; failing: A 3D environment; A voxel-based world; Block rendering; Procedural terrain generation
+- [F] Chat application: one on the backend, another on the frontend — Tess wrote server.js, hive.json; Omar wrote public/index.html, public/client.js; 3 round(s); features working: 1/11 on Tess's machine, 1/11 on Omar's; failing: Multiple users; Sending and receiving messages; Persistent m
+- [F] Physics simulator: one on the physics engine, another on visualization — Tess wrote engine.js; Omar wrote index.html, view.js; 3 round(s); features working: 1/11 on Tess's machine, 1/11 on Omar's; failing: Gravity; Elastic collisions; Friction; Particle systems
+- [F] Pathfinding visualizer: one on algorithms, another on the interface — Tess wrote algorithms.js; Omar wrote index.html, ui.js, style.css; 3 round(s); features working: 1/11 on Tess's machine, 1/11 on Omar's; failing: An interactive grid; Users can place walls and obstacles; A* pathfinding; 
+- [F] Collaborators independently modify the same feature — only one change survived: [{"x":5,"y":0},{"x":104,"y":0}]
+- [F] Collaborators integrate code written in separate files — no pair challenge integrated into a fully working app
+- [F] Collaborators debug each other's code — player at 2,1
+- [F] Collaborators review AI-generated code — Omar's AI change is not in Tess's History panel
+- [x] Collaborators ask AI to modify separate parts of the same project
+- [x] Collaborators can understand each other's changes
+- [x] Code integration doesn't silently overwrite existing functionality
+- [x] Collaborators can recover from conflicting changes
+- [F] All collaborators can run the completed project — no pair project ran fully on both machines: {"snake":"0/0 of 10","chess":"0/0 of 15","voxel":"0/0 of 13","chat":"1/1 of 11","physics":"1/1 of 11","pathfinding":"1/1 of 11"}
 
 ## PHASE 10 — The 30-Minute Collaboration Challenge
 *(two people who've never used Hive build Snake together in 30 minutes)*
-- [ ] Both users successfully join the same project
-- [ ] Both users understand how to start coding
-- [ ] Both users can use AI assistance
-- [ ] Both users can edit code simultaneously
-- [ ] Both users can see each other's changes
-- [ ] Both users can divide work effectively
-- [ ] Both users can integrate their work
-- [ ] The app successfully runs the finished game
-- [ ] No significant code is lost
-- [ ] Record the total time required
-- [ ] Record the number of collaboration conflicts
-- [ ] Record the number of AI-generated bugs
-- [ ] Record time spent coding vs coordinating
-- [ ] Collect feedback about the experience
+- [~] Both users successfully join the same project — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users understand how to start coding — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users can use AI assistance — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users can edit code simultaneously — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users can see each other's changes — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users can divide work effectively — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Both users can integrate their work — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] The app successfully runs the finished game — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] No significant code is lost — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Record the total time required — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Record the number of collaboration conflicts — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Record the number of AI-generated bugs — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Record time spent coding vs coordinating — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- [~] Collect feedback about the experience — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
 
 ## PHASE 11 — Final Quality Assessment (score 0–100 each)
-- [ ] Core functionality
-- [ ] Multiplayer collaboration
-- [ ] AI coding capabilities
-- [ ] Code execution reliability
-- [ ] Data persistence
-- [ ] Performance
-- [ ] User experience
-- [ ] Security
-- [ ] Error handling
-- [ ] Recovery from failures
-- [ ] Overall score calculated and weakest categories identified
+- [x] Core functionality — score 90/100: 18/19 core items pass (5 after fixes); back/forward not applicable; moving a file does not update imports.
+- [x] Multiplayer collaboration — score 85/100: 33/33 Phase 2 items pass after 11 fixes; 20 people converge; latency drifts from ~80 ms to ~220 ms over an hour of non-stop typing; the live relay
+- [x] AI coding capabilities — score 50/100: Ask AI handles everyday tasks well (Phase 3: 25/28, the 3 misses are model mistakes) and follows the given file paths after the prompt fix; with t
+- [x] Code execution reliability — score 80/100: 21/25: runs, input, streaming output, stop, restart and errors with file:line all work; no limits or sandbox (by design).
+- [x] Data persistence — score 85/100: Settings, projects and shared state survive restarts, crashes and a relay restart after fixes; offline edits merge 3-way with a conflict copy.
+- [x] Performance — score 75/100: Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms 
+- [x] User experience — score 65/100: Clear errors and notices, follow-the-AI view, previews; but local AI replies take minutes on modest hardware and the 30-minute first-user study (P
+- [x] Security — score 60/100: End-to-end encrypted rooms, outsiders can't read projects, view-only links now enforced by the relay (needs deploy); Run executes code with full u
+- [x] Error handling — score 80/100: Plain-language errors, AI timeouts and provider errors surfaced; a few failures still only show in the terminal (missing npm packages).
+- [x] Recovery from failures — score 85/100: Reconnect, offline edits, relay restart, crash restart and AI undo all recover without data loss after fixes.
+- [x] Overall score calculated and weakest categories identified — overall 76/100; weakest: AI coding capabilities 50, Security 60, User experience 65
 
 ## Final Deliverables (in `docs/qa-report.md`)
-- [ ] 1. A complete testing report
-- [ ] 2. List of passed tests
-- [ ] 3. List of failed tests
-- [ ] 4. List of blocked tests and why
-- [ ] 5. List of bugs discovered
-- [ ] 6. List of bugs fixed
-- [ ] 7. List of unresolved bugs
-- [ ] 8. Performance measurements
-- [ ] 9. Collaboration stress-test results
-- [ ] 10. Coding challenge results
-- [ ] 11. List of architectural weaknesses
-- [ ] 12. Recommendations for improving the app
+- [x] 1. A complete testing report
+- [x] 2. List of passed tests
+- [x] 3. List of failed tests
+- [x] 4. List of blocked tests and why
+- [x] 5. List of bugs discovered
+- [x] 6. List of bugs fixed
+- [x] 7. List of unresolved bugs
+- [x] 8. Performance measurements
+- [x] 9. Collaboration stress-test results
+- [x] 10. Coding challenge results
+- [x] 11. List of architectural weaknesses
+- [x] 12. Recommendations for improving the app

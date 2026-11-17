@@ -23,8 +23,7 @@ export const runState = () => state
 async function detect(dir?: string): Promise<RunConfig | null> {
   const root = dir ? abs(dir) : projectRoot()
   const files = await fs.readdir(root)
-  clearWhichCache() // pick up tools installed since last time
-  await prefetchTools()
+  await prefetchTools(['node', 'npm', 'pnpm', 'yarn', 'bun', 'python', 'python3', 'py', 'go', 'cargo', 'java', 'mvn', 'gcc', 'g++'])
   return detectProject(
     {
       files,

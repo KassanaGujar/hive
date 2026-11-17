@@ -1,19 +1,12 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (updated 2026-11-16 evening)
-Project: **C:devhive**. Checklist: `docs/qa-checklist.md` (sync: `node tools/qa/sync-checklist.mjs`).
-Report: `node tools/qa/report.mjs` builds `docs/qa-report.md` from results + `tools/qa/report-notes.mjs` (bugs, scores).
-
-**Done:** Phase 1 (18/19, 1 N/A), Phase 2 (33/33), Phase 3 (23/26; 3 fails are 7B-model mistakes), Phase 4 (21/25;
-4 by-design sandbox fails), Phase 5 (25/27; 100k-line typing p95 76 ms, tab switch 55 ms). 24 bugs found, 22 fixed.
-**Running/next:**
-1. Phases 6–8: `QA_ROUNDS=3 QA_EVAL_TIMEOUT=3600000 node tools/qa/run-challenges.mjs` (all 12; hours — the 7B model
-   reads prompts at ~15 tokens/s on this PC). Results in docs/qa/challenges.json; earlier 4k-context results kept in
-   challenges-4k-context.json for comparison.
-2. Rerun Phase 3 once (Ask AI now uses Ollama's native API with a 16k context): `node tools/qa/phase3.mjs`.
-3. Phase 9: `QA_EVAL_TIMEOUT=3600000 node tools/qa/phase9.mjs`.
-4. Sync checklist, fill `scores` in report-notes.mjs (Phase 11), `node tools/qa/report.mjs`, commit.
-Phase 10 needs two real people (recorded as blocked).
+## ✅ QA plan complete (2026-11-17)
+Report: `docs/qa-report.md` (regenerate: `node tools/qa/report.mjs`). Checklist: `docs/qa-checklist.md` — every line
+resolved ([x] pass, [!] fixed+pass, [F] fail with reason, [~] blocked with reason). Overall score 76/100.
+30 bugs found, 26 fixed. Open: Run has no sandbox (by design), Run notices exits 4–8 s late (ConPTY), History entries
+duplicated after 3+ shared-project switches, renderer stall under extreme load with simultaneous reloads.
+**Needs the user:** `cd services/relay-cf && npx wrangler deploy` (live relay gets view-only enforcement, 25-person cap,
+snapshot guard); Phase 10 with two real first-time users; reinstall Hive from a fresh installer build to get the fixes.
 
 ## 🔖 BOOKMARK 2026-11-15 evening — QA plan in progress (resume here)
 **Checklist (live, every item from the user's plan):** `docs/qa-checklist.md` — sync it with

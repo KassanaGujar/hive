@@ -27,7 +27,7 @@ for (const [p, name] of Object.entries(PHASES)) {
   if (!l.length) { md += `| ${name} | – | – | not run |\n`; continue }
   md += `| ${name} | ${l.filter((r) => r.status === 'PASS').length} | ${l.filter((r) => r.status === 'FAIL').length} | ${l.filter((r) => r.status === 'BLOCKED').length} |\n`
 }
-md += `\nThe item-by-item checklist (every line of the plan) is \`docs/qa-checklist.md\`.\n\n`
+md += `\nCounts are recorded test results; one test can cover several checklist lines (the disconnect/reconnect test covers four, for example). The item-by-item checklist, with every line of the plan, is \`docs/qa-checklist.md\`.\n\n`
 
 md += `## 2. Passed tests\n\n`
 for (const [p, name] of Object.entries(PHASES)) {

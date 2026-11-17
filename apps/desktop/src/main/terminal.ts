@@ -25,14 +25,13 @@ export function defaultShell(): { file: string; args: string[] } {
   return { file: process.env.SHELL || (existsSync('/bin/zsh') ? '/bin/zsh' : '/bin/bash'), args: ['-l'] }
 }
 
-/** Args to run one command and exit, in the user's shell. */
+/**
+ * Args to run one command and exit. On Windows this uses cmd.exe: Windows PowerShell 5.1 can take 10+ s just to
+ * start on some PCs (measured 14 s here), and cmd understands `a && b` natively. Interactive terminals stay PowerShell.
+ */
 export function shellCommandArgs(command: string): { file: string; args: string[] } {
   if (process.platform === 'win32') {
-    const sh = defaultShell().file
-    // `cmd && cmd` works in PowerShell 7 but not 5.1; translate for 5.1.
-    const isPwsh7 = /pwsh/i.test(sh)
-    const cmd = isPwsh7 ? command : command.replace(/\s*&&\s*/g, '; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; ')
-    return { file: sh, args: ['-NoLogo', '-NoProfile', '-Command', cmd] }
+    return { file: process.env.ComSpec || 'cmd.exe', args: ['/d', '/s', '/c', command] }
   }
   return { file: defaultShell().file, args: ['-lc', command] }
 }
@@ -41,17 +40,22 @@ export function shellCommandArgs(command: string): { file: string; args: string[
  * Tool lookups (`where` / `which`) run asynchronously and are cached. A synchronous lookup used to freeze
  * the whole main process for up to 4 s on a busy PC, stalling every window's calls.
  */
+// found tools stay cached; "not found" expires after a minute so a freshly installed tool is picked up
 const whichCache = new Map<string, string | null>()
+const missingSince = new Map<string, number>()
 const whichPending = new Map<string, Promise<string | null>>()
 
 export function which(tool: string): Promise<string | null> {
-  if (whichCache.has(tool)) return Promise.resolve(whichCache.get(tool)!)
+  const cached = whichCache.get(tool)
+  if (cached) return Promise.resolve(cached)
+  if (cached === null && Date.now() - (missingSince.get(tool) ?? 0) < 60_000) return Promise.resolve(null)
   const pending = whichPending.get(tool)
   if (pending) return pending
   const p = new Promise<string | null>((resolve) => {
     execFile(process.platform === 'win32' ? 'where.exe' : 'which', [tool], { encoding: 'utf8', timeout: 8000, windowsHide: true }, (err, out) => {
       const found = err ? null : (String(out).split(/\r?\n/).find(Boolean) ?? null)
       whichCache.set(tool, found)
+      if (!found) missingSince.set(tool, Date.now())
       whichPending.delete(tool)
       resolve(found)
     })
