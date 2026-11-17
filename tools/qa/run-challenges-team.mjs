@@ -10,6 +10,8 @@ import { CHALLENGES } from './challenges.mjs'
 import { testChatServer } from './chat-probe.mjs'
 const RUN_TIMEOUT_MS = Number(process.env.QA_TEAM_TIMEOUT ?? 180 * 60000)
 const only = process.argv.slice(2)
+// QA_TAG labels a model setup (e.g. "qwen3.5-4b") so its results sit beside, not over, other setups' results.
+const TAG = process.env.QA_TAG ? ` ${process.env.QA_TAG}` : ''
 const list = CHALLENGES.filter((c) => (only.length ? only.includes(c.id) : c.phase === 'P6'))
 const a = await new Hive('team', 9460).launch()
 await a.profileAs('Tess')
@@ -87,11 +89,11 @@ for (const c of list) {
   if (c.items.includes('The game runs without errors')) final['The game runs without errors'] = !log.error && !final._run && !(res.errors ?? []).length && !final.probeError ? true : String((res.errors ?? [])[0] ?? final.probeError ?? final._run ?? log.error ?? 'not run').slice(0, 200)
   log.final = Object.fromEntries(c.items.map((it) => [it, final[it] === true ? true : final[it] ?? (log.error ? 'team run failed: ' + log.error : 'not checked')]))
   log.probeError = final.probeError
-  summary[c.id] = log
+  summary[c.id + (TAG ? '@' + TAG.trim() : '')] = log
   writeFileSync(summaryFile, JSON.stringify(summary, null, 1))
   const pass = c.items.filter((it) => log.final[it] === true).length
-  console.log(`[${c.id}] AI team: ${pass}/${c.items.length} in ${log.minutes} min${log.error ? ' — ' + log.error : ''}`)
-  for (const it of c.items) record(c.phase, `${c.title} (AI team) — ${it}`, log.final[it] === true ? 'PASS' : 'FAIL', log.final[it] === true ? `AI team (${teamDesc})` : String(log.final[it]).slice(0, 200))
+  console.log(`[${c.id}] AI team${TAG}: ${pass}/${c.items.length} in ${log.minutes} min${log.error ? ' — ' + log.error : ''}`)
+  for (const it of c.items) record(c.phase, `${c.title} (AI team${TAG}) — ${it}`, log.final[it] === true ? 'PASS' : 'FAIL', log.final[it] === true ? `AI team (${teamDesc})` : String(log.final[it]).slice(0, 200))
 }
 await a.kill()
 process.exit(0)

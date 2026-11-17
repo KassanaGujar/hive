@@ -682,8 +682,13 @@ function InstalledTab({ installed }: { installed: InstalledModel[] }) {
               <button
                 className="btn"
                 onClick={async () => {
-                  if (!confirm(`Delete ${m.name} from this PC?`)) return
-                  await invoke('ollama:delete', m.model)
+                  if (!confirm(`Delete ${m.name} from this PC? This frees ${fmtGB(m.sizeGB)}. You can download it again later.`)) return
+                  try {
+                    await invoke('ollama:delete', m.model)
+                    toast(`Deleted ${m.name} (${fmtGB(m.sizeGB)} freed).`, 'ok')
+                  } catch (e) {
+                    toast(`Couldn't delete ${m.name}: ${(e as Error).message}. Is Ollama running?`, 'error')
+                  }
                   refreshModels()
                 }}
                 aria-label="Delete model"
