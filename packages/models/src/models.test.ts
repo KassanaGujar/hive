@@ -167,3 +167,35 @@ describe('local Ollama uses the native API with a real context window', () => {
     expect(text).toBe('Hello')
   })
 })
+
+describe('OpenAI-compatible requests never send an empty message', () => {
+  it('fills empty tool results (Cohere rejects them with a 400)', async () => {
+    const { createServer } = await import('node:http')
+    const { streamChat } = await import('./client')
+    let seen: any = null
+    const srv = createServer((req, res) => {
+      let body = ''
+      req.on('data', (d) => (body += d))
+      req.on('end', () => {
+        seen = JSON.parse(body)
+        res.writeHead(200, { 'content-type': 'text/event-stream' })
+        res.end('data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n')
+      })
+    })
+    await new Promise<void>((r) => srv.listen(0, '127.0.0.1', () => r()))
+    const port = (srv.address() as { port: number }).port
+    const msgs = [
+      { role: 'user', content: 'go' },
+      { role: 'assistant', content: '', toolCalls: [{ id: 't1', name: 'read_file', arguments: { path: 'a.js' } }] },
+      { role: 'tool', content: '', toolCallId: 't1' },
+      { role: 'assistant', content: '' }
+    ] as any
+    let text = ''
+    for await (const c of streamChat({ baseUrl: `http://127.0.0.1:${port}`, model: 'm' } as any, msgs)) text += c.text ?? ''
+    srv.close()
+    expect(text).toBe('ok')
+    expect(seen.messages[1].content).toBe('') // a tool-call message may stay empty
+    expect(seen.messages[2].content).toBe('(empty result)')
+    expect(seen.messages[3].content).toBe('(no reply)')
+  })
+})

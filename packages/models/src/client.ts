@@ -45,7 +45,11 @@ type OAIMessage = {
 
 function toOAI(messages: ChatMessage[]): OAIMessage[] {
   return messages.map((m) => {
-    const out: OAIMessage = { role: m.role, content: m.content }
+    // Some providers (Cohere via OpenRouter) reject a message with empty content and no tool calls, e.g. the result of
+    // reading an empty file or listing an empty folder. That failed every Snake task on North Mini Code with a 400.
+    const empty = !m.content || !String(m.content).trim()
+    const content = empty && !m.toolCalls?.length ? (m.role === 'tool' ? '(empty result)' : m.role === 'assistant' ? '(no reply)' : '(empty)') : m.content
+    const out: OAIMessage = { role: m.role, content }
     if (m.toolCalls?.length) {
       out.tool_calls = m.toolCalls.map((t) => ({
         id: t.id,
