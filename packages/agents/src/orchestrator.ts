@@ -21,6 +21,7 @@ import { estimateTask, fits, type TaskSize } from './sizing'
 import { pickWorker } from './routing'
 import { buildWorkerContext } from './context'
 import { combineReviews, reviewBudgetChars, splitDiff } from './review'
+import { learnedCapacity, type ModelOutcome, type ModelStats } from './stats'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
 
@@ -57,8 +58,13 @@ export interface OrchestratorHost {
     model: InstalledModel,
     messages: ChatMessage[],
     tools: ToolSpec[] | undefined,
-    opts: { signal: AbortSignal; onText?: (t: string) => void }
+    /** onModel: the host answered with a different model (fallback after a quota or size refusal). */
+    opts: { signal: AbortSignal; onText?: (t: string) => void; onModel?: (m: InstalledModel) => void }
   ): Promise<ChatResult>
+  /** What each model has managed before (saved between runs). Optional. */
+  modelStats?(): ModelStats
+  /** A task merged or failed because of what this model wrote. */
+  recordOutcome?(modelId: string, o: ModelOutcome): void
   git: GitOps
   exec(cwd: string, command: string, timeoutMs: number, signal: AbortSignal): Promise<{ code: number; output: string }>
   requestApproval(req: ApprovalRequest): Promise<boolean>
@@ -92,6 +98,8 @@ interface RunCtl {
   sizes: Map<string, TaskSize>
   /** The local model most recently used, likely still in GPU memory. */
   lastLocal?: string
+  /** Task id → the model that really answered, when the host fell back to another one. */
+  actualModel: Map<string, InstalledModel>
   intWorktree?: string
   /** The team's plan doc (PRD/MVP) from the Planning room, if the run came from there. */
   prd?: string
@@ -121,7 +129,7 @@ export class Orchestrator {
         run.phase = 'cancelled'
         run.error = 'Hive was closed while this run was active.'
       }
-      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], sizes: new Map(), waiters: new Map(), root: '' })
+      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], sizes: new Map(), actualModel: new Map(), waiters: new Map(), root: '' })
     }
   }
 
@@ -154,7 +162,7 @@ export class Orchestrator {
       ...workerPool.map((w) => ({ name: w.name, role: 'worker' as const, modelId: w.model.id, modelName: w.model.name, status: 'idle' as const }))
     ]
     const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now() }
-    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, sizes: new Map(), waiters: new Map(), prd, root: this.host.projectRoot() }
+    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, sizes: new Map(), actualModel: new Map(), waiters: new Map(), prd, root: this.host.projectRoot() }
     this.runs.set(id, ctl)
     this.emit(ctl)
     this.plan(ctl, presetTasks).catch((e) => this.fail(ctl, e))
@@ -215,7 +223,12 @@ ${ctl.prd.slice(0, 8000)}`
   }
 
   private capacity(m: InstalledModel) {
-    return capacityOf(m)
+    return capacityOf(m, learnedCapacity(this.host.modelStats?.()[m.id]))
+  }
+
+  private outcome(ctl: RunCtl, task: AgentTask, model: InstalledModel, ok: boolean) {
+    const s = ctl.sizes.get(task.id) ?? estimateTask(task, {})
+    this.host.recordOutcome?.(model.id, { size: s.size, outputTokens: s.outputTokens, ok })
   }
 
   /**
@@ -368,6 +381,8 @@ ${ctl.prd.slice(0, 8000)}`
     // A weak worker that couldn't satisfy the lead hands the task to the strongest model on the team for one
     // last attempt (the "router head" steps in), instead of the task failing or merging unapproved work.
     const strongest = ctl.team.architect
+    if (!ctl.abort.signal.aborted) this.outcome(ctl, task, ctl.actualModel.get(task.id) ?? worker.model, approved)
+    ctl.actualModel.delete(task.id)
     if (!approved && strongest && strongest.id !== worker.model.id && !ctl.abort.signal.aborted) {
       this.log(ctl, 'architect', task.id, `Taking over "${task.title}" from ${worker.name} (${worker.model.name}) after ${MAX_REVIEW_ROUNDS} review rounds.`)
       task.model = strongest.name
@@ -380,6 +395,7 @@ ${ctl.prd.slice(0, 8000)}`
       this.emit(ctl)
       const review = task.diff?.trim() ? await this.review(ctl, task) : { approved: false, notes: 'No files were produced.' }
       task.reviewNotes = review.notes
+      this.outcome(ctl, task, ctl.actualModel.get(task.id) ?? strongest, review.approved)
       this.log(ctl, 'lead', task.id, review.approved ? 'Approved after the architect took over.' : `Still not approved after the architect took over: ${review.notes}`)
     }
     if (!task.diff?.trim()) {
@@ -746,7 +762,16 @@ ${ctl.prd.slice(0, 8000)}`
     const release = await this.guard.acquire(model, ctl.abort.signal)
     try {
       this.setAgent(ctl, agent, { status: agent === 'architect' || agent.startsWith('lead') ? 'thinking' : 'working' })
-      const res = await withRetry(() => this.host.chat(model, messages, tools, { signal: ctl.abort.signal }), ctl.abort.signal, (e, n) =>
+      // A worker's call answered by a stand-in model: the task card shows the model that really did the work.
+      const onModel = (m: InstalledModel) => {
+        const task = taskId && agent !== 'architect' && !agent.startsWith('lead') ? ctl.run.tasks.find((t) => t.id === taskId) : undefined
+        if (!task || task.model === m.name) return
+        task.model = m.name
+        ctl.actualModel.set(task.id, m)
+        this.log(ctl, agent, taskId, `${model.name} is not available; now using ${m.name}.`)
+        this.emit(ctl)
+      }
+      const res = await withRetry(() => this.host.chat(model, messages, tools, { signal: ctl.abort.signal, onModel }), ctl.abort.signal, (e, n) =>
         this.log(ctl, agent, taskId, `model request failed (${(e as Error).message}); retrying ${n}/3…`)
       )
       if (res.tokensPerSec) this.setAgent(ctl, agent, { tokensPerSec: res.tokensPerSec })

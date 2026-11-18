@@ -405,9 +405,20 @@ function TaskRow({ run, t, models, guard, browse }: { run: AgentRun; t: AgentTas
       <button className="flex w-full items-center gap-2 px-2.5 py-2 text-left" onClick={() => setOpen(!open)}>
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         <span className="min-w-0 flex-1">
-          <span className="block truncate">{t.title}</span>
+          <span className="block truncate">
+            {t.size && (
+              <span
+                className="mr-1.5 inline-block rounded border border-line px-1 text-[9.5px] font-semibold text-muted"
+                title={`Router estimate: ${t.size} task${t.estimate ? `, about ${t.estimate} tokens to write` : ''}`}
+              >
+                {t.size === 'small' ? 'S' : t.size === 'medium' ? 'M' : 'L'}
+              </span>
+            )}
+            {t.title}
+          </span>
           <span className="block truncate text-[10.5px] text-muted">
             {t.owner}
+            {t.model && <span> · {t.model}</span>}
             {t.files.length > 0 && <span className="font-mono"> {t.files.join(', ')}</span>}
           </span>
         </span>

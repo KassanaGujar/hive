@@ -11,7 +11,8 @@ import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
 import path from 'node:path'
-import { classifyModelError, streamChat } from '@hive/models'
+import { classifyModelError, limitsFromError, streamChat } from '@hive/models'
+import { recordOutcome, type ModelStats } from '@hive/agents'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
@@ -45,12 +46,17 @@ export const orchestrator = new Orchestrator({
   projectRoot,
   models: teamModels,
   tierOverrides: () => getSettings().tierOverrides,
-  async chat(model, messages, tools, { signal, onText }) {
+  modelStats: () => store.get<ModelStats>('modelStats', {}),
+  recordOutcome(modelId, o) {
+    store.set('modelStats', recordOutcome(store.get<ModelStats>('modelStats', {}), modelId, o))
+  },
+  async chat(model, messages, tools, { signal, onText, onModel }) {
     // Cap each reply: a small local model can loop without ever going quiet (Qwen3 4B produced one plan reply for an
     // hour, past its whole context), and the stall timer only catches silence. 6k tokens fits a whole game file.
     // Free hosted models are often briefly rate-limited (429 "temporarily rate-limited upstream"). Wait and retry.
     const tried = new Set<string>()
     let current = (exhaustedUntil.get(model.id) ?? 0) > Date.now() ? (standIns(model, tried)[0] ?? model) : model
+    if (current !== model) onModel?.(current)
     for (let attempt = 0; ; attempt++) {
       try {
         return await chatResultFrom(streamChat(endpointFor(current), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
@@ -62,6 +68,14 @@ export const orchestrator = new Orchestrator({
         const kind = classifyModelError(msg)
         if (kind === 'bad-tool' && attempt < 2) continue
         const outOfQuota = kind === 'quota'
+        // The provider names its own per-minute cap in the error ("OTPM: Limit 1000"): keep it so the router sizes
+        // the next tasks for this model to fit, instead of learning it again from the next refusal.
+        const stated = limitsFromError(msg)
+        if (stated) {
+          const stats = store.get<ModelStats>('modelStats', {})
+          const r = stats[current.id] ?? { ok: { small: 0, medium: 0, large: 0 }, failed: { small: 0, medium: 0, large: 0 } }
+          store.set('modelStats', { ...stats, [current.id]: { ...r, learned: { ...r.learned, ...stated } } })
+        }
         if (outOfQuota || kind === 'too-big') {
           if (outOfQuota) {
             // OpenRouter's free allowance is per account: one model out means all of them are.
@@ -73,6 +87,7 @@ export const orchestrator = new Orchestrator({
           if (!next) throw e
           console.log(`[agents] ${current.name} ${outOfQuota ? 'is out of free daily quota' : 'refused a request this large'}; using ${next.name}`)
           current = next
+          onModel?.(current)
           continue
         }
         if (kind !== 'busy' || attempt >= 4) throw e

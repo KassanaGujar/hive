@@ -432,3 +432,50 @@ describe('reviews fit the lead', () => {
     rmSync(root, { recursive: true, force: true })
   }, 120_000)
 })
+
+describe('the task card shows the model that really did the work', () => {
+  it('a host fallback updates task.model and the outcome is recorded for the stand-in', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-fallback-'))
+    const planned: InstalledModel = { id: 'north', name: 'North Mini Code', source: 'openrouter', model: 'north', tier: 'worker', codingScore: 66, sizeGB: 0, minRamGB: 0, contextTokens: 32768 }
+    const standIn: InstalledModel = { id: 'oss', name: 'gpt-oss 120B', source: 'groq', model: 'oss', tier: 'top', codingScore: 82, sizeGB: 0, minRamGB: 0, contextTokens: 131072 }
+    const outcomes: { id: string; ok: boolean }[] = []
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [standIn, planned],
+      tierOverrides: () => ({}),
+      chat: async (_m, msgs, _t, opts) => {
+        const sys = msgs[0].content
+        if (sys.includes('software architect')) return { text: JSON.stringify({ summary: 's', tasks: [{ id: 'css', title: 'Styles', description: 'Colours.', files: ['style.css'] }] }) }
+        if (sys.includes('code reviewer')) return { text: '{"approved": true, "notes": "ok"}' }
+        opts.onModel?.(standIn)
+        const wrote = msgs.some((x) => x.role === 'tool')
+        return { text: '', toolCalls: [wrote ? { id: 'd', name: 'report_done', arguments: { summary: 'done' } } : { id: 'w', name: 'write_file', arguments: { path: 'style.css', content: 'body{}\n' } }] }
+      },
+      recordOutcome: (id, o) => outcomes.push({ id, ok: o.ok }),
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => false,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8
+    })
+    const id = await orch.start('Style it')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 4800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase) return r
+        if (r.phase === 'failed') throw new Error(r.error)
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error('timeout')
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    const r = await wait('awaiting-merge-approval')
+    expect(r.tasks.find((t) => t.id === 'css')!.model).toBe('gpt-oss 120B')
+    expect(outcomes).toContainEqual({ id: 'oss', ok: true })
+    await orch.approveMerge(id, false)
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+})
