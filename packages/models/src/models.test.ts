@@ -208,6 +208,7 @@ describe('provider failures are told apart (AI team fallback)', () => {
     expect(classifyModelError('Model request failed (429): google/gemma-4-31b-it:free is temporarily rate-limited upstream')).toBe('busy')
     expect(classifyModelError('Model request failed (413): Request too large for model on tokens per minute (TPM): Limit 8000')).toBe('too-big')
     expect(classifyModelError("Tool call validation failed: attempted to call tool 'read_file<|channel|>analysis'")).toBe('bad-tool')
+    expect(classifyModelError('Failed to parse tool call arguments as JSON')).toBe('bad-tool')
     expect(classifyModelError('Model request failed (500): boom')).toBeNull()
   })
 })

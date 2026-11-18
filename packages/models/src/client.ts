@@ -481,7 +481,8 @@ function balancedAny(text: string, start: number) {
  * this large, 'busy' = briefly rate-limited (retry soon), 'bad-tool' = the model sent a malformed tool call.
  */
 export function classifyModelError(msg: string): 'quota' | 'too-big' | 'busy' | 'bad-tool' | null {
-  if (/tool call validation failed|tool_use_failed/i.test(msg)) return 'bad-tool'
+  // Groq also streams "Failed to parse tool call arguments as JSON" mid-reply when a model writes broken JSON.
+  if (/tool call validation failed|tool_use_failed|parse tool call arguments/i.test(msg)) return 'bad-tool'
   if (/\b429\b/.test(msg)) return /per[- ]day|tokens per day|requests per day/i.test(msg) ? 'quota' : 'busy'
   if (/\b413\b/.test(msg) && /too large|tokens per minute/i.test(msg)) return 'too-big'
   return null

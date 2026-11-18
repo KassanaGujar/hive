@@ -1,11 +1,12 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (2026-11-17 23:00): free hosted models work
-1. ✅ Free keys (user added) live in the kept QA profile ~/dev-cache/hive/qa/profile-cloud (OpenRouter + Groq).
-   Run: QA_PROFILE=cloud HIVE_TEAM_MODELS=groq-gpt-oss-120b,groq-gpt-oss-20b QA_TAG=groq-free node tools/qa/run-challenges-team.mjs <ids>
-2. ✅ Tic-Tac-Toe 8/8 (OpenRouter), Snake 9/10 (Groq). Six team fixes landed (see qa-report bugs).
-3. ⏭ Next: re-run the other Phase 6–8 challenges on Groq/OpenRouter within free limits (OpenRouter ~50 req/day,
-   Groq 8k tokens/min); only local qwen2.5-coder:7b remains installed. User still owes: wrangler deploy, Phase 10 users.
+## 🔖 RESUME HERE (2026-11-18 02:00): P6–P8 on free keys done as far as quotas allow
+1. Free keys live in the kept QA profile ~/dev-cache/hive/qa/profile-cloud (OpenRouter + Groq). Run:
+   QA_PROFILE=cloud HIVE_TEAM_MODELS=groq-gpt-oss-120b,groq-gpt-oss-20b,groq-qwen3.8-27b,or-nemotron-3-ultra-free,or-north-mini-code-free,or-gemma-4-31b-free QA_TAG=free-hosted QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs <ids>
+2. Results: Tic-Tac-Toe 8/8, Snake 9/10, Breakout 6/8, Kanban 5/11, Invaders 2/8. BLOCKED (free quotas exhausted):
+   pathfinding world chat voxel physics chess visual. Model fallback works (logs "[agents] … using …" in main.log).
+3. ⏭ Next: rerun the BLOCKED seven when quotas reset (~24 h), or with a paid key if the user chooses; P9 hosted rerun.
+   Known open: task card shows the assigned model after a fallback. User still owes: wrangler deploy, Phase 10 users.
 
 ## 🔁 Follow-up in progress (2026-11-17 night)
 - The user (via the side session) disputed "7B model too weak": Phases 6–8 used Ask AI directly, never the AI team.

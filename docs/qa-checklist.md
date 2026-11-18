@@ -161,7 +161,16 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -234,6 +243,9 @@ TypeError: p is not a function
 
 - [x] AI optimizes a slow algorithm — fib(35): 2461 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
@@ -380,6 +392,7 @@ eggs
 > - **Free hosted models (user's free keys):** Tic-Tac-Toe **8/8 in 5 min** (OpenRouter: Nemotron 3 Ultra + North Mini Code); Snake **9/10 in 7 min** (Groq: gpt-oss 120B + 20B; only the game-over message missing).
 > - Hosted runs found 6 more Hive bugs, all fixed with tests: empty messages (Cohere 400), integration couldn't create a failed worker's file, team contract missing element ids, no retry on busy models / garbled tool calls, key check too lenient.
 > - Free-tier limits: OpenRouter ~50 free requests/day without credits; Groq 8,000 tokens/minute.
+> - **Rest of P6–P8 on free keys (2026-11-18):** Breakout 6/8, Kanban 5/11, Space Invaders 2/8; pathfinding, world, chat, voxel, physics, chess, visual = **BLOCKED** (all free daily quotas used up mid-batch; last model Qwen3.8 27B capped at 1,000 output tokens/min). Model fallback worked (OpenRouter → Groq). Fixed on the way: fallback never firing, retired Groq model, broken-JSON tool call retry.
 
 ### 3. Space Invaders
 - [F] Player movement — x 220→220
