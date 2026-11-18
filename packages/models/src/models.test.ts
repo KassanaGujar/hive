@@ -199,3 +199,15 @@ describe('OpenAI-compatible requests never send an empty message', () => {
     expect(seen.messages[3].content).toBe('(no reply)')
   })
 })
+
+import { classifyModelError } from './client'
+describe('provider failures are told apart (AI team fallback)', () => {
+  it('recognises Hive\'s own friendly daily-limit message, not only the raw one', () => {
+    expect(classifyModelError("The free daily limit for this provider is used up (429, per-day). It resets once a day")).toBe('quota')
+    expect(classifyModelError('Model request failed (429): {"error":{"message":"Rate limit reached for model `openai/gpt-oss-20b` on tokens per day (TPD)"}}')).toBe('quota')
+    expect(classifyModelError('Model request failed (429): google/gemma-4-31b-it:free is temporarily rate-limited upstream')).toBe('busy')
+    expect(classifyModelError('Model request failed (413): Request too large for model on tokens per minute (TPM): Limit 8000')).toBe('too-big')
+    expect(classifyModelError("Tool call validation failed: attempted to call tool 'read_file<|channel|>analysis'")).toBe('bad-tool')
+    expect(classifyModelError('Model request failed (500): boom')).toBeNull()
+  })
+})

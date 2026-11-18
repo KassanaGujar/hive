@@ -11,7 +11,7 @@ import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
 import path from 'node:path'
-import { streamChat } from '@hive/models'
+import { classifyModelError, streamChat } from '@hive/models'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
@@ -59,11 +59,15 @@ export const orchestrator = new Orchestrator({
         if (signal?.aborted) throw e
         // gpt-oss sometimes emits a garbled tool name ("read_file<|channel|>analysis") that the provider rejects.
         // It's random, so asking again usually works; it failed a whole Snake task on Groq after one try.
-        if (/tool call validation failed|tool_use_failed/i.test(msg) && attempt < 2) continue
-        const outOfQuota = /\(429\)/.test(msg) && /per[- ]day|tokens per day|requests per day/i.test(msg)
-        const tooBig = /\(413\)/.test(msg) && /too large|tokens per minute/i.test(msg)
-        if (outOfQuota || tooBig) {
-          if (outOfQuota) exhaustedUntil.set(current.id, Date.now() + QUOTA_REST_MS)
+        const kind = classifyModelError(msg)
+        if (kind === 'bad-tool' && attempt < 2) continue
+        const outOfQuota = kind === 'quota'
+        if (outOfQuota || kind === 'too-big') {
+          if (outOfQuota) {
+            // OpenRouter's free allowance is per account: one model out means all of them are.
+            const rest = Date.now() + QUOTA_REST_MS
+            for (const m of current.source === 'openrouter' ? teamModels().filter((x) => x.source === 'openrouter') : [current]) exhaustedUntil.set(m.id, rest)
+          }
           tried.add(current.id)
           const next = standIns(current, tried)[0]
           if (!next) throw e
@@ -71,7 +75,7 @@ export const orchestrator = new Orchestrator({
           current = next
           continue
         }
-        if (!/\(429\)/.test(msg) || attempt >= 4) throw e
+        if (kind !== 'busy' || attempt >= 4) throw e
         await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
       }
     }
