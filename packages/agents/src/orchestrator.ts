@@ -19,6 +19,7 @@ import { allSettled, enforceFileOwnership, MAX_PLAN_TASKS, normalizePlan, parall
 import { architectPlanPrompt, architectSplitPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
 import { estimateTask, fits, type TaskSize } from './sizing'
 import { pickWorker } from './routing'
+import { buildWorkerContext } from './context'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
 
@@ -399,13 +400,19 @@ ${ctl.prd.slice(0, 8000)}`
     wt: string,
     notes?: string
   ): Promise<string> {
-    const files = (await listFiles(wt, '.', 300)).join('\n')
-    const owned = (await ownedFileContents(wt, task.files)) + (ctl.prd ? `
-
-The team's plan (PRD) for context:
-${ctl.prd.slice(0, 3000)}` : '')
+    // Context sized to this model: a fixed bundle (every file name, 6 files × 6,000 chars, 3,000 chars of PRD) was more
+    // than Groq's 7,000-tokens-a-minute cap and crowded small local models. See context.ts for the fill order.
+    const files = await listFiles(wt, '.', 300)
+    const cap = this.capacity(worker.model)
+    const size = ctl.sizes.get(task.id) ?? estimateTask(task, {})
+    const budget = Math.max(1500, Math.min(cap.contextTokens * 0.5, cap.inputPerMinute * 0.8) - size.outputTokens - PROMPT_TOKENS)
+    const others = files.filter((f) => !task.files.includes(f) && /\.(m?js|ts|tsx|jsx|html?|css|py)$/i.test(f)).slice(0, 40)
+    const context = buildWorkerContext(
+      { owned: await readTexts(wt, task.files), others: await readTexts(wt, others, 60000), fileList: files, prd: ctl.prd?.slice(0, 8000) },
+      budget
+    )
     const messages: ChatMessage[] = [
-      { role: 'system', content: workerSystemPrompt(task, files, notes) + owned },
+      { role: 'system', content: workerSystemPrompt(task, null, notes) + context },
       { role: 'user', content: notes ? 'Apply the reviewer notes, then call report_done.' : 'Start the task.' }
     ]
     let nudges = 0
@@ -839,14 +846,19 @@ async function fileSizes(root: string, files: string[]): Promise<Record<string, 
   return out
 }
 
-async function ownedFileContents(root: string, files: string[]): Promise<string> {
-  let out = ''
-  for (const f of files.slice(0, 6)) {
-    const r = await executeTool({ root, runCommand: async () => '' }, 'read_file', { path: f })
-    if (r.output.startsWith('Error')) continue
-    out += `\n\nCurrent ${f}:\n\`\`\`\n${r.output.slice(0, 6000)}\n\`\`\``
+/** Tokens the worker prompt itself takes (task, rules, tool list), before any file context. */
+const PROMPT_TOKENS = 900
+
+/** Text of the files that exist (missing or larger than maxChars are skipped). */
+async function readTexts(root: string, files: string[], maxChars = Infinity): Promise<Record<string, string>> {
+  const out: Record<string, string> = {}
+  for (const f of files) {
+    try {
+      const text = await fsp.readFile(path.join(root, f), 'utf8')
+      if (text.length <= maxChars) out[f] = text
+    } catch {}
   }
-  return out ? `\n\nThese files already exist. Keep what works and build on it; write the COMPLETE file when you change it.${out}` : ''
+  return out
 }
 
 function summarizeArgs(args: Record<string, unknown>): string {

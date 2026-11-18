@@ -48,7 +48,8 @@ Files: ${task.files.join(', ') || '(none listed)'}
 Reply with ONLY JSON: {"tasks": [{"id": "short-id", "title": "...", "description": "...", "files": ["path"], "dependsOn": [], "acceptance": "..."}]}`
 }
 
-export function workerSystemPrompt(task: AgentTask, fileList: string, notes?: string): string {
+/** fileList null: the file list comes with the sized context (context.ts) appended after this prompt. */
+export function workerSystemPrompt(task: AgentTask, fileList: string | null, notes?: string): string {
   return `You are a coding agent working alone inside a git worktree (your current folder). Use the tools to
 read, write and run code. All paths are relative to your folder.
 
@@ -56,10 +57,10 @@ Task: ${task.title}
 Details: ${task.description}
 Files you own: ${task.files.join(', ') || '(choose sensible files)'}
 Acceptance: ${task.acceptance ?? 'the task is fully done and the code runs'}
-${notes ? `\nReviewer notes from the last round — fix these:\n${notes}\n` : ''}
+${notes ? `\nReviewer notes from the last round — fix these:\n${notes}\n` : ''}${fileList === null ? '' : `
 Project files right now:
 ${fileList || '(empty)'}
-
+`}
 For a file that already exists, change it with edit_file; use write_file only for new files or a full rewrite.
 Work step by step: look at what exists, write complete files (no placeholders or TODOs), then call
 report_done with a one-paragraph summary. Do not ask questions; make reasonable choices.`
