@@ -375,3 +375,60 @@ describe('router in a real run', () => {
     rmSync(root, { recursive: true, force: true })
   }, 120_000)
 })
+
+describe('reviews fit the lead', () => {
+  it('a 30,000-char diff to a lead capped at 7,000 input tokens a minute is reviewed in parts, each under the cap', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-review-'))
+    const lead: InstalledModel = { id: 'qwen', name: 'qwen', source: 'groq', model: 'qwen', tier: 'top', codingScore: 70, sizeGB: 0, minRamGB: 0, contextTokens: 131072, limits: { inputPerMinute: 7000 } }
+    const worker: InstalledModel = { id: 'oss', name: 'oss', source: 'groq', model: 'oss', tier: 'worker', codingScore: 70, sizeGB: 0, minRamGB: 0, contextTokens: 131072 }
+    const reviewPrompts: { task: string; len: number }[] = []
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [lead, worker],
+      tierOverrides: () => ({}),
+      chat: async (_m, msgs) => {
+        const sys = msgs[0].content
+        if (sys.includes('software architect')) {
+          return { text: JSON.stringify({ summary: 's', tasks: [
+            { id: 'big', title: 'Big', description: 'Two files.', files: ['a.js', 'b.js'] },
+            { id: 'c', title: 'C', description: 'c', files: ['c.js'] },
+            { id: 'd', title: 'D', description: 'd', files: ['d.js'] }
+          ] }) }
+        }
+        if (sys.includes('code reviewer')) {
+          reviewPrompts.push({ task: msgs[1].content.includes('Task: Big') ? 'big' : 'other', len: msgs[0].content.length + msgs[1].content.length })
+          return { text: '{"approved": true, "notes": "ok"}' }
+        }
+        const mine = sys.includes('Task: Big') ? ['a.js', 'b.js'] : sys.includes('Task: C') ? ['c.js'] : ['d.js']
+        const n = msgs.filter((x) => x.role === 'tool').length
+        if (n < mine.length) return { text: '', toolCalls: [{ id: `w${n}`, name: 'write_file', arguments: { path: mine[n], content: `// ${mine[n]}\n${'let x = 1\n'.repeat(1500)}` } }] }
+        return { text: '', toolCalls: [{ id: 'd', name: 'report_done', arguments: { summary: 'done' } }] }
+      },
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => false,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8
+    })
+    const id = await orch.start('Build it')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 4800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase) return r
+        if (r.phase === 'failed') throw new Error(r.error)
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error('timeout')
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    await wait('awaiting-merge-approval')
+    const big = reviewPrompts.filter((p) => p.task === 'big')
+    expect(big.length).toBeGreaterThanOrEqual(2)
+    for (const p of reviewPrompts) expect(p.len / 4).toBeLessThanOrEqual(7000)
+    await orch.approveMerge(id, false)
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+})

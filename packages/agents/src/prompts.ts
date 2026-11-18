@@ -66,7 +66,8 @@ Work step by step: look at what exists, write complete files (no placeholders or
 report_done with a one-paragraph summary. Do not ask questions; make reasonable choices.`
 }
 
-export function leadReviewPrompt(task: AgentTask, diff: string): string {
+/** part: "2 of 3" when a large diff is reviewed in pieces (review.ts). */
+export function leadReviewPrompt(task: AgentTask, diff: string, maxChars = 24000, part?: string): string {
   return `You are a Lead reviewer. Review this diff for the task below. Approve if it does what the task asks,
 is complete (no placeholders) and has no obvious bugs. Otherwise list concrete fixes.
 
@@ -74,8 +75,8 @@ Task: ${task.title}
 Details: ${task.description}
 Acceptance: ${task.acceptance ?? 'task is done'}
 
-Diff:
-${diff.slice(0, 24000) || '(no changes)'}
+${part ? `This is part ${part} of the diff (split by file). Judge only the files shown; other parts are reviewed separately.\n` : ''}Diff:
+${diff.slice(0, maxChars) || '(no changes)'}
 
 Reply with ONLY JSON: {"approved": true|false, "notes": "what to fix, or a short approval note"}`
 }

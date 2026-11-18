@@ -20,6 +20,7 @@ import { architectPlanPrompt, architectSplitPrompt, leadReviewPrompt, workerSyst
 import { estimateTask, fits, type TaskSize } from './sizing'
 import { pickWorker } from './routing'
 import { buildWorkerContext } from './context'
+import { combineReviews, reviewBudgetChars, splitDiff } from './review'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
 
@@ -512,7 +513,6 @@ ${ctl.prd.slice(0, 8000)}`
   }
 
   private async review(ctl: RunCtl, task: AgentTask): Promise<{ approved: boolean; notes: string }> {
-    const lead = ctl.team.leads[0] ?? ctl.team.architect
     const leadName = ctl.run.agents.find((a) => a.role === 'lead')?.name ?? 'lead'
     this.setAgent(ctl, leadName, { status: 'thinking', currentTaskId: task.id })
     this.log(ctl, leadName, task.id, `Reviewing "${task.title}" (round ${task.attempts})`)
@@ -520,14 +520,25 @@ ${ctl.prd.slice(0, 8000)}`
       this.setAgent(ctl, leadName, { status: 'idle', currentTaskId: undefined })
       return { approved: false, notes: 'No files were changed. Write the code for this task with write_file.' }
     }
-    const res = await this.chat(ctl, leadName, task.id, lead, [
-      { role: 'system', content: 'You are a strict but fair code reviewer. Answer with JSON only.' },
-      { role: 'user', content: leadReviewPrompt(task, task.diff) }
-    ])
+    // The first lead whose limits hold the whole diff reviews it; if none does, the roomiest one reviews it file by
+    // file, so nothing is silently cut off and no request goes over a per-minute cap.
+    const promptChars = leadReviewPrompt(task, '').length
+    const candidates = [...ctl.team.leads, ctl.team.architect].filter(Boolean)
+    const budget = (m: InstalledModel) => reviewBudgetChars(this.capacity(m), promptChars)
+    const lead = candidates.find((m) => budget(m) >= task.diff!.length) ?? [...candidates].sort((a, b) => budget(b) - budget(a))[0]
+    const chunks = splitDiff(task.diff, budget(lead))
+    if (chunks.length > 1) this.log(ctl, leadName, task.id, `The diff is large; reviewing it in ${chunks.length} parts.`)
+    const results: { approved: boolean; notes: string }[] = []
+    for (let i = 0; i < chunks.length; i++) {
+      const res = await this.chat(ctl, leadName, task.id, lead, [
+        { role: 'system', content: 'You are a strict but fair code reviewer. Answer with JSON only.' },
+        { role: 'user', content: leadReviewPrompt(task, chunks[i], chunks[i].length, chunks.length > 1 ? `${i + 1} of ${chunks.length}` : undefined) }
+      ])
+      const j = extractJson<{ approved?: unknown; notes?: unknown }>(res.text)
+      results.push(j ? { approved: j.approved === true || j.approved === 'true', notes: String(j.notes ?? '') } : { approved: true, notes: 'Reviewer reply unreadable; approved by default.' })
+    }
     this.setAgent(ctl, leadName, { status: 'idle', currentTaskId: undefined })
-    const j = extractJson<{ approved?: unknown; notes?: unknown }>(res.text)
-    if (!j) return { approved: true, notes: 'Reviewer reply unreadable; approved by default.' }
-    return { approved: j.approved === true || j.approved === 'true', notes: String(j.notes ?? '') }
+    return combineReviews(results)
   }
 
   /** Merge one approved task branch into the run's integration branch. */
@@ -617,8 +628,10 @@ ${ctl.prd.slice(0, 8000)}`
       attempts: 0,
       log: []
     }
+    // Sized from the real files, so the router gives integration (often every file) to a model that can hold them.
+    ctl.sizes.set(task.id, estimateTask(task, await fileSizes(dir, existing)))
     ctl.run.tasks.push(task)
-    this.log(ctl, 'architect', undefined, `Router: "${task.title}" → ${task.owner}`)
+    this.log(ctl, 'architect', undefined, `Integration round ${round} queued (${ctl.sizes.get(task.id)!.size}).`)
   }
 
   async approveMerge(runId: string, approved: boolean) {
