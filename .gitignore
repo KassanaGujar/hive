@@ -9,3 +9,4 @@ release/
 relay-data/
 .wrangler/
 stress-report.txt
+.superpowers/

@@ -53,11 +53,11 @@
   },
   { "id": "or-north-mini-code-free", "name": "North Mini Code 30B (OpenRouter free)", "family": "Cohere North", "source": "openrouter", "endpointModel": "cohere/north-mini-code:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "worker", "codingScore": 66, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
   },
-  { "id": "groq-gpt-oss-120b", "name": "gpt-oss 120B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-120b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://console.groq.com/keys"
+  { "id": "groq-gpt-oss-120b", "name": "gpt-oss 120B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-120b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://console.groq.com/keys", "limits": {"inputPerMinute":8000}
   },
-  { "id": "groq-gpt-oss-20b", "name": "gpt-oss 20B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-20b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys"
+  { "id": "groq-gpt-oss-20b", "name": "gpt-oss 20B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-20b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys", "limits": {"inputPerMinute":8000}
   },
-  { "id": "groq-qwen3.8-27b", "name": "Qwen3.8 27B (Groq free tier)", "family": "Qwen 3.8", "source": "groq", "endpointModel": "qwen/qwen3.8-27b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys"
+  { "id": "groq-qwen3.8-27b", "name": "Qwen3.8 27B (Groq free tier)", "family": "Qwen 3.8", "source": "groq", "endpointModel": "qwen/qwen3.8-27b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys", "limits": {"inputPerMinute":7000,"outputPerMinute":1000}
   },
   { "id": "hf-qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B (HF free inference)", "family": "Qwen Coder", "source": "hf", "endpointModel": "Qwen/Qwen2.5-Coder-32B-Instruct", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 32768, "tier": "lead", "codingScore": 74, "free": true, "keyUrl": "https://huggingface.co/settings/tokens"
   },

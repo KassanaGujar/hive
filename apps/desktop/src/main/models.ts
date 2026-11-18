@@ -186,7 +186,8 @@ export async function installedModels(): Promise<InstalledModel[]> {
       codingScore: e.codingScore,
       sizeGB: 0,
       minRamGB: 0,
-      contextTokens: e.contextTokens
+      contextTokens: e.contextTokens,
+      ...(e.limits ? { limits: e.limits } : {})
     })
   }
   // Your own keys: whatever the user pays for. Strong by default; the tier is theirs to change.

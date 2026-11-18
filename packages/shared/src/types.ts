@@ -24,6 +24,8 @@ export interface CatalogEntry {
   free: true
   keyUrl?: string
   description?: string
+  /** Provider caps on the free tier, e.g. Groq tokens per minute. */
+  limits?: ModelLimits
 }
 
 export interface Catalog {
@@ -64,6 +66,14 @@ export interface InstalledModel {
   sizeGB: number
   minRamGB: number
   contextTokens: number
+  limits?: ModelLimits
+}
+
+/** Provider caps for one model (Groq free tier: tokens per minute). Unknown = no cap. */
+export interface ModelLimits {
+  inputPerMinute?: number
+  outputPerMinute?: number
+  maxOutput?: number
 }
 
 export interface PullProgress {
