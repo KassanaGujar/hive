@@ -268,6 +268,9 @@ async function* streamOnce(
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '')
     if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)
+    if (res.status === 429 && /per[- ]day/i.test(text)) {
+      throw new Error(`The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. (${text.slice(0, 160)})`)
+    }
     if (res.status === 401 || res.status === 403) {
       throw new Error(`The provider rejected your key (${res.status}). It may have been deleted or regenerated, or it is not an API key. Paste a new key in Models → Free online or Your own keys. (${text.slice(0, 200)})`)
     }
@@ -358,6 +361,9 @@ async function* streamOllama(
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '')
     if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)
+    if (res.status === 429 && /per[- ]day/i.test(text)) {
+      throw new Error(`The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. (${text.slice(0, 160)})`)
+    }
     if (res.status === 401 || res.status === 403) {
       throw new Error(`The provider rejected your key (${res.status}). It may have been deleted or regenerated, or it is not an API key. Paste a new key in Models → Free online or Your own keys. (${text.slice(0, 200)})`)
     }

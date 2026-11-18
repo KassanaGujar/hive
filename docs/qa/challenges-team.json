@@ -217,33 +217,20 @@
  "snake@openrouter-free": {
   "title": "1. Snake Game",
   "team": "architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html with canvas, score, game-over overlay, restart button, and load game.js: index.html",
-   "Implement game.js with deterministic Snake logic and window.game API: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas, score, game-over overlay, restart button, and load game.js",
-    "status": "failed"
-   },
-   {
-    "title": "Implement game.js with deterministic Snake logic and window.game API",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 2,
+  "plan": [],
+  "error": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+  "minutes": 0,
   "final": {
-   "Create a playable Snake game": "team run failed: team did not finish: failed No task finished successfully.",
-   "Directional movement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Food generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Snake growth": "team run failed: team did not finish: failed No task finished successfully.",
-   "Wall collision": "team run failed: team did not finish: failed No task finished successfully.",
-   "Self-collision": "team run failed: team did not finish: failed No task finished successfully.",
-   "Score tracking": "team run failed: team did not finish: failed No task finished successfully.",
-   "Game-over functionality": "team run failed: team did not finish: failed No task finished successfully.",
-   "Restart functionality": "team run failed: team did not finish: failed No task finished successfully.",
-   "The game runs without errors": "team did not finish: failed No task finished successfully."
+   "Create a playable Snake game": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Directional movement": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Food generation": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Snake growth": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Wall collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Self-collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Score tracking": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Game-over functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "Restart functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+   "The game runs without errors": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/cre"
   }
  },
  "tictactoe@openrouter-free": {
