@@ -1,5 +1,5 @@
 {
- "version": 3,
+ "version": 4,
  "updated": "2026-11-17",
  "providers": {
   "openrouter": { "name": "OpenRouter (free models)", "baseUrl": "https://openrouter.ai/api/v1", "keyUrl": "https://openrouter.ai/settings/keys", "testPath": "/key"
@@ -57,7 +57,7 @@
   },
   { "id": "groq-gpt-oss-20b", "name": "gpt-oss 20B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-20b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys"
   },
-  { "id": "groq-llama3.3-70b", "name": "Llama 3.3 70B (Groq free tier)", "family": "Llama 3.x", "source": "groq", "endpointModel": "llama-3.3-70b-versatile", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://console.groq.com/keys"
+  { "id": "groq-qwen3.8-27b", "name": "Qwen3.8 27B (Groq free tier)", "family": "Qwen 3.8", "source": "groq", "endpointModel": "qwen/qwen3.8-27b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://console.groq.com/keys"
   },
   { "id": "hf-qwen2.5-coder-32b", "name": "Qwen2.5 Coder 32B (HF free inference)", "family": "Qwen Coder", "source": "hf", "endpointModel": "Qwen/Qwen2.5-Coder-32B-Instruct", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 32768, "tier": "lead", "codingScore": 74, "free": true, "keyUrl": "https://huggingface.co/settings/tokens"
   },

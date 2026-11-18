@@ -48,13 +48,52 @@ export async function loadCatalog(): Promise<Catalog> {
   } catch {
     /* offline: keep cache/bundled */
   }
-  await refreshOpenRouterFree(true)
+  await Promise.all([refreshOpenRouterFree(true), refreshGroqModels(true)])
   return catalog
 }
 
 export function getCatalog(): Catalog {
   const c = catalog ?? filterCatalog(bundledCatalog())
-  return { ...c, models: c.models.filter((m) => m.source !== 'openrouter' || stillFreeOnOpenRouter(m.endpointModel!)) }
+  return {
+    ...c,
+    models: c.models.filter(
+      (m) => (m.source !== 'openrouter' || stillFreeOnOpenRouter(m.endpointModel!)) && (m.source !== 'groq' || stillOnGroq(m.endpointModel!))
+    )
+  }
+}
+
+// ---------- which Groq models exist right now ----------
+// Groq retires models too (llama-3.3-70b-versatile answered 404 "does not exist" in Nov 2026). Its model list needs
+// the key, so it is checked once a key is saved; catalog models Groq no longer serves are hidden like OpenRouter's.
+let groqLive: { at: number; ids: Set<string> } | null = null
+
+export async function refreshGroqModels(force = false) {
+  if (!force && groqLive && Date.now() - groqLive.at < FREE_TTL) return
+  const key = secrets.get('key:groq')
+  const p = (catalog ?? filterCatalog(bundledCatalog())).providers.groq
+  if (!key || !p) return
+  try {
+    const ctl = new AbortController()
+    const t = setTimeout(() => ctl.abort(), 8000)
+    const res = await fetch(`${p.baseUrl}/models`, { headers: { Authorization: `Bearer ${key}` }, signal: ctl.signal })
+    clearTimeout(t)
+    if (!res.ok) return
+    const ids = (((await res.json()) as { data?: { id: string }[] }).data ?? []).map((m) => m.id)
+    if (!ids.length) return
+    groqLive = { at: Date.now(), ids: new Set(ids) }
+    store.set('groqModels', ids)
+  } catch {
+    /* offline: keep the last good list */
+  }
+}
+
+export function stillOnGroq(model: string): boolean {
+  if (!groqLive) {
+    const saved = store.get<string[]>('groqModels', [])
+    if (!saved.length) return true
+    groqLive = { at: 0, ids: new Set(saved) }
+  }
+  return groqLive.ids.has(model)
 }
 
 // ---------- which OpenRouter models are free right now ----------
@@ -110,7 +149,7 @@ function matchCatalog(name: string): CatalogEntry | undefined {
 
 /** Everything the user can call right now: downloaded Ollama models + connected free hosted ones. */
 export async function installedModels(): Promise<InstalledModel[]> {
-  await refreshOpenRouterFree()
+  await Promise.all([refreshOpenRouterFree(), refreshGroqModels()])
   const overrides = getSettings().tierOverrides
   const out: InstalledModel[] = []
   for (const l of await listLocal()) {
@@ -221,6 +260,7 @@ export async function testKey(provider: string, key: string): Promise<{ ok: bool
       }
     }
     secrets.set(`key:${provider}`, key.trim())
+    if (provider === 'groq') await refreshGroqModels(true)
     return { ok: true, message: 'Key works and is saved encrypted on this PC only.' }
   } catch (e) {
     return { ok: false, message: (e as Error).name === 'AbortError' ? 'No answer within 5 seconds. Check your internet.' : (e as Error).message }
