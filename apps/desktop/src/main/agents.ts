@@ -1,6 +1,6 @@
 import { Notification, BrowserWindow } from 'electron'
 import { Orchestrator, chatResultFrom } from './agentsHost'
-import type { AgentRun, ApprovalRequest } from '@hive/shared'
+import type { AgentRun, ApprovalRequest, InstalledModel } from '@hive/shared'
 import { emit } from './ipc'
 import { currentProject, projectRoot } from './project'
 import { getSettings, store } from './store'
@@ -25,25 +25,53 @@ export async function refreshModels() {
   return modelsCache
 }
 
+const teamModels = () => (teamOnly.length ? modelsCache.filter((m) => teamOnly.includes(m.model) || teamOnly.includes(m.id)) : modelsCache)
+
+// Free hosted models run out: a daily quota (Groq counts it per model, OpenRouter per account) or a per-minute size
+// cap (Groq free: 8,000 tokens/minute). One exhausted model used to fail every remaining task of the run (a Groq batch:
+// gpt-oss 20B hit its daily limit and eight challenges failed in seconds). Now the call moves to the best other team
+// model that still has room; a model out of daily quota is skipped for 6 hours.
+const exhaustedUntil = new Map<string, number>()
+const QUOTA_REST_MS = 6 * 60 * 60 * 1000
+const tierRank = { top: 3, lead: 2, worker: 1 } as Record<string, number>
+function standIns(model: InstalledModel, tried: Set<string>): InstalledModel[] {
+  return teamModels()
+    .filter((m) => !tried.has(m.id) && (exhaustedUntil.get(m.id) ?? 0) < Date.now())
+    // hosted first (a local model on a small GPU is far slower), then the strongest
+    .sort((a, b) => Number(a.source === 'ollama') - Number(b.source === 'ollama') || (tierRank[b.tier] ?? 0) - (tierRank[a.tier] ?? 0) || b.codingScore - a.codingScore)
+}
+
 export const orchestrator = new Orchestrator({
   projectRoot,
-  models: () => (teamOnly.length ? modelsCache.filter((m) => teamOnly.includes(m.model) || teamOnly.includes(m.id)) : modelsCache),
+  models: teamModels,
   tierOverrides: () => getSettings().tierOverrides,
   async chat(model, messages, tools, { signal, onText }) {
     // Cap each reply: a small local model can loop without ever going quiet (Qwen3 4B produced one plan reply for an
     // hour, past its whole context), and the stall timer only catches silence. 6k tokens fits a whole game file.
-    // Free hosted models are often briefly rate-limited (429 "temporarily rate-limited upstream"). Wait and retry
-    // rather than failing the task; a daily quota ("per-day") won't clear in minutes, so that fails at once.
+    // Free hosted models are often briefly rate-limited (429 "temporarily rate-limited upstream"). Wait and retry.
+    const tried = new Set<string>()
+    let current = (exhaustedUntil.get(model.id) ?? 0) > Date.now() ? (standIns(model, tried)[0] ?? model) : model
     for (let attempt = 0; ; attempt++) {
       try {
-        return await chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
+        return await chatResultFrom(streamChat(endpointFor(current), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
       } catch (e) {
         const msg = (e as Error).message ?? ''
         if (signal?.aborted) throw e
         // gpt-oss sometimes emits a garbled tool name ("read_file<|channel|>analysis") that the provider rejects.
         // It's random, so asking again usually works; it failed a whole Snake task on Groq after one try.
         if (/tool call validation failed|tool_use_failed/i.test(msg) && attempt < 2) continue
-        if (!/\(429\)/.test(msg) || /per[- ]day/i.test(msg) || attempt >= 4) throw e
+        const outOfQuota = /\(429\)/.test(msg) && /per[- ]day|tokens per day|requests per day/i.test(msg)
+        const tooBig = /\(413\)/.test(msg) && /too large|tokens per minute/i.test(msg)
+        if (outOfQuota || tooBig) {
+          if (outOfQuota) exhaustedUntil.set(current.id, Date.now() + QUOTA_REST_MS)
+          tried.add(current.id)
+          const next = standIns(current, tried)[0]
+          if (!next) throw e
+          console.log(`[agents] ${current.name} ${outOfQuota ? 'is out of free daily quota' : 'refused a request this large'}; using ${next.name}`)
+          current = next
+          continue
+        }
+        if (!/\(429\)/.test(msg) || attempt >= 4) throw e
         await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
       }
     }
