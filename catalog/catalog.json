@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "updated": "2026-11-17",
  "providers": {
   "openrouter": { "name": "OpenRouter (free models)", "baseUrl": "https://openrouter.ai/api/v1", "keyUrl": "https://openrouter.ai/settings/keys", "testPath": "/key"
@@ -47,11 +47,11 @@
   },
   { "id": "phi4-14b", "name": "Phi-4 14B", "family": "Phi-4", "source": "ollama", "pullName": "phi4:14b", "sizeGB": 9.1, "minRamGB": 16, "minVramGB": 10, "contextTokens": 16384, "tier": "worker", "codingScore": 55, "free": true
   },
-  { "id": "or-qwen3-coder-free", "name": "Qwen3 Coder 480B (OpenRouter free)", "family": "Qwen Coder", "source": "openrouter", "endpointModel": "qwen/qwen3-coder:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "top", "codingScore": 84, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  { "id": "or-nemotron-3-ultra-free", "name": "Nemotron 3 Ultra 550B (OpenRouter free)", "family": "Nemotron 3", "source": "openrouter", "endpointModel": "nvidia/nemotron-3-ultra-550b-a55b:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 1000000, "tier": "top", "codingScore": 80, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
   },
-  { "id": "or-gpt-oss-120b-free", "name": "gpt-oss 120B (OpenRouter free)", "family": "gpt-oss", "source": "openrouter", "endpointModel": "openai/gpt-oss-120b:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  { "id": "or-gemma-4-31b-free", "name": "Gemma 4 31B (OpenRouter free)", "family": "Gemma 4", "source": "openrouter", "endpointModel": "google/gemma-4-31b-it:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "lead", "codingScore": 70, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
   },
-  { "id": "or-llama3.3-70b-free", "name": "Llama 3.3 70B (OpenRouter free)", "family": "Llama 3.x", "source": "openrouter", "endpointModel": "meta-llama/llama-3.3-70b-instruct:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "lead", "codingScore": 68, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
+  { "id": "or-north-mini-code-free", "name": "North Mini Code 30B (OpenRouter free)", "family": "Cohere North", "source": "openrouter", "endpointModel": "cohere/north-mini-code:free", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 262144, "tier": "worker", "codingScore": 66, "free": true, "keyUrl": "https://openrouter.ai/settings/keys"
   },
   { "id": "groq-gpt-oss-120b", "name": "gpt-oss 120B (Groq free tier)", "family": "gpt-oss", "source": "groq", "endpointModel": "openai/gpt-oss-120b", "sizeGB": 0, "minRamGB": 0, "minVramGB": 0, "contextTokens": 131072, "tier": "top", "codingScore": 82, "free": true, "keyUrl": "https://console.groq.com/keys"
   },
