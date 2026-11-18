@@ -194,6 +194,17 @@ describe('router runs disjoint tasks at once', () => {
     expect(p.tasks[0].description).toContain('index.html must load: score.js, style.css')
     expect(p.tasks[2].description).toContain('- score.js: Score')
   })
+  it('gives every task the element ids and globals any task names (Groq Snake: #game vs gameCanvas)', () => {
+    const plan = normalizePlan('snake', {
+      tasks: [
+        { id: 'html', title: 'Page', files: ['index.html'], description: 'Contains <canvas id="game"></canvas>, a #score div and a #restart button; calls window.game.reset().' },
+        { id: 'js', title: 'Logic', files: ['game.js'], description: 'Defines the game loop and rendering.' }
+      ]
+    })
+    const js = parallelizeWithContract(plan).tasks.find((t) => t.id === 'js')!.description
+    expect(js).toContain('#game, #score, #restart')
+    expect(js).toContain('window.game')
+  })
 })
 
 import { normalizeWriteArgs } from './tools'

@@ -195,7 +195,17 @@ export function splitForParallelism(plan: AgentPlan, workers: number): AgentPlan
  */
 export function parallelizeWithContract(plan: AgentPlan): AgentPlan {
   if (plan.tasks.length < 2) return plan
-  const contract = plan.tasks.map((t) => `- ${t.files.join(', ') || '(no files)'}: ${t.title}`).join(NL)
+  // Shared names must reach every task: in a Groq Snake run the canvas id (id="game") was only in the HTML task, the
+  // game.js worker guessed "gameCanvas", and the page crashed. Collect the element ids and window globals any task
+  // mentions and give the whole list to all of them.
+  const text = plan.tasks.map((t) => t.description).join(NL)
+  const ids = [...new Set([...text.matchAll(/\bid=["']([A-Za-z][\w-]*)["']/g)].map((m) => m[1]).concat([...text.matchAll(/(?:^|[\s(,])#([A-Za-z][\w-]*)\b/g)].map((m) => m[1])))]
+  const globals = [...new Set([...text.matchAll(/\bwindow\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))]
+  const names = [
+    ids.length ? `- Element ids (use exactly these; never rename): ${ids.map((i) => `#${i}`).join(', ')}` : '',
+    globals.length ? `- Shared globals: ${globals.map((g) => `window.${g}`).join(', ')}` : ''
+  ].filter(Boolean)
+  const contract = [...plan.tasks.map((t) => `- ${t.files.join(', ') || '(no files)'}: ${t.title}`), ...names].join(NL)
   const assets = plan.tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f))
   const tasks = plan.tasks.map((t) => {
     if (t.description.includes('Team contract')) return { ...t, dependsOn: [] }

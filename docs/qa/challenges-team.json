@@ -275,17 +275,22 @@
   "title": "1. Snake Game",
   "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
   "plan": [
-   "Create index.html with canvas and UI elements: index.html",
-   "Implement deterministic Snake game logic in game.js: game.js"
+   "Create index.html skeleton: index.html",
+   "Implement game logic and rendering in game.js: game.js",
+   "Add dark‑theme styling: style.css"
   ],
   "tasks": [
    {
-    "title": "Create index.html with canvas and UI elements",
+    "title": "Create index.html skeleton",
     "status": "merged"
    },
    {
-    "title": "Implement deterministic Snake game logic in game.js",
-    "status": "failed"
+    "title": "Implement game logic and rendering in game.js",
+    "status": "merged"
+   },
+   {
+    "title": "Add dark‑theme styling",
+    "status": "merged"
    },
    {
     "title": "Make all the pieces work together (integration round 1)",
@@ -297,7 +302,7 @@
    }
   ],
   "phase": "done",
-  "minutes": 5,
+  "minutes": 4,
   "final": {
    "Create a playable Snake game": "not checked",
    "Directional movement": "not checked",
@@ -308,7 +313,7 @@
    "Score tracking": "not checked",
    "Game-over functionality": "not checked",
    "Restart functionality": "not checked",
-   "The game runs without errors": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83"
+   "The game runs without errors": "Uncaught TypeError: Cannot read properties of null (reading 'getContext')"
   },
   "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83"
  }
