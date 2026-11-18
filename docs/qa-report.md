@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-17 23:34 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-18 03:02 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -452,6 +452,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 36 | Deleting a model in Models -> Installed failed silently when Ollama was down, and gave no sign of the space freed | P6 model clean-up | Low | Fixed |
 | 37 | The AI lead reviewer approved code that ignored the brief's required test hook (window.game) | P6 AI team Tic-Tac-Toe | Medium (AI quality) | Open |
 | 38 | Ollama hangs loading Qwen 3.5 models on this PC ("timed out waiting for llama-server to start"), while other models load | P6 model comparison | Low (Ollama / environment) | Open |
+| 39 | All three free OpenRouter models in the catalog (Qwen3 Coder, gpt-oss 120B, Llama 3.3 70B) had stopped being free, so the store offered models that would fail | P6 setting up a hosted architect | High | Fixed |
 
 ## 6. Bugs fixed
 
@@ -487,6 +488,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **A small model could write one AI-team reply for an hour (Qwen3 4B, planning); the stall timer only catches silence** — Each AI-team reply is capped at ~6,000 tokens (enough for a whole game file); the plan step retries and then falls back to a one-task plan.
 - **Newer small models (Qwen 3.5 4B/9B) were missing from the model store** — Added to the catalog with conservative scores.
 - **Deleting a model in Models -> Installed failed silently when Ollama was down, and gave no sign of the space freed** — Confirm shows the size freed; success and failure are both reported.
+- **All three free OpenRouter models in the catalog (Qwen3 Coder, gpt-oss 120B, Llama 3.3 70B) had stopped being free, so the store offered models that would fail** — Catalog updated to current free models, and Hive now checks OpenRouter's live free list (hourly, last good list kept offline) and hides any catalog model that is no longer free from the store and the AI team (verified by re-adding a stale entry: it was hidden).
 
 ## 7. Unresolved bugs
 

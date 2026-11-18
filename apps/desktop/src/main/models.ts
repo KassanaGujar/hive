@@ -8,7 +8,7 @@ import type { Catalog, CatalogEntry, ChatMessage, InstalledModel, Tier, ToolSpec
 import { emit } from './ipc'
 import { getSettings, secrets, setSettings, store } from './store'
 import { listLocal, ollamaBaseUrl } from './ollama'
-import { customProviders, providerKey } from './library'
+import { customProviders, openRouterModels, providerKey } from './library'
 
 let catalog: Catalog | null = null
 
@@ -48,11 +48,42 @@ export async function loadCatalog(): Promise<Catalog> {
   } catch {
     /* offline: keep cache/bundled */
   }
+  await refreshOpenRouterFree(true)
   return catalog
 }
 
 export function getCatalog(): Catalog {
-  return catalog ?? filterCatalog(bundledCatalog())
+  const c = catalog ?? filterCatalog(bundledCatalog())
+  return { ...c, models: c.models.filter((m) => m.source !== 'openrouter' || stillFreeOnOpenRouter(m.endpointModel!)) }
+}
+
+// ---------- which OpenRouter models are free right now ----------
+// OpenRouter's free list changes often (Qwen3 Coder, gpt-oss 120B and Llama 3.3 70B all stopped being free in 2026).
+// Hive checks the live list (at most hourly, last good list kept across restarts) and hides catalog models that are
+// no longer free, so the store never offers, and the AI team never calls, a model that would fail or cost money.
+const FREE_TTL = 60 * 60 * 1000
+let orFree: { at: number; ids: Set<string> } | null = null
+
+export async function refreshOpenRouterFree(force = false) {
+  if (!force && orFree && Date.now() - orFree.at < FREE_TTL) return
+  try {
+    const ids = (await openRouterModels()).filter((m) => m.free).map((m) => m.id)
+    if (!ids.length) return
+    orFree = { at: Date.now(), ids: new Set(ids) }
+    store.set('openRouterFree', ids)
+  } catch {
+    /* offline: keep the last good list */
+  }
+}
+
+/** True unless the live (or last saved) free list says this model is no longer free. No list yet = trust the catalog. */
+export function stillFreeOnOpenRouter(model: string): boolean {
+  if (!orFree) {
+    const saved = store.get<string[]>('openRouterFree', [])
+    if (!saved.length) return true
+    orFree = { at: 0, ids: new Set(saved) }
+  }
+  return orFree.ids.has(model)
 }
 
 function connectedHosted(): string[] {
@@ -79,6 +110,7 @@ function matchCatalog(name: string): CatalogEntry | undefined {
 
 /** Everything the user can call right now: downloaded Ollama models + connected free hosted ones. */
 export async function installedModels(): Promise<InstalledModel[]> {
+  await refreshOpenRouterFree()
   const overrides = getSettings().tierOverrides
   const out: InstalledModel[] = []
   for (const l of await listLocal()) {
@@ -100,7 +132,7 @@ export async function installedModels(): Promise<InstalledModel[]> {
     // Live OpenRouter free models are stored as "or:<model id>"; only ":free" ids are ever accepted.
     if (id.startsWith('or:')) {
       const model = id.slice(3)
-      if (!model.endsWith(':free') || !secrets.has('key:openrouter')) continue
+      if (!model.endsWith(':free') || !secrets.has('key:openrouter') || !stillFreeOnOpenRouter(model)) continue
       out.push({ id, name: `${model.replace(/:free$/, '')} (OpenRouter free)`, source: 'openrouter', model, tier: overrides[id] ?? 'lead', codingScore: 60, sizeGB: 0, minRamGB: 0, contextTokens: 32768 })
       continue
     }
