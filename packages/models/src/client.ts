@@ -264,6 +264,9 @@ async function* streamOnce(
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '')
     if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(`The provider rejected your key (${res.status}). It may have been deleted or regenerated, or it is not an API key. Paste a new key in Models → Free online or Your own keys. (${text.slice(0, 200)})`)
+    }
     throw new Error(`Model request failed (${res.status}): ${text.slice(0, 400)}`)
   }
 
@@ -351,6 +354,9 @@ async function* streamOllama(
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '')
     if (native && res.status === 400 && /tool/i.test(text)) throw new ToolsUnsupportedError(text)
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(`The provider rejected your key (${res.status}). It may have been deleted or regenerated, or it is not an API key. Paste a new key in Models → Free online or Your own keys. (${text.slice(0, 200)})`)
+    }
     throw new Error(`Model request failed (${res.status}): ${text.slice(0, 400)}`)
   }
   const started = Date.now()

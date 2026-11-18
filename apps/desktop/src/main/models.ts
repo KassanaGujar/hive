@@ -203,6 +203,23 @@ export async function testKey(provider: string, key: string): Promise<{ ok: bool
     clearTimeout(t)
     if (res.status === 401 || res.status === 403) return { ok: false, message: 'That key was rejected. Check you copied all of it.' }
     if (!res.ok) return { ok: false, message: `The provider answered ${res.status}. Try again in a minute.` }
+    // OpenRouter's /key accepts keys that cannot run models; prove the key with a 1-token request to a free model.
+    const probe = provider === 'openrouter' ? getCatalog().models.find((m) => m.source === 'openrouter')?.endpointModel : undefined
+    if (probe) {
+      const c2 = new AbortController()
+      const t2 = setTimeout(() => c2.abort(), 20000)
+      const r2 = await fetch(`${p.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key.trim()}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: probe, max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] }),
+        signal: c2.signal
+      }).catch(() => null)
+      clearTimeout(t2)
+      // 429/5xx = the free model is busy, which still proves the key; only an auth error rejects it.
+      if (r2 && (r2.status === 401 || r2.status === 403)) {
+        return { ok: false, message: 'That key exists but cannot run models (it may be a management key, or it was deleted). Create a normal API key and paste it here.' }
+      }
+    }
     secrets.set(`key:${provider}`, key.trim())
     return { ok: true, message: 'Key works and is saved encrypted on this PC only.' }
   } catch (e) {
