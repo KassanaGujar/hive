@@ -172,6 +172,54 @@ describe('integration step after parallel work', () => {
   }, 180_000)
 })
 
+describe('integration can create a file whose worker failed', () => {
+  it('a failed game.js task is written by the integration round', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-integ2-'))
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [model('big', 'top'), model('small', 'worker')],
+      tierOverrides: () => ({}),
+      chat: async (_m, messages) => {
+        const sys = messages[0].content
+        if (sys.includes('software architect'))
+          return { text: '{"tasks":[{"id":"html","title":"Page","files":["index.html"]},{"id":"js","title":"Logic","files":["game.js"]}]}' }
+        if (sys.includes('code reviewer')) return { text: '{"approved": true}' }
+        const integrating = sys.includes('Make all the pieces work together')
+        if (!integrating && sys.includes('Task: Logic')) throw new Error('Tool call validation failed') // the worker dies
+        const done = messages.some((m) => m.role === 'tool')
+        if (done) return { text: '', toolCalls: [{ id: 'd', name: 'report_done', arguments: { summary: 'ok' } }] }
+        return integrating
+          ? { text: '', toolCalls: [{ id: 'w', name: 'write_file', arguments: { path: 'game.js', content: 'window.game = {}\n' } }] }
+          : { text: '', toolCalls: [{ id: 'w', name: 'write_file', arguments: { path: 'index.html', content: '<script src="game.js"></script>' } }] }
+      },
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => true,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8,
+      smokeTest: async (dir) => (existsSync(path.join(dir, 'game.js')) ? [] : ['game.js failed to load (404)'])
+    })
+    const id = await orch.start('a game')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 4800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase || r.phase === 'failed') return r
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error('timeout')
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    const r = await wait('awaiting-merge-approval')
+    const integ = r.tasks.find((t) => t.id === 'integrate-1')!
+    expect(integ.files).toContain('game.js')
+    expect(integ.status).toBe('merged')
+    rmSync(root, { recursive: true, force: true })
+  }, 180_000)
+})
+
 describe('orchestrator keeps its project when the user switches projects mid-run', () => {
   it('merges into the folder the run started in, not the newly opened one', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'hive-orch-a-'))

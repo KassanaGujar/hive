@@ -515,7 +515,12 @@ ${ctl.prd.slice(0, 3000)}` : '')
       return
     }
     ctl.integrationRounds = round
-    const files = (await listFiles(dir, '.', 200)).filter((f) => !/^(PLAN|README)\.md$/i.test(f))
+    // The fixer may write every file the plan named, not only the ones that exist: when a worker failed, its file
+    // (e.g. game.js) is missing and the integration round is the only chance to create it (Groq Snake run: it tried
+    // and was refused because it only "owned" index.html).
+    const existing = (await listFiles(dir, '.', 200)).filter((f) => !/^(PLAN|README)\.md$/i.test(f))
+    const planned = ctl.run.tasks.filter((t) => !t.id.startsWith('integrate-')).flatMap((t) => t.files ?? [])
+    const files = [...new Set([...existing, ...planned])]
     const task: AgentTask = {
       id: `integrate-${round}`,
       runId: ctl.run.id,

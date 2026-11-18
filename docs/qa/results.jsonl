@@ -1142,3 +1142,13 @@
 {"phase":"P6","name":"1. Snake Game (AI team openrouter-free) — Game-over functionality","status":"BLOCKED","detail":"OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result","at":"2026-11-18T03:24:31.132Z"}
 {"phase":"P6","name":"1. Snake Game (AI team openrouter-free) — Restart functionality","status":"BLOCKED","detail":"OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result","at":"2026-11-18T03:24:31.134Z"}
 {"phase":"P6","name":"1. Snake Game (AI team openrouter-free) — The game runs without errors","status":"BLOCKED","detail":"OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result","at":"2026-11-18T03:24:31.135Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Create a playable Snake game","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.586Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Directional movement","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.589Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Food generation","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.590Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Snake growth","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.591Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Wall collision","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.594Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Self-collision","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.595Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Score tracking","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.595Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Game-over functionality","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.596Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — Restart functionality","status":"FAIL","detail":"not checked","at":"2026-11-18T04:12:08.597Z"}
+{"phase":"P6","name":"1. Snake Game (AI team groq-free) — The game runs without errors","status":"FAIL","detail":"TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83","at":"2026-11-18T04:12:08.598Z"}

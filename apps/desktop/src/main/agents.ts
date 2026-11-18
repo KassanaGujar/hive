@@ -39,7 +39,11 @@ export const orchestrator = new Orchestrator({
         return await chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
       } catch (e) {
         const msg = (e as Error).message ?? ''
-        if (!/\(429\)/.test(msg) || /per[- ]day/i.test(msg) || attempt >= 4 || signal?.aborted) throw e
+        if (signal?.aborted) throw e
+        // gpt-oss sometimes emits a garbled tool name ("read_file<|channel|>analysis") that the provider rejects.
+        // It's random, so asking again usually works; it failed a whole Snake task on Groq after one try.
+        if (/tool call validation failed|tool_use_failed/i.test(msg) && attempt < 2) continue
+        if (!/\(429\)/.test(msg) || /per[- ]day/i.test(msg) || attempt >= 4) throw e
         await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
       }
     }

@@ -270,5 +270,46 @@
    "Restart functionality": true,
    "Illegal moves are prevented": true
   }
+ },
+ "snake@groq-free": {
+  "title": "1. Snake Game",
+  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+  "plan": [
+   "Create index.html with canvas and UI elements: index.html",
+   "Implement deterministic Snake game logic in game.js: game.js"
+  ],
+  "tasks": [
+   {
+    "title": "Create index.html with canvas and UI elements",
+    "status": "merged"
+   },
+   {
+    "title": "Implement deterministic Snake game logic in game.js",
+    "status": "failed"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 1)",
+    "status": "failed"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 2)",
+    "status": "failed"
+   }
+  ],
+  "phase": "done",
+  "minutes": 5,
+  "final": {
+   "Create a playable Snake game": "not checked",
+   "Directional movement": "not checked",
+   "Food generation": "not checked",
+   "Snake growth": "not checked",
+   "Wall collision": "not checked",
+   "Self-collision": "not checked",
+   "Score tracking": "not checked",
+   "Game-over functionality": "not checked",
+   "Restart functionality": "not checked",
+   "The game runs without errors": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83"
+  },
+  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83"
  }
 }
