@@ -17,7 +17,8 @@ import { rankTeam, extractJson, stripThinking, capacityOf } from '@hive/models'
 import { classifyCommand } from './policy'
 import { allSettled, enforceFileOwnership, MAX_PLAN_TASKS, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, replaceTask, splitForParallelism, splitOversized, starvedTasks } from './scheduler'
 import { architectPlanPrompt, architectSplitPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
-import { estimateTask, fits } from './sizing'
+import { estimateTask, fits, type TaskSize } from './sizing'
+import { pickWorker } from './routing'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
 
@@ -83,7 +84,12 @@ interface RunCtl {
   paused: Set<string>
   takenOver: Set<string>
   team: { architect: InstalledModel; leads: InstalledModel[]; workers: InstalledModel[] }
-  workerPool: { name: string; model: InstalledModel; busy: boolean }[]
+  /** strong: a lead/architect model added so big tasks can go straight to it (not planned onto by default). */
+  workerPool: { name: string; model: InstalledModel; busy: boolean; strong?: boolean }[]
+  /** Size estimate per task id, made when the plan is shaped. */
+  sizes: Map<string, TaskSize>
+  /** The local model most recently used, likely still in GPU memory. */
+  lastLocal?: string
   intWorktree?: string
   /** The team's plan doc (PRD/MVP) from the Planning room, if the run came from there. */
   prd?: string
@@ -113,7 +119,7 @@ export class Orchestrator {
         run.phase = 'cancelled'
         run.error = 'Hive was closed while this run was active.'
       }
-      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], waiters: new Map(), root: '' })
+      this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], sizes: new Map(), waiters: new Map(), root: '' })
     }
   }
 
@@ -132,14 +138,21 @@ export class Orchestrator {
       name: WORKER_NAMES[i % WORKER_NAMES.length] + (i >= WORKER_NAMES.length ? `-${i}` : ''),
       model: team.workers[i % team.workers.length],
       busy: false
-    }))
+    })) as RunCtl['workerPool']
+    // Strong models can take a big task themselves instead of only stepping in after 3 failed review rounds. One
+    // extra worker per lead/architect model not already in the pool; the router only gives them work that needs them.
+    for (const m of [team.architect, ...team.leads]) {
+      if (workerPool.some((w) => w.model.id === m.id)) continue
+      const i = workerPool.length
+      workerPool.push({ name: WORKER_NAMES[i % WORKER_NAMES.length] + (i >= WORKER_NAMES.length ? `-${i}` : ''), model: m, busy: false, strong: true })
+    }
     const agents: AgentInfo[] = [
       { name: 'architect', role: 'architect', modelId: team.architect.id, modelName: team.architect.name, status: 'thinking' },
       ...team.leads.slice(0, 2).map((m, i) => ({ name: `lead${i ? '-' + (i + 1) : ''}`, role: 'lead' as const, modelId: m.id, modelName: m.name, status: 'idle' as const })),
       ...workerPool.map((w) => ({ name: w.name, role: 'worker' as const, modelId: w.model.id, modelName: w.model.name, status: 'idle' as const }))
     ]
     const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now() }
-    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, waiters: new Map(), prd, root: this.host.projectRoot() }
+    const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, sizes: new Map(), waiters: new Map(), prd, root: this.host.projectRoot() }
     this.runs.set(id, ctl)
     this.emit(ctl)
     this.plan(ctl, presetTasks).catch((e) => this.fail(ctl, e))
@@ -151,8 +164,8 @@ export class Orchestrator {
   private async plan(ctl: RunCtl, presetTasks?: { title: string; description: string }[]) {
     const { run } = ctl
     const files = (await listFiles(ctl.root, '.', 300)).join('\n')
-    const workers = ctl.workerPool.map((w) => w.name)
-    const workerOut = Math.min(...ctl.workerPool.map((w) => this.capacity(w.model).maxOutput))
+    const workers = ctl.workerPool.filter((w) => !w.strong).map((w) => w.name)
+    const workerOut = Math.min(...ctl.team.workers.map((m) => this.capacity(m).maxOutput))
     const strongOut = Math.max(...this.teamModels(ctl).map((m) => this.capacity(m).maxOutput))
     let prompt = architectPlanPrompt(run.goal, files, workers, { workerMaxOutput: workerOut, strongMaxOutput: strongOut })
     if (ctl.prd) prompt += `
@@ -180,9 +193,13 @@ ${ctl.prd.slice(0, 8000)}`
     shaped = splitOversized(enforceFileOwnership(shaped, canFit), canFit)
     const plan = parallelizeWithContract(splitForParallelism(shaped, workers.length))
     routeTasks(plan.tasks, workers)
-    for (const t of plan.tasks) this.log(ctl, 'architect', undefined, `Router: "${t.title}" → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
+    for (const t of plan.tasks) ctl.sizes.set(t.id, estimateTask(t, sizes))
+    for (const t of plan.tasks) {
+      const s = ctl.sizes.get(t.id)!
+      this.log(ctl, 'architect', undefined, `Router: "${t.title}" (${s.size}, ~${s.outputTokens} tokens to write) → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
+    }
     run.plan = plan
-    run.tasks = planToTasks(run.id, plan)
+    run.tasks = planToTasks(run.id, plan).map((t) => ({ ...t, size: ctl.sizes.get(t.id)!.size, estimate: ctl.sizes.get(t.id)!.outputTokens }))
     run.phase = 'awaiting-plan-approval'
     this.setAgent(ctl, 'architect', { status: 'waiting' })
     this.log(ctl, 'architect', undefined, `Plan ready: ${plan.tasks.length} task(s). Waiting for your approval.`)
@@ -205,7 +222,7 @@ ${ctl.prd.slice(0, 8000)}`
    */
   private async splitWithArchitect(ctl: RunCtl, plan: AgentPlan, canFit: (t: PlanTask) => boolean): Promise<AgentPlan> {
     const tooBig = plan.tasks.filter((t) => !canFit(t)).slice(0, 4)
-    const workerOut = Math.min(...ctl.workerPool.map((w) => this.capacity(w.model).maxOutput))
+    const workerOut = Math.min(...ctl.team.workers.map((m) => this.capacity(m).maxOutput))
     let out = plan
     for (const big of tooBig) {
       if (out.tasks.length >= MAX_PLAN_TASKS) break
@@ -253,10 +270,16 @@ ${ctl.prd.slice(0, 8000)}`
       t.log.push('Cancelled: a task it depends on failed.')
     }
     for (const task of readyTasks(run.tasks)) {
-      const worker =
-        ctl.workerPool.find((w) => !w.busy && w.name === task.owner && !ctl.paused.has(w.name)) ??
-        ctl.workerPool.find((w) => !w.busy && !ctl.paused.has(w.name))
-      if (!worker) break
+      // Each task goes to the cheapest free model that can do it (routing.ts); a big one waits for a model big enough.
+      const size = ctl.sizes.get(task.id) ?? estimateTask(task, {})
+      const pool = ctl.workerPool.filter((w) => !ctl.paused.has(w.name))
+      const pick = pickWorker(size, pool, (m) => this.capacity(m), { loadedLocal: ctl.lastLocal, prefer: task.owner })
+      if ('wait' in pick) continue
+      const worker = pick.worker
+      this.log(ctl, 'architect', task.id, `Router: "${task.title}" (${size.size}, ~${size.outputTokens} tokens to write) → ${worker.name} (${worker.model.name})${pick.reason ? `: ${pick.reason}` : ''}`)
+      if (worker.model.source === 'ollama') ctl.lastLocal = worker.model.model
+      task.size = size.size
+      task.estimate = size.outputTokens
       worker.busy = true
       task.owner = worker.name
       task.status = 'running'

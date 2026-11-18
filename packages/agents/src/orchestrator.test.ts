@@ -323,3 +323,55 @@ describe('plans sized to the team (planning only)', () => {
     rmSync(root, { recursive: true, force: true })
   })
 })
+
+describe('router in a real run', () => {
+  it('a large task runs on the strong model, a small one on the small model', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-route-'))
+    const weak: InstalledModel = { id: 'weak', name: 'weak', source: 'ollama', model: 'weak', tier: 'worker', codingScore: 40, sizeGB: 2, minRamGB: 4, contextTokens: 8192 }
+    const strong: InstalledModel = { id: 'strong', name: 'strong', source: 'groq', model: 'strong', tier: 'top', codingScore: 82, sizeGB: 0, minRamGB: 0, contextTokens: 131072 }
+    const fns = Array.from({ length: 20 }, (_, i) => `f${i}()`).join(', ')
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [strong, weak],
+      tierOverrides: () => ({}),
+      chat: async (_m, msgs) => {
+        const sys = msgs[0].content
+        if (sys.includes('software architect')) {
+          return { text: JSON.stringify({ summary: 's', tasks: [
+            { id: 'engine', title: 'Engine', description: `Write ${fns} in engine.js.`, files: ['engine.js'] },
+            { id: 'css', title: 'Styles', description: 'Colours.', files: ['style.css'] }
+          ] }) }
+        }
+        if (sys.includes('code reviewer') || msgs[1]?.content.includes('Lead reviewer')) return { text: '{"approved": true, "notes": "ok"}' }
+        const file = sys.includes('Task: Engine') ? 'engine.js' : 'style.css'
+        const wrote = msgs.some((x) => x.role === 'tool')
+        return { text: '', toolCalls: [wrote ? { id: 'd', name: 'report_done', arguments: { summary: 'done' } } : { id: 'w', name: 'write_file', arguments: { path: file, content: '// ok\n' } }] }
+      },
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => false,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8
+    })
+    const id = await orch.start('Build it')
+    const wait = async (phase: AgentRun['phase']) => {
+      for (let i = 0; i < 4800; i++) {
+        const r = orch.list().find((x) => x.id === id)!
+        if (r.phase === phase) return r
+        if (r.phase === 'failed') throw new Error(r.error)
+        await new Promise((res) => setTimeout(res, 25))
+      }
+      throw new Error('timeout')
+    }
+    await wait('awaiting-plan-approval')
+    await orch.approvePlan(id, true)
+    const r = await wait('awaiting-merge-approval')
+    expect(r.tasks.find((t) => t.id === 'engine')!.model).toBe('strong')
+    expect(r.tasks.find((t) => t.id === 'engine')!.size).toBe('large')
+    expect(r.tasks.find((t) => t.id === 'css')!.model).toBe('weak')
+    await orch.approveMerge(id, false)
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+})

@@ -223,6 +223,9 @@ export interface AgentTask extends PlanTask {
   reviewNotes?: string
   diff?: string
   log: string[]
+  /** The router's size estimate (small / medium / large) and the tokens it expects the task to write. */
+  size?: 'small' | 'medium' | 'large'
+  estimate?: number
 }
 
 export interface AgentInfo {
