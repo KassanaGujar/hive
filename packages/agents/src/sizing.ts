@@ -40,6 +40,11 @@ export function estimateTask(t: PlanTask, existing: Record<string, number>, extr
   return { outputTokens, inputTokens, parts, hard, size }
 }
 
+/** Size only (no skill rule): what splitting a task can change. Planning uses this; routing uses fits(). */
+export function fitsSize(s: TaskSize, cap: ModelCapacity): boolean {
+  return fits({ ...s, hard: 0 }, cap)
+}
+
 /** Leaves headroom: a model asked for 100% of its reply budget tends to stop short or loop. */
 export function fits(s: TaskSize, cap: ModelCapacity): boolean {
   return (

@@ -17,7 +17,7 @@ import { rankTeam, extractJson, stripThinking, capacityOf } from '@hive/models'
 import { classifyCommand } from './policy'
 import { allSettled, enforceFileOwnership, MAX_PLAN_TASKS, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, replaceTask, splitForParallelism, splitOversized, starvedTasks } from './scheduler'
 import { architectPlanPrompt, architectSplitPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
-import { estimateTask, fits, type TaskSize } from './sizing'
+import { estimateTask, fitsSize, type TaskSize } from './sizing'
 import { pickWorker } from './routing'
 import { buildWorkerContext } from './context'
 import { combineReviews, reviewBudgetChars, splitDiff } from './review'
@@ -197,7 +197,8 @@ ${ctl.prd.slice(0, 8000)}`
       raw = extractJson(res.text)
     }
     const sizes = await fileSizes(ctl.root, files.split('\n').filter(Boolean))
-    const canFit = (t: PlanTask) => this.teamModels(ctl).some((m) => fits(estimateTask(t, sizes), this.capacity(m)))
+    // Size only: splitting makes a task smaller, not easier, so a hard task is not split just for being hard.
+    const canFit = (t: PlanTask) => this.teamModels(ctl).some((m) => fitsSize(estimateTask(t, sizes), this.capacity(m)))
     let shaped = enforceFileOwnership(normalizePlan(run.goal, raw), canFit)
     shaped = await this.splitWithArchitect(ctl, shaped, canFit)
     shaped = splitOversized(enforceFileOwnership(shaped, canFit), canFit)

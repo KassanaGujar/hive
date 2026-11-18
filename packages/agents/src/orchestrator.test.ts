@@ -270,7 +270,7 @@ describe('plans sized to the team (planning only)', () => {
     id: 'game', title: 'Whole game', files: ['game.js'],
     description: 'Write init(), update(), draw(), reset(), spawn(), collide(), score(), input(), pause(), save(), load(), menu() in game.js.'
   }
-  const planWith = async (splitReply: string) => {
+  const planWith = async (splitReply: string, planned: object = bigTask) => {
     const root = mkdtempSync(path.join(tmpdir(), 'hive-size-'))
     const prompts: string[] = []
     const orch = new Orchestrator({
@@ -281,7 +281,7 @@ describe('plans sized to the team (planning only)', () => {
         const user = msgs[msgs.length - 1].content
         prompts.push(user)
         if (user.includes('Split this task')) return { text: splitReply }
-        return { text: JSON.stringify({ summary: 's', tasks: [bigTask] }) }
+        return { text: JSON.stringify({ summary: 's', tasks: [planned] }) }
       },
       git: createGitOps(),
       exec: async () => ({ code: 0, output: '' }),
@@ -320,6 +320,13 @@ describe('plans sized to the team (planning only)', () => {
     const { run, root } = await planWith('I cannot do that')
     expect(run.tasks.length).toBeGreaterThanOrEqual(1)
     expect(run.tasks.length).toBeLessThanOrEqual(12)
+    rmSync(root, { recursive: true, force: true })
+  })
+  it('does not ask to split a task that is hard but small (splitting cannot make it easier)', async () => {
+    const hard = { id: 'ai', title: 'Chess engine', description: 'A minimax search for the chess AI in ai.js.', files: ['ai.js'] }
+    const { run, prompts, root } = await planWith('not json', hard)
+    expect(prompts.some((p) => p.includes('Split this task'))).toBe(false)
+    expect(run.tasks.map((t) => t.id)).toEqual(['ai'])
     rmSync(root, { recursive: true, force: true })
   })
 })

@@ -11,8 +11,8 @@ import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
 import path from 'node:path'
-import { classifyModelError, limitsFromError, streamChat } from '@hive/models'
-import { recordOutcome, type ModelStats } from '@hive/agents'
+import { capacityOf, classifyModelError, limitsFromError, replyTokensFor, streamChat } from '@hive/models'
+import { learnedCapacity, recordOutcome, type ModelStats } from '@hive/agents'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
@@ -59,7 +59,9 @@ export const orchestrator = new Orchestrator({
     if (current !== model) onModel?.(current)
     for (let attempt = 0; ; attempt++) {
       try {
-        return await chatResultFrom(streamChat(endpointFor(current), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
+        const cap = capacityOf(current, learnedCapacity(store.get<ModelStats>('modelStats', {})[current.id]))
+        const maxTokens = Math.min(AGENT_MAX_REPLY_TOKENS, replyTokensFor(cap))
+        return await chatResultFrom(streamChat(endpointFor(current), messages, { tools, signal, maxTokens }), onText)
       } catch (e) {
         const msg = (e as Error).message ?? ''
         if (signal?.aborted) throw e

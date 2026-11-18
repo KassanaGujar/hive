@@ -29,6 +29,14 @@ export function capacityOf(m: InstalledModel, learned: Partial<ModelLimits> = {}
   return { contextTokens, maxOutput, inputPerMinute, outputPerMinute, skill: m.codingScore }
 }
 
+/**
+ * The max_tokens to send. Groq checks it against the per-minute output cap and refuses the whole request when it is
+ * larger ("reduce max_tokens"), so a 1,000-a-minute model got nothing done. Routing keeps big tasks off such models.
+ */
+export function replyTokensFor(cap: ModelCapacity): number {
+  return Math.min(TEAM_REPLY_TOKENS, Math.floor(cap.outputPerMinute * 0.9))
+}
+
 /** The provider states its own limit in a 413/429 ("… output tokens per minute (OTPM): Limit 1000"). Use that number. */
 export function limitsFromError(msg: string): Partial<ModelLimits> | null {
   const n = (re: RegExp) => {

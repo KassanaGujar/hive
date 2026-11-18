@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { InstalledModel } from '@hive/shared'
-import { capacityOf, limitsFromError } from './capacity'
+import { capacityOf, limitsFromError, replyTokensFor } from './capacity'
 
 const m = (p: Partial<InstalledModel>): InstalledModel => ({
   id: 'x', name: 'x', source: 'ollama', model: 'x', tier: 'worker', codingScore: 50, sizeGB: 4, minRamGB: 8, contextTokens: 8192, ...p
@@ -26,6 +26,11 @@ describe('model capacity (what a model can handle per task)', () => {
   it('a limit learned from a provider error wins over the catalog', () => {
     const c = capacityOf(m({ source: 'groq', sizeGB: 0, limits: { outputPerMinute: 1000 } }), { outputPerMinute: 600 })
     expect(c.maxOutput).toBe(600)
+  })
+  it('asks for a reply no bigger than the provider allows (Groq refused max_tokens 6144 at 1,000 a minute)', () => {
+    expect(replyTokensFor(capacityOf(m({ source: 'groq', sizeGB: 0, limits: { outputPerMinute: 1000 } })))).toBeLessThanOrEqual(1000)
+    expect(replyTokensFor(capacityOf(m({ source: 'groq', sizeGB: 0 })))).toBe(6144)
+    expect(replyTokensFor(capacityOf(m({ sizeGB: 2 })))).toBe(6144)
   })
   it('reads the limits out of real Groq error messages', () => {
     expect(limitsFromError("Request too large for model `qwen/qwen3.8-27b` in organization `org_x` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1246.")).toEqual({ outputPerMinute: 1000 })
