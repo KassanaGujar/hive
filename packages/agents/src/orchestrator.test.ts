@@ -262,3 +262,64 @@ describe('orchestrator keeps its project when the user switches projects mid-run
     rmSync(other, { recursive: true, force: true })
   }, 180_000)
 })
+
+describe('plans sized to the team (planning only)', () => {
+  // Two small local models: neither can write a whole game in one task.
+  const small = (id: string, tier: InstalledModel['tier']): InstalledModel => ({ id, name: id, source: 'ollama', model: id, tier, codingScore: 50, sizeGB: 2, minRamGB: 4, contextTokens: 8192 })
+  const bigTask = {
+    id: 'game', title: 'Whole game', files: ['game.js'],
+    description: 'Write init(), update(), draw(), reset(), spawn(), collide(), score(), input(), pause(), save(), load(), menu() in game.js.'
+  }
+  const planWith = async (splitReply: string) => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-size-'))
+    const prompts: string[] = []
+    const orch = new Orchestrator({
+      projectRoot: () => root,
+      models: () => [small('a', 'lead'), small('b', 'worker')],
+      tierOverrides: () => ({}),
+      chat: async (_m, msgs) => {
+        const user = msgs[msgs.length - 1].content
+        prompts.push(user)
+        if (user.includes('Split this task')) return { text: splitReply }
+        return { text: JSON.stringify({ summary: 's', tasks: [bigTask] }) }
+      },
+      git: createGitOps(),
+      exec: async () => ({ code: 0, output: '' }),
+      requestApproval: async () => false,
+      emit: () => {},
+      log: () => {},
+      feed: () => {},
+      memoryBudgetGB: () => 8
+    })
+    const id = await orch.start('Build a game')
+    for (let i = 0; i < 400; i++) {
+      const r = orch.list().find((x) => x.id === id)!
+      if (r.phase === 'awaiting-plan-approval') return { run: r, prompts, root }
+      if (r.phase === 'failed') throw new Error(r.error)
+      await new Promise((res) => setTimeout(res, 25))
+    }
+    throw new Error('planning did not finish')
+  }
+  it('tells the architect how much each worker can write', async () => {
+    const { prompts, root } = await planWith('not json')
+    expect(prompts[0]).toMatch(/about \d+ lines of code/)
+    expect(prompts[0]).not.toContain('Fewer is better')
+    rmSync(root, { recursive: true, force: true })
+  })
+  it('asks the architect to split a task no model can do, and uses its split', async () => {
+    const reply = JSON.stringify({ tasks: [
+      { id: 'core', title: 'Core loop', description: 'init(), update(), draw()', files: ['core.js'] },
+      { id: 'rules', title: 'Rules', description: 'collide(), score()', files: ['rules.js'] }
+    ] })
+    const { run, prompts, root } = await planWith(reply)
+    expect(prompts.some((p) => p.includes('Split this task'))).toBe(true)
+    expect(run.tasks.map((t) => t.files[0])).toEqual(['core.js', 'rules.js'])
+    rmSync(root, { recursive: true, force: true })
+  })
+  it('still finishes planning when the split reply is garbage', async () => {
+    const { run, root } = await planWith('I cannot do that')
+    expect(run.tasks.length).toBeGreaterThanOrEqual(1)
+    expect(run.tasks.length).toBeLessThanOrEqual(12)
+    rmSync(root, { recursive: true, force: true })
+  })
+})

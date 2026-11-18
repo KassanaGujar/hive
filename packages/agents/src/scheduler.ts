@@ -117,7 +117,12 @@ export function planToTasks(runId: string, plan: AgentPlan): AgentTask[] {
 const NL = String.fromCharCode(10)
 const norm = (f: string) => f.replace(/^\.?\//, '').toLowerCase()
 
-export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
+/**
+ * canFit (optional): whether some team model can do a task. Folding two tasks into one used to build tasks no small
+ * model could finish (free-hosted Visual run: graph logic + DOM rendering in one task). When the merged task would not
+ * fit, the later task stays separate as the next part of the same file and runs after the previous part.
+ */
+export function enforceFileOwnership(plan: AgentPlan, canFit?: (t: PlanTask) => boolean): AgentPlan {
   const owner = new Map<string, string>()
   for (const t of plan.tasks) for (const f of t.files) if (!owner.has(norm(f))) owner.set(norm(f), t.id)
   const own = (t: PlanTask) => t.files.filter((f) => owner.get(norm(f)) === t.id)
@@ -127,8 +132,23 @@ export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
   // fold tasks with nothing of their own into the owner of their first file
   const parent = new Map(plan.tasks.map((t) => [t.id, t.id]))
   const find = (x: string): string => (parent.get(x) === x ? x : find(parent.get(x)!))
+  const members = new Map(plan.tasks.map((t) => [t.id, [t]]))
+  const sequential = new Map<string, { file: string; after: string; part: number }>()
+  const lastPart = new Map<string, { id: string; part: number }>()
   for (const t of plan.tasks) {
-    if (t.files.length && own(t).length === 0) parent.set(t.id, find(owner.get(norm(t.files[0]))!))
+    if (!t.files.length || own(t).length !== 0) continue
+    const file = t.files[0]
+    const target = find(owner.get(norm(file))!)
+    const group = [...members.get(target)!, t]
+    const merged: PlanTask = { ...t, title: group.map((g) => g.title).join('; '), description: group.map((g, i) => `${i + 1}. ${g.title}: ${g.description}`).join(NL), files: [...new Set(group.flatMap((g) => g.files))] }
+    if (canFit && !canFit(merged)) {
+      const prev = lastPart.get(norm(file)) ?? { id: target, part: 1 }
+      sequential.set(t.id, { file, after: prev.id, part: prev.part + 1 })
+      lastPart.set(norm(file), { id: t.id, part: prev.part + 1 })
+      continue
+    }
+    parent.set(t.id, target)
+    members.set(target, group)
   }
   const groups = new Map<string, PlanTask[]>()
   for (const t of plan.tasks) groups.set(find(t.id), [...(groups.get(find(t.id)) ?? []), t])
@@ -136,6 +156,15 @@ export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
   const tasks: PlanTask[] = []
   for (const [root, list] of groups) {
     const first = list.find((t) => t.id === root) ?? list[0]
+    const seq = sequential.get(root)
+    if (seq) {
+      tasks.push({
+        ...first,
+        description: `${first.description}${NL}Part ${seq.part} of ${seq.file}: an earlier part already wrote this file. Read it, then add your part with edit_file; do not rewrite or remove what is there.`,
+        dependsOn: [...new Set([seq.after, ...first.dependsOn.map(find)])].filter((d) => d !== root)
+      })
+      continue
+    }
     const files = [...new Set(list.flatMap(own))]
     const shared = [...new Set(list.flatMap((t) => t.files).filter((f) => !files.includes(f)))]
     let description = list.length === 1 ? first.description : list.map((t, i) => `${i + 1}. ${t.title}: ${t.description}`).join(NL)
@@ -151,13 +180,71 @@ export function enforceFileOwnership(plan: AgentPlan): AgentPlan {
     })
   }
   // the page owner wires in everyone else's scripts and styles
-  const assets = tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f))
+  const assets = [...new Set(tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f)))]
   for (const t of tasks) {
     const page = t.files.find((f) => /\.html?$/i.test(f))
     const others = assets.filter((a) => !t.files.includes(a))
-    if (page && others.length) t.description += `${NL}${page} must load these files made by other agents: ${others.join(', ')}.`
+    if (page && others.length && !sequential.has(t.id)) t.description += `${NL}${page} must load these files made by other agents: ${others.join(', ')}.`
   }
   return { ...plan, tasks }
+}
+
+/** The most tasks a plan may grow to by splitting (each one is a worker run and a review). */
+export const MAX_PLAN_TASKS = 12
+
+/** Swap one task for several; whatever depended on it depends on all of them. */
+export function replaceTask(plan: AgentPlan, id: string, parts: PlanTask[]): AgentPlan {
+  const tasks = plan.tasks.flatMap((t) => (t.id === id ? parts : [t]))
+  for (const t of tasks) if (t.dependsOn.includes(id)) t.dependsOn = [...t.dependsOn.filter((d) => d !== id), ...parts.map((p) => p.id)]
+  return { ...plan, tasks }
+}
+
+/** One file of a task split by file. Every piece gets the shared contract so they fit together. */
+export function pieceFor(big: PlanTask, f: string): PlanTask {
+  const files = big.files
+  const contract = `${NL}This is one part of "${big.title}". It is split across agents by file, all built at the same time: ${files.join(', ')}. Use exactly these file names; keep element ids, function names and data shapes consistent with the description above.`
+  return {
+    id: `${big.id}-${f.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`.slice(0, 60),
+    title: `${big.title.slice(0, 80)} — ${f}`,
+    description: `${big.description}${contract}${NL}You write ONLY ${f}.` + (/\.html?$/i.test(f) ? ` ${f} must load: ${files.filter((x) => /\.(js|mjs|css)$/i.test(x)).join(', ') || '(no other assets)'} (CSS with <link rel="stylesheet">, JS with <script src> at the end of <body>).` : ''),
+    files: [f],
+    dependsOn: [...big.dependsOn],
+    owner: undefined,
+    acceptance: `${f} exists and implements its part of: ${big.acceptance ?? big.title}`
+  }
+}
+
+/**
+ * Split tasks no team model can do (canFit false), without asking a model: a multi-file task becomes one task per
+ * file; a one-file task with numbered jobs becomes parts that run in order on that file. The plan never grows past
+ * MAX_PLAN_TASKS; a task left too big goes to the strongest model when it is routed.
+ */
+export function splitOversized(plan: AgentPlan, canFit: (t: PlanTask) => boolean): AgentPlan {
+  let out = plan
+  for (const big of plan.tasks) {
+    if (canFit(big)) continue
+    let parts: PlanTask[] = []
+    if (big.files.length > 1) parts = big.files.map((f) => pieceFor(big, f))
+    else {
+      const chunks = big.description.split(/(?:^|\n)\s*\d+\.\s+/)
+      const intro = chunks[0].trim()
+      const items = chunks.slice(1).map((s) => s.trim()).filter(Boolean)
+      if (items.length < 2) continue
+      const file = big.files[0] ?? '(its file)'
+      parts = items.map((item, i) => ({
+        id: `${big.id}-part-${i + 1}`.slice(0, 60),
+        title: `${big.title.slice(0, 80)} (part ${i + 1} of ${items.length})`,
+        description: `${intro ? intro + NL : ''}${item}${i ? `${NL}Part ${i + 1} of ${file}: earlier parts already wrote this file. Read it, then add your part with edit_file; do not rewrite or remove what is there.` : `${NL}Part 1 of ${file}: write only this part; later parts add the rest.`}`,
+        files: [...big.files],
+        dependsOn: i ? [`${big.id}-part-${i}`.slice(0, 60)] : [...big.dependsOn],
+        owner: undefined,
+        acceptance: i === items.length - 1 ? big.acceptance : undefined
+      }))
+    }
+    if (out.tasks.length - 1 + parts.length > MAX_PLAN_TASKS) continue
+    out = replaceTask(out, big.id, parts)
+  }
+  return out
 }
 
 /**
@@ -171,19 +258,7 @@ export function splitForParallelism(plan: AgentPlan, workers: number): AgentPlan
   while (tasks.length < workers) {
     const big = [...tasks].sort((a, b) => b.files.length - a.files.length)[0]
     if (!big || big.files.length < 2) break
-    const files = big.files
-    const contract = `${NL}This is one part of "${big.title}". It is split across agents by file, all built at the same time: ${files.join(', ')}. Use exactly these file names; keep element ids, function names and data shapes consistent with the description above.`
-    const parts: PlanTask[] = files.map((f) => ({
-      id: `${big.id}-${f.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`.slice(0, 60),
-      title: `${big.title.slice(0, 80)} — ${f}`,
-      description: `${big.description}${contract}${NL}You write ONLY ${f}.` + (/\.html?$/i.test(f) ? ` ${f} must load: ${files.filter((x) => /\.(js|mjs|css)$/i.test(x)).join(', ') || '(no other assets)'} (CSS with <link rel="stylesheet">, JS with <script src> at the end of <body>).` : ''),
-      files: [f],
-      dependsOn: [...big.dependsOn],
-      owner: undefined,
-      acceptance: `${f} exists and implements its part of: ${big.acceptance ?? big.title}`
-    }))
-    tasks = tasks.flatMap((t) => (t === big ? parts : [t]))
-    for (const t of tasks) if (t.dependsOn.includes(big.id)) t.dependsOn = [...t.dependsOn.filter((d) => d !== big.id), ...parts.map((p) => p.id)]
+    tasks = replaceTask({ ...plan, tasks }, big.id, big.files.map((f) => pieceFor(big, f))).tasks
   }
   return tasks.length === plan.tasks.length ? plan : { ...plan, tasks }
 }
@@ -206,15 +281,18 @@ export function parallelizeWithContract(plan: AgentPlan): AgentPlan {
     globals.length ? `- Shared globals: ${globals.map((g) => `window.${g}`).join(', ')}` : ''
   ].filter(Boolean)
   const contract = [...plan.tasks.map((t) => `- ${t.files.join(', ') || '(no files)'}: ${t.title}`), ...names].join(NL)
-  const assets = plan.tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f))
+  const assets = [...new Set(plan.tasks.flatMap((t) => t.files).filter((f) => /\.(js|mjs|css)$/i.test(f)))]
+  // Parts of one file must still run in order (part 2 edits what part 1 wrote); every other dependency goes.
+  const filesOf = new Map(plan.tasks.map((t) => [t.id, new Set(t.files.map(norm))]))
+  const sameFile = (t: PlanTask) => t.dependsOn.filter((d) => t.files.some((f) => filesOf.get(d)?.has(norm(f))))
   const tasks = plan.tasks.map((t) => {
-    if (t.description.includes('Team contract')) return { ...t, dependsOn: [] }
+    if (t.description.includes('Team contract')) return { ...t, dependsOn: sameFile(t) }
     const page = t.files.find((f) => /\.html?$/i.test(f))
     const others = assets.filter((a) => !t.files.includes(a))
     const wiring = page && others.length && !t.description.includes('must load') ? `${NL}${page} must load: ${others.join(', ')} (CSS via <link rel="stylesheet">, JS via <script src> at the end of <body>, in this order).` : ''
     return {
       ...t,
-      dependsOn: [],
+      dependsOn: sameFile(t),
       description: `${t.description}${wiring}${NL}Team contract — these files are written AT THE SAME TIME by other agents; use these exact names and share globals/ids consistently:${NL}${contract}${assets.some((a) => /\.m?js$/i.test(a)) ? `${NL}Browser scripts are plain <script> files: NO import/export. Share state as properties of window (e.g. window.game). Create any DOM elements you need if they are missing.` : ''}`
     }
   })

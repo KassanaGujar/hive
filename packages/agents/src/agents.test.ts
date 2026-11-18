@@ -281,3 +281,75 @@ describe('edit_file: change part of a file without re-sending it', () => {
     expect(rf(path.join(ctx.root, 'index.html'), 'utf8')).toBe('<p>')
   })
 })
+
+import { splitOversized } from './scheduler'
+describe('plans sized to the team', () => {
+  const twoOnOneFile = () =>
+    normalizePlan('visual', {
+      tasks: [
+        { id: 'logic', title: 'Graph logic', description: 'window.vp API', files: ['app.js'] },
+        { id: 'dom', title: 'Rendering', description: 'Draw nodes and wires', files: ['app.js'] }
+      ]
+    })
+  it('keeps two big tasks on one file as part 1 then part 2 when merging them would be too big', () => {
+    const p = enforceFileOwnership(twoOnOneFile(), () => false)
+    expect(p.tasks.map((t) => t.id)).toEqual(['logic', 'dom'])
+    expect(p.tasks[1].files).toEqual(['app.js'])
+    expect(p.tasks[1].dependsOn).toEqual(['logic'])
+    expect(p.tasks[1].description).toContain('Part 2 of app.js')
+  })
+  it('still merges them when the merged task fits', () => {
+    const p = enforceFileOwnership(twoOnOneFile(), () => true)
+    expect(p.tasks.map((t) => t.id)).toEqual(['logic'])
+  })
+  it('a third part waits for the second, not just the first', () => {
+    const plan = normalizePlan('g', {
+      tasks: [
+        { id: 'a', title: 'A', files: ['app.js'] },
+        { id: 'b', title: 'B', files: ['app.js'] },
+        { id: 'c', title: 'C', files: ['app.js'] }
+      ]
+    })
+    const p = enforceFileOwnership(plan, () => false)
+    expect(p.tasks.map((t) => [t.id, t.dependsOn])).toEqual([['a', []], ['b', ['a']], ['c', ['b']]])
+  })
+  it('the parallel contract keeps the order between parts of one file and drops the rest', () => {
+    const plan = normalizePlan('g', {
+      tasks: [
+        { id: 'a', title: 'A', files: ['app.js'] },
+        { id: 'b', title: 'B', files: ['app.js'], dependsOn: ['a'] },
+        { id: 'c', title: 'C', files: ['style.css'], dependsOn: ['a'] }
+      ]
+    })
+    const p = parallelizeWithContract(plan)
+    expect(p.tasks.find((t) => t.id === 'b')!.dependsOn).toEqual(['a'])
+    expect(p.tasks.find((t) => t.id === 'c')!.dependsOn).toEqual([])
+  })
+  const canFit = (t: { files: string[]; description: string }) => t.files.length <= 1 && !/(^|\n)\s*2\.\s/.test(t.description)
+  it('splits an oversized 3-file task into one task per file and re-points what depended on it', () => {
+    const plan = normalizePlan('g', {
+      tasks: [
+        { id: 'game', title: 'Game', description: 'canvas id "game"', files: ['index.html', 'game.js', 'style.css'] },
+        { id: 'docs', title: 'Docs', files: ['README.txt'], dependsOn: ['game'] }
+      ]
+    })
+    const p = splitOversized(plan, canFit)
+    expect(p.tasks.filter((t) => t.id !== 'docs').map((t) => t.files)).toEqual([['index.html'], ['game.js'], ['style.css']])
+    expect(p.tasks.find((t) => t.id === 'docs')!.dependsOn).toHaveLength(3)
+  })
+  it('splits a one-file task with numbered jobs into parts that run in order', () => {
+    const plan = normalizePlan('g', { tasks: [{ id: 'app', title: 'App', description: 'Shared state in window.app.\n1. Graph logic.\n2. Rendering.', files: ['app.js'] }] })
+    const p = splitOversized(plan, canFit)
+    expect(p.tasks).toHaveLength(2)
+    expect(p.tasks[0].description).toContain('Graph logic')
+    expect(p.tasks[0].description).toContain('window.app')
+    expect(p.tasks[1].description).toContain('Rendering')
+    expect(p.tasks[1].dependsOn).toEqual([p.tasks[0].id])
+  })
+  it('never grows a plan past 12 tasks', () => {
+    const tasks = Array.from({ length: 11 }, (_, i) => ({ id: `t${i}`, title: `T${i}`, files: [`f${i}.js`] }))
+    tasks.push({ id: 'big', title: 'Big', files: ['a.js', 'b.js', 'c.js'] })
+    const p = splitOversized(normalizePlan('g', { tasks }), canFit)
+    expect(p.tasks.length).toBeLessThanOrEqual(12)
+  })
+})

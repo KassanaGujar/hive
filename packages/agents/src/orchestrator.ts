@@ -11,10 +11,13 @@ import type {
   ToolCall,
   ToolSpec
 } from '@hive/shared'
-import { rankTeam, extractJson, stripThinking } from '@hive/models'
+import { promises as fsp } from 'node:fs'
+import type { AgentPlan, PlanTask } from '@hive/shared'
+import { rankTeam, extractJson, stripThinking, capacityOf } from '@hive/models'
 import { classifyCommand } from './policy'
-import { allSettled, enforceFileOwnership, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, splitForParallelism, starvedTasks } from './scheduler'
-import { architectPlanPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
+import { allSettled, enforceFileOwnership, MAX_PLAN_TASKS, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, replaceTask, splitForParallelism, splitOversized, starvedTasks } from './scheduler'
+import { architectPlanPrompt, architectSplitPrompt, leadReviewPrompt, workerSystemPrompt } from './prompts'
+import { estimateTask, fits } from './sizing'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
 
@@ -149,7 +152,9 @@ export class Orchestrator {
     const { run } = ctl
     const files = (await listFiles(ctl.root, '.', 300)).join('\n')
     const workers = ctl.workerPool.map((w) => w.name)
-    let prompt = architectPlanPrompt(run.goal, files, workers)
+    const workerOut = Math.min(...ctl.workerPool.map((w) => this.capacity(w.model).maxOutput))
+    const strongOut = Math.max(...this.teamModels(ctl).map((m) => this.capacity(m).maxOutput))
+    let prompt = architectPlanPrompt(run.goal, files, workers, { workerMaxOutput: workerOut, strongMaxOutput: strongOut })
     if (ctl.prd) prompt += `
 
 The team's plan document (PRD / MVP) — build exactly this:
@@ -168,7 +173,12 @@ ${ctl.prd.slice(0, 8000)}`
       ])
       raw = extractJson(res.text)
     }
-    const plan = parallelizeWithContract(splitForParallelism(enforceFileOwnership(normalizePlan(run.goal, raw)), workers.length))
+    const sizes = await fileSizes(ctl.root, files.split('\n').filter(Boolean))
+    const canFit = (t: PlanTask) => this.teamModels(ctl).some((m) => fits(estimateTask(t, sizes), this.capacity(m)))
+    let shaped = enforceFileOwnership(normalizePlan(run.goal, raw), canFit)
+    shaped = await this.splitWithArchitect(ctl, shaped, canFit)
+    shaped = splitOversized(enforceFileOwnership(shaped, canFit), canFit)
+    const plan = parallelizeWithContract(splitForParallelism(shaped, workers.length))
     routeTasks(plan.tasks, workers)
     for (const t of plan.tasks) this.log(ctl, 'architect', undefined, `Router: "${t.title}" → ${t.owner}${t.dependsOn.length ? ` (after ${t.dependsOn.join(', ')})` : ''}`)
     run.plan = plan
@@ -177,6 +187,43 @@ ${ctl.prd.slice(0, 8000)}`
     this.setAgent(ctl, 'architect', { status: 'waiting' })
     this.log(ctl, 'architect', undefined, `Plan ready: ${plan.tasks.length} task(s). Waiting for your approval.`)
     this.emit(ctl)
+  }
+
+  /** Every distinct model on the team (architect, leads, workers). */
+  private teamModels(ctl: RunCtl): InstalledModel[] {
+    const all = [ctl.team.architect, ...ctl.team.leads, ...ctl.team.workers].filter(Boolean) as InstalledModel[]
+    return [...new Map(all.map((m) => [m.id, m])).values()]
+  }
+
+  private capacity(m: InstalledModel) {
+    return capacityOf(m)
+  }
+
+  /**
+   * A planned task no team model can do goes back to the architect once to be broken up (at most 4 such asks per
+   * plan, to save scarce free quota). A reply that is not usable is ignored; splitOversized then splits by rule.
+   */
+  private async splitWithArchitect(ctl: RunCtl, plan: AgentPlan, canFit: (t: PlanTask) => boolean): Promise<AgentPlan> {
+    const tooBig = plan.tasks.filter((t) => !canFit(t)).slice(0, 4)
+    const workerOut = Math.min(...ctl.workerPool.map((w) => this.capacity(w.model).maxOutput))
+    let out = plan
+    for (const big of tooBig) {
+      if (out.tasks.length >= MAX_PLAN_TASKS) break
+      this.log(ctl, 'architect', undefined, `"${big.title}" is too big for any model on the team; splitting it…`)
+      const res = await this.chat(ctl, 'architect', undefined, ctl.team.architect, [
+        { role: 'system', content: 'You are a precise software architect. You answer with JSON only.' },
+        { role: 'user', content: architectSplitPrompt(big, workerOut) }
+      ])
+      const raw = extractJson(res.text)
+      if (!raw) continue
+      const sub = normalizePlan(big.title, raw).tasks
+      if (sub.length < 2 || out.tasks.length - 1 + sub.length > MAX_PLAN_TASKS) continue
+      const ids = new Map(sub.map((s) => [s.id, `${big.id}-${s.id}`.slice(0, 60)]))
+      const parts = sub.map((s) => ({ ...s, id: ids.get(s.id)!, owner: undefined, dependsOn: [...big.dependsOn, ...s.dependsOn.map((d) => ids.get(d) ?? d)] }))
+      out = replaceTask(out, big.id, parts)
+      this.log(ctl, 'architect', undefined, `Split "${big.title}" into ${parts.length} tasks.`)
+    }
+    return out
   }
 
   async approvePlan(runId: string, approved: boolean) {
@@ -758,6 +805,17 @@ export function fileFromReply(text: string, file: string): string | null {
 }
 
 /** Current contents of the task's files, so small models edit instead of overwriting blindly. */
+/** Sizes (chars, from bytes) of existing project files, for task size estimates. Unreadable files are skipped. */
+async function fileSizes(root: string, files: string[]): Promise<Record<string, number>> {
+  const out: Record<string, number> = {}
+  await Promise.all(files.map(async (f) => {
+    try {
+      out[f] = (await fsp.stat(path.join(root, f))).size
+    } catch {}
+  }))
+  return out
+}
+
 async function ownedFileContents(root: string, files: string[]): Promise<string> {
   let out = ''
   for (const f of files.slice(0, 6)) {

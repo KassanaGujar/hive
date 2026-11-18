@@ -1,6 +1,13 @@
 import type { AgentTask } from '@hive/shared'
 
-export function architectPlanPrompt(goal: string, fileList: string, workerNames: string[]): string {
+/** About 12 tokens per line of code; aim for 80% of the reply budget. */
+export const linesFor = (maxOutput: number) => Math.max(20, Math.round((maxOutput * 0.8) / 12))
+
+export function architectPlanPrompt(goal: string, fileList: string, workerNames: string[], budget?: { workerMaxOutput: number; strongMaxOutput: number }): string {
+  const sizeRule = budget
+    ? `- Each task must be small enough for its worker: about ${linesFor(budget.workerMaxOutput)} lines of code to write. Split anything bigger
+  into separate tasks (one file or one group of functions each). Up to 12 tasks. Each task owns different files.`
+    : '- 1 to 6 tasks. Fewer is better for small projects. Each task owns different files.'
   return `You are the Architect of a small AI coding team. Break the goal into a short plan of concrete
 coding tasks that smaller worker models can each finish alone in one sitting.
 
@@ -12,7 +19,7 @@ ${fileList || '(empty project)'}
 Workers available: ${workerNames.join(', ')}
 
 Rules:
-- 1 to 6 tasks. Fewer is better for small projects. Each task owns different files.
+${sizeRule}
 - Workers run AT THE SAME TIME, so make tasks independent: leave dependsOn empty unless a task truly
   cannot be written without another task's finished file.
 - Agree the shared contract up front and repeat it in EVERY task description: file names, element ids,
@@ -26,6 +33,19 @@ Reply with ONLY JSON in this shape:
   {"id": "short-id", "title": "...", "description": "what to build, in detail", "files": ["path"],
    "dependsOn": [], "owner": "${workerNames[0] ?? 'worker'}", "acceptance": "..."}
 ]}`
+}
+
+/** One planned task is too big for every model on the team: ask the architect to break it up. */
+export function architectSplitPrompt(task: { title: string; description: string; files: string[] }, maxOutput: number): string {
+  return `Split this task into 2 to 4 smaller tasks. Each must be about ${linesFor(maxOutput)} lines of code or less,
+own different files (new file names are fine; say which file loads which), and repeat the shared names
+(element ids, function names, window globals) it needs.
+
+Task: ${task.title}
+Details: ${task.description}
+Files: ${task.files.join(', ') || '(none listed)'}
+
+Reply with ONLY JSON: {"tasks": [{"id": "short-id", "title": "...", "description": "...", "files": ["path"], "dependsOn": [], "acceptance": "..."}]}`
 }
 
 export function workerSystemPrompt(task: AgentTask, fileList: string, notes?: string): string {
