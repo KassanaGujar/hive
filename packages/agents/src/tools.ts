@@ -23,6 +23,15 @@ export const AGENT_TOOLS: ToolSpec[] = [
     }
   },
   {
+    name: 'edit_file',
+    description: 'Change part of an existing file: replaces the exact text "find" (must appear once) with "replace". Use this instead of rewriting a whole file.',
+    parameters: {
+      type: 'object',
+      properties: { path: { type: 'string' }, find: { type: 'string', description: 'exact text copied from the file' }, replace: { type: 'string' } },
+      required: ['path', 'find', 'replace']
+    }
+  },
+  {
     name: 'search',
     description: 'Search file contents for a plain-text query. Returns path:line: text.',
     parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] }
@@ -133,6 +142,13 @@ export interface ToolResult {
   done?: { summary: string }
 }
 
+/** Writes are limited to the task's own files; other agents own the rest. Returns the refusal, or null. */
+function notOwned(ctx: ToolContext, p: string): string | null {
+  const norm = (f: string) => f.replace(/\\/g, '/').replace(/^\.?\//, '').toLowerCase()
+  if (!ctx.allowedPaths?.length || ctx.allowedPaths.some((a) => norm(a) === norm(p))) return null
+  return `Error: you only own ${ctx.allowedPaths.join(', ')}. ${p} belongs to another agent — do not write it. Write ${ctx.allowedPaths[0]} instead.`
+}
+
 export async function executeTool(ctx: ToolContext, name: string, args: Record<string, any>): Promise<ToolResult> {
   try {
     switch (name) {
@@ -148,15 +164,29 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
         const w = normalizeWriteArgs(args, ctx.defaultPath)
         if (typeof w.content !== 'string') return { output: 'Error: write_file needs "path" and "content" (the full file text)' }
         if (!w.path) return { output: 'Error: write_file needs "path" (which file to write)' }
-        const norm = (f: string) => f.replace(/\\/g, '/').replace(/^\.?\//, '').toLowerCase()
-        if (ctx.allowedPaths?.length && !ctx.allowedPaths.some((a) => norm(a) === norm(w.path!))) {
-          return { output: `Error: you only own ${ctx.allowedPaths.join(', ')}. ${w.path} belongs to another agent — do not write it. Write ${ctx.allowedPaths[0]} instead.` }
-        }
+        const refused = notOwned(ctx, w.path)
+        if (refused) return { output: refused }
         const abs = safeResolve(ctx.root, w.path)
         await fs.mkdir(path.dirname(abs), { recursive: true })
         await fs.writeFile(abs, w.content, 'utf8')
         ctx.onWrite?.(w.path)
         return { output: `Wrote ${w.path} (${w.content.length} chars)` }
+      }
+      case 'edit_file': {
+        const p = typeof args.path === 'string' && args.path.trim() ? args.path.trim().replace(/^\.\//, '') : ctx.defaultPath
+        const find = typeof args.find === 'string' ? args.find : ''
+        const replace = typeof args.replace === 'string' ? args.replace : ''
+        if (!p || !find) return { output: 'Error: edit_file needs "path", "find" (exact text from the file) and "replace"' }
+        const refused = notOwned(ctx, p)
+        if (refused) return { output: refused }
+        const abs = safeResolve(ctx.root, p)
+        const text = await fs.readFile(abs, 'utf8')
+        const count = text.split(find).length - 1
+        if (count === 0) return { output: `Error: text not found in ${p}; read_file it and copy the exact text` }
+        if (count > 1) return { output: `Error: text appears ${count} times in ${p}; include more surrounding lines so it matches once` }
+        await fs.writeFile(abs, text.replace(find, () => replace), 'utf8')
+        ctx.onWrite?.(p)
+        return { output: `Edited ${p} (${find.length} → ${replace.length} chars)` }
       }
       case 'search': {
         const hits = await searchFiles(ctx.root, String(args.query ?? ''))

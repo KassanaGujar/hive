@@ -40,6 +40,7 @@ ${notes ? `\nReviewer notes from the last round — fix these:\n${notes}\n` : ''
 Project files right now:
 ${fileList || '(empty)'}
 
+For a file that already exists, change it with edit_file; use write_file only for new files or a full rewrite.
 Work step by step: look at what exists, write complete files (no placeholders or TODOs), then call
 report_done with a one-paragraph summary. Do not ask questions; make reasonable choices.`
 }

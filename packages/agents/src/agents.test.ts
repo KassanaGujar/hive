@@ -248,3 +248,36 @@ describe('ownership + messy write args (Snake run 3)', () => {
     expect(rf(path.join(root, 'game.js'), 'utf8')).toBe('let g = 1')
   })
 })
+
+import { writeFileSync as wf } from 'node:fs'
+describe('edit_file: change part of a file without re-sending it', () => {
+  const setup = (text: string) => {
+    const root = mkd(path.join(td(), 'hive-edit-'))
+    wf(path.join(root, 'game.js'), text)
+    return { root, runCommand: async () => '', allowedPaths: ['game.js'] }
+  }
+  it('replaces exactly one occurrence', async () => {
+    const ctx = setup('let score = 0\nfunction draw() {}\n')
+    const r = await executeTool(ctx, 'edit_file', { path: 'game.js', find: 'let score = 0', replace: 'let score = 10' })
+    expect(r.output).toMatch(/^Edited game\.js/)
+    expect(rf(path.join(ctx.root, 'game.js'), 'utf8')).toBe('let score = 10\nfunction draw() {}\n')
+  })
+  it('says so when the text is not there', async () => {
+    const ctx = setup('let a = 1\n')
+    const r = await executeTool(ctx, 'edit_file', { path: 'game.js', find: 'let b', replace: 'x' })
+    expect(r.output).toMatch(/^Error: text not found in game\.js; read_file it and copy the exact text/)
+  })
+  it('refuses an ambiguous edit', async () => {
+    const ctx = setup('x()\nx()\n')
+    const r = await executeTool(ctx, 'edit_file', { path: 'game.js', find: 'x()', replace: 'y()' })
+    expect(r.output).toMatch(/^Error: text appears 2 times/)
+    expect(rf(path.join(ctx.root, 'game.js'), 'utf8')).toBe('x()\nx()\n')
+  })
+  it('refuses files another agent owns', async () => {
+    const ctx = setup('a')
+    wf(path.join(ctx.root, 'index.html'), '<p>')
+    const r = await executeTool(ctx, 'edit_file', { path: 'index.html', find: '<p>', replace: '<div>' })
+    expect(r.output).toMatch(/belongs to another agent/)
+    expect(rf(path.join(ctx.root, 'index.html'), 'utf8')).toBe('<p>')
+  })
+})

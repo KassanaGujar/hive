@@ -376,7 +376,7 @@ ${ctl.prd.slice(0, 3000)}` : '')
           call.name,
           call.arguments
         )
-        if (call.name === 'write_file' && !result.output.startsWith('Error')) writes++
+        if ((call.name === 'write_file' || call.name === 'edit_file') && !result.output.startsWith('Error')) writes++
         if (result.output.startsWith('Error')) this.log(ctl, worker.name, task.id, `  ✗ ${result.output.slice(0, 200)}`)
         // It pasted the file in its reply but the tool call failed or was only "done": save the paste.
         if (result.done && writes === 0 && task.files.length === 1) {
@@ -786,6 +786,9 @@ function trimHistory(messages: ChatMessage[]) {
       for (const c of m.toolCalls) {
         if (typeof c.arguments.content === 'string' && (c.arguments.content as string).length > 300) {
           c.arguments = { ...c.arguments, content: '(file content written earlier, trimmed)' }
+        }
+        for (const k of ['find', 'replace']) {
+          if (typeof c.arguments[k] === 'string' && (c.arguments[k] as string).length > 300) c.arguments = { ...c.arguments, [k]: '(edit text, trimmed)' }
         }
       }
     }
