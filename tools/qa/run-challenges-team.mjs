@@ -13,7 +13,8 @@ const only = process.argv.slice(2)
 // QA_TAG labels a model setup (e.g. "qwen3.5-4b") so its results sit beside, not over, other setups' results.
 const TAG = process.env.QA_TAG ? ` ${process.env.QA_TAG}` : ''
 const list = CHALLENGES.filter((c) => (only.length ? only.includes(c.id) : c.phase === 'P6'))
-const a = await new Hive('team', 9460).launch()
+// QA_PROFILE=<name>: reuse a kept profile (e.g. 'cloud', which holds the user's free OpenRouter key) instead of a fresh one.
+const a = await new Hive(process.env.QA_PROFILE ?? 'team', 9460).launch({ keep: !!process.env.QA_PROFILE })
 await a.profileAs('Tess')
 // Hive reopens the last project on launch. Let that finish before opening the test project, or it can land afterwards
 // and switch the app to a stale folder mid-run (it did: the merge then went to a half-deleted folder with no .git).

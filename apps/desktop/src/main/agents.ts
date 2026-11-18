@@ -32,7 +32,17 @@ export const orchestrator = new Orchestrator({
   async chat(model, messages, tools, { signal, onText }) {
     // Cap each reply: a small local model can loop without ever going quiet (Qwen3 4B produced one plan reply for an
     // hour, past its whole context), and the stall timer only catches silence. 6k tokens fits a whole game file.
-    return chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
+    // Free hosted models are often briefly rate-limited (429 "temporarily rate-limited upstream"). Wait and retry
+    // rather than failing the task; a daily quota ("per-day") won't clear in minutes, so that fails at once.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await chatResultFrom(streamChat(endpointFor(model), messages, { tools, signal, maxTokens: AGENT_MAX_REPLY_TOKENS }), onText)
+      } catch (e) {
+        const msg = (e as Error).message ?? ''
+        if (!/\(429\)/.test(msg) || /per[- ]day/i.test(msg) || attempt >= 4 || signal?.aborted) throw e
+        await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
+      }
+    }
   },
   git: gitOps,
   exec: execCapture,
