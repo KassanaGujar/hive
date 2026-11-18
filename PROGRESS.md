@@ -1,12 +1,11 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (2026-11-17 18:40): AI team rerun done, report updated
-1. ✅ All local model setups run through the AI team (see qa-checklist Phase 6 note, qa-report bugs + challengeNotes).
-   Best: Qwen2.5 Coder 7B alone, Tic-Tac-Toe 7/8 by clicking (tools/qa/ui-check.mjs). Limit = ~3 GB free VRAM.
-2. ✅ Fixed: project-switch merge (ctl.root), 5-min fetch timeout, think:false, 6k reply cap, model delete feedback.
-3. User actions left: add an Anthropic/OpenRouter key for a strong architect and rerun
-   (HIVE_TEAM_MODELS=... QA_TAG=... node tools/qa/run-challenges-team.mjs snake tictactoe); restart Ollama with GPU
-   apps closed to retry Qwen 3.5; wrangler deploy; Phase 10 with real users; delete unused models (user OK first).
+## 🔖 RESUME HERE (2026-11-17 23:00): free hosted models work
+1. ✅ Free keys (user added) live in the kept QA profile ~/dev-cache/hive/qa/profile-cloud (OpenRouter + Groq).
+   Run: QA_PROFILE=cloud HIVE_TEAM_MODELS=groq-gpt-oss-120b,groq-gpt-oss-20b QA_TAG=groq-free node tools/qa/run-challenges-team.mjs <ids>
+2. ✅ Tic-Tac-Toe 8/8 (OpenRouter), Snake 9/10 (Groq). Six team fixes landed (see qa-report bugs).
+3. ⏭ Next: re-run the other Phase 6–8 challenges on Groq/OpenRouter within free limits (OpenRouter ~50 req/day,
+   Groq 8k tokens/min); only local qwen2.5-coder:7b remains installed. User still owes: wrangler deploy, Phase 10 users.
 
 ## 🔁 Follow-up in progress (2026-11-17 night)
 - The user (via the side session) disputed "7B model too weak": Phases 6–8 used Ask AI directly, never the AI team.

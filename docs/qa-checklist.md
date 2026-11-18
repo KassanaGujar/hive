@@ -377,7 +377,9 @@ eggs
 > - Qwen3 4B alone: no plan within 30 min, twice (3 tokens/s, 21% of the model on the CPU).
 > - Qwen 3.5 4B / 9B: Ollama could not load them on this PC.
 > - Bugs found and fixed on the way: wrong-project merge, 5-minute fetch timeout, hidden thinking, runaway replies, silent model delete.
-> - Not run: hosted/Claude architect (needs a key from the user).
+> - **Free hosted models (user's free keys):** Tic-Tac-Toe **8/8 in 5 min** (OpenRouter: Nemotron 3 Ultra + North Mini Code); Snake **9/10 in 7 min** (Groq: gpt-oss 120B + 20B; only the game-over message missing).
+> - Hosted runs found 6 more Hive bugs, all fixed with tests: empty messages (Cohere 400), integration couldn't create a failed worker's file, team contract missing element ids, no retry on busy models / garbled tool calls, key check too lenient.
+> - Free-tier limits: OpenRouter ~50 free requests/day without credits; Groq 8,000 tokens/minute.
 
 ### 3. Space Invaders
 - [F] Player movement — x 220→220

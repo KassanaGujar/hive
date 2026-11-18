@@ -275,46 +275,36 @@
   "title": "1. Snake Game",
   "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
   "plan": [
-   "Create index.html skeleton: index.html",
-   "Implement game logic and rendering in game.js: game.js",
-   "Add dark‑theme styling: style.css"
+   "Create index.html with canvas, score display, restart button and load game.js: index.html",
+   "Implement game.js with deterministic Snake logic, rendering, input, and timer: game.js"
   ],
   "tasks": [
    {
-    "title": "Create index.html skeleton",
+    "title": "Create index.html with canvas, score display, restart button and load game.js",
     "status": "merged"
    },
    {
-    "title": "Implement game logic and rendering in game.js",
-    "status": "merged"
-   },
-   {
-    "title": "Add dark‑theme styling",
-    "status": "merged"
+    "title": "Implement game.js with deterministic Snake logic, rendering, input, and timer",
+    "status": "failed"
    },
    {
     "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
+    "status": "merged"
    }
   ],
   "phase": "done",
-  "minutes": 4,
+  "minutes": 7,
   "final": {
-   "Create a playable Snake game": "not checked",
-   "Directional movement": "not checked",
-   "Food generation": "not checked",
-   "Snake growth": "not checked",
-   "Wall collision": "not checked",
-   "Self-collision": "not checked",
-   "Score tracking": "not checked",
-   "Game-over functionality": "not checked",
-   "Restart functionality": "not checked",
-   "The game runs without errors": "Uncaught TypeError: Cannot read properties of null (reading 'getContext')"
-  },
-  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:25:83"
+   "Create a playable Snake game": true,
+   "Directional movement": true,
+   "Food generation": true,
+   "Snake growth": true,
+   "Wall collision": true,
+   "Self-collision": true,
+   "Score tracking": true,
+   "Game-over functionality": "over=true moved after over=false message=false",
+   "Restart functionality": true,
+   "The game runs without errors": true
+  }
  }
 }

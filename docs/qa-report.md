@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-18 03:02 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-18 04:30 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -13,7 +13,7 @@ Every item of the plan was either run against the real app (real Electron window
 | AI / vibe coding | 25 | 3 | 0 |
 | Code execution | 21 | 4 | 0 |
 | Performance & stress | 25 | 2 | 0 |
-| Challenges: beginner | 24 | 90 | 0 |
+| Challenges: beginner | 41 | 91 | 10 |
 | Challenges: intermediate | 17 | 26 | 0 |
 | Challenges: advanced | 1 | 48 | 0 |
 | Collaborative challenges | 4 | 11 | 0 |
@@ -175,6 +175,23 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Detects draws — checked by clicking, like a player
 - 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Restart functionality — checked by clicking, like a player
 - 2. Tic-Tac-Toe (qwen2.5-coder-7b-solo, click-through) — Illegal moves are prevented — checked by clicking, like a player
+- 2. Tic-Tac-Toe (AI team openrouter-free) — A functional game board — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Two-player gameplay — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Turn management — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Detects winning combinations — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Detects draws — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — A scoreboard — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Restart functionality — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 2. Tic-Tac-Toe (AI team openrouter-free) — Illegal moves are prevented — AI team (architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free))
+- 1. Snake Game (AI team groq-free) — Create a playable Snake game _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Directional movement _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Food generation _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Snake growth _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Wall collision _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Self-collision _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Score tracking _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — Restart functionality _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
+- 1. Snake Game (AI team groq-free) — The game runs without errors _(passed after a fix)_ — AI team (architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier))
 
 ### Challenges: intermediate
 - 5. Kanban Task Manager — Task deletion _(passed after a fix)_ — after 3 round(s)
@@ -390,6 +407,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — A scoreboard** — team run failed: no plan: planning 
 - **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Restart functionality** — team run failed: no plan: planning 
 - **[Challenges: beginner] 2. Tic-Tac-Toe (AI team qwen3-4b-solo) — Illegal moves are prevented** — team run failed: no plan: planning 
+- **[Challenges: beginner] 1. Snake Game (AI team groq-free) — Game-over functionality** — over=true moved after over=false message=false
 
 ## 4. Blocked tests and why
 
@@ -408,6 +426,16 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **Record the number of AI-generated bugs** — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
 - **Record time spent coding vs coordinating** — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
 - **Collect feedback about the experience** — Needs two real people who have never used Hive (first-time understanding, coordination and feedback cannot be automated). The mechanics it depends on were tested in Phases 2, 3 and 9; a session script is in the report.
+- **1. Snake Game (AI team openrouter-free) — Create a playable Snake game** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Directional movement** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Food generation** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Snake growth** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Wall collision** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Self-collision** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Score tracking** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Game-over functionality** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — Restart functionality** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
+- **1. Snake Game (AI team openrouter-free) — The game runs without errors** — OpenRouter free daily limit (about 50 requests a day without credits) was used up before the rerun could plan; not a Hive or model result
 - **Phase 10 — 30-minute challenge with two first-time users** — Needs two real people who have never used Hive; an automated script cannot measure first-time understanding, coordination or give feedback. A script for the session is in the recommendations.
 
 ## 5. Bugs discovered
@@ -453,6 +481,12 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 37 | The AI lead reviewer approved code that ignored the brief's required test hook (window.game) | P6 AI team Tic-Tac-Toe | Medium (AI quality) | Open |
 | 38 | Ollama hangs loading Qwen 3.5 models on this PC ("timed out waiting for llama-server to start"), while other models load | P6 model comparison | Low (Ollama / environment) | Open |
 | 39 | All three free OpenRouter models in the catalog (Qwen3 Coder, gpt-oss 120B, Llama 3.3 70B) had stopped being free, so the store offered models that would fail | P6 setting up a hosted architect | High | Fixed |
+| 40 | Check key accepted an OpenRouter key that could not run models (it only asked whether the key exists); requests then failed with "401 User not found" shown as raw JSON | P6 hosted setup | Medium | Fixed |
+| 41 | Hive sent chat messages with empty content (e.g. the result of reading an empty file); Cohere models reject them, so every Snake task on North Mini Code failed | P6 OpenRouter Snake run | High | Fixed |
+| 42 | A briefly busy free model (429) failed the whole AI-team task | P6 OpenRouter setup (Gemma rate-limited) | Medium | Fixed |
+| 43 | A garbled tool call from gpt-oss ("read_file<\|channel\|>analysis") failed the game-logic task after one try | P6 Groq Snake run | Medium | Fixed |
+| 44 | The integration round could only edit files that already existed, so a file whose worker had failed (game.js) could never be created; it tried and was refused | P6 Groq Snake run | High | Fixed |
+| 45 | The team contract listed only file names, so element ids reached only the task that named them (index.html used #game, game.js guessed #gameCanvas and crashed) | P6 Groq Snake run | High | Fixed |
 
 ## 6. Bugs fixed
 
@@ -489,6 +523,12 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **Newer small models (Qwen 3.5 4B/9B) were missing from the model store** — Added to the catalog with conservative scores.
 - **Deleting a model in Models -> Installed failed silently when Ollama was down, and gave no sign of the space freed** — Confirm shows the size freed; success and failure are both reported.
 - **All three free OpenRouter models in the catalog (Qwen3 Coder, gpt-oss 120B, Llama 3.3 70B) had stopped being free, so the store offered models that would fail** — Catalog updated to current free models, and Hive now checks OpenRouter's live free list (hourly, last good list kept offline) and hides any catalog model that is no longer free from the store and the AI team (verified by re-adding a stale entry: it was hidden).
+- **Check key accepted an OpenRouter key that could not run models (it only asked whether the key exists); requests then failed with "401 User not found" shown as raw JSON** — Check key sends a real 1-token request; rejected keys and used-up daily limits get plain messages.
+- **Hive sent chat messages with empty content (e.g. the result of reading an empty file); Cohere models reject them, so every Snake task on North Mini Code failed** — Empty messages get a short placeholder (unit test).
+- **A briefly busy free model (429) failed the whole AI-team task** — The AI team waits and retries up to 4 times; a daily quota fails at once with a clear message.
+- **A garbled tool call from gpt-oss ("read_file<|channel|>analysis") failed the game-logic task after one try** — Rejected tool calls are retried twice.
+- **The integration round could only edit files that already existed, so a file whose worker had failed (game.js) could never be created; it tried and was refused** — Integration may write every file in the plan (regression test). In the final Groq run this is what produced the working game.
+- **The team contract listed only file names, so element ids reached only the task that named them (index.html used #game, game.js guessed #gameCanvas and crashed)** — Every element id and shared window global named anywhere in the plan is repeated in every task (regression test).
 
 ## 7. Unresolved bugs
 
@@ -602,7 +642,7 @@ Convergence was checked on every client by comparing both the shared document an
 | physics | engine.js | index.html, view.js | 3 | 1/11 · 1/11 |
 | pathfinding | algorithms.js | index.html, ui.js, style.css | 3 | 1/11 · 1/11 |
 
-Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead review). Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to 3 rounds, like a user would, and every feature was checked mechanically in a hidden browser window. Results reflect a 7B local model on a modest PC; a larger or hosted model would do much better. The first run happened before the context-window fix (Ollama capped prompts at 4,096 tokens): fixing it took the world generator from 0/10 to 9/10, Tic-Tac-Toe from 4/8 (best round) to 8/8 and pathfinding from 0/11 to 2/11; simple games were unchanged. Typical AI failures were genuine code bugs: functions the spec required but left out (placeFood(x,y), pf.reset), game state rebuilt on every call (nothing persisted), libraries used without importing them (THREE, SimplexNoise), and runtime errors (`this.nodes.push is not a function`). In the two-person challenges the halves often disagreed about the shared interface (both sides defining window.game), which is exactly the integration risk Phase 9 is meant to expose. AI team re-run (architect plans, workers build in separate git worktrees, lead reviews, then merge), Snake and Tic-Tac-Toe, with each model setup the PC could run: (1) Qwen2.5 Coder 7B architect/lead + Llama 3.2 3B workers: Snake 0/10, unfinished after 184 min; most of the time went on swapping the two models in and out of the 6 GB GPU. (2) Qwen2.5 Coder 7B alone: Snake 1/10 in 57 min (runs without errors but the snake never moves); Tic-Tac-Toe 1/8 by the test hook, which the AI left out, but 7/8 when checked by clicking like a player (16 min; only the scoreboard never updates). (3) Qwen3 4B alone: no plan within 30 min, twice; measured at 3 tokens/s because 21% of the model spilled onto the CPU, so one capped reply takes ~30 min. (4) Qwen 3.5 4B/9B: Ollama could not load them on this PC. Conclusion: the team pipeline itself works (it planned, built in worktrees, reviewed and merged, after the fixes above); the limit is compute, about 3 GB of free GPU memory. A hosted or larger model would be expected to do far better; this was not measured because no API key was available.
+Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead review). Each challenge was built only through Hive's Ask AI with the local qwen2.5-coder:7b model; failing features were fed back to the AI for up to 3 rounds, like a user would, and every feature was checked mechanically in a hidden browser window. Results reflect a 7B local model on a modest PC; a larger or hosted model would do much better. The first run happened before the context-window fix (Ollama capped prompts at 4,096 tokens): fixing it took the world generator from 0/10 to 9/10, Tic-Tac-Toe from 4/8 (best round) to 8/8 and pathfinding from 0/11 to 2/11; simple games were unchanged. Typical AI failures were genuine code bugs: functions the spec required but left out (placeFood(x,y), pf.reset), game state rebuilt on every call (nothing persisted), libraries used without importing them (THREE, SimplexNoise), and runtime errors (`this.nodes.push is not a function`). In the two-person challenges the halves often disagreed about the shared interface (both sides defining window.game), which is exactly the integration risk Phase 9 is meant to expose. AI team re-run (architect plans, workers build in separate git worktrees, lead reviews, then merge), Snake and Tic-Tac-Toe, with each model setup the PC could run: (1) Qwen2.5 Coder 7B architect/lead + Llama 3.2 3B workers: Snake 0/10, unfinished after 184 min; most of the time went on swapping the two models in and out of the 6 GB GPU. (2) Qwen2.5 Coder 7B alone: Snake 1/10 in 57 min (runs without errors but the snake never moves); Tic-Tac-Toe 1/8 by the test hook, which the AI left out, but 7/8 when checked by clicking like a player (16 min; only the scoreboard never updates). (3) Qwen3 4B alone: no plan within 30 min, twice; measured at 3 tokens/s because 21% of the model spilled onto the CPU, so one capped reply takes ~30 min. (4) Qwen 3.5 4B/9B: Ollama could not load them on this PC. Conclusion: the team pipeline itself works (it planned, built in worktrees, reviewed and merged, after the fixes above); the limit is compute, about 3 GB of free GPU memory. A hosted or larger model would be expected to do far better; this was then measured with free hosted models. Hosted free models (user-supplied free keys, no laptop GPU): Tic-Tac-Toe 8/8 in 5 min (OpenRouter: Nemotron 3 Ultra architect/lead + North Mini Code workers); Snake 9/10 in 7 min (Groq: gpt-oss 120B architect + gpt-oss 20B lead/workers; only the game-over message was missing). Reaching that took six Hive fixes found by these runs (empty messages, integration file rights, team contract ids, retries). Free-tier limits shaped the runs: OpenRouter allows about 50 free requests a day without credits (one Snake rerun was blocked by it) and Groq caps requests at 8,000 tokens a minute (larger review/integration requests were refused).
 
 ## 11. Architectural weaknesses
 
@@ -630,7 +670,7 @@ Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead 
 |---|---|---|
 | Core functionality | 90 | 18/19 core items pass (5 after fixes); back/forward not applicable; moving a file does not update imports. |
 | Multiplayer collaboration | 85 | 33/33 Phase 2 items pass after 11 fixes; 20 people converge; latency drifts from ~80 ms to ~220 ms over an hour of non-stop typing; the live relay still needs redeploying. |
-| AI coding capabilities | 50 | Ask AI handles everyday tasks well (Phase 3: 25/28; in the 3 misses the AI's output was wrong — a renamed export, a test API that doesn't exist, an unflagged contradiction — not yet re-tested with a stronger model or through the AI team) and follows the given file paths after the prompt fix; built directly with Ask AI and the local 7B model the challenge apps mostly failed (Phase 6: 15/34, Phase 7: 17/43, Phase 8: 1/49 features). These runs did not use Hive's AI team (architect + lead review); a control by another session with Claude Sonnet on the same briefs scored 8/8 (Tic-Tac-Toe) and 9/10 (Snake), so the result says 'a single 7B model without the team', not 'Hive cannot build these'. Re-run through the AI team with every local model this PC could run, the best result was Tic-Tac-Toe 7/8 by clicking (Qwen2.5 Coder 7B); Snake reached 1/10; the limit was about 3 GB of free GPU memory, not the team pipeline. |
+| AI coding capabilities | 60 | Ask AI handles everyday tasks well (Phase 3: 25/28; in the 3 misses the AI's output was wrong — a renamed export, a test API that doesn't exist, an unflagged contradiction — not yet re-tested with a stronger model or through the AI team) and follows the given file paths after the prompt fix; built directly with Ask AI and the local 7B model the challenge apps mostly failed (Phase 6: 15/34, Phase 7: 17/43, Phase 8: 1/49 features). These runs did not use Hive's AI team (architect + lead review); a control by another session with Claude Sonnet on the same briefs scored 8/8 (Tic-Tac-Toe) and 9/10 (Snake), so the result says 'a single 7B model without the team', not 'Hive cannot build these'. Re-run through the AI team with every local model this PC could run, the best result was Tic-Tac-Toe 7/8 by clicking (Qwen2.5 Coder 7B); Snake reached 1/10; the limit was about 3 GB of free GPU memory, not the team pipeline. With free hosted models the AI team built Tic-Tac-Toe 8/8 in 5 min and Snake 9/10 in 7 min after six team fixes; Phases 7–8 not yet re-run that way (free daily limits). |
 | Code execution reliability | 80 | 21/25: runs, input, streaming output, stop, restart and errors with file:line all work; no limits or sandbox (by design). |
 | Data persistence | 85 | Settings, projects and shared state survive restarts, crashes and a relay restart after fixes; offline edits merge 3-way with a conflict copy. |
 | Performance | 75 | Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms p95, Run notices a program's exit 4-8 s late, and the local 7B model reads prompts at ~15 tokens/s on this PC. |
@@ -638,6 +678,6 @@ Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead 
 | Security | 60 | End-to-end encrypted rooms, outsiders can't read projects, view-only links now enforced by the relay (needs deploy); Run executes code with full user rights. |
 | Error handling | 80 | Plain-language errors, AI timeouts and provider errors surfaced; a few failures still only show in the terminal (missing npm packages). |
 | Recovery from failures | 85 | Reconnect, offline edits, relay restart, crash restart and AI undo all recover without data loss after fixes. |
-| **Overall** | **76** | average of the ten categories |
+| **Overall** | **77** | average of the ten categories |
 
-**Weakest categories:** AI coding capabilities (50), Security (60), User experience (65).
+**Weakest categories:** AI coding capabilities (60), Security (60), User experience (65).
