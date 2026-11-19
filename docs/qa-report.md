@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-19 01:03 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-19 03:04 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -660,10 +660,10 @@ Counts are recorded test results; one test can cover several checklist lines (th
 |---|---|---|---|---|
 | 1 | Every Run (and AI agent command) went through Windows PowerShell 5.1, which took ~14 s just to start on this PC | P3 broken-code check (Run still "running" after 15 s) | High (performance) | Fixed |
 | 2 | Run spent ~9 s looking up 18 tools before starting (cache cleared on every press) | P3 broken-code investigation | Medium | Fixed |
-| 3 | Run reports a program's exit 4–8 s (sometimes 15 s+) after it actually ended | P3/P4 timing | Low | Open |
+| 3 | Run reports a program's exit 4–8 s (sometimes 15 s+) after it actually ended | P3/P4 timing | Low | Fixed |
 | 4 | After closing one project and opening another, files with the same path (README.md, index.html) reused the old project's editor document: the old text could show and edits synced into the old project's session | P9 general checks (History empty after several projects) | Critical (data integrity) | Fixed |
 | 5 | History recorded your edit as nothing (its "before" text already contained the edit) and could attribute a teammate's simultaneous change to you | P9 general checks | High (collaboration clarity) | Fixed |
-| 6 | After switching between shared projects three times, each edit appeared twice in History | P9 investigation | Low (cosmetic) | Open |
+| 6 | After switching between shared projects three times, each edit appeared twice in History | P9 investigation | Low (cosmetic) | Fixed |
 | 7 | Local Ollama models silently ran with a 4,096-token context: prompts with project files were cut from the start (Hive's instructions and the request lost) and long replies stalled | P7 challenges (replies cut off), confirmed with ollama ps | High (AI quality on real projects) | Fixed |
 | 8 | Ask AI ignored files labelled "html index.html" or named in a heading before the code | P6 challenges (AI wrote no files) | Medium | Fixed |
 | 9 | A busy Ollama made Hive report an installed model as "not installed" | P6 challenges | Medium | Fixed |
@@ -709,13 +709,19 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 49 | A broken JSON tool call that Groq reports mid-reply ("Failed to parse tool call arguments as JSON") failed the Kanban styling task instead of being asked again | P7 hosted batch | Low | Fixed |
 | 50 | After a model fallback the task card still shows the originally assigned model (e.g. "North Mini Code") although a Groq model did the work; the switch is only in the app log | P6–P8 hosted batch | Low | Open |
 | 51 | The team-challenge harness never stopped a run that timed out, so it kept the one local model busy and the next challenges sat in planning (the right-sized local rerun: Snake overran 3 hours, then Tic-Tac-Toe and Breakout never got a plan) | Right-sized-tasks measurement | Medium (QA tooling only) | Fixed |
+| 52 | A project session closed before it had read its saved state saved an empty document over that state | Code review while fixing the History duplicates | High (offline edits could be lost) | Fixed |
+| 53 | Stopping a model reply early never hung up, so the model kept generating in the background | Right-sized-tasks measurement follow-up | Medium (wasted local GPU time) | Fixed |
+| 54 | A local model stuck repeating one block ran to the 6,144-token reply cap (2.5 hours on a slow GPU) | Right-sized-tasks measurement | Medium | Fixed |
+| 55 | Nothing told the user when the local model ran mostly on the processor (other apps holding the GPU), so a run crawled for hours with no explanation | Right-sized-tasks measurement | Medium | Fixed |
 
 ## 6. Bugs fixed
 
 - **Every Run (and AI agent command) went through Windows PowerShell 5.1, which took ~14 s just to start on this PC** — Run and agent commands use cmd.exe on Windows (starts instantly, handles &&); the interactive terminal stays PowerShell.
 - **Run spent ~9 s looking up 18 tools before starting (cache cleared on every press)** — Found tools stay cached and "not found" expires after a minute; only runtime tools are looked up (run:start 9 s to 40 ms).
+- **Run reports a program's exit 4–8 s (sometimes 15 s+) after it actually ended** — node-pty only reports an exit after 1 s with no output (each new output restarts that wait). Run now reads the exit code node-pty already has at the real exit: measured about 1 s sooner on an idle PC; the busy-PC case was not re-measured.
 - **After closing one project and opening another, files with the same path (README.md, index.html) reused the old project's editor document: the old text could show and edits synced into the old project's session** — Every file document is disposed when a project is closed or another is opened.
 - **History recorded your edit as nothing (its "before" text already contained the edit) and could attribute a teammate's simultaneous change to you** — Each file's last text is tracked; your pending entry is recorded up to the moment a teammate's change arrives.
+- **After switching between shared projects three times, each edit appeared twice in History** — A project session closed while it was still starting went on to register its disk listener, so each later save was recorded once more per such switch. A closed session now stops starting (unit test reproduces it).
 - **Local Ollama models silently ran with a 4,096-token context: prompts with project files were cut from the start (Hive's instructions and the request lost) and long replies stalled** — Local models use Ollama's native API with a 16k context (capped at the model's maximum); a secret-word test confirmed the instructions survive a long prompt.
 - **Ask AI ignored files labelled "html index.html" or named in a heading before the code** — Shared proposal parser understands the common labelling styles (unit-tested).
 - **A busy Ollama made Hive report an installed model as "not installed"** — Last good model list kept (also across restarts); lookup retried with a longer wait.
@@ -756,11 +762,13 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **The catalog still offered Groq Llama 3.3 70B after Groq retired it (404), and nothing checked Groq models were still served** — Groq models are checked against the live Groq model list (hourly, with the user key) like OpenRouter free models; Llama 3.3 70B replaced by Qwen3.8 27B.
 - **A broken JSON tool call that Groq reports mid-reply ("Failed to parse tool call arguments as JSON") failed the Kanban styling task instead of being asked again** — Treated like other garbled tool calls: retried twice (unit test).
 - **The team-challenge harness never stopped a run that timed out, so it kept the one local model busy and the next challenges sat in planning (the right-sized local rerun: Snake overran 3 hours, then Tic-Tac-Toe and Breakout never got a plan)** — The harness stops the run (agents:stop) whenever a challenge fails or times out. That rerun is not counted: other apps held the 6 GB GPU, Ollama fit only 9 of 29 layers on it (22 in the baseline) and wrote under 1 token a second.
+- **A project session closed before it had read its saved state saved an empty document over that state** — A session saves only after it has loaded its state (unit test).
+- **Stopping a model reply early never hung up, so the model kept generating in the background** — Both stream readers cancel the HTTP stream when the reader stops (unit tests for Ollama and OpenAI-style providers).
+- **A local model stuck repeating one block ran to the 6,144-token reply cap (2.5 hours on a slow GPU)** — A reply ending in one block repeated 5+ times (2,000+ characters) is cut to one copy and the request is stopped.
+- **Nothing told the user when the local model ran mostly on the processor (other apps holding the GPU), so a run crawled for hours with no explanation** — During a run Hive reads Ollama /api/ps every 30 s and shows a plain warning in the AI team panel when under 60% of the model is on the GPU. Not yet seen live (needs a loaded, offloaded model).
 
 ## 7. Unresolved bugs
 
-- **Run reports a program's exit 4–8 s (sometimes 15 s+) after it actually ended** — Exit codes are correct; the delay is in the Windows pseudo-console (ConPTY) on this busy PC. Not fixed.
-- **After switching between shared projects three times, each edit appeared twice in History** — Not root-caused yet; entries are duplicated, not lost or misattributed.
 - **Run has no sandbox, resource limits or timeout: programs can read any file, use the network and start processes as the user** — Same model as VS Code; recommendation below.
 - **Under 100% CPU, three windows reloading at once sometimes left a renderer unresponsive** — Not root-caused; main process stayed responsive. Harness avoids simultaneous reloads.
 - **The AI lead reviewer approved code that ignored the brief's required test hook (window.game)** — A model-quality limit of small local reviewers; the game was checked by clicking instead (7/8).
