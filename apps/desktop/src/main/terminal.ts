@@ -1,3 +1,4 @@
+import { onExitSoon } from './ptyExit'
 import os from 'node:os'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -96,9 +97,10 @@ export function createTerminal(opts: { cwd?: string; command?: string; env?: Rec
     entry.buffer = (entry.buffer + data).slice(-20000)
     emit('term:data', { id, data })
   })
+  // Run's status follows the real exit; the terminal itself closes once node-pty has flushed the last output.
+  if (entry.onExit) onExitSoon(p, (code) => entry.onExit?.(code))
   p.onExit(({ exitCode }) => {
     emit('term:exit', { id, code: exitCode })
-    entry.onExit?.(exitCode)
     terms.delete(id)
   })
   return id
