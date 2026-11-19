@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-18 06:55 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-19 01:03 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -708,6 +708,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 48 | The catalog still offered Groq Llama 3.3 70B after Groq retired it (404), and nothing checked Groq models were still served | P6 Groq setup | Medium | Fixed |
 | 49 | A broken JSON tool call that Groq reports mid-reply ("Failed to parse tool call arguments as JSON") failed the Kanban styling task instead of being asked again | P7 hosted batch | Low | Fixed |
 | 50 | After a model fallback the task card still shows the originally assigned model (e.g. "North Mini Code") although a Groq model did the work; the switch is only in the app log | P6–P8 hosted batch | Low | Open |
+| 51 | The team-challenge harness never stopped a run that timed out, so it kept the one local model busy and the next challenges sat in planning (the right-sized local rerun: Snake overran 3 hours, then Tic-Tac-Toe and Breakout never got a plan) | Right-sized-tasks measurement | Medium (QA tooling only) | Fixed |
 
 ## 6. Bugs fixed
 
@@ -754,6 +755,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **The model fallback never triggered: it looked for "(429)" but Hive had already rewritten the error into its friendly "(429, per-day)" message, so all 10 challenges of a batch failed at once** — One shared classifier decides quota / too large / busy / bad tool call for both the message and the retry logic (unit test with the real provider texts). The next batch moved work from OpenRouter to Groq as designed.
 - **The catalog still offered Groq Llama 3.3 70B after Groq retired it (404), and nothing checked Groq models were still served** — Groq models are checked against the live Groq model list (hourly, with the user key) like OpenRouter free models; Llama 3.3 70B replaced by Qwen3.8 27B.
 - **A broken JSON tool call that Groq reports mid-reply ("Failed to parse tool call arguments as JSON") failed the Kanban styling task instead of being asked again** — Treated like other garbled tool calls: retried twice (unit test).
+- **The team-challenge harness never stopped a run that timed out, so it kept the one local model busy and the next challenges sat in planning (the right-sized local rerun: Snake overran 3 hours, then Tic-Tac-Toe and Breakout never got a plan)** — The harness stops the run (agents:stop) whenever a challenge fails or times out. That rerun is not counted: other apps held the 6 GB GPU, Ollama fit only 9 of 29 layers on it (22 in the baseline) and wrote under 1 token a second.
 
 ## 7. Unresolved bugs
 

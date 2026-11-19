@@ -67,8 +67,9 @@ for (const c of list) {
   if (path.resolve(opened ?? '') !== path.resolve(dir)) throw new Error(`wrong project open: ${opened} (expected ${dir})`)
   const t0 = Date.now()
   const log = { title: c.title, team: teamDesc }
+  let runId
   try {
-    const runId = await a.invoke('agents:start', c.brief)
+    runId = await a.invoke('agents:start', c.brief)
     let run = await waitPhase(runId, ['awaiting-plan-approval'], 30 * 60000)
     log.plan = run?.tasks?.map((t) => `${t.title}: ${(t.files ?? []).join(', ')}`)
     assert(run?.phase === 'awaiting-plan-approval', 'no plan: ' + (run?.phase ?? 'timeout') + ' ' + (run?.error ?? ''))
@@ -83,6 +84,8 @@ for (const c of list) {
     log.phase = run?.phase
   } catch (e) {
     log.error = String(e.message ?? e).slice(0, 400)
+    // A timed-out run kept going and held the one local model: the next two challenges never got a plan (sized-local run).
+    if (runId) await a.invoke('agents:stop', runId).catch(() => {})
   }
   log.minutes = Math.round((Date.now() - t0) / 60000)
   const res = log.error ? { result: {}, errors: [] } : await probe(c, dir)
