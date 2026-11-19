@@ -11,7 +11,7 @@ import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
 import path from 'node:path'
-import { capacityOf, classifyModelError, limitsFromError, offloadMessage, replyTokensFor, slowLocalModel, streamChat } from '@hive/models'
+import { afterModelError, capacityOf, classifyModelError, limitsFromError, offloadMessage, replyTokensFor, slowLocalModel, streamChat } from '@hive/models'
 import { loadedModels } from './ollama'
 import { learnedCapacity, recordOutcome, type ModelStats } from '@hive/agents'
 
@@ -34,7 +34,6 @@ const teamModels = () => (teamOnly.length ? modelsCache.filter((m) => teamOnly.i
 // gpt-oss 20B hit its daily limit and eight challenges failed in seconds). Now the call moves to the best other team
 // model that still has room; a model out of daily quota is skipped for 6 hours.
 const exhaustedUntil = new Map<string, number>()
-const QUOTA_REST_MS = 6 * 60 * 60 * 1000
 const tierRank = { top: 3, lead: 2, worker: 1 } as Record<string, number>
 function standIns(model: InstalledModel, tried: Set<string>): InstalledModel[] {
   return teamModels()
@@ -58,7 +57,8 @@ export const orchestrator = new Orchestrator({
     const tried = new Set<string>()
     let current = (exhaustedUntil.get(model.id) ?? 0) > Date.now() ? (standIns(model, tried)[0] ?? model) : model
     if (current !== model) onModel?.(current)
-    for (let attempt = 0; ; attempt++) {
+    let tries = 0 // failures on the current model
+    for (;;) {
       try {
         const cap = capacityOf(current, learnedCapacity(store.get<ModelStats>('modelStats', {})[current.id]))
         const maxTokens = Math.min(AGENT_MAX_REPLY_TOKENS, replyTokensFor(cap))
@@ -69,7 +69,6 @@ export const orchestrator = new Orchestrator({
         // gpt-oss sometimes emits a garbled tool name ("read_file<|channel|>analysis") that the provider rejects.
         // It's random, so asking again usually works; it failed a whole Snake task on Groq after one try.
         const kind = classifyModelError(msg)
-        if (kind === 'bad-tool' && attempt < 2) continue
         const outOfQuota = kind === 'quota'
         // The provider names its own per-minute cap in the error ("OTPM: Limit 1000"): keep it so the router sizes
         // the next tasks for this model to fit, instead of learning it again from the next refusal.
@@ -79,22 +78,36 @@ export const orchestrator = new Orchestrator({
           const r = stats[current.id] ?? { ok: { small: 0, medium: 0, large: 0 }, failed: { small: 0, medium: 0, large: 0 } }
           store.set('modelStats', { ...stats, [current.id]: { ...r, learned: { ...r.learned, ...stated } } })
         }
-        if (outOfQuota || kind === 'too-big') {
-          if (outOfQuota) {
-            // OpenRouter's free allowance is per account: one model out means all of them are.
-            const rest = Date.now() + QUOTA_REST_MS
-            for (const m of current.source === 'openrouter' ? teamModels().filter((x) => x.source === 'openrouter') : [current]) exhaustedUntil.set(m.id, rest)
-          }
-          tried.add(current.id)
-          const next = standIns(current, tried)[0]
-          if (!next) throw e
-          console.log(`[agents] ${current.name} ${outOfQuota ? 'is out of free daily quota' : 'refused a request this large'}; using ${next.name}`)
-          current = next
-          onModel?.(current)
+        // Retry a little, then move the task to another team model: a briefly rate-limited Gemma and a gpt-oss
+        // sending broken tool calls each failed a whole task while other models on the team were free.
+        const step = afterModelError(kind, tries)
+        tries++
+        if (step.action === 'fail') throw e
+        if (step.action === 'retry') continue
+        if (step.action === 'wait') {
+          await new Promise((r) => setTimeout(r, step.ms))
           continue
         }
-        if (kind !== 'busy' || attempt >= 4) throw e
-        await new Promise((r) => setTimeout(r, 15000 * (attempt + 1)))
+        if (step.restMs) {
+          // OpenRouter's free allowance is per account: one model out of daily quota means all of them are.
+          const rest = Date.now() + step.restMs
+          for (const m of outOfQuota && current.source === 'openrouter' ? teamModels().filter((x) => x.source === 'openrouter') : [current]) exhaustedUntil.set(m.id, rest)
+        }
+        tried.add(current.id)
+        const next = standIns(current, tried)[0]
+        if (!next) {
+          // nobody else to ask: a busy model is still worth waiting for a while
+          if (kind === 'busy' && tries <= 4) {
+            await new Promise((r) => setTimeout(r, 15000 * tries))
+            continue
+          }
+          throw e
+        }
+        const why = { quota: 'is out of free daily quota', 'too-big': 'refused a request this large', busy: 'is rate-limited', 'bad-tool': 'keeps sending broken tool calls' }[kind ?? 'busy']
+        console.log(`[agents] ${current.name} ${why}; using ${next.name}`)
+        current = next
+        tries = 0
+        onModel?.(current)
       }
     }
   },
