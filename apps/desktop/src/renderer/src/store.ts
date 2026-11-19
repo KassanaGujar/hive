@@ -171,6 +171,8 @@ export const useStore = create<State>((set, get) => ({
   },
 
   setDirty: (path, dirty) => {
+    // unchanged: keep the same Set so nothing re-renders (this runs on every keystroke)
+    if (get().dirty.has(path) === dirty) return
     const d = new Set(get().dirty)
     if (dirty) d.add(path)
     else d.delete(path)

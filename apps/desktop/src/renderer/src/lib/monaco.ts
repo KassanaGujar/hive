@@ -56,11 +56,17 @@ export function setMonacoTheme(theme: 'dark' | 'light') {
 export const uriFor = (path: string) => monaco.Uri.parse(`hive:///${path}`)
 
 /** One Monaco model per open file, shared across split editors. */
+/** Above this size a file opens without language features (colours, outline, suggestions) so typing stays smooth. */
+export const LARGE_FILE_CHARS = 2_000_000
+
 export function getModel(path: string, content?: string): monaco.editor.ITextModel {
   const uri = uriFor(path)
   const existing = monaco.editor.getModel(uri)
   if (existing) return existing
-  const model = monaco.editor.createModel(content ?? '', languageFor(path), uri)
+  // Very large files open as plain text, like VS Code's large-file mode: the language worker re-analysed all 4.5 MB
+  // and rebuilt its outline after every keystroke, which made typing in a 100,000-line file lag (p95 50-77 ms).
+  const language = (content?.length ?? 0) > LARGE_FILE_CHARS ? 'plaintext' : languageFor(path)
+  const model = monaco.editor.createModel(content ?? '', language, uri)
   // Same line endings for Windows and Mac teammates: LF unless the file already uses CRLF.
   const CRLF = String.fromCharCode(13, 10)
   if (!(content ?? '').includes(CRLF)) model.setEOL(monaco.editor.EndOfLineSequence.LF)

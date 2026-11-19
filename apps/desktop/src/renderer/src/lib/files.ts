@@ -129,7 +129,9 @@ function watchForAutosave(path: string, model: monaco.editor.ITextModel) {
   if (listening.has(path)) return
   listening.add(path)
   model.onDidChangeContent(() => {
-    const dirty = model.getValue() !== saved.get(path)
+    // Compare lengths first: getValue() builds the whole text, 4.5 MB per keystroke in a 100,000-line file.
+    const was = saved.get(path)
+    const dirty = was === undefined || model.getValueLength() !== was.length || model.getValue() !== was
     useStore.getState().setDirty(path, dirty)
     if (dirty && useStore.getState().settings?.autosave) {
       clearTimeout(autosaveTimers.get(path))

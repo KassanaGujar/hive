@@ -17,7 +17,7 @@ export function EditorArea() {
       {groups.map((g, i) => (
         <div key={i} className={`flex min-w-0 flex-1 flex-col ${i > 0 ? 'border-l border-line' : ''}`}>
           <TabBar group={i} />
-          <div className="relative min-h-0 flex-1">{g.active ? <TabContent key={g.active} tabId={g.active} group={i} /> : <Empty />}</div>
+          <div className="relative min-h-0 flex-1">{g.active ? <TabContent key={g.active.startsWith('file:') ? 'file' : g.active} tabId={g.active} group={i} /> : <Empty />}</div>
         </div>
       ))}
     </div>
@@ -107,9 +107,10 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
   const reveal = useStore((s) => s.reveal)
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
-  useEffect(() => {
-    let disposed = false
-    let detach = () => {}
+  // One editor per pane, kept across file tabs: creating a Monaco editor on every tab switch cost ~45 ms a switch
+  // and lost the scroll position. Switching swaps the document and restores where you were in it.
+  const getEditor = () => {
+    if (editorRef.current) return editorRef.current
     const editor = monaco.editor.create(el.current!, {
       automaticLayout: true,
       fontSize: 13,
@@ -117,32 +118,33 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
       fontLigatures: false,
       lineHeight: 20,
       padding: { top: 10 },
-      renderLineHighlight: 'line',
       cursorBlinking: 'smooth',
-      minimap: { enabled: true, scale: 1 },
       scrollBeyondLastLine: false,
       smoothScrolling: true,
       tabSize: 2,
       readOnly: session()?.canEdit === false,
-      theme: theme === 'dark' ? 'hive-dark' : 'vs'
+      theme: theme === 'dark' ? 'hive-dark' : 'vs',
+      ...NORMAL_FILE
     })
-    editorRef.current = editor
     editor.onDidFocusEditorText(() => useStore.getState().set({ focusedGroup: group }))
+    editorRef.current = editor
+    return editor
+  }
+
+  useEffect(() => {
+    let disposed = false
+    let detach = () => {}
+    const editor = getEditor()
+    const key = `${group}:${path}`
+    setError(null)
     ensureModel(path)
       .then((model) => {
         if (disposed) return
         editor.setModel(model)
         // Very large files: drop the per-keystroke extras so typing stays smooth.
-        if (model.getLineCount() > 50_000) {
-          editor.updateOptions({
-            minimap: { enabled: false },
-            folding: false,
-            bracketPairColorization: { enabled: false },
-            occurrencesHighlight: 'off',
-            renderLineHighlight: 'none',
-            matchBrackets: 'never'
-          })
-        }
+        editor.updateOptions(model.getLineCount() > 50_000 ? LARGE_FILE : NORMAL_FILE)
+        const view = viewStates.get(key)
+        if (view) editor.restoreViewState(view)
         detach = attachEditor(path, editor)
         const r = useStore.getState().reveal
         if (r && r.path === path) jump(editor, r.line, r.col)
@@ -150,18 +152,53 @@ function CodeEditor({ path, group }: { path: string; group: number }) {
       .catch((e) => setError(e.message))
     return () => {
       disposed = true
+      if (editor.getModel()) viewStates.set(key, editor.saveViewState())
       detach()
-      editor.dispose()
     }
   }, [path])
+  // declared after the effect above so its cleanup (saving the view) runs before the editor is disposed
+  useEffect(
+    () => () => {
+      editorRef.current?.dispose()
+      editorRef.current = null
+    },
+    []
+  )
 
   useEffect(() => {
     if (reveal && reveal.path === path && editorRef.current?.getModel()) jump(editorRef.current, reveal.line, reveal.col)
   }, [reveal?.nonce])
 
-  if (error) return <div className="p-6 text-muted">Can't open {path}: {error}</div>
-  return <div ref={el} className="absolute inset-0" />
+  // the editor's element stays mounted (the same editor serves the next file tab); the error covers it
+  return (
+    <>
+      <div ref={el} className="absolute inset-0" />
+      {error && <div className="absolute inset-0 bg-bg p-6 text-muted">Can't open {path}: {error}</div>}
+    </>
+  )
 }
+
+const NORMAL_FILE: monaco.editor.IEditorOptions = {
+  minimap: { enabled: true, scale: 1 },
+  folding: true,
+  bracketPairColorization: { enabled: true },
+  occurrencesHighlight: 'singleFile',
+  renderLineHighlight: 'line',
+  matchBrackets: 'always',
+  stickyScroll: { enabled: true }
+}
+const LARGE_FILE: monaco.editor.IEditorOptions = {
+  minimap: { enabled: false },
+  folding: false,
+  bracketPairColorization: { enabled: false },
+  occurrencesHighlight: 'off',
+  renderLineHighlight: 'none',
+  matchBrackets: 'never',
+  // sticky scroll rebuilds the file's outline after every edit
+  stickyScroll: { enabled: false }
+}
+/** Where each file was scrolled to and its cursor, per pane, so switching tabs comes back to the same place. */
+const viewStates = new Map<string, monaco.editor.ICodeEditorViewState | null>()
 
 function jump(editor: monaco.editor.IStandaloneCodeEditor, line: number, col = 1) {
   editor.revealLineInCenter(line)
