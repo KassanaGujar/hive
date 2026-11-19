@@ -123,6 +123,16 @@ async function installMac(): Promise<{ ok: boolean; message: string }> {
  * Models Ollama has. While Ollama is busy generating it can take longer than the timeout to answer; then the
  * last good list is used, so a model that is installed is never reported as missing mid-conversation.
  */
+/** Models Ollama has loaded right now, with how much of each sits in GPU memory. Empty if Ollama is not reachable. */
+export async function loadedModels(): Promise<{ name: string; size: number; size_vram: number }[]> {
+  try {
+    const j = await fetchJson(`${OLLAMA_URL}/api/ps`, { timeoutMs: 3000 })
+    return (j.models ?? []).map((m: any) => ({ name: String(m.name), size: Number(m.size) || 0, size_vram: Number(m.size_vram) || 0 }))
+  } catch {
+    return []
+  }
+}
+
 let lastLocal: { name: string; size: number }[] | null = null
 export async function listLocal(): Promise<{ name: string; size: number }[]> {
   // Remembered across restarts too: a fresh Hive talking to a busy Ollama still knows what is installed.

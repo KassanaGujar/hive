@@ -56,6 +56,11 @@ export function AgentsPanel() {
   const [goal, setGoal] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const [logs, setLogs] = useState<Record<string, string[]>>({})
+  const [offload, setOffload] = useState<string | null>(null)
+  useEffect(() => {
+    invoke('models:offload').then(setOffload).catch(() => {})
+    return on('models:offload', setOffload)
+  }, [])
 
   const loadTeam = () => invoke('agents:team').then(setTeam)
   useEffect(() => {
@@ -129,6 +134,12 @@ export function AgentsPanel() {
             Start building
           </button>
         </div>
+
+        {offload && active && (
+          <div className="card mb-2 border-warn/60 p-3 text-[12px]" role="alert">
+            <b>Running slowly.</b> {offload}
+          </div>
+        )}
 
         {approvals.map((a) => (
           <div key={a.id} className="card mb-2 border-warn/60 p-3">

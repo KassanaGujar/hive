@@ -106,6 +106,8 @@ export interface IpcContract {
   'models:setTier': (id: string, tier: Tier | null) => void
   'models:testKey': (provider: string, key: string) => { ok: boolean; message: string }
   'models:connectHosted': (catalogId: string, connected: boolean) => void
+  /** Plain warning when a loaded local model is mostly on the processor (very slow), else null. */
+  'models:offload': () => string | null
   // the big library (live)
   'library:searchHF': (query: string) => HfModel[]
   'library:hfFiles': (repo: string) => HfFile[]
@@ -157,6 +159,8 @@ export interface IpcEvents {
   /** An agent just wrote this file (path relative to the project root). */
   'agents:file': { runId: string; agent: string; taskId: string; path: string }
   'agents:approval': ApprovalRequest
+  /** A loaded local model went mostly onto the processor (message) or back onto the GPU (null). */
+  'models:offload': string | null
   'feed:event': FeedEvent
   'updater:ready': { version: string; manual?: boolean }
   'app:openInvite': { link: string }

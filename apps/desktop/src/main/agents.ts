@@ -11,7 +11,8 @@ import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
 import path from 'node:path'
-import { capacityOf, classifyModelError, limitsFromError, replyTokensFor, streamChat } from '@hive/models'
+import { capacityOf, classifyModelError, limitsFromError, offloadMessage, replyTokensFor, slowLocalModel, streamChat } from '@hive/models'
+import { loadedModels } from './ollama'
 import { learnedCapacity, recordOutcome, type ModelStats } from '@hive/agents'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
@@ -129,6 +130,30 @@ export const orchestrator = new Orchestrator({
     emit('agents:file', { runId, agent, taskId, path: rel })
   }
 })
+
+// With games or other apps holding the graphics card, Ollama put only 9 of 29 layers of a 7B model on it, wrote under
+// 1 token a second, and one task ran 2.5 hours with nothing on screen saying why. Check while the team is working.
+const ACTIVE_PHASES = new Set(['planning', 'working', 'merging'])
+let offload: string | null = null
+const warnedRuns = new Set<string>()
+async function checkOffload() {
+  const active = orchestrator.list().filter((r) => ACTIVE_PHASES.has(r.phase))
+  const local = active.length > 0 && teamModels().some((m) => m.source === 'ollama')
+  const slow = local ? slowLocalModel(await loadedModels()) : null
+  const text = slow ? offloadMessage(slow) : null
+  if (text !== offload) {
+    offload = text
+    emit('models:offload', text)
+  }
+  if (!text) return
+  for (const r of active.filter((x) => !warnedRuns.has(x.id))) {
+    warnedRuns.add(r.id)
+    console.log(`[agents] ${text}`)
+    emit('agents:log', { runId: r.id, agent: 'architect', line: `Warning: ${text}` })
+  }
+}
+setInterval(() => void checkOffload().catch(() => {}), 30000).unref()
+export const offloadWarning = () => offload
 
 export async function startAgents(goal: string, preset?: { title: string; description: string }[], prd?: string) {
   await refreshModels()

@@ -11,7 +11,7 @@ import * as ollama from './ollama'
 import * as models from './models'
 import * as library from './library'
 import { scanHardware } from './hardware'
-import { orchestrator, startAgents, answerApproval, pendingApprovals, refreshModels, restoreRuns } from './agents'
+import { orchestrator, startAgents, answerApproval, pendingApprovals, refreshModels, restoreRuns, offloadWarning } from './agents'
 import { gitStatus, installGit } from './setup'
 import { initUpdater, checkForUpdates, installUpdate } from './updater'
 import { addFeed, listFeed } from './feed'
@@ -227,6 +227,7 @@ function registerHandlers() {
   handle('ollama:pulls', () => ollama.listPulls())
   handle('models:installed', () => refreshModels())
   handle('models:setTier', (id, t) => models.setTier(id, t))
+  handle('models:offload', () => offloadWarning())
   handle('models:testKey', (p, k) => models.testKey(p, k))
   handle('models:connectHosted', (id, on) => models.setHostedConnected(id, on))
   handle('library:searchHF', (q) => library.searchHF(q))
