@@ -801,38 +801,30 @@
   "title": "6. Pathfinding Visualizer",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Create index.html skeleton and UI: index.html",
-   "Define grid and visual styles: style.css",
-   "Implement app.js with grid model, UI handling, and algorithms: app.js"
+   "Create index.html and style.css with grid layout and UI controls — index.html: index.html",
+   "Create index.html and style.css with grid layout and UI controls — style.css: style.css",
+   "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c: app.js"
   ],
   "tasks": [
    {
-    "title": "Create index.html skeleton and UI",
+    "title": "Create index.html and style.css with grid layout and UI controls — index.html",
     "status": "merged"
    },
    {
-    "title": "Define grid and visual styles",
+    "title": "Create index.html and style.css with grid layout and UI controls — style.css",
     "status": "merged"
    },
    {
-    "title": "Implement app.js with grid model, UI handling, and algorithms",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
+    "title": "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c",
+    "status": "merged"
    }
   ],
   "phase": "done",
-  "minutes": 10,
+  "minutes": 6,
   "final": {
-   "An interactive grid": "window.pf missing",
-   "Users can place walls and obstacles": "not checked",
-   "Users can select a start point and destination": "not checked",
+   "An interactive grid": true,
+   "Users can place walls and obstacles": true,
+   "Users can select a start point and destination": true,
    "A* pathfinding": "not checked",
    "Dijkstra's algorithm": "not checked",
    "Breadth-First Search": "not checked",
@@ -841,22 +833,43 @@
    "Compares the algorithms' performance": "not checked",
    "Handles unreachable destinations": "not checked",
    "Each algorithm returns correct results": "not checked"
-  }
+  },
+  "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at valid (<anonymous>:10:48)\n    at <anonymous>:11:190\n    at <anonymous>:19:83"
  },
  "world@free-hosted": {
   "title": "7. Procedural World Generator",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Implement world.js with noise, generation, and player logic: world.js",
-   "Create index.html with canvas and controls: index.html"
+   "HTML skeleton and script loading: index.html",
+   "Seeded pseudo‑random number generator: prng.js",
+   "2D Simplex noise with octaves: noise.js",
+   "World generation and public API: world.js",
+   "Canvas rendering of the world: render.js",
+   "UI interaction and keyboard controls: input.js"
   ],
   "tasks": [
    {
-    "title": "Implement world.js with noise, generation, and player logic",
+    "title": "HTML skeleton and script loading",
     "status": "failed"
    },
    {
-    "title": "Create index.html with canvas and controls",
+    "title": "Seeded pseudo‑random number generator",
+    "status": "failed"
+   },
+   {
+    "title": "2D Simplex noise with octaves",
+    "status": "failed"
+   },
+   {
+    "title": "World generation and public API",
+    "status": "failed"
+   },
+   {
+    "title": "Canvas rendering of the world",
+    "status": "failed"
+   },
+   {
+    "title": "UI interaction and keyboard controls",
     "status": "failed"
    }
   ],
@@ -879,26 +892,26 @@
   "title": "8. Real-Time Chat Application",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Implement Node.js Server with SSE and Persistence: server.js",
-   "Build Frontend HTML and JavaScript Client: public/index.html, public/client.js",
-   "Create Hive Configuration: hive.json"
+   "Node.js server (server.js) with static files, SSE, API endpoints and persistence: server.js, hive.json, data/messages.json",
+   "Client HTML page (public/index.html) layout and element IDs: public/index.html",
+   "Client JavaScript (public/client.js) for UI interaction and server communication: public/client.js"
   ],
   "tasks": [
    {
-    "title": "Implement Node.js Server with SSE and Persistence",
+    "title": "Node.js server (server.js) with static files, SSE, API endpoints and persistence",
     "status": "failed"
    },
    {
-    "title": "Build Frontend HTML and JavaScript Client",
+    "title": "Client HTML page (public/index.html) layout and element IDs",
     "status": "failed"
    },
    {
-    "title": "Create Hive Configuration",
+    "title": "Client JavaScript (public/client.js) for UI interaction and server communication",
     "status": "failed"
    }
   ],
   "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 8,
+  "minutes": 0,
   "final": {
    "A chat interface": "team run failed: team did not finish: failed No task finished successfully.",
    "Multiple users": "team run failed: team did not finish: failed No task finished successfully.",
@@ -917,21 +930,46 @@
   "title": "9. Minecraft-Style Voxel Engine",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Implement Voxel Engine Core: engine.js",
-   "Create HTML Entry Point: index.html"
+   "HTML skeleton and UI: index.html",
+   "Engine core and main loop: engine.js",
+   "Chunk class and mesh generation: chunk.js",
+   "World management and chunk loading: world.js",
+   "Player physics, controls, and interaction: player.js",
+   "Persistence layer for block edits: storage.js",
+   "HUD stats and FPS counter: stats.js"
   ],
   "tasks": [
    {
-    "title": "Implement Voxel Engine Core",
+    "title": "HTML skeleton and UI",
     "status": "failed"
    },
    {
-    "title": "Create HTML Entry Point",
+    "title": "Engine core and main loop",
+    "status": "failed"
+   },
+   {
+    "title": "Chunk class and mesh generation",
+    "status": "failed"
+   },
+   {
+    "title": "World management and chunk loading",
+    "status": "failed"
+   },
+   {
+    "title": "Player physics, controls, and interaction",
+    "status": "failed"
+   },
+   {
+    "title": "Persistence layer for block edits",
+    "status": "failed"
+   },
+   {
+    "title": "HUD stats and FPS counter",
     "status": "failed"
    }
   ],
   "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 15,
+  "minutes": 4,
   "final": {
    "A 3D environment": "team run failed: team did not finish: failed No task finished successfully.",
    "A voxel-based world": "team run failed: team did not finish: failed No task finished successfully.",
@@ -952,54 +990,92 @@
   "title": "10. Physics Simulator",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Implement physics.js engine and window.sim API: physics.js",
-   "Build index.html UI, rendering loop, and controls: index.html"
+   "Create index.html with canvas and UI controls: index.html",
+   "Implement deterministic physics engine in physics.js: physics.js",
+   "Wire UI controls to the physics engine and run the main loop: ui.js"
   ],
   "tasks": [
    {
-    "title": "Implement physics.js engine and window.sim API",
+    "title": "Create index.html with canvas and UI controls",
+    "status": "merged"
+   },
+   {
+    "title": "Implement deterministic physics engine in physics.js",
+    "status": "merged"
+   },
+   {
+    "title": "Wire UI controls to the physics engine and run the main loop",
+    "status": "merged"
+   },
+   {
+    "title": "Make all the pieces work together (integration round 1)",
     "status": "failed"
    },
    {
-    "title": "Build index.html UI, rendering loop, and controls",
+    "title": "Make all the pieces work together (integration round 2)",
     "status": "failed"
    }
   ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 7,
+  "phase": "done",
+  "minutes": 18,
   "final": {
-   "An interactive physics simulation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Gravity": "team run failed: team did not finish: failed No task finished successfully.",
-   "Elastic collisions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Friction": "team run failed: team did not finish: failed No task finished successfully.",
-   "Particle systems": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can create objects": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can modify simulation parameters": "team run failed: team did not finish: failed No task finished successfully.",
-   "Interactions between hundreds of objects": "team run failed: team did not finish: failed No task finished successfully.",
-   "Conservation of momentum in appropriate collisions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Numerical stability": "team run failed: team did not finish: failed No task finished successfully.",
-   "Measured simulation performance": "team run failed: team did not finish: failed No task finished successfully."
+   "An interactive physics simulation": true,
+   "Gravity": "after 0.1 s at g=500: vy=0.00 (expected ~50)",
+   "Elastic collisions": "collided=false kinetic energy 8750→8750",
+   "Friction": "sliding ball vx after 1 s with friction 0.5: 200.0",
+   "Particle systems": "particles never expire",
+   "Users can create objects": "clicking the canvas added no ball",
+   "Users can modify simulation parameters": "3 sliders; params changed=false",
+   "Interactions between hundreds of objects": true,
+   "Conservation of momentum in appropriate collisions": "collided=false momentum -50.0→-50.0",
+   "Numerical stability": true,
+   "Measured simulation performance": true
   }
  },
  "chess@free-hosted": {
   "title": "11. Chess Engine",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
   "plan": [
-   "Implement Chess Game UI and Engine Wrapper — index.html: index.html",
-   "Implement Chess Game UI and Engine Wrapper — ui.js: ui.js"
+   "Create index.html skeleton: index.html",
+   "Implement engine.js – board representation and FEN load/export: engine.js",
+   "Implement movegen.js – legal move generation: movegen.js",
+   "Implement check.js – check, checkmate, stalemate detection: check.js",
+   "Implement evaluation.js – material and piece-square evaluation: evaluation.js",
+   "Implement search.js – minimax with alpha-beta pruning: search.js",
+   "Implement ui.js – board rendering, click handling, and integration: ui.js"
   ],
   "tasks": [
    {
-    "title": "Implement Chess Game UI and Engine Wrapper — index.html",
+    "title": "Create index.html skeleton",
     "status": "failed"
    },
    {
-    "title": "Implement Chess Game UI and Engine Wrapper — ui.js",
+    "title": "Implement engine.js – board representation and FEN load/export",
+    "status": "failed"
+   },
+   {
+    "title": "Implement movegen.js – legal move generation",
+    "status": "failed"
+   },
+   {
+    "title": "Implement check.js – check, checkmate, stalemate detection",
+    "status": "failed"
+   },
+   {
+    "title": "Implement evaluation.js – material and piece-square evaluation",
+    "status": "failed"
+   },
+   {
+    "title": "Implement search.js – minimax with alpha-beta pruning",
+    "status": "failed"
+   },
+   {
+    "title": "Implement ui.js – board rendering, click handling, and integration",
     "status": "failed"
    }
   ],
   "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 6,
+  "minutes": 2,
   "final": {
    "A functional chessboard": "team run failed: team did not finish: failed No task finished successfully.",
    "Legal move generation": "team run failed: team did not finish: failed No task finished successfully.",
@@ -1021,38 +1097,20 @@
  "visual@free-hosted": {
   "title": "12. Visual Programming Environment",
   "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Implement core graph logic and window.vp API; Implement DOM rendering, dragging, and wiring: app.js",
-   "Create HTML structure and CSS styling — index.html: index.html",
-   "Create HTML structure and CSS styling — style.css: style.css"
-  ],
-  "tasks": [
-   {
-    "title": "Implement core graph logic and window.vp API; Implement DOM rendering, dragging, and wiring",
-    "status": "failed"
-   },
-   {
-    "title": "Create HTML structure and CSS styling — index.html",
-    "status": "failed"
-   },
-   {
-    "title": "Create HTML structure and CSS styling — style.css",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 3,
+  "plan": [],
+  "error": "no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+  "minutes": 0,
   "final": {
-   "Draggable programming nodes": "team run failed: team did not finish: failed No task finished successfully.",
-   "Node connections": "team run failed: team did not finish: failed No task finished successfully.",
-   "Input and output ports": "team run failed: team did not finish: failed No task finished successfully.",
-   "A node execution system": "team run failed: team did not finish: failed No task finished successfully.",
-   "Dependency resolution": "team run failed: team did not finish: failed No task finished successfully.",
-   "Detects circular dependencies": "team run failed: team did not finish: failed No task finished successfully.",
-   "Error handling": "team run failed: team did not finish: failed No task finished successfully.",
-   "Graph visualization": "team run failed: team did not finish: failed No task finished successfully.",
-   "Saving and loading": "team run failed: team did not finish: failed No task finished successfully.",
-   "A working example program built with the node system": "team run failed: team did not finish: failed No task finished successfully."
+   "Draggable programming nodes": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Node connections": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Input and output ports": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "A node execution system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Dependency resolution": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Detects circular dependencies": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Error handling": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Graph visualization": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "Saving and loading": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+   "A working example program built with the node system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )"
   }
  }
 }

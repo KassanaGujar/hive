@@ -177,7 +177,16 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -270,6 +279,9 @@ TypeError: p is not a function
 
 - [x] AI optimizes a slow algorithm — fib(35): 2461 ms → 0 ms
 - [F] AI writes unit tests — tests fail on correct code: er/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
