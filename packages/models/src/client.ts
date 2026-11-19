@@ -282,54 +282,59 @@ async function* streamOnce(
   let fullText = ''
   const partial = new Map<number, { id: string; name: string; args: string }>()
   const reader = res.body.getReader()
-  const decoder = new TextDecoder()
-  let buf = ''
+  try {
+    const decoder = new TextDecoder()
+    let buf = ''
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    buf += decoder.decode(value, { stream: true })
-    let nl: number
-    while ((nl = buf.indexOf('\n')) >= 0) {
-      const line = buf.slice(0, nl).trim()
-      buf = buf.slice(nl + 1)
-      if (!line.startsWith('data:')) continue
-      const data = line.slice(5).trim()
-      if (data === '[DONE]') continue
-      let json: any
-      try {
-        json = JSON.parse(data)
-      } catch {
-        continue
-      }
-      if (json.error) throw new Error(json.error.message ?? JSON.stringify(json.error))
-      const delta = json.choices?.[0]?.delta ?? {}
-      if (typeof delta.content === 'string' && delta.content) {
-        tokenCount++
-        fullText += delta.content
-        yield { text: delta.content, tokensPerSec: rate(tokenCount, started) }
-      }
-      for (const tc of delta.tool_calls ?? []) {
-        const idx = tc.index ?? 0
-        const cur = partial.get(idx) ?? { id: tc.id ?? `call_${idx}`, name: '', args: '' }
-        if (tc.id) cur.id = tc.id
-        if (tc.function?.name) cur.name += tc.function.name
-        if (tc.function?.arguments) cur.args += tc.function.arguments
-        partial.set(idx, cur)
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      let nl: number
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim()
+        buf = buf.slice(nl + 1)
+        if (!line.startsWith('data:')) continue
+        const data = line.slice(5).trim()
+        if (data === '[DONE]') continue
+        let json: any
+        try {
+          json = JSON.parse(data)
+        } catch {
+          continue
+        }
+        if (json.error) throw new Error(json.error.message ?? JSON.stringify(json.error))
+        const delta = json.choices?.[0]?.delta ?? {}
+        if (typeof delta.content === 'string' && delta.content) {
+          tokenCount++
+          fullText += delta.content
+          yield { text: delta.content, tokensPerSec: rate(tokenCount, started) }
+        }
+        for (const tc of delta.tool_calls ?? []) {
+          const idx = tc.index ?? 0
+          const cur = partial.get(idx) ?? { id: tc.id ?? `call_${idx}`, name: '', args: '' }
+          if (tc.id) cur.id = tc.id
+          if (tc.function?.name) cur.name += tc.function.name
+          if (tc.function?.arguments) cur.args += tc.function.arguments
+          partial.set(idx, cur)
+        }
       }
     }
-  }
 
-  let toolCalls: ToolCall[] = [...partial.values()]
-    .filter((p) => p.name)
-    .map((p) => ({ id: p.id, name: canonicalToolName(p.name, tools), arguments: safeJson(p.args || '{}') }))
-  // Some models answer with JSON in text even when native tools were offered.
-  // Small models sometimes do both: a write as JSON text plus a native "done" call — run the text one first.
-  if (tools.length) {
-    const parsed = parseJsonToolCall(fullText, tools)
-    if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
+    let toolCalls: ToolCall[] = [...partial.values()]
+      .filter((p) => p.name)
+      .map((p) => ({ id: p.id, name: canonicalToolName(p.name, tools), arguments: safeJson(p.args || '{}') }))
+    // Some models answer with JSON in text even when native tools were offered.
+    // Small models sometimes do both: a write as JSON text plus a native "done" call — run the text one first.
+    if (tools.length) {
+      const parsed = parseJsonToolCall(fullText, tools)
+      if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
+    }
+    yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
+  } finally {
+    // also when the caller stops early (a reply stuck repeating): hang up so the model stops generating
+    reader.cancel().catch(() => {})
   }
-  yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
 }
 
 /** Ollama's native /api/chat (NDJSON stream), so the context window can be set with options.num_ctx. */
@@ -374,41 +379,46 @@ async function* streamOllama(
   let fullText = ''
   let toolCalls: ToolCall[] = []
   const reader = res.body.getReader()
-  const decoder = new TextDecoder()
-  let buf = ''
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    buf += decoder.decode(value, { stream: true })
-    let nl: number
-    while ((nl = buf.indexOf('\n')) >= 0) {
-      const line = buf.slice(0, nl).trim()
-      buf = buf.slice(nl + 1)
-      if (!line) continue
-      let json: any
-      try {
-        json = JSON.parse(line)
-      } catch {
-        continue
-      }
-      if (json.error) throw new Error(typeof json.error === 'string' ? json.error : JSON.stringify(json.error))
-      const msg = json.message ?? {}
-      if (typeof msg.content === 'string' && msg.content) {
-        tokenCount++
-        fullText += msg.content
-        yield { text: msg.content, tokensPerSec: rate(tokenCount, started) }
-      }
-      for (const [i, tc] of (msg.tool_calls ?? []).entries()) {
-        const args = tc.function?.arguments
-        toolCalls.push({ id: `call_${toolCalls.length}_${i}`, name: canonicalToolName(tc.function?.name ?? '', tools), arguments: typeof args === 'string' ? safeJson(args) : (args ?? {}) })
+  try {
+    const decoder = new TextDecoder()
+    let buf = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      let nl: number
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim()
+        buf = buf.slice(nl + 1)
+        if (!line) continue
+        let json: any
+        try {
+          json = JSON.parse(line)
+        } catch {
+          continue
+        }
+        if (json.error) throw new Error(typeof json.error === 'string' ? json.error : JSON.stringify(json.error))
+        const msg = json.message ?? {}
+        if (typeof msg.content === 'string' && msg.content) {
+          tokenCount++
+          fullText += msg.content
+          yield { text: msg.content, tokensPerSec: rate(tokenCount, started) }
+        }
+        for (const [i, tc] of (msg.tool_calls ?? []).entries()) {
+          const args = tc.function?.arguments
+          toolCalls.push({ id: `call_${toolCalls.length}_${i}`, name: canonicalToolName(tc.function?.name ?? '', tools), arguments: typeof args === 'string' ? safeJson(args) : (args ?? {}) })
+        }
       }
     }
+    if (tools.length) {
+      const parsed = parseJsonToolCall(fullText, tools)
+      if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
+    }
+    yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
+  } finally {
+    // also when the caller stops early (a reply stuck repeating): hang up so the model stops generating
+    reader.cancel().catch(() => {})
   }
-  if (tools.length) {
-    const parsed = parseJsonToolCall(fullText, tools)
-    if (parsed && !toolCalls.some((t) => t.name === parsed.name)) toolCalls = [parsed, ...toolCalls]
-  }
-  yield { done: true, toolCalls: toolCalls.length ? toolCalls : undefined, tokensPerSec: rate(tokenCount, started) }
 }
 
 function rate(tokens: number, started: number) {
