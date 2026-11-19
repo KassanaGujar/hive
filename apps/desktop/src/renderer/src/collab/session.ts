@@ -69,6 +69,10 @@ export class ProjectSession {
   private textPaths = new WeakMap<Y.Text, string>()
   private synced: Record<string, string> = {}
   private offs: (() => void)[] = []
+  /** Closed (project switched away). A session closed mid-start must not go on to listen, connect or save. */
+  private closed = false
+  /** Its saved state was read back; until then saving would overwrite that state with an empty doc. */
+  private loaded = false
   private applyingDisk = false
   /** Files edited on disk while Hive was closed: the text they had at the last sync (merge base). */
   private offlineBase = new Map<string, string>()
@@ -93,6 +97,8 @@ export class ProjectSession {
     } catch {
       /* fresh */
     }
+    if (this.closed) return
+    this.loaded = true
     try {
       this.config = JSON.parse(await invoke('fs:read', CONFIG))
     } catch {
@@ -103,6 +109,7 @@ export class ProjectSession {
     } catch {
       this.synced = {}
     }
+    if (this.closed) return
     this.doc.on('update', () => this.scheduleSave())
     this.observeFeed()
     this.observeFiles()
@@ -113,6 +120,7 @@ export class ProjectSession {
     this.observeRenames()
     if (this.config) {
       await this.captureOfflineBases()
+      if (this.closed) return
       await this.connect()
     }
   }
@@ -219,7 +227,9 @@ export class ProjectSession {
 
 
   destroy() {
+    this.closed = true
     this.offs.forEach((f) => f())
+    this.offs = []
     this.provider?.destroy()
     this.provider = null
     clearTimeout(this.saveTimer)
@@ -228,11 +238,13 @@ export class ProjectSession {
   }
 
   private scheduleSave() {
+    if (this.closed) return
     clearTimeout(this.saveTimer)
     this.saveTimer = setTimeout(() => this.saveNow(), 1500)
   }
 
   private saveNow() {
+    if (!this.loaded) return
     invoke('fs:write', STATE, toB64(Y.encodeStateAsUpdate(this.doc))).catch(() => {})
     invoke('fs:write', SYNCED, JSON.stringify(this.synced)).catch(() => {})
   }
@@ -259,6 +271,10 @@ export class ProjectSession {
       editToken: cfg.role === 'host' ? undefined : cfg.editToken,
       editHash: cfg.role === 'host' && cfg.editToken ? await sha256Hex(cfg.editToken) : undefined
     })
+    if (this.closed) {
+      p.destroy()
+      return
+    }
     this.provider = p
     p.awareness.setLocalStateField('user', { name: me.name, color: me.color, avatar: me.avatar })
     p.on('status', (st) => useStore.getState().set({ collabStatus: st, collabError: p.error }))

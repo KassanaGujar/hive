@@ -13,5 +13,5 @@ export default defineConfig({
       '@hive/editor': pkg('editor')
     }
   },
-  test: { include: ['packages/*/src/**/*.test.ts', 'services/*/src/**/*.test.ts'] }
+  test: { include: ['packages/*/src/**/*.test.ts', 'services/*/src/**/*.test.ts', 'apps/desktop/src/renderer/src/**/*.test.ts'] }
 })
