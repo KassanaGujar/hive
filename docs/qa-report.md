@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-19 03:04 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-19 03:17 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -12,7 +12,7 @@ Every item of the plan was either run against the real app (real Electron window
 | Multiplayer collaboration | 27 | 0 | 0 |
 | AI / vibe coding | 25 | 3 | 0 |
 | Code execution | 21 | 4 | 0 |
-| Performance & stress | 25 | 2 | 0 |
+| Performance & stress | 27 | 0 | 0 |
 | Challenges: beginner | 49 | 115 | 10 |
 | Challenges: intermediate | 22 | 75 | 32 |
 | Challenges: advanced | 1 | 97 | 49 |
@@ -129,7 +129,9 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - Open a project with 1000 files — open 342 ms, search 13712 ms (1000 hits), full-tree hash 600 ms
 - Open a source file with 1,000 lines — open 320 ms; keystroke→frame p50 12.3 ms, p95 31.6 ms, max 161.9 ms
 - Open a source file with 10,000 lines — open 544 ms; keystroke→frame p50 11.1 ms, p95 18 ms, max 76.2 ms
+- Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness _(passed after a fix)_ — keystroke→frame p50 7 ms, p95 34–44 ms, max 55–153 ms over 3 rounds (was p95 54–76 ms, spikes to 1.2 s). Files over 2 MB open as plain text, like VS Code large-file mode.
 - Rapid typing and deletion — 3,000 keystrokes + 2,000 deletes in 4202 ms; text intact
+- Rapid switching between files _(passed after a fix)_ — 200 tab switches: 29–31 ms each over 3 rounds (was 43–55 ms). One editor per pane now swaps documents and keeps each file's place.
 - Rapid project navigation — 15 project switches in 11234 ms
 - A project with 50 dependencies — open 843 ms; node_modules (550 files) skipped by search (1 hits) and sharing (2 files hashed)
 - A project with hundreds of dependencies — open 239 ms; node_modules (4400 files) skipped by search (1 hits) and sharing (2 files hashed)
@@ -243,8 +245,6 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **[Code execution] Attempts to access unauthorized network resources** — programs have full network access (no network policy for Run)
 - **[Code execution] Attempts to escape the execution sandbox** — no sandbox: programs can start other processes as the user (WHOAMI:User)
 - **[Code execution] Resource limits and execution timeouts** — Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy
-- **[Performance & stress] Open a very large source file (100,000 lines, 4.5 MB) and measure editor responsiveness** — typing p95 76.1 ms
-- **[Performance & stress] Rapid switching between files** — avg 54.62 ms per switch
 - **[Challenges: beginner] 1. Snake Game — Snake growth** — length 1→1 (re-checked with the fixed probe)
 - **[Challenges: beginner] 1. Snake Game — Self-collision** — length 1 looped into itself without game over (re-checked with the fixed probe)
 - **[Challenges: beginner] 1. Snake Game — Score tracking** — score 0→0 (re-checked with the fixed probe)
@@ -909,7 +909,7 @@ Phases 6–8 first ran with Hive's Ask AI only (one model, no architect or lead 
 | AI coding capabilities | 60 | Ask AI handles everyday tasks well (Phase 3: 25/28; in the 3 misses the AI's output was wrong — a renamed export, a test API that doesn't exist, an unflagged contradiction — not yet re-tested with a stronger model or through the AI team) and follows the given file paths after the prompt fix; built directly with Ask AI and the local 7B model the challenge apps mostly failed (Phase 6: 15/34, Phase 7: 17/43, Phase 8: 1/49 features). These runs did not use Hive's AI team (architect + lead review); a control by another session with Claude Sonnet on the same briefs scored 8/8 (Tic-Tac-Toe) and 9/10 (Snake), so the result says 'a single 7B model without the team', not 'Hive cannot build these'. Re-run through the AI team with every local model this PC could run, the best result was Tic-Tac-Toe 7/8 by clicking (Qwen2.5 Coder 7B); Snake reached 1/10; the limit was about 3 GB of free GPU memory, not the team pipeline. With free hosted models the AI team built Tic-Tac-Toe 8/8 in 5 min and Snake 9/10 in 7 min after six team fixes; Phases 7–8 not yet re-run that way (free daily limits). |
 | Code execution reliability | 80 | 21/25: runs, input, streaming output, stop, restart and errors with file:line all work; no limits or sandbox (by design). |
 | Data persistence | 85 | Settings, projects and shared state survive restarts, crashes and a relay restart after fixes; offline edits merge 3-way with a conflict copy. |
-| Performance | 75 | Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms p95, Run notices a program's exit 4-8 s late, and the local 7B model reads prompts at ~15 tokens/s on this PC. |
+| Performance | 75 | Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files now 34-44 ms p95 (plain-text mode over 2 MB), Run notices exits about 1 s sooner than before, and the local 7B model reads prompts at ~15 tokens/s on this PC. |
 | User experience | 65 | Clear errors and notices, follow-the-AI view, previews; but local AI replies take minutes on modest hardware and the 30-minute first-user study (Phase 10) is still to be run. |
 | Security | 60 | End-to-end encrypted rooms, outsiders can't read projects, view-only links now enforced by the relay (needs deploy); Run executes code with full user rights. |
 | Error handling | 80 | Plain-language errors, AI timeouts and provider errors surfaced; a few failures still only show in the terminal (missing npm packages). |

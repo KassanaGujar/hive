@@ -112,7 +112,7 @@ export const NOTES = {
     {
       "category": "Performance",
       "score": 75,
-      "why": "Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files reach 76 ms p95, Run notices a program's exit 4-8 s late, and the local 7B model reads prompts at ~15 tokens/s on this PC."
+      "why": "Projects open in under 2.5 s, typing p95 under 32 ms in normal files, idle CPU ~1%, Run starts in ~40 ms after fixes; 100k-line files now 34-44 ms p95 (plain-text mode over 2 MB), Run notices exits about 1 s sooner than before, and the local 7B model reads prompts at ~15 tokens/s on this PC."
     },
     {
       "category": "User experience",

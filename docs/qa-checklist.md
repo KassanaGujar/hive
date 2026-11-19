@@ -169,7 +169,25 @@ function sum(a, b) {
   return (a + b).toString();
 }
 ```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
+function sum(a, b) {
+  return (a + b).toString();
+}
+```
 - [F] AI refactors poorly structured code — behaviour changed: X;z → [eval]:1
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
+const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
+                                         ^
+
+TypeError: p is not a function
+
 const {p}=require('./messy');console.log(p([{a:true,v:20,n:'x'},{a:false,v:1,n:'y'},{a:true,v:3,n:'z'}]))
                                          ^
 
@@ -294,6 +312,12 @@ TypeError: p is not a function
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
       at Test.postRun (node:internal/test_runner/test:1542:19)
       at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/te
 
 
 - [x] AI fixes failing unit tests
@@ -347,12 +371,12 @@ eggs
 - [x] Open a project with 1,000 files — open 1075 ms, search 1981 ms (100 hits), full-tree hash 111 ms
 - [x] Open a source file with 1,000 lines — open 320 ms; keystroke→frame p50 12.3 ms, p95 31.6 ms, max 161.9 ms
 - [x] Open a source file with 10,000 lines — open 544 ms; keystroke→frame p50 11.1 ms, p95 18 ms, max 76.2 ms
-- [F] Open a very large source file and measure editor responsiveness — typing p95 76.1 ms
+- [x] Open a very large source file and measure editor responsiveness — keystroke→frame p50 7 ms, p95 34–44 ms, max 55–153 ms over 3 rounds (was p95 54–76 ms, spikes to 1.2 s). Files over 2 MB open as plain text, like VS Code large-
 - [x] A project with 50 dependencies — open 843 ms; node_modules (550 files) skipped by search (1 hits) and sharing (2 files hashed)
 - [x] A project with hundreds of dependencies — open 239 ms; node_modules (4400 files) skipped by search (1 hits) and sharing (2 files hashed)
 - [x] A project with deeply nested directories — open 938 ms; path length 509 chars works
 - [x] Rapid typing and deletion — 3,000 keystrokes + 2,000 deletes in 4202 ms; text intact
-- [F] Rapid switching between files — avg 54.62 ms per switch
+- [x] Rapid switching between files — 200 tab switches: 29–31 ms each over 3 rounds (was 43–55 ms). One editor per pane now swaps documents and keeps each file's place.
 - [x] Rapid project navigation — 15 project switches in 11234 ms
 - [x] Repeated AI requests — times: 4.4 s, 14.7 s, 12.5 s, 3.0 s, 0.7 s
 - [x] Repeated project creation and deletion — 106080 ms; renderer heap +1.6 MB
