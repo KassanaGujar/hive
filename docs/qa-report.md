@@ -1,6 +1,6 @@
 # Hive — QA & Stress Test Report
 
-_Generated 2026-11-19 03:17 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
+_Generated 2026-11-19 03:28 from `docs/qa/results.jsonl` (latest result per test) and the phase logs. Test machine: Windows 11, i7-10750H (12 logical CPUs), 16 GB RAM, GTX 1660 Ti 6 GB (about half used by other apps), Ollama with qwen2.5-coder:7b (local). The CPU was often near 100% from OneDrive, Explorer and other Claude sessions, so timings are pessimistic._
 
 ## 1. Summary
 
@@ -713,6 +713,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 | 53 | Stopping a model reply early never hung up, so the model kept generating in the background | Right-sized-tasks measurement follow-up | Medium (wasted local GPU time) | Fixed |
 | 54 | A local model stuck repeating one block ran to the 6,144-token reply cap (2.5 hours on a slow GPU) | Right-sized-tasks measurement | Medium | Fixed |
 | 55 | Nothing told the user when the local model ran mostly on the processor (other apps holding the GPU), so a run crawled for hours with no explanation | Right-sized-tasks measurement | Medium | Fixed |
+| 56 | A briefly rate-limited model (Gemma: "temporarily rate-limited upstream") or one sending broken tool calls (gpt-oss 20B) failed its whole task while other team models were free | Hosted rerun of the blocked challenges | Medium | Fixed |
 
 ## 6. Bugs fixed
 
@@ -766,6 +767,7 @@ Counts are recorded test results; one test can cover several checklist lines (th
 - **Stopping a model reply early never hung up, so the model kept generating in the background** — Both stream readers cancel the HTTP stream when the reader stops (unit tests for Ollama and OpenAI-style providers).
 - **A local model stuck repeating one block ran to the 6,144-token reply cap (2.5 hours on a slow GPU)** — A reply ending in one block repeated 5+ times (2,000+ characters) is cut to one copy and the request is stopped.
 - **Nothing told the user when the local model ran mostly on the processor (other apps holding the GPU), so a run crawled for hours with no explanation** — During a run Hive reads Ollama /api/ps every 30 s and shows a plain warning in the AI team panel when under 60% of the model is on the GPU. Not yet seen live (needs a loaded, offloaded model).
+- **A briefly rate-limited model (Gemma: "temporarily rate-limited upstream") or one sending broken tool calls (gpt-oss 20B) failed its whole task while other team models were free** — Two more tries on the same model, then the call moves to the next team model; a rate-limited one rests 5 minutes (unit tests for the decision).
 
 ## 7. Unresolved bugs
 
