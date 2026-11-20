@@ -2,8 +2,12 @@
 // integration smoke test → merge), the way a user would press "Build with the AI team". Same briefs and
 // probes as run-challenges.mjs. Results are recorded as "<title> (AI team) — <item>".
 //   node tools/qa/run-challenges-team.mjs [id ...]
-// QA_COORDINATION=off runs the same briefs with one agent alone (no plan, checks, review or integration) and records
-// them under "<tag> solo", the baseline; tools/qa/compare-coordination.mjs puts the two side by side.
+// QA_COORDINATION picks how Hive organises the run (default team, so results stay comparable):
+//   team    the full team, recorded under "<tag>"
+//   single  one agent gated by Hive's checks and the integration test, recorded under "<tag> single"
+//   off     one agent alone, nothing else (the baseline), recorded under "<tag> solo"
+//   auto    what Hive picks for the installed models, recorded under "<tag> auto"
+// tools/qa/compare-coordination.mjs puts them side by side.
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
@@ -13,9 +17,9 @@ import { testChatServer } from './chat-probe.mjs'
 const RUN_TIMEOUT_MS = Number(process.env.QA_TEAM_TIMEOUT ?? 180 * 60000)
 const only = process.argv.slice(2)
 // QA_TAG labels a model setup (e.g. "qwen3.5-4b") so its results sit beside, not over, other setups' results.
-const SOLO = process.env.QA_COORDINATION === 'off'
-if (SOLO) process.env.HIVE_COORDINATION = 'off' // the launched Hive inherits it
-const TAG = `${process.env.QA_TAG ? ` ${process.env.QA_TAG}` : ''}${SOLO ? ' solo' : ''}`
+const COORD = ['off', 'single', 'auto'].includes(process.env.QA_COORDINATION) ? process.env.QA_COORDINATION : 'team'
+process.env.HIVE_COORDINATION = COORD // the launched Hive inherits it
+const TAG = `${process.env.QA_TAG ? ` ${process.env.QA_TAG}` : ''}${{ team: '', off: ' solo', single: ' single', auto: ' auto' }[COORD]}`
 const list = CHALLENGES.filter((c) => (only.length ? only.includes(c.id) : c.phase === 'P6'))
 // QA_PROFILE=<name>: reuse a kept profile (e.g. 'cloud', which holds the user's free OpenRouter key) instead of a fresh one.
 const a = await new Hive(process.env.QA_PROFILE ?? 'team', 9460).launch({ keep: !!process.env.QA_PROFILE })

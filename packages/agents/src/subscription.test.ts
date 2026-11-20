@@ -51,7 +51,8 @@ describe('a subscription CLI on the team, gated by Hive checks', () => {
       log: () => {},
       feed: () => {},
       memoryBudgetGB: () => 8,
-      runCli
+      runCli,
+      coordination: () => 'team' as const // this test covers the split team with a CLI; auto would give it one agent
     })
     const id = await orch.start('Build a game')
     const wait = async (phase: AgentRun['phase']) => {

@@ -95,8 +95,11 @@ export interface OrchestratorHost {
   fileWritten?(runId: string, agent: string, taskId: string, absPath: string): void
   /** Run a coding-agent CLI (Claude Code, Codex) signed in with the user's own subscription. Desktop only. */
   runCli?(inv: CliInvocation, cwd: string, signal: AbortSignal, timeoutMs: number): Promise<{ code: number; stdout: string; stderr: string }>
-  /** 'off': one agent does the whole goal with no plan, checks, review or integration (a benchmark baseline). */
-  coordination?(): 'on' | 'off'
+  /**
+   * auto (default): one agent with Hive's checks when the strongest model is a subscription CLI, the team otherwise.
+   * team / single force one. off: one agent with no plan, checks, review or integration (a benchmark baseline).
+   */
+  coordination?(): 'auto' | 'team' | 'single' | 'off'
 }
 
 const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefly', 'mantis']
@@ -168,7 +171,7 @@ export class Orchestrator {
     const { run } = ctl
     const phase = run.interruptedPhase
     if (!run.resumable || !phase) throw new Error('This run cannot be resumed.')
-    const fresh = this.newTeam(run.metrics?.mode === 'solo')
+    const fresh = this.newTeam(run.metrics?.mode === 'solo' || run.metrics?.mode === 'single')
     Object.assign(ctl, { team: fresh.team, workerPool: fresh.workerPool, root: this.host.projectRoot(), abort: new AbortController(), paused: new Set(), takenOver: new Set(), waiters: new Map(), integrated: false, integrating: false, integrationRounds: 0 })
     run.agents = fresh.agents
     run.resumable = false
@@ -231,10 +234,10 @@ export class Orchestrator {
   }
 
   async start(goal: string, presetTasks?: { title: string; description: string }[], prd?: string): Promise<string> {
-    const solo = this.host.coordination?.() === 'off'
-    const { team, workerPool, agents } = this.newTeam(solo)
+    const mode = this.mode()
+    const { team, workerPool, agents } = this.newTeam(mode !== 'team')
     const id = `run-${Date.now().toString(36)}`
-    const metrics: RunMetrics = { mode: solo ? 'solo' : 'team', modelCalls: 0, toolCalls: 0, checkFailures: 0, reviewRejections: 0, approvalsAsked: 0, approvalsDenied: 0 }
+    const metrics: RunMetrics = { mode, modelCalls: 0, toolCalls: 0, checkFailures: 0, reviewRejections: 0, approvalsAsked: 0, approvalsDenied: 0 }
     const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now(), metrics }
     const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, sizes: new Map(), actualModel: new Map(), waiters: new Map(), prd, root: this.host.projectRoot() }
     this.runs.set(id, ctl)
@@ -243,19 +246,41 @@ export class Orchestrator {
     return id
   }
 
+  /**
+   * How a new run is organised. Splitting work helps models that can't hold a whole project; a strong coding agent
+   * (a subscription CLI) did better alone in QA (Pathfinding: 11/11 alone, 8/11 as a team, where a requirement fell
+   * between two tasks), so it gets one agent, still gated by Hive's checks and the integration test.
+   */
+  private mode(): RunMetrics['mode'] {
+    const c = this.host.coordination?.() ?? 'auto'
+    if (c === 'off') return 'solo'
+    if (c === 'team' || c === 'single') return c
+    const architect = this.team().architect
+    return architect && isCliSource(architect.source) ? 'single' : 'team'
+  }
+
   // ---------- planning ----------
 
   private async plan(ctl: RunCtl, presetTasks?: { title: string; description: string }[]) {
     const { run } = ctl
-    if (run.metrics?.mode === 'solo') {
-      // The baseline: the whole goal as one task, every file allowed, no architect.
+    const mode = run.metrics?.mode
+    if (mode === 'solo' || mode === 'single') {
+      // The whole goal as one task, every file allowed, no architect plan.
       const owner = ctl.workerPool[0].name
       const description = `${run.goal}${ctl.prd ? `\n\nPlan document:\n${ctl.prd.slice(0, 8000)}` : ''}${presetTasks?.length ? `\n\nSteps:\n${presetTasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}` : ''}`
-      run.plan = { goal: run.goal, summary: 'One agent builds everything (coordination off).', tasks: [{ id: 'solo', title: 'Build it', description, files: [], dependsOn: [], owner }] }
+      const summary = mode === 'solo' ? 'One agent builds everything (coordination off).' : `One agent (${ctl.workerPool[0].model.name}) builds everything; Hive checks the result.`
+      run.plan = { goal: run.goal, summary, tasks: [{ id: mode, title: 'Build it', description, files: [], dependsOn: [], owner }] }
       run.tasks = planToTasks(run.id, run.plan)
       run.phase = 'awaiting-plan-approval'
       this.setAgent(ctl, 'architect', { status: 'waiting' })
-      this.log(ctl, 'architect', undefined, 'Coordination is off: one agent builds the whole goal, with no plan, checks or review.')
+      this.log(
+        ctl,
+        'architect',
+        undefined,
+        mode === 'solo'
+          ? 'Coordination is off: one agent builds the whole goal, with no plan, checks or review.'
+          : `${ctl.workerPool[0].model.name} is strong enough to hold the whole project, so one agent builds it instead of a split team. Hive still runs its checks and the integration test before anything merges.`
+      )
       this.emit(ctl)
       return
     }
@@ -447,6 +472,7 @@ ${ctl.prd.slice(0, 8000)}`
       task.status = 'approved'
       return this.mergeTask(ctl, task)
     }
+    if (ctl.run.metrics?.mode === 'single' && !task.id.startsWith('integrate-')) return this.runSingle(ctl, task, worker, wt)
     let notes: string | undefined
     let approved = false
     for (let round = 1; round <= MAX_REVIEW_ROUNDS; round++) {
@@ -684,8 +710,49 @@ ${ctl.prd.slice(0, 8000)}`
    * Hive's own checks, run after the agent stops: a syntax check of the task's files, then the project's commands
    * from .hive/checks.json in the task's worktree. Returns what failed, or null when everything passed.
    */
+  /**
+   * One strong agent on the whole goal. Hive's checks replace the AI review: up to MAX_REVIEW_ROUNDS attempts, each
+   * told exactly what failed. Work that still fails is merged with a warning, like a task past its review rounds.
+   */
+  private async runSingle(ctl: RunCtl, task: AgentTask, worker: { name: string; model: InstalledModel }, wt: string) {
+    let notes: string | undefined
+    let passed = false
+    for (let round = 1; round <= MAX_REVIEW_ROUNDS && !ctl.abort.signal.aborted; round++) {
+      task.attempts = round
+      task.status = 'running'
+      this.emit(ctl)
+      const summary = await this.workerLoop(ctl, task, worker, wt, notes)
+      await this.host.git.commitAll(wt, `${task.title}\n\n${summary}\n\nAgent: ${worker.name} (${worker.model.name})`)
+      task.diff = await this.host.git.diff(wt, ctl.run.integrationBranch!, 'HEAD')
+      task.status = 'review'
+      this.emit(ctl)
+      notes = task.diff?.trim() ? ((await this.runChecks(ctl, task, wt)) ?? undefined) : 'No files were produced. Build the goal: create the files with write_file.'
+      if (!notes) {
+        passed = true
+        break
+      }
+      task.reviewNotes = notes
+      task.status = 'changes-requested'
+      this.log(ctl, 'architect', task.id, `Round ${round}: ${notes.split('\n')[0]}`)
+    }
+    if (!task.diff?.trim()) {
+      task.status = 'failed'
+      this.log(ctl, worker.name, task.id, 'No files were produced.')
+      this.emit(ctl)
+      return
+    }
+    if (!passed) this.log(ctl, 'architect', task.id, `Hive's checks still fail after ${MAX_REVIEW_ROUNDS} rounds; merging it with the problems noted for your final check.`)
+    task.reviewNotes = passed ? 'Passed Hive checks.' : task.reviewNotes
+    task.status = 'approved'
+    this.emit(ctl)
+    await this.mergeTask(ctl, task)
+  }
+
   private async runChecks(ctl: RunCtl, task: AgentTask, wt: string): Promise<string | null> {
-    const syntax = syntaxProblems(await readTexts(wt, task.files))
+    // A task with no file list (one agent on the whole goal) is checked on the code files its diff touched.
+    const touched = [...(task.diff ?? '').matchAll(/^diff --git a\/(.+?) b\//gm)].map((m) => m[1])
+    const checked = task.files.length ? task.files : touched.filter((f) => CODE_FILE.test(f)).slice(0, 200)
+    const syntax = syntaxProblems(await readTexts(wt, checked))
     if (syntax.length) {
       this.log(ctl, 'architect', task.id, `✗ syntax check: ${syntax[0]}`)
       this.bump(ctl, 'checkFailures')

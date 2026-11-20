@@ -270,8 +270,11 @@ export interface AgentRun {
 }
 
 export interface RunMetrics {
-  /** team: plan, checks, review, integration. solo: one agent does the whole goal, nothing else (the baseline). */
-  mode: 'team' | 'solo'
+  /**
+   * team: plan, checks, review, integration. single: one agent does the whole goal, gated by Hive's checks and the
+   * integration test (the default for a subscription CLI). solo: one agent, nothing else (the benchmark baseline).
+   */
+  mode: 'team' | 'single' | 'solo'
   modelCalls: number
   toolCalls: number
   checkFailures: number

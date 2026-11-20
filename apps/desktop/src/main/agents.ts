@@ -141,8 +141,11 @@ export const orchestrator = new Orchestrator({
   memoryBudgetGB,
   smokeTest: smokeTestWeb,
   runCli,
-  // HIVE_COORDINATION=off (QA): one agent alone, the baseline the team is measured against
-  coordination: () => (process.env.HIVE_COORDINATION === 'off' ? 'off' : 'on'),
+  // HIVE_COORDINATION: auto (default), team, single, or off (QA: one agent alone, the baseline)
+  coordination: () => {
+    const v = process.env.HIVE_COORDINATION
+    return v === 'off' || v === 'team' || v === 'single' ? v : 'auto'
+  },
   fileWritten(runId, agent, taskId, absPath) {
     const rel = path.relative(projectRoot(), absPath).replace(/\\/g, '/')
     emit('agents:file', { runId, agent, taskId, path: rel })
