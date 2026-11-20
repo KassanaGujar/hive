@@ -12,7 +12,7 @@ import type {
   ToolSpec
 } from '@hive/shared'
 import { promises as fsp } from 'node:fs'
-import type { AgentPlan, PlanTask } from '@hive/shared'
+import type { AgentPlan, PlanTask, RunMetrics } from '@hive/shared'
 import { rankTeam, extractJson, stripThinking, capacityOf } from '@hive/models'
 import { classifyCommand } from './policy'
 import { allSettled, enforceFileOwnership, MAX_PLAN_TASKS, normalizePlan, parallelizeWithContract, planToTasks, readyTasks, replaceTask, splitForParallelism, splitOversized, starvedTasks } from './scheduler'
@@ -24,6 +24,7 @@ import { combineReviews, reviewBudgetChars, splitDiff } from './review'
 import { learnedCapacity, type ModelOutcome, type ModelStats } from './stats'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
+import { buildCodeMap, MAX_CODE_QUERIES, queryCodeMap, relatedFiles } from './codemap'
 import { loadProjectChecks, syntaxProblems, tail } from './checks'
 import { cliErrorKind, cliInvocation, cliTaskPrompt, flattenMessages, isCliSource, parseCliOutput, type CliInvocation, type CliSource } from './cliAgents'
 
@@ -34,6 +35,7 @@ export const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 export const DEFAULT_WORKERS = 3
 /** Integration rounds after all tasks merge, when the smoke test finds problems. */
 export const MAX_INTEGRATION_ROUNDS = 2
+const CODE_FILE = /\.(m?js|cjs|ts|tsx|jsx|html?|css|py)$/i
 /** A subscription CLI doing a whole task in one call. */
 export const CLI_TASK_TIMEOUT_MS = 30 * 60 * 1000
 export const CLI_ASK_TIMEOUT_MS = 10 * 60 * 1000
@@ -47,7 +49,8 @@ export interface ChatResult {
 export interface GitOps {
   /** Make sure root is a repo with at least one commit; returns the current branch. */
   ensureRepo(root: string): Promise<string>
-  addWorktree(root: string, wtPath: string, branch: string, fromRef: string): Promise<void>
+  /** reuse: open an existing branch as it is instead of starting a fresh one from fromRef. */
+  addWorktree(root: string, wtPath: string, branch: string, fromRef: string, reuse?: boolean): Promise<void>
   removeWorktree(root: string, wtPath: string): Promise<void>
   commitAll(cwd: string, message: string): Promise<boolean>
   diff(cwd: string, fromRef: string, toRef: string): Promise<string>
@@ -57,6 +60,8 @@ export interface GitOps {
   changedFiles?(cwd: string): Promise<string[]>
   /** Undo uncommitted changes to these paths (new files are deleted). */
   restorePaths?(cwd: string, paths: string[]): Promise<void>
+  /** Whether branch is already part of into (its tip is an ancestor). */
+  isMerged?(root: string, branch: string, into: string): Promise<boolean>
 }
 
 export interface OrchestratorHost {
@@ -90,6 +95,8 @@ export interface OrchestratorHost {
   fileWritten?(runId: string, agent: string, taskId: string, absPath: string): void
   /** Run a coding-agent CLI (Claude Code, Codex) signed in with the user's own subscription. Desktop only. */
   runCli?(inv: CliInvocation, cwd: string, signal: AbortSignal, timeoutMs: number): Promise<{ code: number; stdout: string; stderr: string }>
+  /** 'off': one agent does the whole goal with no plan, checks, review or integration (a benchmark baseline). */
+  coordination?(): 'on' | 'off'
 }
 
 const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefly', 'mantis']
@@ -137,8 +144,11 @@ export class Orchestrator {
     for (const run of runs) {
       if (this.runs.has(run.id)) continue
       if (!['done', 'failed', 'cancelled'].includes(run.phase)) {
+        // Plans waiting for approval, and runs with an integration branch, can continue later (resumeRun).
+        run.resumable = run.phase === 'awaiting-plan-approval' || (!!run.integrationBranch && ['working', 'merging', 'awaiting-merge-approval'].includes(run.phase))
+        run.interruptedPhase = run.phase
         run.phase = 'cancelled'
-        run.error = 'Hive was closed while this run was active.'
+        run.error = run.resumable ? 'Hive was closed while this run was active. Press Resume to continue where it stopped.' : 'Hive was closed while this run was active.'
       }
       this.runs.set(run.id, { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team: null as any, workerPool: [], sizes: new Map(), actualModel: new Map(), waiters: new Map(), root: '' })
     }
@@ -148,13 +158,58 @@ export class Orchestrator {
     return rankTeam(this.host.models(), this.host.tierOverrides())
   }
 
-  async start(goal: string, presetTasks?: { title: string; description: string }[], prd?: string): Promise<string> {
+  /**
+   * Continue a run that was active when Hive closed. Git is the record of what finished: a task whose branch is
+   * already part of the run's integration branch counts as merged, even if Hive closed before saving that. Every
+   * other unfinished task starts again from the integration branch.
+   */
+  async resumeRun(runId: string) {
+    const ctl = this.get(runId)
+    const { run } = ctl
+    const phase = run.interruptedPhase
+    if (!run.resumable || !phase) throw new Error('This run cannot be resumed.')
+    const fresh = this.newTeam(run.metrics?.mode === 'solo')
+    Object.assign(ctl, { team: fresh.team, workerPool: fresh.workerPool, root: this.host.projectRoot(), abort: new AbortController(), paused: new Set(), takenOver: new Set(), waiters: new Map(), integrated: false, integrating: false, integrationRounds: 0 })
+    run.agents = fresh.agents
+    run.resumable = false
+    run.interruptedPhase = undefined
+    run.error = undefined
+    if (phase === 'awaiting-plan-approval') {
+      run.phase = phase
+      this.setAgent(ctl, 'architect', { status: 'idle' })
+      this.emit(ctl)
+      return
+    }
+    ctl.intWorktree = path.join(ctl.root, '.hive', 'worktrees', run.id, '_integration')
+    await this.host.git.addWorktree(ctl.root, ctl.intWorktree, run.integrationBranch!, run.baseBranch, true)
+    let recovered = 0
+    for (const t of run.tasks) {
+      if (['merged', 'failed', 'cancelled'].includes(t.status)) continue
+      if (t.branch && t.diff?.trim() && (await this.host.git.isMerged?.(ctl.root, t.branch, run.integrationBranch!))) {
+        t.status = 'merged'
+        t.log.push('Already merged (found in git after Hive was closed).')
+        recovered++
+        continue
+      }
+      if (t.worktree) await this.host.git.removeWorktree(ctl.root, t.worktree).catch(() => {})
+      Object.assign(t, { status: 'pending', attempts: 0, worktree: undefined, diff: undefined, reviewNotes: undefined })
+      t.log.push('Starting again after Hive was closed.')
+    }
+    // An interrupted final merge is asked for again; git merge of an already merged branch changes nothing.
+    run.phase = phase === 'working' ? 'working' : 'awaiting-merge-approval'
+    ctl.run.agents.forEach((a) => (a.status = 'idle'))
+    this.log(ctl, 'architect', undefined, `Resumed after Hive was closed${recovered ? `; ${recovered} task(s) were already merged` : ''}.`)
+    this.emit(ctl)
+    this.pump(ctl)
+  }
+
+  /** The team for a run: architect, leads and the worker pool, from the models installed now. */
+  private newTeam(solo = false) {
     const t = this.team()
     if (!t.architect) throw new Error('No models installed. Download a model in the Model store first.')
-    const team = { architect: t.architect, leads: t.leads, workers: t.workers }
-    const id = `run-${Date.now().toString(36)}`
+    const team = solo ? { architect: t.architect, leads: [], workers: [t.architect] } : { architect: t.architect, leads: t.leads, workers: t.workers }
     // At least DEFAULT_WORKERS agents work in parallel (they share models when few are installed).
-    const nWorkers = Math.max(DEFAULT_WORKERS, team.workers.length)
+    const nWorkers = solo ? 1 : Math.max(DEFAULT_WORKERS, team.workers.length)
     const workerPool = Array.from({ length: nWorkers }, (_, i) => ({
       name: WORKER_NAMES[i % WORKER_NAMES.length] + (i >= WORKER_NAMES.length ? `-${i}` : ''),
       model: team.workers[i % team.workers.length],
@@ -172,7 +227,15 @@ export class Orchestrator {
       ...team.leads.slice(0, 2).map((m, i) => ({ name: `lead${i ? '-' + (i + 1) : ''}`, role: 'lead' as const, modelId: m.id, modelName: m.name, status: 'idle' as const })),
       ...workerPool.map((w) => ({ name: w.name, role: 'worker' as const, modelId: w.model.id, modelName: w.model.name, status: 'idle' as const }))
     ]
-    const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now() }
+    return { team, workerPool, agents }
+  }
+
+  async start(goal: string, presetTasks?: { title: string; description: string }[], prd?: string): Promise<string> {
+    const solo = this.host.coordination?.() === 'off'
+    const { team, workerPool, agents } = this.newTeam(solo)
+    const id = `run-${Date.now().toString(36)}`
+    const metrics: RunMetrics = { mode: solo ? 'solo' : 'team', modelCalls: 0, toolCalls: 0, checkFailures: 0, reviewRejections: 0, approvalsAsked: 0, approvalsDenied: 0 }
+    const run: AgentRun = { id, goal, phase: 'planning', tasks: [], agents, baseBranch: '', createdAt: Date.now(), metrics }
     const ctl: RunCtl = { run, abort: new AbortController(), paused: new Set(), takenOver: new Set(), team, workerPool, sizes: new Map(), actualModel: new Map(), waiters: new Map(), prd, root: this.host.projectRoot() }
     this.runs.set(id, ctl)
     this.emit(ctl)
@@ -184,6 +247,18 @@ export class Orchestrator {
 
   private async plan(ctl: RunCtl, presetTasks?: { title: string; description: string }[]) {
     const { run } = ctl
+    if (run.metrics?.mode === 'solo') {
+      // The baseline: the whole goal as one task, every file allowed, no architect.
+      const owner = ctl.workerPool[0].name
+      const description = `${run.goal}${ctl.prd ? `\n\nPlan document:\n${ctl.prd.slice(0, 8000)}` : ''}${presetTasks?.length ? `\n\nSteps:\n${presetTasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}` : ''}`
+      run.plan = { goal: run.goal, summary: 'One agent builds everything (coordination off).', tasks: [{ id: 'solo', title: 'Build it', description, files: [], dependsOn: [], owner }] }
+      run.tasks = planToTasks(run.id, run.plan)
+      run.phase = 'awaiting-plan-approval'
+      this.setAgent(ctl, 'architect', { status: 'waiting' })
+      this.log(ctl, 'architect', undefined, 'Coordination is off: one agent builds the whole goal, with no plan, checks or review.')
+      this.emit(ctl)
+      return
+    }
     const files = (await listFiles(ctl.root, '.', 300)).join('\n')
     const workers = ctl.workerPool.filter((w) => !w.strong).map((w) => w.name)
     const workerOut = Math.min(...ctl.team.workers.map((m) => this.capacity(m).maxOutput))
@@ -279,7 +354,7 @@ ${ctl.prd.slice(0, 8000)}`
     const integration = `hive/run-${ctl.run.id.replace(/^run-/, '')}`
     ctl.run.integrationBranch = integration
     ctl.intWorktree = path.join(root, '.hive', 'worktrees', ctl.run.id, '_integration')
-    await this.host.git.addWorktree(root, ctl.intWorktree, integration, ctl.run.baseBranch)
+    await this.host.git.addWorktree(root, ctl.intWorktree, integration, ctl.run.baseBranch, true)
     ctl.run.previewDir = path.relative(root, ctl.intWorktree).replace(/\\/g, '/')
     ctl.run.phase = 'working'
     this.setAgent(ctl, 'architect', { status: 'idle' })
@@ -327,7 +402,7 @@ ${ctl.prd.slice(0, 8000)}`
       const merged = run.tasks.filter((t) => t.status === 'merged').length
       if (merged === 0) return this.fail(ctl, new Error('No task finished successfully.'))
       // Pieces built in parallel must work together: smoke-test the merged result first.
-      if (this.host.smokeTest && !ctl.integrated) {
+      if (this.host.smokeTest && !ctl.integrated && run.metrics?.mode !== 'solo') {
         if (!ctl.integrating) {
           ctl.integrating = true
           this.integrate(ctl)
@@ -341,6 +416,7 @@ ${ctl.prd.slice(0, 8000)}`
         return
       }
       run.phase = 'awaiting-merge-approval'
+      if (run.metrics) run.metrics.readyMs ??= Date.now() - run.createdAt
       this.log(ctl, 'architect', undefined, `All tasks settled (${merged} merged). Approve the final merge into ${run.baseBranch}.`)
     }
     this.emit(ctl)
@@ -358,6 +434,19 @@ ${ctl.prd.slice(0, 8000)}`
     this.log(ctl, worker.name, task.id, `Started "${task.title}" on ${branch}`)
     this.host.feed({ actor: worker.name, actorType: 'agent', kind: 'agent.task', files: task.files, summary: `started "${task.title}"` })
 
+    if (ctl.run.metrics?.mode === 'solo') {
+      task.attempts = 1
+      const summary = await this.workerLoop(ctl, task, worker, wt)
+      await this.host.git.commitAll(wt, `${task.title}\n\n${summary}\n\nAgent: ${worker.name} (${worker.model.name})`)
+      task.diff = await this.host.git.diff(wt, ctl.run.integrationBranch!, 'HEAD')
+      if (!task.diff?.trim()) {
+        task.status = 'failed'
+        this.log(ctl, worker.name, task.id, 'No files were produced.')
+        return
+      }
+      task.status = 'approved'
+      return this.mergeTask(ctl, task)
+    }
     let notes: string | undefined
     let approved = false
     for (let round = 1; round <= MAX_REVIEW_ROUNDS; round++) {
@@ -388,6 +477,7 @@ ${ctl.prd.slice(0, 8000)}`
       }
       notes = review.notes
       task.reviewNotes = notes
+      if (!problems && !missing.length) this.bump(ctl, 'reviewRejections')
       task.status = 'changes-requested'
       this.log(ctl, 'lead', task.id, `Round ${round}: changes requested — ${notes}`)
       if (round === MAX_REVIEW_ROUNDS) {
@@ -441,11 +531,18 @@ ${ctl.prd.slice(0, 8000)}`
     const cap = this.capacity(worker.model)
     const size = ctl.sizes.get(task.id) ?? estimateTask(task, {})
     const budget = Math.max(1500, Math.min(cap.contextTokens * 0.5, cap.inputPerMinute * 0.8) - size.outputTokens - PROMPT_TOKENS)
-    const others = files.filter((f) => !task.files.includes(f) && /\.(m?js|ts|tsx|jsx|html?|css|py)$/i.test(f)).slice(0, 40)
-    const context = buildWorkerContext(
-      { owned: await readTexts(wt, task.files), others: await readTexts(wt, others, 60000), fileList: files, prd: ctl.prd?.slice(0, 8000) },
-      budget
-    )
+    // The files this task's files load, or are loaded by, come first (code map), then the rest.
+    const owned = await readTexts(wt, task.files)
+    const candidates = await readTexts(wt, files.filter((f) => !task.files.includes(f) && CODE_FILE.test(f)).slice(0, 200), 60000)
+    const order = relatedFiles(buildCodeMap({ ...owned, ...candidates }), task.files).slice(0, 40)
+    const others = Object.fromEntries(order.map((f) => [f, candidates[f]]))
+    const context = buildWorkerContext({ owned, others, fileList: files, prd: ctl.prd?.slice(0, 8000) }, budget)
+    let codeQueries = 0
+    const findCode = async (query: string) => {
+      if (++codeQueries > MAX_CODE_QUERIES) return `find_code limit reached (${MAX_CODE_QUERIES} per attempt). Use read_file for the files you need.`
+      const all = await listFiles(wt, '.', 300)
+      return queryCodeMap(buildCodeMap(await readTexts(wt, all.filter((f) => CODE_FILE.test(f)), 200000)), query)
+    }
     const messages: ChatMessage[] = [
       { role: 'system', content: workerSystemPrompt(task, null, notes) + context },
       { role: 'user', content: notes ? 'Apply the reviewer notes, then call report_done.' : 'Start the task.' }
@@ -477,13 +574,18 @@ ${ctl.prd.slice(0, 8000)}`
       }
       for (const call of res.toolCalls) {
         this.log(ctl, worker.name, task.id, `→ ${call.name} ${summarizeArgs(call.arguments)}`)
+        this.bump(ctl, 'toolCalls')
         const result = await executeTool(
           {
             root: wt,
             runCommand: (cmd) => this.runCommand(ctl, worker.name, task, wt, cmd),
             defaultPath: task.files.length === 1 ? task.files[0] : undefined,
-            onWrite: (rel) => this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, rel)),
-            allowedPaths: task.files
+            onWrite: (rel) => {
+              this.firstFile(ctl)
+              this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, rel))
+            },
+            allowedPaths: task.files,
+            findCode
           },
           call.name,
           call.arguments
@@ -538,8 +640,10 @@ ${ctl.prd.slice(0, 8000)}`
       this.setAgent(ctl, worker.name, { status: 'working' })
       this.log(ctl, worker.name, task.id, `→ ${worker.model.name} is doing the task (your subscription)`)
       const inv = cliInvocation(source, 'task', cliTaskPrompt(task, notes, ctl.prd), worker.model.model || undefined)
+      this.bump(ctl, 'modelCalls')
       const res = await this.host.runCli(inv, wt, ctl.abort.signal, CLI_TASK_TIMEOUT_MS)
       if (ctl.abort.signal.aborted) throw new Error('Run stopped')
+      if (task.files.length || res.code === 0) this.firstFile(ctl)
       await this.keepOwnedFiles(ctl, worker.name, task, wt)
       for (const f of task.files) this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, f))
       const out = parseCliOutput(source, res.code, res.stdout, res.stderr)
@@ -584,6 +688,7 @@ ${ctl.prd.slice(0, 8000)}`
     const syntax = syntaxProblems(await readTexts(wt, task.files))
     if (syntax.length) {
       this.log(ctl, 'architect', task.id, `✗ syntax check: ${syntax[0]}`)
+      this.bump(ctl, 'checkFailures')
       return `Hive's syntax check failed. Fix these errors:\n${syntax.join('\n')}`
     }
     const { commands, refused } = await loadProjectChecks(ctl.root)
@@ -592,6 +697,7 @@ ${ctl.prd.slice(0, 8000)}`
       const { code, output } = await this.host.exec(wt, cmd, COMMAND_TIMEOUT_MS, ctl.abort.signal)
       if (code !== 0) {
         this.log(ctl, 'architect', task.id, `✗ check failed: ${cmd} (exit ${code})`)
+        this.bump(ctl, 'checkFailures')
         return `The project check \`${cmd}\` failed (exit ${code}). Fix the code so it passes:\n${tail(output)}`
       }
     }
@@ -629,10 +735,14 @@ ${ctl.prd.slice(0, 8000)}`
         reason: verdict.reason
       }
       this.setAgent(ctl, agent, { status: 'waiting' })
+      this.bump(ctl, 'approvalsAsked')
       this.log(ctl, agent, task.id, `⏸ waiting for approval: ${command} (${verdict.reason})`)
       const ok = await this.host.requestApproval(req)
       this.setAgent(ctl, agent, { status: 'working' })
-      if (!ok) return 'The user denied this command. Find another way or skip it.'
+      if (!ok) {
+        this.bump(ctl, 'approvalsDenied')
+        return 'The user denied this command. Find another way or skip it.'
+      }
     }
     const { code, output } = await this.host.exec(cwd, command, COMMAND_TIMEOUT_MS, ctl.abort.signal)
     return `exit code ${code}\n${output}`
@@ -881,6 +991,7 @@ ${ctl.prd.slice(0, 8000)}`
         this.log(ctl, agent, taskId, `${model.name} is not available; now using ${m.name}.`)
         this.emit(ctl)
       }
+      this.bump(ctl, 'modelCalls')
       const call = () => (isCliSource(model.source) ? this.askCli(ctl, model, messages, tools, onModel) : this.host.chat(model, messages, tools, { signal: ctl.abort.signal, onModel }))
       const res = await withRetry(call, ctl.abort.signal, (e, n) =>
         this.log(ctl, agent, taskId, `model request failed (${(e as Error).message}); retrying ${n}/3…`)
@@ -892,6 +1003,14 @@ ${ctl.prd.slice(0, 8000)}`
     } finally {
       release()
     }
+  }
+
+  private bump(ctl: RunCtl, key: 'modelCalls' | 'toolCalls' | 'checkFailures' | 'reviewRejections' | 'approvalsAsked' | 'approvalsDenied') {
+    if (ctl.run.metrics) ctl.run.metrics[key]++
+  }
+
+  private firstFile(ctl: RunCtl) {
+    if (ctl.run.metrics) ctl.run.metrics.firstFileMs ??= Date.now() - ctl.run.createdAt
   }
 
   private get(runId: string): RunCtl {

@@ -261,6 +261,27 @@ export interface AgentRun {
   previewDir?: string
   error?: string
   createdAt: number
+  /** Hive closed while the run was active, and it can continue from where it stopped. */
+  resumable?: boolean
+  /** The phase the run was in when Hive closed. */
+  interruptedPhase?: RunPhase
+  /** Counters for comparing setups (QA): the full team against one agent alone. */
+  metrics?: RunMetrics
+}
+
+export interface RunMetrics {
+  /** team: plan, checks, review, integration. solo: one agent does the whole goal, nothing else (the baseline). */
+  mode: 'team' | 'solo'
+  modelCalls: number
+  toolCalls: number
+  checkFailures: number
+  reviewRejections: number
+  approvalsAsked: number
+  approvalsDenied: number
+  /** Milliseconds from start to the first file written. */
+  firstFileMs?: number
+  /** Milliseconds from start until the work was ready to merge. */
+  readyMs?: number
 }
 
 export interface ApprovalRequest {

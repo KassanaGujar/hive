@@ -135,6 +135,7 @@ export interface IpcContract {
   'agents:pause': (runId: string, agent: string) => void
   'agents:resume': (runId: string, agent: string) => void
   'agents:stop': (runId: string) => void
+  'agents:resumeRun': (runId: string) => void
   'agents:reassign': (runId: string, taskId: string, modelId: string) => void
   'agents:takeOver': (runId: string, taskId: string) => { worktree: string }
   'agents:team': () => { architect?: InstalledModel; leads: InstalledModel[]; workers: InstalledModel[] }

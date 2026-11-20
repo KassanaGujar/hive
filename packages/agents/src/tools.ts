@@ -37,6 +37,11 @@ export const AGENT_TOOLS: ToolSpec[] = [
     parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] }
   },
   {
+    name: 'find_code',
+    description: 'Look up a function, class, variable or element id by name: where it is defined, the code around it, and which files use it. Cheaper than reading whole files. A few lookups per task.',
+    parameters: { type: 'object', properties: { query: { type: 'string', description: 'a name, e.g. "updateScore" or "#board"' } }, required: ['query'] }
+  },
+  {
     name: 'run_command',
     description:
       'Run a shell command in the project folder (PowerShell on Windows, bash elsewhere). 5 minute timeout. Risky commands wait for the user to approve.',
@@ -115,6 +120,8 @@ export interface ToolContext {
   defaultPath?: string
   /** Files this task owns; writes elsewhere are refused (other agents own them). Empty = any. */
   allowedPaths?: string[]
+  /** Answers find_code from the project's code map. Without it, find_code is unavailable. */
+  findCode?: (query: string) => Promise<string>
 }
 
 const PATH_KEYS = ['path', 'file', 'filename', 'file_path', 'filepath', 'file_name', 'name', 'f', 'target']
@@ -191,6 +198,10 @@ export async function executeTool(ctx: ToolContext, name: string, args: Record<s
       case 'search': {
         const hits = await searchFiles(ctx.root, String(args.query ?? ''))
         return { output: hits.join('\n') || 'No matches' }
+      }
+      case 'find_code': {
+        if (!ctx.findCode) return { output: 'Error: find_code is not available here; use search or read_file.' }
+        return { output: await ctx.findCode(String(args.query ?? '')) }
       }
       case 'run_command': {
         const out = await ctx.runCommand(String(args.command ?? ''))

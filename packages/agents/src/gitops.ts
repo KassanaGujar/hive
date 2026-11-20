@@ -46,14 +46,17 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
       }
       return (await g.revparse(['--abbrev-ref', 'HEAD'])).trim()
     },
-    async addWorktree(root, wtPath, branch, fromRef) {
+    async addWorktree(root, wtPath, branch, fromRef, reuse) {
       const g = git(root)
       await fs.mkdir(path.dirname(wtPath), { recursive: true })
       if (existsSync(wtPath)) await g.raw(['worktree', 'remove', '--force', wtPath]).catch(() => fs.rm(wtPath, { recursive: true, force: true }))
       await g.raw(['worktree', 'prune'])
       // A branch left by an earlier run (task ids repeat: "html", "task-1") used to be reopened at its old tip, so the
       // agent started from stale code instead of fromRef. Keep the old branch under another name and start fresh.
-      if ((await g.branchLocal()).all.includes(branch)) await g.raw(['branch', '-m', branch, `${branch}-old-${Date.now().toString(36)}`])
+      // reuse: the run's own integration branch when a run resumes, which holds the work merged so far.
+      const exists = (await g.branchLocal()).all.includes(branch)
+      if (exists && reuse) return void (await g.raw(['worktree', 'add', wtPath, branch]))
+      if (exists) await g.raw(['branch', '-m', branch, `${branch}-old-${Date.now().toString(36)}`])
       await g.raw(['worktree', 'add', '-b', branch, wtPath, fromRef])
     },
     async removeWorktree(root, wtPath) {
@@ -97,6 +100,12 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
     async deleteBranch(root, branch) {
       await git(root).deleteLocalBranch(branch, true)
     },
+    async isMerged(root, branch, into) {
+      return git(root)
+        .raw(['merge-base', '--is-ancestor', branch, into])
+        .then(() => true)
+        .catch(() => false)
+    },
     async changedFiles(cwd) {
       const out = await git(cwd).raw(['status', '--porcelain', '-uall', '-z'])
       return porcelainPaths(out).map((x) => x.path)
@@ -130,6 +139,7 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
     deleteBranch: serial(ops.deleteBranch),
     restorePaths: serial(ops.restorePaths!),
     changedFiles: ops.changedFiles, // read-only
+    isMerged: ops.isMerged, // read-only
     diff: ops.diff // read-only
   }
 }

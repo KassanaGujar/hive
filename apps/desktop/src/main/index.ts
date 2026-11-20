@@ -259,6 +259,7 @@ function registerHandlers() {
   handle('agents:pause', (r, a) => orchestrator.pause(r, a))
   handle('agents:resume', (r, a) => orchestrator.resume(r, a))
   handle('agents:stop', (r) => orchestrator.stop(r))
+  handle('agents:resumeRun', (r) => orchestrator.resumeRun(r))
   handle('agents:reassign', (r, t, m) => orchestrator.reassign(r, t, m))
   handle('agents:takeOver', (r, t) => orchestrator.takeOver(r, t))
   handle('agents:team', async () => {

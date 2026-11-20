@@ -366,6 +366,11 @@ function RunView({ run, logs, models, guard }: { run: AgentRun; logs: string[]; 
               <Play size={12} /> Run it
             </button>
           )}
+          {run.resumable && (
+            <button className="btn-primary" onClick={() => guard(invoke('agents:resumeRun', run.id))}>
+              <Play size={12} /> Resume
+            </button>
+          )}
           {active && run.phase !== 'awaiting-plan-approval' && (
             <button className="btn" onClick={() => guard(invoke('agents:stop', run.id))}>
               <Square size={11} className="text-bad" /> Stop the team
