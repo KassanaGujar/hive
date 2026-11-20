@@ -6,7 +6,7 @@ import { fmtGB, invoke } from '../lib/api'
 import { useStore } from '../store'
 import { refreshModels } from '../lib/actions'
 
-type Tab = 'local' | 'hf' | 'online' | 'own' | 'installed'
+type Tab = 'local' | 'hf' | 'online' | 'own' | 'subs' | 'installed'
 
 const FIT: Record<FitLabel, { text: string; cls: string }> = {
   'runs-well': { text: 'Runs well', cls: 'bg-ok/15 text-ok' },
@@ -40,6 +40,7 @@ export function ModelStore() {
     ['hf', 'Search Hugging Face'],
     ['online', 'Free online'],
     ['own', 'Your own keys'],
+    ['subs', 'Your subscriptions'],
     ['installed', `Installed (${models.length})`]
   ]
 
@@ -70,6 +71,8 @@ export function ModelStore() {
           <OnlineTab catalog={catalog} installed={models} />
         ) : tab === 'own' ? (
           <OwnKeysTab installed={models} />
+        ) : tab === 'subs' ? (
+          <SubscriptionsTab />
         ) : (
           <InstalledTab installed={models} />
         )}
@@ -709,6 +712,58 @@ function InstalledTab({ installed }: { installed: InstalledModel[] }) {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ---------- coding-agent CLIs the user already pays for ----------
+
+type CliAgentRow = { source: 'claude-code' | 'codex'; name: string; version: string | null; enabled: boolean; installUrl: string }
+
+function SubscriptionsTab() {
+  const [rows, setRows] = useState<CliAgentRow[] | null>(null)
+  const load = () => invoke('models:cliAgents').then(setRows)
+  useEffect(() => {
+    load()
+  }, [])
+  const toggle = async (r: CliAgentRow) => {
+    await invoke('models:setCliAgent', r.source, !r.enabled)
+    await load()
+    refreshModels()
+  }
+  return (
+    <div className="max-w-2xl">
+      <p className="mb-4 text-muted">
+        Already pay for Claude or ChatGPT? Turn on its coding CLI and the AI team can use it: it plans, reviews and
+        builds whole tasks with your own subscription, so no free daily limit applies. Hive starts the official CLI on
+        this PC and it signs in with your account. Hive never sees your password or token. Each task uses some of
+        your plan's usage.
+      </p>
+      {!rows ? (
+        <div className="text-muted">Looking for installed CLIs…</div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {rows.map((r) => (
+            <div key={r.source} className="card flex items-center gap-4 p-4">
+              <div className="flex-1">
+                <div className="font-semibold">{r.name}</div>
+                <div className="text-[12px] text-muted">
+                  {r.version ? `Installed (${r.version}). Sign in once by running it in a terminal.` : 'Not installed on this PC.'}
+                </div>
+              </div>
+              {r.version ? (
+                <label className="flex items-center gap-2 text-[13px]">
+                  <input type="checkbox" className="accent-[var(--accent)]" checked={r.enabled} onChange={() => toggle(r)} /> Use in the AI team
+                </label>
+              ) : (
+                <button className="btn" onClick={() => invoke('shell:openExternal', r.installUrl)}>
+                  <ExternalLink size={12} /> How to install
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

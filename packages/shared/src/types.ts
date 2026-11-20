@@ -1,9 +1,9 @@
 // Shared domain types used by main, renderer, packages and the relay.
 
 export type Tier = 'top' | 'lead' | 'worker'
-export type ModelSource = 'ollama' | 'openrouter' | 'groq' | 'hf' | 'custom'
+export type ModelSource = 'ollama' | 'openrouter' | 'groq' | 'hf' | 'custom' | 'claude-code' | 'codex'
 /** Sources that appear in the built-in free catalog. */
-export type CatalogSource = Exclude<ModelSource, 'custom'>
+export type CatalogSource = Exclude<ModelSource, 'custom' | 'claude-code' | 'codex'>
 
 export interface CatalogEntry {
   id: string
@@ -345,4 +345,6 @@ export interface Settings {
   relayUrl: string
   catalogUrl: string
   autosave: boolean
+  /** Coding-agent CLIs (Claude Code, Codex) the user turned on, so Hive can use their own subscription. */
+  cliAgents?: string[]
 }

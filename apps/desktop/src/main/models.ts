@@ -1,3 +1,4 @@
+import { cliModels } from './cliAgents'
 import { app } from 'electron'
 import { Agent as UndiciAgent, fetch as undiciFetch } from 'undici'
 import { setModelFetch } from '@hive/models'
@@ -197,6 +198,7 @@ export async function installedModels(): Promise<InstalledModel[]> {
       out.push({ id, name: `${model} (${p.name})`, source: 'custom', model, tier: overrides[id] ?? 'top', codingScore: 88, sizeGB: 0, minRamGB: 0, contextTokens: 128000 })
     }
   }
+  out.push(...(await cliModels()))
   return out
 }
 
@@ -208,6 +210,7 @@ export function setTier(id: string, tier: Tier | null) {
 }
 
 export function endpointFor(m: InstalledModel): Endpoint {
+  if (m.source === 'claude-code' || m.source === 'codex') throw new Error(`${m.name} works in the AI team only; it has no chat endpoint.`)
   // 16k tokens fits a few project files plus a long reply; never more than the model supports
   if (m.source === 'ollama') return { baseUrl: ollamaBaseUrl, model: m.model, ollamaContext: Math.max(4096, Math.min(m.contextTokens || 8192, 16384)) }
   if (m.source === 'custom') {

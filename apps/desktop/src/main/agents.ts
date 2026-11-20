@@ -13,7 +13,8 @@ import { smokeTestWeb } from './smoke'
 import path from 'node:path'
 import { afterModelError, capacityOf, classifyModelError, limitsFromError, offloadMessage, replyTokensFor, slowLocalModel, streamChat } from '@hive/models'
 import { loadedModels } from './ollama'
-import { learnedCapacity, recordOutcome, type ModelStats } from '@hive/agents'
+import { isCliSource, learnedCapacity, recordOutcome, type ModelStats } from '@hive/agents'
+import { runCli } from './cliAgents'
 
 const approvals = new Map<string, { req: ApprovalRequest; resolve: (ok: boolean) => void }>()
 let modelsCache: Awaited<ReturnType<typeof installedModels>> = []
@@ -37,7 +38,8 @@ const exhaustedUntil = new Map<string, number>()
 const tierRank = { top: 3, lead: 2, worker: 1 } as Record<string, number>
 function standIns(model: InstalledModel, tried: Set<string>): InstalledModel[] {
   return teamModels()
-    .filter((m) => !tried.has(m.id) && (exhaustedUntil.get(m.id) ?? 0) < Date.now())
+    // subscription CLIs answer through runCli, not this HTTP path
+    .filter((m) => !isCliSource(m.source) && !tried.has(m.id) && (exhaustedUntil.get(m.id) ?? 0) < Date.now())
     // hosted first (a local model on a small GPU is far slower), then the strongest
     .sort((a, b) => Number(a.source === 'ollama') - Number(b.source === 'ollama') || (tierRank[b.tier] ?? 0) - (tierRank[a.tier] ?? 0) || b.codingScore - a.codingScore)
 }
@@ -138,6 +140,7 @@ export const orchestrator = new Orchestrator({
   },
   memoryBudgetGB,
   smokeTest: smokeTestWeb,
+  runCli,
   fileWritten(runId, agent, taskId, absPath) {
     const rel = path.relative(projectRoot(), absPath).replace(/\\/g, '/')
     emit('agents:file', { runId, agent, taskId, path: rel })

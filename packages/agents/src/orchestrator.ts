@@ -24,6 +24,8 @@ import { combineReviews, reviewBudgetChars, splitDiff } from './review'
 import { learnedCapacity, type ModelOutcome, type ModelStats } from './stats'
 import { AGENT_TOOLS, executeTool, listFiles } from './tools'
 import { ResourceGuard } from './guard'
+import { loadProjectChecks, syntaxProblems, tail } from './checks'
+import { cliErrorKind, cliInvocation, cliTaskPrompt, flattenMessages, isCliSource, parseCliOutput, type CliInvocation, type CliSource } from './cliAgents'
 
 export const MAX_STEPS = 40
 export const MAX_REVIEW_ROUNDS = 3
@@ -32,6 +34,9 @@ export const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 export const DEFAULT_WORKERS = 3
 /** Integration rounds after all tasks merge, when the smoke test finds problems. */
 export const MAX_INTEGRATION_ROUNDS = 2
+/** A subscription CLI doing a whole task in one call. */
+export const CLI_TASK_TIMEOUT_MS = 30 * 60 * 1000
+export const CLI_ASK_TIMEOUT_MS = 10 * 60 * 1000
 
 export interface ChatResult {
   text: string
@@ -48,6 +53,10 @@ export interface GitOps {
   diff(cwd: string, fromRef: string, toRef: string): Promise<string>
   merge(cwd: string, branch: string, message: string): Promise<{ ok: boolean; conflicts?: string }>
   deleteBranch(root: string, branch: string): Promise<void>
+  /** Files changed, added or deleted in the worktree since its last commit (repo-relative, forward slashes). */
+  changedFiles?(cwd: string): Promise<string[]>
+  /** Undo uncommitted changes to these paths (new files are deleted). */
+  restorePaths?(cwd: string, paths: string[]): Promise<void>
 }
 
 export interface OrchestratorHost {
@@ -79,6 +88,8 @@ export interface OrchestratorHost {
   smokeTest?(dir: string): Promise<string[] | null>
   /** Called whenever an agent writes a file (absolute path), so the UI can show it live. */
   fileWritten?(runId: string, agent: string, taskId: string, absPath: string): void
+  /** Run a coding-agent CLI (Claude Code, Codex) signed in with the user's own subscription. Desktop only. */
+  runCli?(inv: CliInvocation, cwd: string, signal: AbortSignal, timeoutMs: number): Promise<{ code: number; stdout: string; stderr: string }>
 }
 
 const WORKER_NAMES = ['bee', 'wasp', 'ant', 'moth', 'beetle', 'cricket', 'firefly', 'mantis']
@@ -363,9 +374,13 @@ ${ctl.prd.slice(0, 8000)}`
       this.emit(ctl)
       // Deterministic check before any AI review: the task's own files must exist.
       const missing = (await Promise.all(task.files.map(async (f) => ((await executeTool({ root: wt, runCommand: async () => '' }, 'read_file', { path: f })).output.startsWith('Error') ? f : null)))).filter(Boolean)
+      // Then Hive's own checks (syntax, the project's commands); the AI review only sees work that passes them.
+      const problems = missing.length ? null : await this.runChecks(ctl, task, wt)
       const review = missing.length
         ? { approved: false, notes: `These files are missing — create them with write_file: ${missing.join(', ')}` }
-        : await this.review(ctl, task)
+        : problems
+          ? { approved: false, notes: problems }
+          : await this.review(ctl, task)
       if (review.approved) {
         task.reviewNotes = review.notes
         approved = true
@@ -394,7 +409,8 @@ ${ctl.prd.slice(0, 8000)}`
       task.diff = await this.host.git.diff(wt, ctl.run.integrationBranch!, 'HEAD')
       task.status = 'review'
       this.emit(ctl)
-      const review = task.diff?.trim() ? await this.review(ctl, task) : { approved: false, notes: 'No files were produced.' }
+      const problems = task.diff?.trim() ? await this.runChecks(ctl, task, wt) : null
+      const review = !task.diff?.trim() ? { approved: false, notes: 'No files were produced.' } : problems ? { approved: false, notes: problems } : await this.review(ctl, task)
       task.reviewNotes = review.notes
       this.outcome(ctl, task, ctl.actualModel.get(task.id) ?? strongest, review.approved)
       this.log(ctl, 'lead', task.id, review.approved ? 'Approved after the architect took over.' : `Still not approved after the architect took over: ${review.notes}`)
@@ -418,6 +434,7 @@ ${ctl.prd.slice(0, 8000)}`
     wt: string,
     notes?: string
   ): Promise<string> {
+    if (isCliSource(worker.model.source)) return this.cliWorker(ctl, task, worker, wt, notes)
     // Context sized to this model: a fixed bundle (every file name, 6 files × 6,000 chars, 3,000 chars of PRD) was more
     // than Groq's 7,000-tokens-a-minute cap and crowded small local models. See context.ts for the fill order.
     const files = await listFiles(wt, '.', 300)
@@ -505,6 +522,98 @@ ${ctl.prd.slice(0, 8000)}`
     }
     this.log(ctl, worker.name, task.id, `Hit the ${MAX_STEPS}-step limit; sending what exists to review.`)
     return 'Step limit reached.'
+  }
+
+  /**
+   * A subscription CLI does the whole task in one call. Edits outside the task's files are undone afterwards, the
+   * same rule write_file enforces for Hive's own workers. If the subscription is used up or signed out, the task
+   * moves to the best other model on the team.
+   */
+  private async cliWorker(ctl: RunCtl, task: AgentTask, worker: { name: string; model: InstalledModel }, wt: string, notes?: string): Promise<string> {
+    await this.waitWhilePaused(ctl, worker.name)
+    if (ctl.abort.signal.aborted) throw new Error('Run stopped')
+    const source = worker.model.source as CliSource
+    let failure = 'this app cannot run coding-agent CLIs'
+    if (this.host.runCli) {
+      this.setAgent(ctl, worker.name, { status: 'working' })
+      this.log(ctl, worker.name, task.id, `→ ${worker.model.name} is doing the task (your subscription)`)
+      const inv = cliInvocation(source, 'task', cliTaskPrompt(task, notes, ctl.prd), worker.model.model || undefined)
+      const res = await this.host.runCli(inv, wt, ctl.abort.signal, CLI_TASK_TIMEOUT_MS)
+      if (ctl.abort.signal.aborted) throw new Error('Run stopped')
+      await this.keepOwnedFiles(ctl, worker.name, task, wt)
+      for (const f of task.files) this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, f))
+      const out = parseCliOutput(source, res.code, res.stdout, res.stderr)
+      if (out.ok) {
+        this.log(ctl, worker.name, task.id, `✓ done: ${out.text.slice(0, 300)}`)
+        return out.text.slice(0, 2000) || 'Finished.'
+      }
+      failure = out.error ?? 'failed'
+    }
+    const fallback = this.nonCliModel(ctl)
+    if (!fallback) throw new Error(`${worker.model.name}: ${failure}`)
+    const kind = cliErrorKind(failure)
+    const why = kind === 'quota' ? 'subscription limit reached' : kind === 'signed-out' ? 'not signed in' : failure.slice(0, 200)
+    this.log(ctl, worker.name, task.id, `${worker.model.name} could not do it (${why}); now using ${fallback.name}.`)
+    task.model = fallback.name
+    ctl.actualModel.set(task.id, fallback)
+    this.emit(ctl)
+    return this.workerLoop(ctl, task, { name: worker.name, model: fallback }, wt, notes)
+  }
+
+  /** Undo edits outside the task's own files. */
+  private async keepOwnedFiles(ctl: RunCtl, agent: string, task: AgentTask, wt: string) {
+    const git = this.host.git
+    if (!task.files.length || !git.changedFiles || !git.restorePaths) return
+    const own = new Set(task.files.map((f) => f.replace(/\\/g, '/').replace(/^\.\//, '')))
+    const stray = (await git.changedFiles(wt)).filter((f) => !own.has(f))
+    if (!stray.length) return
+    await git.restorePaths(wt, stray)
+    this.log(ctl, agent, task.id, `Undid edits outside its own files: ${stray.slice(0, 8).join(', ')}${stray.length > 8 ? '…' : ''}`)
+  }
+
+  /** The strongest model on the team that is not a subscription CLI (a fallback when the subscription fails). */
+  private nonCliModel(ctl: RunCtl): InstalledModel | undefined {
+    return [ctl.team.architect, ...ctl.team.leads, ...ctl.team.workers].find((m) => m && !isCliSource(m.source))
+  }
+
+  /**
+   * Hive's own checks, run after the agent stops: a syntax check of the task's files, then the project's commands
+   * from .hive/checks.json in the task's worktree. Returns what failed, or null when everything passed.
+   */
+  private async runChecks(ctl: RunCtl, task: AgentTask, wt: string): Promise<string | null> {
+    const syntax = syntaxProblems(await readTexts(wt, task.files))
+    if (syntax.length) {
+      this.log(ctl, 'architect', task.id, `✗ syntax check: ${syntax[0]}`)
+      return `Hive's syntax check failed. Fix these errors:\n${syntax.join('\n')}`
+    }
+    const { commands, refused } = await loadProjectChecks(ctl.root)
+    for (const r of refused) this.log(ctl, 'architect', task.id, `Skipped check "${r}": shell operators are not allowed in .hive/checks.json.`)
+    for (const cmd of commands) {
+      const { code, output } = await this.host.exec(wt, cmd, COMMAND_TIMEOUT_MS, ctl.abort.signal)
+      if (code !== 0) {
+        this.log(ctl, 'architect', task.id, `✗ check failed: ${cmd} (exit ${code})`)
+        return `The project check \`${cmd}\` failed (exit ${code}). Fix the code so it passes:\n${tail(output)}`
+      }
+    }
+    if (commands.length) this.log(ctl, 'architect', task.id, `✓ checks passed: ${commands.join(', ')}`)
+    return null
+  }
+
+  /** Planning and review with a subscription CLI: one prompt, no tools. Falls back to another model if it fails. */
+  private async askCli(ctl: RunCtl, model: InstalledModel, messages: ChatMessage[], tools: ToolSpec[] | undefined, onModel: (m: InstalledModel) => void): Promise<ChatResult> {
+    const source = model.source as CliSource
+    let failure = 'this app cannot run coding-agent CLIs'
+    if (this.host.runCli) {
+      const inv = cliInvocation(source, 'ask', flattenMessages(messages), model.model || undefined)
+      const res = await this.host.runCli(inv, ctl.root, ctl.abort.signal, CLI_ASK_TIMEOUT_MS)
+      const out = parseCliOutput(source, res.code, res.stdout, res.stderr)
+      if (out.ok) return { text: out.text }
+      failure = out.error ?? 'failed'
+    }
+    const fallback = this.nonCliModel(ctl)
+    if (!fallback || ctl.abort.signal.aborted) throw new Error(`${model.name}: ${failure}`)
+    onModel(fallback)
+    return this.host.chat(fallback, messages, tools, { signal: ctl.abort.signal })
   }
 
   private async runCommand(ctl: RunCtl, agent: string, task: AgentTask, cwd: string, command: string): Promise<string> {
@@ -772,7 +881,8 @@ ${ctl.prd.slice(0, 8000)}`
         this.log(ctl, agent, taskId, `${model.name} is not available; now using ${m.name}.`)
         this.emit(ctl)
       }
-      const res = await withRetry(() => this.host.chat(model, messages, tools, { signal: ctl.abort.signal, onModel }), ctl.abort.signal, (e, n) =>
+      const call = () => (isCliSource(model.source) ? this.askCli(ctl, model, messages, tools, onModel) : this.host.chat(model, messages, tools, { signal: ctl.abort.signal, onModel }))
+      const res = await withRetry(call, ctl.abort.signal, (e, n) =>
         this.log(ctl, agent, taskId, `model request failed (${(e as Error).message}); retrying ${n}/3…`)
       )
       if (res.tokensPerSec) this.setAgent(ctl, agent, { tokensPerSec: res.tokensPerSec })

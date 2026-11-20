@@ -1,3 +1,4 @@
+import { listCliAgents, setCliAgent } from './cliAgents'
 import { app, BrowserWindow, dialog, Menu, Notification, shell } from 'electron'
 import path from 'node:path'
 import { handle, emit, watchEventLoop } from './ipc'
@@ -229,6 +230,8 @@ function registerHandlers() {
   handle('models:setTier', (id, t) => models.setTier(id, t))
   handle('models:offload', () => offloadWarning())
   handle('models:testKey', (p, k) => models.testKey(p, k))
+  handle('models:cliAgents', () => listCliAgents())
+  handle('models:setCliAgent', (s, on) => setCliAgent(s, on))
   handle('models:connectHosted', (id, on) => models.setHostedConnected(id, on))
   handle('library:searchHF', (q) => library.searchHF(q))
   handle('library:hfFiles', (repo) => library.hfFiles(repo))

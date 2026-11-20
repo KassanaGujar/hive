@@ -408,7 +408,7 @@ describe('reviews fit the lead', () => {
         }
         const mine = sys.includes('Task: Big') ? ['a.js', 'b.js'] : sys.includes('Task: C') ? ['c.js'] : ['d.js']
         const n = msgs.filter((x) => x.role === 'tool').length
-        if (n < mine.length) return { text: '', toolCalls: [{ id: `w${n}`, name: 'write_file', arguments: { path: mine[n], content: `// ${mine[n]}\n${'let x = 1\n'.repeat(1500)}` } }] }
+        if (n < mine.length) return { text: '', toolCalls: [{ id: `w${n}`, name: 'write_file', arguments: { path: mine[n], content: `// ${mine[n]}\n${'var x = 1\n'.repeat(1500)}` } }] }
         return { text: '', toolCalls: [{ id: 'd', name: 'report_done', arguments: { summary: 'done' } }] }
       },
       git: createGitOps(),

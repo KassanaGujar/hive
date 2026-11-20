@@ -168,7 +168,8 @@ const DEFAULT_SETTINGS: Settings = {
   tierOverrides: {},
   relayUrl: DEFAULT_RELAY_URL,
   catalogUrl: DEFAULT_CATALOG_URL,
-  autosave: true
+  autosave: true,
+  cliAgents: []
 }
 
 export function getSettings(): Settings {

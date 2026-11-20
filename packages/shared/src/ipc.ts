@@ -105,6 +105,8 @@ export interface IpcContract {
   'models:installed': () => InstalledModel[]
   'models:setTier': (id: string, tier: Tier | null) => void
   'models:testKey': (provider: string, key: string) => { ok: boolean; message: string }
+  'models:cliAgents': () => { source: 'claude-code' | 'codex'; name: string; version: string | null; enabled: boolean; installUrl: string }[]
+  'models:setCliAgent': (source: 'claude-code' | 'codex', on: boolean) => void
   'models:connectHosted': (catalogId: string, connected: boolean) => void
   /** Plain warning when a loaded local model is mostly on the processor (very slow), else null. */
   'models:offload': () => string | null

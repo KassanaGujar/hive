@@ -51,9 +51,10 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
       await fs.mkdir(path.dirname(wtPath), { recursive: true })
       if (existsSync(wtPath)) await g.raw(['worktree', 'remove', '--force', wtPath]).catch(() => fs.rm(wtPath, { recursive: true, force: true }))
       await g.raw(['worktree', 'prune'])
-      const exists = (await g.branchLocal()).all.includes(branch)
-      if (exists) await g.raw(['worktree', 'add', wtPath, branch])
-      else await g.raw(['worktree', 'add', '-b', branch, wtPath, fromRef])
+      // A branch left by an earlier run (task ids repeat: "html", "task-1") used to be reopened at its old tip, so the
+      // agent started from stale code instead of fromRef. Keep the old branch under another name and start fresh.
+      if ((await g.branchLocal()).all.includes(branch)) await g.raw(['branch', '-m', branch, `${branch}-old-${Date.now().toString(36)}`])
+      await g.raw(['worktree', 'add', '-b', branch, wtPath, fromRef])
     },
     async removeWorktree(root, wtPath) {
       await git(root)
@@ -95,6 +96,21 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
     },
     async deleteBranch(root, branch) {
       await git(root).deleteLocalBranch(branch, true)
+    },
+    async changedFiles(cwd) {
+      const out = await git(cwd).raw(['status', '--porcelain', '-uall', '-z'])
+      return porcelainPaths(out).map((x) => x.path)
+    },
+    async restorePaths(cwd, paths) {
+      const g = git(cwd)
+      const entries = porcelainPaths(await g.raw(['status', '--porcelain', '-uall', '-z'])).filter((x) => paths.includes(x.path))
+      const added = entries.filter((x) => x.code === '??' || x.code.startsWith('A')).map((x) => x.path)
+      const tracked = entries.filter((x) => !added.includes(x.path)).map((x) => x.path)
+      if (tracked.length) await g.raw(['checkout', 'HEAD', '--', ...tracked])
+      if (added.length) {
+        await g.raw(['rm', '--cached', '-q', '--ignore-unmatch', '--', ...added]).catch(() => {})
+        await Promise.all(added.map((f) => fs.rm(path.join(cwd, f), { force: true })))
+      }
     }
   }
   // Worktrees share one repository, and git takes repo-wide locks (index.lock, refs, worktree admin
@@ -112,6 +128,20 @@ export function createGitOps(identityName: () => string = () => 'Hive user'): Gi
     commitAll: serial(ops.commitAll),
     merge: serial(ops.merge),
     deleteBranch: serial(ops.deleteBranch),
+    restorePaths: serial(ops.restorePaths!),
+    changedFiles: ops.changedFiles, // read-only
     diff: ops.diff // read-only
   }
+}
+
+/** Paths from `git status --porcelain -z` (renames keep the new path). */
+export function porcelainPaths(out: string): { code: string; path: string }[] {
+  const parts = out.split('\0').filter(Boolean)
+  const res: { code: string; path: string }[] = []
+  for (let i = 0; i < parts.length; i++) {
+    const code = parts[i].slice(0, 2)
+    res.push({ code, path: parts[i].slice(3) })
+    if (code.startsWith('R') || code.startsWith('C')) i++ // the next entry is the old path
+  }
+  return res
 }
