@@ -73,7 +73,7 @@ const nb=s.bullets.length;g.shoot();s=g.state();const b=s.bullets[s.bullets.leng
 R['Projectile shooting']=(s.bullets.length>nb&&b&&g.state().bullets.some(q=>q.y<by))||'no bullet or bullet does not move up';
 const rows=new Set(s.enemies.map(e=>Math.round(e.y)));R['Enemy formations']=(s.enemies.length>=32&&rows.size>=4)||s.enemies.length+' enemies in '+rows.size+' rows';
 g.reset();g.pause();s=g.state();const target=s.enemies.filter(e=>e.alive).sort((a,b)=>b.y-a.y)[0];s.player.x=target.x+target.w/2-s.player.w/2;
-const alive0=s.enemies.filter(e=>e.alive).length,score0=s.score;g.shoot();for(let i=0;i<400&&g.state().enemies.filter(e=>e.alive).length===alive0;i++){g.step()}
+const alive0=s.enemies.filter(e=>e.alive).length,score0=s.score;g.shoot();{const q=g.state().bullets[g.state().bullets.length-1];if(q){q.x=target.x+target.w/2-(q.w||4)/2;q.y=target.y+target.h+2}}for(let i=0;i<400&&g.state().enemies.filter(e=>e.alive).length===alive0;i++){g.step()}
 s=g.state();R['Projectile collisions']=s.enemies.filter(e=>e.alive).length===alive0-1||'enemy count '+alive0+'→'+s.enemies.filter(e=>e.alive).length;
 R['Scoring']=s.score===score0+10||'score '+score0+'→'+s.score;
 g.reset();g.pause();s=g.state();const lives0=s.lives;const e=s.enemies.find(q=>q.alive);e.x=s.player.x;e.y=s.player.y;g.step();
@@ -96,7 +96,7 @@ s.ball.x=200;s.ball.y=400;s.ball.vx=3;s.ball.vy=-2;g.step();R['Ball physics']=(M
 s.ball.x=s.ball.r+1;s.ball.y=400;s.ball.vx=-4;s.ball.vy=0.0001;for(let i=0;i<3;i++)g.step();const left=s.ball.vx>0;
 s.ball.x=200;s.ball.y=s.ball.r+1;s.ball.vx=0.0001;s.ball.vy=-4;for(let i=0;i<3;i++)g.step();R['Wall collisions']=(left&&s.ball.vy>0)||'left bounce='+left+' top bounce='+(s.ball.vy>0);
 s.ball.x=s.paddle.x+s.paddle.w/2;s.ball.y=s.paddle.y-s.ball.r-3;s.ball.vx=0;s.ball.vy=4;for(let i=0;i<3;i++)g.step();R['Paddle collisions']=s.ball.vy<0||'ball vy after paddle '+s.ball.vy;
-g.reset();g.pause();s=g.state();const br=s.bricks.find(b=>b.alive);const sc=s.score;s.ball.x=br.x+br.w/2;s.ball.y=br.y+br.h+s.ball.r+2;s.ball.vx=0;s.ball.vy=-4;for(let i=0;i<4;i++)g.step();
+g.reset();g.pause();s=g.state();const br=s.bricks.filter(b=>b.alive).sort((a,b)=>b.y-a.y)[0];const sc=s.score;s.ball.x=br.x+br.w/2;s.ball.y=br.y+br.h+s.ball.r+2;s.ball.vx=0;s.ball.vy=-4;for(let i=0;i<4;i++)g.step();
 R['Brick destruction']=(!br.alive&&s.ball.vy>0)||'brick alive='+br.alive;
 const lv=s.lives;s.ball.x=10;s.ball.y=s.height+50;s.ball.vy=4;g.step();R['Lives and scoring']=(s.score===sc+10&&g.state().lives===lv-1)||'score '+sc+'→'+s.score+', lives '+lv+'→'+g.state().lives;
 g.reset();g.pause();s=g.state();s.bricks.forEach((b,i)=>{if(i>0)b.alive=false});const last=s.bricks[0];s.ball.x=last.x+last.w/2;s.ball.y=last.y+last.h+s.ball.r+2;s.ball.vx=0;s.ball.vy=-4;for(let i=0;i<4;i++)g.step();const won=g.state().won;

@@ -31,7 +31,8 @@ for (const [name, g] of rows) {
   const scores = Object.entries(g).map(([k, r]) => [k, passed(r)])
   const best = Math.max(...scores.map(([, s]) => s))
   const top = scores.filter(([, s]) => s === best)
-  if (top.length === 1) wins[top[0][0]]++
+  if (scores.length > 1 && top.length === 1) wins[top[0][0]]++
   console.log(`${name.padEnd(28)} ${cell(g.team).padEnd(26)} ${cell(g.single).padEnd(26)} ${cell(g.solo)}`)
 }
-console.log(`\nOutright best: team ${wins.team}, single ${wins.single}, solo ${wins.solo}, of ${rows.length} challenge(s) (ties not counted).`)
+const compared = rows.filter(([, g]) => Object.keys(g).length > 1).length
+console.log(`\nOutright best: team ${wins.team}, single ${wins.single}, solo ${wins.solo}, of ${compared} challenge(s) run in more than one setup (ties not counted).`)

@@ -1,1116 +1,1778 @@
 {
- "snake": {
-  "title": "1. Snake Game",
-  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
-  "plan": [
-   "Create the HTML structure; Add dark theme: index.html",
-   "Define the game state; Implement the game logic; Add the canvas rendering; Handle game over and restart: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create the HTML structure; Add dark theme",
-    "status": "running"
-   },
-   {
-    "title": "Define the game state; Implement the game logic; Add the canvas rendering; Handle game over and restart",
-    "status": "running"
-   }
-  ],
-  "error": "team did not finish: working ",
-  "minutes": 184,
-  "final": {
-   "Create a playable Snake game": "team run failed: team did not finish: working ",
-   "Directional movement": "team run failed: team did not finish: working ",
-   "Food generation": "team run failed: team did not finish: working ",
-   "Snake growth": "team run failed: team did not finish: working ",
-   "Wall collision": "team run failed: team did not finish: working ",
-   "Self-collision": "team run failed: team did not finish: working ",
-   "Score tracking": "team run failed: team did not finish: working ",
-   "Game-over functionality": "team run failed: team did not finish: working ",
-   "Restart functionality": "team run failed: team did not finish: working ",
-   "The game runs without errors": "team did not finish: working "
-  }
- },
- "tictactoe": {
-  "title": "2. Tic-Tac-Toe",
-  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
-  "plan": [
-   "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
-   "Style the Tic-Tac-Toe board and elements.: style.css",
-   "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button : app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create the HTML structure for the Tic-Tac-Toe board.",
-    "status": "merged"
-   },
-   {
-    "title": "Style the Tic-Tac-Toe board and elements.",
-    "status": "merged"
-   },
-   {
-    "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button ",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "review"
-   }
-  ],
-  "error": "team did not finish: working ",
-  "minutes": 93,
-  "final": {
-   "A functional game board": "team run failed: team did not finish: working ",
-   "Two-player gameplay": "team run failed: team did not finish: working ",
-   "Turn management": "team run failed: team did not finish: working ",
-   "Detects winning combinations": "team run failed: team did not finish: working ",
-   "Detects draws": "team run failed: team did not finish: working ",
-   "A scoreboard": "team run failed: team did not finish: working ",
-   "Restart functionality": "team run failed: team did not finish: working ",
-   "Illegal moves are prevented": "team run failed: team did not finish: working "
-  }
- },
- "snake@qwen3.5-4b": {
-  "title": "1. Snake Game",
-  "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
-  "plan": [],
-  "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-  "minutes": 21,
-  "final": {
-   "Create a playable Snake game": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Directional movement": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Food generation": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Snake growth": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Wall collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Self-collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Score tracking": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Game-over functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "The game runs without errors": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
-  }
- },
- "tictactoe@qwen3.5-4b": {
-  "title": "2. Tic-Tac-Toe",
-  "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
-  "plan": [],
-  "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-  "minutes": 21,
-  "final": {
-   "A functional game board": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Two-player gameplay": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Turn management": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Detects winning combinations": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Detects draws": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "A scoreboard": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
-   "Illegal moves are prevented": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
-  }
- },
- "snake@qwen2.5-coder-7b-solo": {
-  "title": "1. Snake Game",
-  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
-  "plan": [
-   "Create the HTML structure: index.html",
-   "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create the HTML structure",
-    "status": "merged"
-   },
-   {
-    "title": "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "merged"
-   }
-  ],
-  "phase": "done",
-  "minutes": 57,
-  "final": {
-   "Create a playable Snake game": "no canvas or snake does not move on its own",
-   "Directional movement": "down then ArrowLeft: [{\"x\":100,\"y\":100},{\"x\":100,\"y\":100},{\"x\":100,\"y\":100}]",
-   "Food generation": "food {\"x\":200,\"y\":200}",
-   "Snake growth": "length 3→3",
-   "Wall collision": "never hit the wall in 40 steps",
-   "Self-collision": "length 3 looped into itself without game over",
-   "Score tracking": "score undefined→undefined",
-   "Game-over functionality": "over=undefined moved after over=false message=false",
-   "Restart functionality": "{\"len\":3}",
-   "The game runs without errors": true
-  }
- },
- "tictactoe@qwen2.5-coder-7b-solo": {
-  "title": "2. Tic-Tac-Toe",
-  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
-  "plan": [
-   "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
-   "Style the Tic-Tac-Toe board and elements.: style.css",
-   "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create the HTML structure for the Tic-Tac-Toe board.",
-    "status": "merged"
-   },
-   {
-    "title": "Style the Tic-Tac-Toe board and elements.",
-    "status": "merged"
-   },
-   {
-    "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt",
-    "status": "merged"
-   }
-  ],
-  "phase": "done",
-  "minutes": 16,
-  "final": {
-   "A functional game board": true,
-   "Two-player gameplay": "not checked",
-   "Turn management": "not checked",
-   "Detects winning combinations": "not checked",
-   "Detects draws": "not checked",
-   "A scoreboard": "not checked",
-   "Restart functionality": "not checked",
-   "Illegal moves are prevented": "not checked"
+  "snake": {
+    "title": "1. Snake Game",
+    "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
+    "plan": [
+      "Create the HTML structure; Add dark theme: index.html",
+      "Define the game state; Implement the game logic; Add the canvas rendering; Handle game over and restart: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create the HTML structure; Add dark theme",
+        "status": "running"
+      },
+      {
+        "title": "Define the game state; Implement the game logic; Add the canvas rendering; Handle game over and restart",
+        "status": "running"
+      }
+    ],
+    "error": "team did not finish: working ",
+    "minutes": 184,
+    "final": {
+      "Create a playable Snake game": "team run failed: team did not finish: working ",
+      "Directional movement": "team run failed: team did not finish: working ",
+      "Food generation": "team run failed: team did not finish: working ",
+      "Snake growth": "team run failed: team did not finish: working ",
+      "Wall collision": "team run failed: team did not finish: working ",
+      "Self-collision": "team run failed: team did not finish: working ",
+      "Score tracking": "team run failed: team did not finish: working ",
+      "Game-over functionality": "team run failed: team did not finish: working ",
+      "Restart functionality": "team run failed: team did not finish: working ",
+      "The game runs without errors": "team did not finish: working "
+    }
   },
-  "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:15:83"
- },
- "snake@qwen3-4b-solo": {
-  "title": "1. Snake Game",
-  "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
-  "plan": [],
-  "error": "no plan: planning ",
-  "minutes": 30,
-  "final": {
-   "Create a playable Snake game": "team run failed: no plan: planning ",
-   "Directional movement": "team run failed: no plan: planning ",
-   "Food generation": "team run failed: no plan: planning ",
-   "Snake growth": "team run failed: no plan: planning ",
-   "Wall collision": "team run failed: no plan: planning ",
-   "Self-collision": "team run failed: no plan: planning ",
-   "Score tracking": "team run failed: no plan: planning ",
-   "Game-over functionality": "team run failed: no plan: planning ",
-   "Restart functionality": "team run failed: no plan: planning ",
-   "The game runs without errors": "no plan: planning "
-  }
- },
- "tictactoe@qwen3-4b-solo": {
-  "title": "2. Tic-Tac-Toe",
-  "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
-  "plan": [],
-  "error": "no plan: planning ",
-  "minutes": 30,
-  "final": {
-   "A functional game board": "team run failed: no plan: planning ",
-   "Two-player gameplay": "team run failed: no plan: planning ",
-   "Turn management": "team run failed: no plan: planning ",
-   "Detects winning combinations": "team run failed: no plan: planning ",
-   "Detects draws": "team run failed: no plan: planning ",
-   "A scoreboard": "team run failed: no plan: planning ",
-   "Restart functionality": "team run failed: no plan: planning ",
-   "Illegal moves are prevented": "team run failed: no plan: planning "
-  }
- },
- "snake@openrouter-free": {
-  "title": "1. Snake Game",
-  "team": "architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [],
-  "error": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-  "minutes": 0,
-  "final": {
-   "Create a playable Snake game": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Directional movement": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Food generation": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Snake growth": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Wall collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Self-collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Score tracking": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Game-over functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "Restart functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
-   "The game runs without errors": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/cre"
-  }
- },
- "tictactoe@openrouter-free": {
-  "title": "2. Tic-Tac-Toe",
-  "team": "architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html markup: index.html",
-   "Implement game logic in app.js: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html markup",
-    "status": "merged"
-   },
-   {
-    "title": "Implement game logic in app.js",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 5,
-  "final": {
-   "A functional game board": true,
-   "Two-player gameplay": true,
-   "Turn management": true,
-   "Detects winning combinations": true,
-   "Detects draws": true,
-   "A scoreboard": true,
-   "Restart functionality": true,
-   "Illegal moves are prevented": true
-  }
- },
- "snake@groq-free": {
-  "title": "1. Snake Game",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html with canvas, score display, restart button and load game.js: index.html",
-   "Implement game.js with deterministic Snake logic, rendering, input, and timer: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas, score display, restart button and load game.js",
-    "status": "merged"
-   },
-   {
-    "title": "Implement game.js with deterministic Snake logic, rendering, input, and timer",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "merged"
-   }
-  ],
-  "phase": "done",
-  "minutes": 7,
-  "final": {
-   "Create a playable Snake game": true,
-   "Directional movement": true,
-   "Food generation": true,
-   "Snake growth": true,
-   "Wall collision": true,
-   "Self-collision": true,
-   "Score tracking": true,
-   "Game-over functionality": "over=true moved after over=false message=false",
-   "Restart functionality": true,
-   "The game runs without errors": true
-  }
- },
- "invaders@groq-free": {
-  "title": "3. Space Invaders",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html with canvas and script includes: index.html",
-   "Add minimal CSS for centering and button styling: style.css",
-   "Implement deterministic Space Invaders engine in game.js: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas and script includes",
-    "status": "merged"
-   },
-   {
-    "title": "Add minimal CSS for centering and button styling",
-    "status": "merged"
-   },
-   {
-    "title": "Implement deterministic Space Invaders engine in game.js",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 5,
-  "final": {
-   "Player movement": "not checked",
-   "Projectile shooting": "not checked",
-   "Enemy formations": "not checked",
-   "Projectile collisions": "not checked",
-   "Player-enemy collisions": "not checked",
-   "Scoring": "not checked",
-   "Increasing difficulty": "not checked",
-   "Game-over and restart states": "not checked"
+  "tictactoe": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Llama 3.2 3B",
+    "plan": [
+      "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
+      "Style the Tic-Tac-Toe board and elements.: style.css",
+      "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button : app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create the HTML structure for the Tic-Tac-Toe board.",
+        "status": "merged"
+      },
+      {
+        "title": "Style the Tic-Tac-Toe board and elements.",
+        "status": "merged"
+      },
+      {
+        "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the scoreboard.; Implement the reset button ",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "review"
+      }
+    ],
+    "error": "team did not finish: working ",
+    "minutes": 93,
+    "final": {
+      "A functional game board": "team run failed: team did not finish: working ",
+      "Two-player gameplay": "team run failed: team did not finish: working ",
+      "Turn management": "team run failed: team did not finish: working ",
+      "Detects winning combinations": "team run failed: team did not finish: working ",
+      "Detects draws": "team run failed: team did not finish: working ",
+      "A scoreboard": "team run failed: team did not finish: working ",
+      "Restart functionality": "team run failed: team did not finish: working ",
+      "Illegal moves are prevented": "team run failed: team did not finish: working "
+    }
   },
-  "probeError": "TypeError: g.pause is not a function\n    at <anonymous>:2:96\n    at <anonymous>:17:83"
- },
- "breakout@groq-free": {
-  "title": "4. Breakout",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html and basic layout: index.html",
-   "Implement deterministic Breakout logic in game.js: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html and basic layout",
-    "status": "merged"
-   },
-   {
-    "title": "Implement deterministic Breakout logic in game.js",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 3,
-  "final": {
-   "Paddle movement": "not checked",
-   "Ball physics": "not checked",
-   "Wall collisions": "not checked",
-   "Paddle collisions": "not checked",
-   "Brick destruction": "not checked",
-   "Lives and scoring": "not checked",
-   "Win and loss conditions": "not checked",
-   "The game behaves consistently": "not checked"
+  "snake@qwen3.5-4b": {
+    "title": "1. Snake Game",
+    "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
+    "plan": [],
+    "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+    "minutes": 21,
+    "final": {
+      "Create a playable Snake game": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Directional movement": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Food generation": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Snake growth": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Wall collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Self-collision": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Score tracking": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Game-over functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "The game runs without errors": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
+    }
   },
-  "probeError": "TypeError: g.pause is not a function\n    at <anonymous>:2:96\n    at <anonymous>:15:83"
- },
- "kanban@groq-free": {
-  "title": "5. Kanban Task Manager",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html skeleton: index.html",
-   "Style Kanban board: style.css",
-   "Implement board logic, UI rendering, drag‑and‑drop and sync: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html skeleton",
-    "status": "failed"
-   },
-   {
-    "title": "Style Kanban board",
-    "status": "failed"
-   },
-   {
-    "title": "Implement board logic, UI rendering, drag‑and‑drop and sync",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A task management application": "team run failed: team did not finish: failed No task finished successfully.",
-   "Task creation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Task deletion": "team run failed: team did not finish: failed No task finished successfully.",
-   "Task editing": "team run failed: team did not finish: failed No task finished successfully.",
-   "Draggable task cards": "team run failed: team did not finish: failed No task finished successfully.",
-   "Multiple task columns": "team run failed: team did not finish: failed No task finished successfully.",
-   "Task assignments": "team run failed: team did not finish: failed No task finished successfully.",
-   "Persistent storage": "team run failed: team did not finish: failed No task finished successfully.",
-   "Real-time collaboration": "team run failed: team did not finish: failed No task finished successfully.",
-   "Multiple users see the same task updates": "team run failed: team did not finish: failed No task finished successfully.",
-   "Refreshing doesn't lose tasks": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "pathfinding@groq-free": {
-  "title": "6. Pathfinding Visualizer",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create HTML layout and CSS styles — index.html: index.html",
-   "Create HTML layout and CSS styles — style.css: style.css",
-   "Implement pathfinding algorithms and window.pf API; Add UI behavior, grid generation, animation, and results display: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create HTML layout and CSS styles — index.html",
-    "status": "failed"
-   },
-   {
-    "title": "Create HTML layout and CSS styles — style.css",
-    "status": "failed"
-   },
-   {
-    "title": "Implement pathfinding algorithms and window.pf API; Add UI behavior, grid generation, animation, and results display",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "An interactive grid": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can place walls and obstacles": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can select a start point and destination": "team run failed: team did not finish: failed No task finished successfully.",
-   "A* pathfinding": "team run failed: team did not finish: failed No task finished successfully.",
-   "Dijkstra's algorithm": "team run failed: team did not finish: failed No task finished successfully.",
-   "Breadth-First Search": "team run failed: team did not finish: failed No task finished successfully.",
-   "Animated search process": "team run failed: team did not finish: failed No task finished successfully.",
-   "Displays the resulting path": "team run failed: team did not finish: failed No task finished successfully.",
-   "Compares the algorithms' performance": "team run failed: team did not finish: failed No task finished successfully.",
-   "Handles unreachable destinations": "team run failed: team did not finish: failed No task finished successfully.",
-   "Each algorithm returns correct results": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "world@groq-free": {
-  "title": "7. Procedural World Generator",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Build index.html UI: index.html",
-   "Implement deterministic world generator in world.js: world.js"
-  ],
-  "tasks": [
-   {
-    "title": "Build index.html UI",
-    "status": "failed"
-   },
-   {
-    "title": "Implement deterministic world generator in world.js",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A random terrain map": "team run failed: team did not finish: failed No task finished successfully.",
-   "Perlin or Simplex noise": "team run failed: team did not finish: failed No task finished successfully.",
-   "Mountains": "team run failed: team did not finish: failed No task finished successfully.",
-   "Lakes and rivers": "team run failed: team did not finish: failed No task finished successfully.",
-   "Forests": "team run failed: team did not finish: failed No task finished successfully.",
-   "World seeds": "team run failed: team did not finish: failed No task finished successfully.",
-   "Identical seeds produce identical worlds": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can regenerate worlds": "team run failed: team did not finish: failed No task finished successfully.",
-   "A controllable character": "team run failed: team did not finish: failed No task finished successfully.",
-   "Terrain generation performs efficiently": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "chat@groq-free": {
-  "title": "8. Real-Time Chat Application",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Node.js server with static file serving, persistence, and SSE API: server.js, data/messages.json, hive.json",
-   "Static HTML page layout and element IDs: public/index.html",
-   "Browser client logic for SSE, sending, typing, and UI updates: public/client.js"
-  ],
-  "tasks": [
-   {
-    "title": "Node.js server with static file serving, persistence, and SSE API",
-    "status": "failed"
-   },
-   {
-    "title": "Static HTML page layout and element IDs",
-    "status": "failed"
-   },
-   {
-    "title": "Browser client logic for SSE, sending, typing, and UI updates",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A chat interface": "team run failed: team did not finish: failed No task finished successfully.",
-   "Multiple users": "team run failed: team did not finish: failed No task finished successfully.",
-   "Sending and receiving messages": "team run failed: team did not finish: failed No task finished successfully.",
-   "Persistent message history": "team run failed: team did not finish: failed No task finished successfully.",
-   "Timestamps": "team run failed: team did not finish: failed No task finished successfully.",
-   "Online indicators": "team run failed: team did not finish: failed No task finished successfully.",
-   "Typing indicators": "team run failed: team did not finish: failed No task finished successfully.",
-   "Private chat rooms": "team run failed: team did not finish: failed No task finished successfully.",
-   "Handles simultaneous messages": "team run failed: team did not finish: failed No task finished successfully.",
-   "Handles disconnected users": "team run failed: team did not finish: failed No task finished successfully.",
-   "Messages aren't lost or duplicated": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "voxel@groq-free": {
-  "title": "9. Minecraft-Style Voxel Engine",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html and basic page layout: index.html",
-   "Implement core voxel engine in engine.js; Add first‑person controls, physics, collision, raycast, and UI stats: engine.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html and basic page layout",
-    "status": "failed"
-   },
-   {
-    "title": "Implement core voxel engine in engine.js; Add first‑person controls, physics, collision, raycast, and UI stats",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A 3D environment": "team run failed: team did not finish: failed No task finished successfully.",
-   "A voxel-based world": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block rendering": "team run failed: team did not finish: failed No task finished successfully.",
-   "Procedural terrain generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Chunk generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Chunk loading and unloading": "team run failed: team did not finish: failed No task finished successfully.",
-   "Player movement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Collision detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block placement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block destruction": "team run failed: team did not finish: failed No task finished successfully.",
-   "World persistence": "team run failed: team did not finish: failed No task finished successfully.",
-   "Optimized rendering and chunk management": "team run failed: team did not finish: failed No task finished successfully.",
-   "Stays playable as the world grows": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "physics@groq-free": {
-  "title": "10. Physics Simulator",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create physics.js with deterministic physics engine and public API: physics.js",
-   "Create index.html with canvas, controls, and UI wiring: index.html"
-  ],
-  "tasks": [
-   {
-    "title": "Create physics.js with deterministic physics engine and public API",
-    "status": "failed"
-   },
-   {
-    "title": "Create index.html with canvas, controls, and UI wiring",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "An interactive physics simulation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Gravity": "team run failed: team did not finish: failed No task finished successfully.",
-   "Elastic collisions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Friction": "team run failed: team did not finish: failed No task finished successfully.",
-   "Particle systems": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can create objects": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can modify simulation parameters": "team run failed: team did not finish: failed No task finished successfully.",
-   "Interactions between hundreds of objects": "team run failed: team did not finish: failed No task finished successfully.",
-   "Conservation of momentum in appropriate collisions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Numerical stability": "team run failed: team did not finish: failed No task finished successfully.",
-   "Measured simulation performance": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "chess@groq-free": {
-  "title": "11. Chess Engine",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create index.html that loads chess.js and ui.js and provides a container for the board: index.html",
-   "Implement chess.js with full game logic and the window.chess API: chess.js",
-   "Implement ui.js to render the board and handle user clicks: ui.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html that loads chess.js and ui.js and provides a container for the board",
-    "status": "failed"
-   },
-   {
-    "title": "Implement chess.js with full game logic and the window.chess API",
-    "status": "failed"
-   },
-   {
-    "title": "Implement ui.js to render the board and handle user clicks",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A functional chessboard": "team run failed: team did not finish: failed No task finished successfully.",
-   "Legal move generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Piece movement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Check detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Checkmate detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Stalemate detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Castling": "team run failed: team did not finish: failed No task finished successfully.",
-   "En passant": "team run failed: team did not finish: failed No task finished successfully.",
-   "Pawn promotion": "team run failed: team did not finish: failed No task finished successfully.",
-   "Board evaluation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Minimax": "team run failed: team did not finish: failed No task finished successfully.",
-   "Alpha-beta pruning": "team run failed: team did not finish: failed No task finished successfully.",
-   "A playable computer opponent": "team run failed: team did not finish: failed No task finished successfully.",
-   "Tested against known chess positions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Illegal moves are never accepted": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "visual@groq-free": {
-  "title": "12. Visual Programming Environment",
-  "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
-  "plan": [
-   "Create HTML skeleton and base CSS — index.html: index.html",
-   "Create HTML skeleton and base CSS — style.css: style.css",
-   "Define data model and window.vp API; Render nodes and enable dragging; Implement port connection UI and SVG wires; Graph: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create HTML skeleton and base CSS — index.html",
-    "status": "failed"
-   },
-   {
-    "title": "Create HTML skeleton and base CSS — style.css",
-    "status": "failed"
-   },
-   {
-    "title": "Define data model and window.vp API; Render nodes and enable dragging; Implement port connection UI and SVG wires; Graph",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "Draggable programming nodes": "team run failed: team did not finish: failed No task finished successfully.",
-   "Node connections": "team run failed: team did not finish: failed No task finished successfully.",
-   "Input and output ports": "team run failed: team did not finish: failed No task finished successfully.",
-   "A node execution system": "team run failed: team did not finish: failed No task finished successfully.",
-   "Dependency resolution": "team run failed: team did not finish: failed No task finished successfully.",
-   "Detects circular dependencies": "team run failed: team did not finish: failed No task finished successfully.",
-   "Error handling": "team run failed: team did not finish: failed No task finished successfully.",
-   "Graph visualization": "team run failed: team did not finish: failed No task finished successfully.",
-   "Saving and loading": "team run failed: team did not finish: failed No task finished successfully.",
-   "A working example program built with the node system": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "invaders@free-hosted": {
-  "title": "3. Space Invaders",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html with canvas and script includes: index.html",
-   "Implement deterministic game engine in game.js: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas and script includes",
-    "status": "merged"
-   },
-   {
-    "title": "Implement deterministic game engine in game.js",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 9,
-  "final": {
-   "Player movement": true,
-   "Projectile shooting": "no bullet or bullet does not move up",
-   "Enemy formations": true,
-   "Projectile collisions": "enemy count 32→32",
-   "Player-enemy collisions": "lives undefined→undefined",
-   "Scoring": "score 0→0",
-   "Increasing difficulty": "level 1→1, speed 1→1",
-   "Game-over and restart states": "over=undefined after reset over=undefined"
-  }
- },
- "breakout@free-hosted": {
-  "title": "4. Breakout",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html with canvas and script loading: index.html",
-   "Implement deterministic game state and API in game.js; Add rendering loop and input handling to game.js: game.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas and script loading",
-    "status": "merged"
-   },
-   {
-    "title": "Implement deterministic game state and API in game.js; Add rendering loop and input handling to game.js",
-    "status": "merged"
-   }
-  ],
-  "phase": "done",
-  "minutes": 3,
-  "final": {
-   "Paddle movement": true,
-   "Ball physics": true,
-   "Wall collisions": true,
-   "Paddle collisions": true,
-   "Brick destruction": "brick alive=false",
-   "Lives and scoring": "score 0→20, lives 3→2",
-   "Win and loss conditions": true,
-   "The game behaves consistently": true
-  }
- },
- "kanban@free-hosted": {
-  "title": "5. Kanban Task Manager",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html skeleton: index.html",
-   "Add styling for Kanban board: style.css",
-   "Implement board model, UI rendering, drag‑and‑drop and sync: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html skeleton",
-    "status": "merged"
-   },
-   {
-    "title": "Add styling for Kanban board",
-    "status": "failed"
-   },
-   {
-    "title": "Implement board model, UI rendering, drag‑and‑drop and sync",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 9,
-  "final": {
-   "A task management application": "see creation/columns",
-   "Task creation": "task not created or not shown",
-   "Task deletion": true,
-   "Task editing": "edit not applied",
-   "Draggable task cards": "card element not found",
-   "Multiple task columns": true,
-   "Task assignments": "assign not applied",
-   "Persistent storage": true,
-   "Real-time collaboration": "second window did not update live",
-   "Multiple users see the same task updates": true,
-   "Refreshing doesn't lose tasks": true
-  }
- },
- "pathfinding@free-hosted": {
-  "title": "6. Pathfinding Visualizer",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html and style.css with grid layout and UI controls — index.html: index.html",
-   "Create index.html and style.css with grid layout and UI controls — style.css: style.css",
-   "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c: app.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html and style.css with grid layout and UI controls — index.html",
-    "status": "merged"
-   },
-   {
-    "title": "Create index.html and style.css with grid layout and UI controls — style.css",
-    "status": "merged"
-   },
-   {
-    "title": "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c",
-    "status": "merged"
-   }
-  ],
-  "phase": "done",
-  "minutes": 6,
-  "final": {
-   "An interactive grid": true,
-   "Users can place walls and obstacles": true,
-   "Users can select a start point and destination": true,
-   "A* pathfinding": "not checked",
-   "Dijkstra's algorithm": "not checked",
-   "Breadth-First Search": "not checked",
-   "Animated search process": "not checked",
-   "Displays the resulting path": "not checked",
-   "Compares the algorithms' performance": "not checked",
-   "Handles unreachable destinations": "not checked",
-   "Each algorithm returns correct results": "not checked"
+  "tictactoe@qwen3.5-4b": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Qwen3.5 4B, leads Qwen3.5 4B, workers Qwen3.5 4B",
+    "plan": [],
+    "error": "no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+    "minutes": 21,
+    "final": {
+      "A functional game board": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Two-player gameplay": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Turn management": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Detects winning combinations": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Detects draws": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "A scoreboard": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Restart functionality": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}",
+      "Illegal moves are prevented": "team run failed: no plan: failed Model request failed (500): {\"error\":\"timed out waiting for llama-server to start - \"}"
+    }
   },
-  "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at valid (<anonymous>:10:48)\n    at <anonymous>:11:190\n    at <anonymous>:19:83"
- },
- "world@free-hosted": {
-  "title": "7. Procedural World Generator",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "HTML skeleton and script loading: index.html",
-   "Seeded pseudo‑random number generator: prng.js",
-   "2D Simplex noise with octaves: noise.js",
-   "World generation and public API: world.js",
-   "Canvas rendering of the world: render.js",
-   "UI interaction and keyboard controls: input.js"
-  ],
-  "tasks": [
-   {
-    "title": "HTML skeleton and script loading",
-    "status": "failed"
-   },
-   {
-    "title": "Seeded pseudo‑random number generator",
-    "status": "failed"
-   },
-   {
-    "title": "2D Simplex noise with octaves",
-    "status": "failed"
-   },
-   {
-    "title": "World generation and public API",
-    "status": "failed"
-   },
-   {
-    "title": "Canvas rendering of the world",
-    "status": "failed"
-   },
-   {
-    "title": "UI interaction and keyboard controls",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 4,
-  "final": {
-   "A random terrain map": "team run failed: team did not finish: failed No task finished successfully.",
-   "Perlin or Simplex noise": "team run failed: team did not finish: failed No task finished successfully.",
-   "Mountains": "team run failed: team did not finish: failed No task finished successfully.",
-   "Lakes and rivers": "team run failed: team did not finish: failed No task finished successfully.",
-   "Forests": "team run failed: team did not finish: failed No task finished successfully.",
-   "World seeds": "team run failed: team did not finish: failed No task finished successfully.",
-   "Identical seeds produce identical worlds": "team run failed: team did not finish: failed No task finished successfully.",
-   "Users can regenerate worlds": "team run failed: team did not finish: failed No task finished successfully.",
-   "A controllable character": "team run failed: team did not finish: failed No task finished successfully.",
-   "Terrain generation performs efficiently": "team run failed: team did not finish: failed No task finished successfully."
+  "snake@qwen2.5-coder-7b-solo": {
+    "title": "1. Snake Game",
+    "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
+    "plan": [
+      "Create the HTML structure: index.html",
+      "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create the HTML structure",
+        "status": "merged"
+      },
+      {
+        "title": "Define the game state; Implement the game logic; Draw the game on the canvas; Handle user input; Add game over and resta",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "minutes": 57,
+    "final": {
+      "Create a playable Snake game": "no canvas or snake does not move on its own",
+      "Directional movement": "down then ArrowLeft: [{\"x\":100,\"y\":100},{\"x\":100,\"y\":100},{\"x\":100,\"y\":100}]",
+      "Food generation": "food {\"x\":200,\"y\":200}",
+      "Snake growth": "length 3→3",
+      "Wall collision": "never hit the wall in 40 steps",
+      "Self-collision": "length 3 looped into itself without game over",
+      "Score tracking": "score undefined→undefined",
+      "Game-over functionality": "over=undefined moved after over=false message=false",
+      "Restart functionality": "{\"len\":3}",
+      "The game runs without errors": true
+    }
+  },
+  "tictactoe@qwen2.5-coder-7b-solo": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
+    "plan": [
+      "Create the HTML structure for the Tic-Tac-Toe board.: index.html",
+      "Style the Tic-Tac-Toe board and elements.: style.css",
+      "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create the HTML structure for the Tic-Tac-Toe board.",
+        "status": "merged"
+      },
+      {
+        "title": "Style the Tic-Tac-Toe board and elements.",
+        "status": "merged"
+      },
+      {
+        "title": "Initialize the game state in JavaScript.; Handle cell click events.; Update the game status.; Implement the Restart butt",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "minutes": 16,
+    "final": {
+      "A functional game board": true,
+      "Two-player gameplay": "not checked",
+      "Turn management": "not checked",
+      "Detects winning combinations": "not checked",
+      "Detects draws": "not checked",
+      "A scoreboard": "not checked",
+      "Restart functionality": "not checked",
+      "Illegal moves are prevented": "not checked"
+    },
+    "probeError": "TypeError: g.reset is not a function\n    at <anonymous>:4:3\n    at <anonymous>:15:83"
+  },
+  "snake@qwen3-4b-solo": {
+    "title": "1. Snake Game",
+    "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
+    "plan": [],
+    "error": "no plan: planning ",
+    "minutes": 30,
+    "final": {
+      "Create a playable Snake game": "team run failed: no plan: planning ",
+      "Directional movement": "team run failed: no plan: planning ",
+      "Food generation": "team run failed: no plan: planning ",
+      "Snake growth": "team run failed: no plan: planning ",
+      "Wall collision": "team run failed: no plan: planning ",
+      "Self-collision": "team run failed: no plan: planning ",
+      "Score tracking": "team run failed: no plan: planning ",
+      "Game-over functionality": "team run failed: no plan: planning ",
+      "Restart functionality": "team run failed: no plan: planning ",
+      "The game runs without errors": "no plan: planning "
+    }
+  },
+  "tictactoe@qwen3-4b-solo": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Qwen3 4B, leads Qwen3 4B, workers Qwen3 4B",
+    "plan": [],
+    "error": "no plan: planning ",
+    "minutes": 30,
+    "final": {
+      "A functional game board": "team run failed: no plan: planning ",
+      "Two-player gameplay": "team run failed: no plan: planning ",
+      "Turn management": "team run failed: no plan: planning ",
+      "Detects winning combinations": "team run failed: no plan: planning ",
+      "Detects draws": "team run failed: no plan: planning ",
+      "A scoreboard": "team run failed: no plan: planning ",
+      "Restart functionality": "team run failed: no plan: planning ",
+      "Illegal moves are prevented": "team run failed: no plan: planning "
+    }
+  },
+  "snake@openrouter-free": {
+    "title": "1. Snake Game",
+    "team": "architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [],
+    "error": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+    "minutes": 0,
+    "final": {
+      "Create a playable Snake game": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Directional movement": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Food generation": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Snake growth": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Wall collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Self-collision": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Score tracking": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Game-over functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "Restart functionality": "team run failed: no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795046400000\"},\"limit_source\":\"openroute",
+      "The game runs without errors": "no plan: failed Model request failed (429): {\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/cre"
+    }
+  },
+  "tictactoe@openrouter-free": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Nemotron 3 Ultra 550B (OpenRouter free), leads Nemotron 3 Ultra 550B (OpenRouter free), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html markup: index.html",
+      "Implement game logic in app.js: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html markup",
+        "status": "merged"
+      },
+      {
+        "title": "Implement game logic in app.js",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 5,
+    "final": {
+      "A functional game board": true,
+      "Two-player gameplay": true,
+      "Turn management": true,
+      "Detects winning combinations": true,
+      "Detects draws": true,
+      "A scoreboard": true,
+      "Restart functionality": true,
+      "Illegal moves are prevented": true
+    }
+  },
+  "snake@groq-free": {
+    "title": "1. Snake Game",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html with canvas, score display, restart button and load game.js: index.html",
+      "Implement game.js with deterministic Snake logic, rendering, input, and timer: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html with canvas, score display, restart button and load game.js",
+        "status": "merged"
+      },
+      {
+        "title": "Implement game.js with deterministic Snake logic, rendering, input, and timer",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "minutes": 7,
+    "final": {
+      "Create a playable Snake game": true,
+      "Directional movement": true,
+      "Food generation": true,
+      "Snake growth": true,
+      "Wall collision": true,
+      "Self-collision": true,
+      "Score tracking": true,
+      "Game-over functionality": "over=true moved after over=false message=false",
+      "Restart functionality": true,
+      "The game runs without errors": true
+    }
+  },
+  "invaders@groq-free": {
+    "title": "3. Space Invaders",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html with canvas and script includes: index.html",
+      "Add minimal CSS for centering and button styling: style.css",
+      "Implement deterministic Space Invaders engine in game.js: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html with canvas and script includes",
+        "status": "merged"
+      },
+      {
+        "title": "Add minimal CSS for centering and button styling",
+        "status": "merged"
+      },
+      {
+        "title": "Implement deterministic Space Invaders engine in game.js",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 5,
+    "final": {
+      "Player movement": "not checked",
+      "Projectile shooting": "not checked",
+      "Enemy formations": "not checked",
+      "Projectile collisions": "not checked",
+      "Player-enemy collisions": "not checked",
+      "Scoring": "not checked",
+      "Increasing difficulty": "not checked",
+      "Game-over and restart states": "not checked"
+    },
+    "probeError": "TypeError: g.pause is not a function\n    at <anonymous>:2:96\n    at <anonymous>:17:83"
+  },
+  "breakout@groq-free": {
+    "title": "4. Breakout",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html and basic layout: index.html",
+      "Implement deterministic Breakout logic in game.js: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html and basic layout",
+        "status": "merged"
+      },
+      {
+        "title": "Implement deterministic Breakout logic in game.js",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 3,
+    "final": {
+      "Paddle movement": "not checked",
+      "Ball physics": "not checked",
+      "Wall collisions": "not checked",
+      "Paddle collisions": "not checked",
+      "Brick destruction": "not checked",
+      "Lives and scoring": "not checked",
+      "Win and loss conditions": "not checked",
+      "The game behaves consistently": "not checked"
+    },
+    "probeError": "TypeError: g.pause is not a function\n    at <anonymous>:2:96\n    at <anonymous>:15:83"
+  },
+  "kanban@groq-free": {
+    "title": "5. Kanban Task Manager",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html skeleton: index.html",
+      "Style Kanban board: style.css",
+      "Implement board logic, UI rendering, drag‑and‑drop and sync: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html skeleton",
+        "status": "failed"
+      },
+      {
+        "title": "Style Kanban board",
+        "status": "failed"
+      },
+      {
+        "title": "Implement board logic, UI rendering, drag‑and‑drop and sync",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A task management application": "team run failed: team did not finish: failed No task finished successfully.",
+      "Task creation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Task deletion": "team run failed: team did not finish: failed No task finished successfully.",
+      "Task editing": "team run failed: team did not finish: failed No task finished successfully.",
+      "Draggable task cards": "team run failed: team did not finish: failed No task finished successfully.",
+      "Multiple task columns": "team run failed: team did not finish: failed No task finished successfully.",
+      "Task assignments": "team run failed: team did not finish: failed No task finished successfully.",
+      "Persistent storage": "team run failed: team did not finish: failed No task finished successfully.",
+      "Real-time collaboration": "team run failed: team did not finish: failed No task finished successfully.",
+      "Multiple users see the same task updates": "team run failed: team did not finish: failed No task finished successfully.",
+      "Refreshing doesn't lose tasks": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "pathfinding@groq-free": {
+    "title": "6. Pathfinding Visualizer",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create HTML layout and CSS styles — index.html: index.html",
+      "Create HTML layout and CSS styles — style.css: style.css",
+      "Implement pathfinding algorithms and window.pf API; Add UI behavior, grid generation, animation, and results display: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create HTML layout and CSS styles — index.html",
+        "status": "failed"
+      },
+      {
+        "title": "Create HTML layout and CSS styles — style.css",
+        "status": "failed"
+      },
+      {
+        "title": "Implement pathfinding algorithms and window.pf API; Add UI behavior, grid generation, animation, and results display",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "An interactive grid": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can place walls and obstacles": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can select a start point and destination": "team run failed: team did not finish: failed No task finished successfully.",
+      "A* pathfinding": "team run failed: team did not finish: failed No task finished successfully.",
+      "Dijkstra's algorithm": "team run failed: team did not finish: failed No task finished successfully.",
+      "Breadth-First Search": "team run failed: team did not finish: failed No task finished successfully.",
+      "Animated search process": "team run failed: team did not finish: failed No task finished successfully.",
+      "Displays the resulting path": "team run failed: team did not finish: failed No task finished successfully.",
+      "Compares the algorithms' performance": "team run failed: team did not finish: failed No task finished successfully.",
+      "Handles unreachable destinations": "team run failed: team did not finish: failed No task finished successfully.",
+      "Each algorithm returns correct results": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "world@groq-free": {
+    "title": "7. Procedural World Generator",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Build index.html UI: index.html",
+      "Implement deterministic world generator in world.js: world.js"
+    ],
+    "tasks": [
+      {
+        "title": "Build index.html UI",
+        "status": "failed"
+      },
+      {
+        "title": "Implement deterministic world generator in world.js",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A random terrain map": "team run failed: team did not finish: failed No task finished successfully.",
+      "Perlin or Simplex noise": "team run failed: team did not finish: failed No task finished successfully.",
+      "Mountains": "team run failed: team did not finish: failed No task finished successfully.",
+      "Lakes and rivers": "team run failed: team did not finish: failed No task finished successfully.",
+      "Forests": "team run failed: team did not finish: failed No task finished successfully.",
+      "World seeds": "team run failed: team did not finish: failed No task finished successfully.",
+      "Identical seeds produce identical worlds": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can regenerate worlds": "team run failed: team did not finish: failed No task finished successfully.",
+      "A controllable character": "team run failed: team did not finish: failed No task finished successfully.",
+      "Terrain generation performs efficiently": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "chat@groq-free": {
+    "title": "8. Real-Time Chat Application",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Node.js server with static file serving, persistence, and SSE API: server.js, data/messages.json, hive.json",
+      "Static HTML page layout and element IDs: public/index.html",
+      "Browser client logic for SSE, sending, typing, and UI updates: public/client.js"
+    ],
+    "tasks": [
+      {
+        "title": "Node.js server with static file serving, persistence, and SSE API",
+        "status": "failed"
+      },
+      {
+        "title": "Static HTML page layout and element IDs",
+        "status": "failed"
+      },
+      {
+        "title": "Browser client logic for SSE, sending, typing, and UI updates",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A chat interface": "team run failed: team did not finish: failed No task finished successfully.",
+      "Multiple users": "team run failed: team did not finish: failed No task finished successfully.",
+      "Sending and receiving messages": "team run failed: team did not finish: failed No task finished successfully.",
+      "Persistent message history": "team run failed: team did not finish: failed No task finished successfully.",
+      "Timestamps": "team run failed: team did not finish: failed No task finished successfully.",
+      "Online indicators": "team run failed: team did not finish: failed No task finished successfully.",
+      "Typing indicators": "team run failed: team did not finish: failed No task finished successfully.",
+      "Private chat rooms": "team run failed: team did not finish: failed No task finished successfully.",
+      "Handles simultaneous messages": "team run failed: team did not finish: failed No task finished successfully.",
+      "Handles disconnected users": "team run failed: team did not finish: failed No task finished successfully.",
+      "Messages aren't lost or duplicated": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "voxel@groq-free": {
+    "title": "9. Minecraft-Style Voxel Engine",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html and basic page layout: index.html",
+      "Implement core voxel engine in engine.js; Add first‑person controls, physics, collision, raycast, and UI stats: engine.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html and basic page layout",
+        "status": "failed"
+      },
+      {
+        "title": "Implement core voxel engine in engine.js; Add first‑person controls, physics, collision, raycast, and UI stats",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A 3D environment": "team run failed: team did not finish: failed No task finished successfully.",
+      "A voxel-based world": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block rendering": "team run failed: team did not finish: failed No task finished successfully.",
+      "Procedural terrain generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Chunk generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Chunk loading and unloading": "team run failed: team did not finish: failed No task finished successfully.",
+      "Player movement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Collision detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block placement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block destruction": "team run failed: team did not finish: failed No task finished successfully.",
+      "World persistence": "team run failed: team did not finish: failed No task finished successfully.",
+      "Optimized rendering and chunk management": "team run failed: team did not finish: failed No task finished successfully.",
+      "Stays playable as the world grows": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "physics@groq-free": {
+    "title": "10. Physics Simulator",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create physics.js with deterministic physics engine and public API: physics.js",
+      "Create index.html with canvas, controls, and UI wiring: index.html"
+    ],
+    "tasks": [
+      {
+        "title": "Create physics.js with deterministic physics engine and public API",
+        "status": "failed"
+      },
+      {
+        "title": "Create index.html with canvas, controls, and UI wiring",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "An interactive physics simulation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Gravity": "team run failed: team did not finish: failed No task finished successfully.",
+      "Elastic collisions": "team run failed: team did not finish: failed No task finished successfully.",
+      "Friction": "team run failed: team did not finish: failed No task finished successfully.",
+      "Particle systems": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can create objects": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can modify simulation parameters": "team run failed: team did not finish: failed No task finished successfully.",
+      "Interactions between hundreds of objects": "team run failed: team did not finish: failed No task finished successfully.",
+      "Conservation of momentum in appropriate collisions": "team run failed: team did not finish: failed No task finished successfully.",
+      "Numerical stability": "team run failed: team did not finish: failed No task finished successfully.",
+      "Measured simulation performance": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "chess@groq-free": {
+    "title": "11. Chess Engine",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create index.html that loads chess.js and ui.js and provides a container for the board: index.html",
+      "Implement chess.js with full game logic and the window.chess API: chess.js",
+      "Implement ui.js to render the board and handle user clicks: ui.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html that loads chess.js and ui.js and provides a container for the board",
+        "status": "failed"
+      },
+      {
+        "title": "Implement chess.js with full game logic and the window.chess API",
+        "status": "failed"
+      },
+      {
+        "title": "Implement ui.js to render the board and handle user clicks",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A functional chessboard": "team run failed: team did not finish: failed No task finished successfully.",
+      "Legal move generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Piece movement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Check detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Checkmate detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Stalemate detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Castling": "team run failed: team did not finish: failed No task finished successfully.",
+      "En passant": "team run failed: team did not finish: failed No task finished successfully.",
+      "Pawn promotion": "team run failed: team did not finish: failed No task finished successfully.",
+      "Board evaluation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Minimax": "team run failed: team did not finish: failed No task finished successfully.",
+      "Alpha-beta pruning": "team run failed: team did not finish: failed No task finished successfully.",
+      "A playable computer opponent": "team run failed: team did not finish: failed No task finished successfully.",
+      "Tested against known chess positions": "team run failed: team did not finish: failed No task finished successfully.",
+      "Illegal moves are never accepted": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "visual@groq-free": {
+    "title": "12. Visual Programming Environment",
+    "team": "architect gpt-oss 120B (Groq free tier), leads gpt-oss 20B (Groq free tier), workers gpt-oss 20B (Groq free tier)",
+    "plan": [
+      "Create HTML skeleton and base CSS — index.html: index.html",
+      "Create HTML skeleton and base CSS — style.css: style.css",
+      "Define data model and window.vp API; Render nodes and enable dragging; Implement port connection UI and SVG wires; Graph: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create HTML skeleton and base CSS — index.html",
+        "status": "failed"
+      },
+      {
+        "title": "Create HTML skeleton and base CSS — style.css",
+        "status": "failed"
+      },
+      {
+        "title": "Define data model and window.vp API; Render nodes and enable dragging; Implement port connection UI and SVG wires; Graph",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "Draggable programming nodes": "team run failed: team did not finish: failed No task finished successfully.",
+      "Node connections": "team run failed: team did not finish: failed No task finished successfully.",
+      "Input and output ports": "team run failed: team did not finish: failed No task finished successfully.",
+      "A node execution system": "team run failed: team did not finish: failed No task finished successfully.",
+      "Dependency resolution": "team run failed: team did not finish: failed No task finished successfully.",
+      "Detects circular dependencies": "team run failed: team did not finish: failed No task finished successfully.",
+      "Error handling": "team run failed: team did not finish: failed No task finished successfully.",
+      "Graph visualization": "team run failed: team did not finish: failed No task finished successfully.",
+      "Saving and loading": "team run failed: team did not finish: failed No task finished successfully.",
+      "A working example program built with the node system": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "invaders@free-hosted": {
+    "title": "3. Space Invaders",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html with canvas and script includes: index.html",
+      "Implement deterministic game engine in game.js: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html with canvas and script includes",
+        "status": "merged"
+      },
+      {
+        "title": "Implement deterministic game engine in game.js",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 9,
+    "final": {
+      "Player movement": true,
+      "Projectile shooting": "no bullet or bullet does not move up",
+      "Enemy formations": true,
+      "Projectile collisions": "enemy count 32→32",
+      "Player-enemy collisions": "lives undefined→undefined",
+      "Scoring": "score 0→0",
+      "Increasing difficulty": "level 1→1, speed 1→1",
+      "Game-over and restart states": "over=undefined after reset over=undefined"
+    }
+  },
+  "breakout@free-hosted": {
+    "title": "4. Breakout",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html with canvas and script loading: index.html",
+      "Implement deterministic game state and API in game.js; Add rendering loop and input handling to game.js: game.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html with canvas and script loading",
+        "status": "merged"
+      },
+      {
+        "title": "Implement deterministic game state and API in game.js; Add rendering loop and input handling to game.js",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "minutes": 3,
+    "final": {
+      "Paddle movement": true,
+      "Ball physics": true,
+      "Wall collisions": true,
+      "Paddle collisions": true,
+      "Brick destruction": "brick alive=false",
+      "Lives and scoring": "score 0→20, lives 3→2",
+      "Win and loss conditions": true,
+      "The game behaves consistently": true
+    }
+  },
+  "kanban@free-hosted": {
+    "title": "5. Kanban Task Manager",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html skeleton: index.html",
+      "Add styling for Kanban board: style.css",
+      "Implement board model, UI rendering, drag‑and‑drop and sync: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html skeleton",
+        "status": "merged"
+      },
+      {
+        "title": "Add styling for Kanban board",
+        "status": "failed"
+      },
+      {
+        "title": "Implement board model, UI rendering, drag‑and‑drop and sync",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 9,
+    "final": {
+      "A task management application": "see creation/columns",
+      "Task creation": "task not created or not shown",
+      "Task deletion": true,
+      "Task editing": "edit not applied",
+      "Draggable task cards": "card element not found",
+      "Multiple task columns": true,
+      "Task assignments": "assign not applied",
+      "Persistent storage": true,
+      "Real-time collaboration": "second window did not update live",
+      "Multiple users see the same task updates": true,
+      "Refreshing doesn't lose tasks": true
+    }
+  },
+  "pathfinding@free-hosted": {
+    "title": "6. Pathfinding Visualizer",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html and style.css with grid layout and UI controls — index.html: index.html",
+      "Create index.html and style.css with grid layout and UI controls — style.css: style.css",
+      "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html and style.css with grid layout and UI controls — index.html",
+        "status": "merged"
+      },
+      {
+        "title": "Create index.html and style.css with grid layout and UI controls — style.css",
+        "status": "merged"
+      },
+      {
+        "title": "Generate grid, handle user interactions, and expose window.pf API; Implement A*, Dijkstra, BFS, animation, and results c",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "minutes": 6,
+    "final": {
+      "An interactive grid": true,
+      "Users can place walls and obstacles": true,
+      "Users can select a start point and destination": true,
+      "A* pathfinding": "not checked",
+      "Dijkstra's algorithm": "not checked",
+      "Breadth-First Search": "not checked",
+      "Animated search process": "not checked",
+      "Displays the resulting path": "not checked",
+      "Compares the algorithms' performance": "not checked",
+      "Handles unreachable destinations": "not checked",
+      "Each algorithm returns correct results": "not checked"
+    },
+    "probeError": "TypeError: Cannot read properties of undefined (reading 'length')\n    at valid (<anonymous>:10:48)\n    at <anonymous>:11:190\n    at <anonymous>:19:83"
+  },
+  "world@free-hosted": {
+    "title": "7. Procedural World Generator",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "HTML skeleton and script loading: index.html",
+      "Seeded pseudo‑random number generator: prng.js",
+      "2D Simplex noise with octaves: noise.js",
+      "World generation and public API: world.js",
+      "Canvas rendering of the world: render.js",
+      "UI interaction and keyboard controls: input.js"
+    ],
+    "tasks": [
+      {
+        "title": "HTML skeleton and script loading",
+        "status": "failed"
+      },
+      {
+        "title": "Seeded pseudo‑random number generator",
+        "status": "failed"
+      },
+      {
+        "title": "2D Simplex noise with octaves",
+        "status": "failed"
+      },
+      {
+        "title": "World generation and public API",
+        "status": "failed"
+      },
+      {
+        "title": "Canvas rendering of the world",
+        "status": "failed"
+      },
+      {
+        "title": "UI interaction and keyboard controls",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 4,
+    "final": {
+      "A random terrain map": "team run failed: team did not finish: failed No task finished successfully.",
+      "Perlin or Simplex noise": "team run failed: team did not finish: failed No task finished successfully.",
+      "Mountains": "team run failed: team did not finish: failed No task finished successfully.",
+      "Lakes and rivers": "team run failed: team did not finish: failed No task finished successfully.",
+      "Forests": "team run failed: team did not finish: failed No task finished successfully.",
+      "World seeds": "team run failed: team did not finish: failed No task finished successfully.",
+      "Identical seeds produce identical worlds": "team run failed: team did not finish: failed No task finished successfully.",
+      "Users can regenerate worlds": "team run failed: team did not finish: failed No task finished successfully.",
+      "A controllable character": "team run failed: team did not finish: failed No task finished successfully.",
+      "Terrain generation performs efficiently": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "chat@free-hosted": {
+    "title": "8. Real-Time Chat Application",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Node.js server (server.js) with static files, SSE, API endpoints and persistence: server.js, hive.json, data/messages.json",
+      "Client HTML page (public/index.html) layout and element IDs: public/index.html",
+      "Client JavaScript (public/client.js) for UI interaction and server communication: public/client.js"
+    ],
+    "tasks": [
+      {
+        "title": "Node.js server (server.js) with static files, SSE, API endpoints and persistence",
+        "status": "failed"
+      },
+      {
+        "title": "Client HTML page (public/index.html) layout and element IDs",
+        "status": "failed"
+      },
+      {
+        "title": "Client JavaScript (public/client.js) for UI interaction and server communication",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 0,
+    "final": {
+      "A chat interface": "team run failed: team did not finish: failed No task finished successfully.",
+      "Multiple users": "team run failed: team did not finish: failed No task finished successfully.",
+      "Sending and receiving messages": "team run failed: team did not finish: failed No task finished successfully.",
+      "Persistent message history": "team run failed: team did not finish: failed No task finished successfully.",
+      "Timestamps": "team run failed: team did not finish: failed No task finished successfully.",
+      "Online indicators": "team run failed: team did not finish: failed No task finished successfully.",
+      "Typing indicators": "team run failed: team did not finish: failed No task finished successfully.",
+      "Private chat rooms": "team run failed: team did not finish: failed No task finished successfully.",
+      "Handles simultaneous messages": "team run failed: team did not finish: failed No task finished successfully.",
+      "Handles disconnected users": "team run failed: team did not finish: failed No task finished successfully.",
+      "Messages aren't lost or duplicated": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "voxel@free-hosted": {
+    "title": "9. Minecraft-Style Voxel Engine",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "HTML skeleton and UI: index.html",
+      "Engine core and main loop: engine.js",
+      "Chunk class and mesh generation: chunk.js",
+      "World management and chunk loading: world.js",
+      "Player physics, controls, and interaction: player.js",
+      "Persistence layer for block edits: storage.js",
+      "HUD stats and FPS counter: stats.js"
+    ],
+    "tasks": [
+      {
+        "title": "HTML skeleton and UI",
+        "status": "failed"
+      },
+      {
+        "title": "Engine core and main loop",
+        "status": "failed"
+      },
+      {
+        "title": "Chunk class and mesh generation",
+        "status": "failed"
+      },
+      {
+        "title": "World management and chunk loading",
+        "status": "failed"
+      },
+      {
+        "title": "Player physics, controls, and interaction",
+        "status": "failed"
+      },
+      {
+        "title": "Persistence layer for block edits",
+        "status": "failed"
+      },
+      {
+        "title": "HUD stats and FPS counter",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 4,
+    "final": {
+      "A 3D environment": "team run failed: team did not finish: failed No task finished successfully.",
+      "A voxel-based world": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block rendering": "team run failed: team did not finish: failed No task finished successfully.",
+      "Procedural terrain generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Chunk generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Chunk loading and unloading": "team run failed: team did not finish: failed No task finished successfully.",
+      "Player movement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Collision detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block placement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Block destruction": "team run failed: team did not finish: failed No task finished successfully.",
+      "World persistence": "team run failed: team did not finish: failed No task finished successfully.",
+      "Optimized rendering and chunk management": "team run failed: team did not finish: failed No task finished successfully.",
+      "Stays playable as the world grows": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "physics@free-hosted": {
+    "title": "10. Physics Simulator",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html with canvas and UI controls: index.html",
+      "Implement deterministic physics engine in physics.js: physics.js",
+      "Wire UI controls to the physics engine and run the main loop: ui.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html with canvas and UI controls",
+        "status": "merged"
+      },
+      {
+        "title": "Implement deterministic physics engine in physics.js",
+        "status": "merged"
+      },
+      {
+        "title": "Wire UI controls to the physics engine and run the main loop",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "failed"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 2)",
+        "status": "failed"
+      }
+    ],
+    "phase": "done",
+    "minutes": 18,
+    "final": {
+      "An interactive physics simulation": true,
+      "Gravity": "after 0.1 s at g=500: vy=0.00 (expected ~50)",
+      "Elastic collisions": "collided=false kinetic energy 8750→8750",
+      "Friction": "sliding ball vx after 1 s with friction 0.5: 200.0",
+      "Particle systems": "particles never expire",
+      "Users can create objects": "clicking the canvas added no ball",
+      "Users can modify simulation parameters": "3 sliders; params changed=false",
+      "Interactions between hundreds of objects": true,
+      "Conservation of momentum in appropriate collisions": "collided=false momentum -50.0→-50.0",
+      "Numerical stability": true,
+      "Measured simulation performance": true
+    }
+  },
+  "chess@free-hosted": {
+    "title": "11. Chess Engine",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [
+      "Create index.html skeleton: index.html",
+      "Implement engine.js – board representation and FEN load/export: engine.js",
+      "Implement movegen.js – legal move generation: movegen.js",
+      "Implement check.js – check, checkmate, stalemate detection: check.js",
+      "Implement evaluation.js – material and piece-square evaluation: evaluation.js",
+      "Implement search.js – minimax with alpha-beta pruning: search.js",
+      "Implement ui.js – board rendering, click handling, and integration: ui.js"
+    ],
+    "tasks": [
+      {
+        "title": "Create index.html skeleton",
+        "status": "failed"
+      },
+      {
+        "title": "Implement engine.js – board representation and FEN load/export",
+        "status": "failed"
+      },
+      {
+        "title": "Implement movegen.js – legal move generation",
+        "status": "failed"
+      },
+      {
+        "title": "Implement check.js – check, checkmate, stalemate detection",
+        "status": "failed"
+      },
+      {
+        "title": "Implement evaluation.js – material and piece-square evaluation",
+        "status": "failed"
+      },
+      {
+        "title": "Implement search.js – minimax with alpha-beta pruning",
+        "status": "failed"
+      },
+      {
+        "title": "Implement ui.js – board rendering, click handling, and integration",
+        "status": "failed"
+      }
+    ],
+    "error": "team did not finish: failed No task finished successfully.",
+    "minutes": 2,
+    "final": {
+      "A functional chessboard": "team run failed: team did not finish: failed No task finished successfully.",
+      "Legal move generation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Piece movement": "team run failed: team did not finish: failed No task finished successfully.",
+      "Check detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Checkmate detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Stalemate detection": "team run failed: team did not finish: failed No task finished successfully.",
+      "Castling": "team run failed: team did not finish: failed No task finished successfully.",
+      "En passant": "team run failed: team did not finish: failed No task finished successfully.",
+      "Pawn promotion": "team run failed: team did not finish: failed No task finished successfully.",
+      "Board evaluation": "team run failed: team did not finish: failed No task finished successfully.",
+      "Minimax": "team run failed: team did not finish: failed No task finished successfully.",
+      "Alpha-beta pruning": "team run failed: team did not finish: failed No task finished successfully.",
+      "A playable computer opponent": "team run failed: team did not finish: failed No task finished successfully.",
+      "Tested against known chess positions": "team run failed: team did not finish: failed No task finished successfully.",
+      "Illegal moves are never accepted": "team run failed: team did not finish: failed No task finished successfully."
+    }
+  },
+  "visual@free-hosted": {
+    "title": "12. Visual Programming Environment",
+    "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
+    "plan": [],
+    "error": "no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+    "minutes": 0,
+    "final": {
+      "Draggable programming nodes": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Node connections": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Input and output ports": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "A node execution system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Dependency resolution": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Detects circular dependencies": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Error handling": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Graph visualization": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "Saving and loading": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
+      "A working example program built with the node system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )"
+    }
+  },
+  "snake@claude-code": {
+    "title": "1. Snake Game",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build index.html shell with canvas, score, game-over UI: index.html",
+      "Implement Snake game engine and window.game API in game.js: game.js",
+      "Document how to run and test the Snake game: README.md"
+    ],
+    "tasks": [
+      {
+        "title": "Build index.html shell with canvas, score, game-over UI",
+        "status": "merged"
+      },
+      {
+        "title": "Implement Snake game engine and window.game API in game.js",
+        "status": "merged"
+      },
+      {
+        "title": "Document how to run and test the Snake game",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "team",
+      "modelCalls": 7,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 73158,
+      "readyMs": 162153
+    },
+    "minutes": 3,
+    "final": {
+      "Create a playable Snake game": true,
+      "Directional movement": true,
+      "Food generation": true,
+      "Snake growth": true,
+      "Wall collision": true,
+      "Self-collision": true,
+      "Score tracking": true,
+      "Game-over functionality": true,
+      "Restart functionality": true,
+      "The game runs without errors": true
+    }
+  },
+  "pathfinding@claude-code": {
+    "title": "6. Pathfinding Visualizer",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "index.html + style.css: index.html, style.css",
+      "algorithms.js pathfinding logic: algorithms.js",
+      "app.js UI wiring and window.pf API: app.js"
+    ],
+    "tasks": [
+      {
+        "title": "index.html + style.css",
+        "status": "merged"
+      },
+      {
+        "title": "algorithms.js pathfinding logic",
+        "status": "merged"
+      },
+      {
+        "title": "app.js UI wiring and window.pf API",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "team",
+      "modelCalls": 9,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 1,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 112683,
+      "readyMs": 371442
+    },
+    "minutes": 6,
+    "final": {
+      "An interactive grid": true,
+      "Users can place walls and obstacles": true,
+      "Users can select a start point and destination": true,
+      "A* pathfinding": true,
+      "Dijkstra's algorithm": true,
+      "Breadth-First Search": true,
+      "Animated search process": "visited cells did not appear over time (0→0)",
+      "Displays the resulting path": "path cells not highlighted",
+      "Compares the algorithms' performance": true,
+      "Handles unreachable destinations": "path=0 message shown=false",
+      "Each algorithm returns correct results": true
+    }
+  },
+  "snake@claude-code solo": {
+    "title": "1. Snake Game",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "solo",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 75602,
+      "readyMs": 76610
+    },
+    "minutes": 1,
+    "final": {
+      "Create a playable Snake game": true,
+      "Directional movement": true,
+      "Food generation": true,
+      "Snake growth": true,
+      "Wall collision": true,
+      "Self-collision": true,
+      "Score tracking": true,
+      "Game-over functionality": true,
+      "Restart functionality": true,
+      "The game runs without errors": true
+    }
+  },
+  "pathfinding@claude-code solo": {
+    "title": "6. Pathfinding Visualizer",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "solo",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 246957,
+      "readyMs": 248004
+    },
+    "minutes": 4,
+    "final": {
+      "An interactive grid": true,
+      "Users can place walls and obstacles": true,
+      "Users can select a start point and destination": true,
+      "A* pathfinding": true,
+      "Dijkstra's algorithm": true,
+      "Breadth-First Search": true,
+      "Animated search process": true,
+      "Displays the resulting path": true,
+      "Compares the algorithms' performance": true,
+      "Handles unreachable destinations": true,
+      "Each algorithm returns correct results": true
+    }
+  },
+  "snake@claude-code single": {
+    "title": "1. Snake Game",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 74151,
+      "readyMs": 78057
+    },
+    "minutes": 1,
+    "final": {
+      "Create a playable Snake game": true,
+      "Directional movement": true,
+      "Food generation": true,
+      "Snake growth": true,
+      "Wall collision": true,
+      "Self-collision": true,
+      "Score tracking": true,
+      "Game-over functionality": true,
+      "Restart functionality": true,
+      "The game runs without errors": true
+    }
+  },
+  "tictactoe@claude-code single": {
+    "title": "2. Tic-Tac-Toe",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 31060,
+      "readyMs": 34612
+    },
+    "minutes": 1,
+    "final": {
+      "A functional game board": true,
+      "Two-player gameplay": true,
+      "Turn management": true,
+      "Detects winning combinations": true,
+      "Detects draws": true,
+      "A scoreboard": true,
+      "Restart functionality": true,
+      "Illegal moves are prevented": true
+    }
+  },
+  "invaders@claude-code single": {
+    "title": "3. Space Invaders",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 151345,
+      "readyMs": 154941
+    },
+    "minutes": 3,
+    "final": {
+      "Player movement": true,
+      "Projectile shooting": true,
+      "Enemy formations": true,
+      "Projectile collisions": true,
+      "Player-enemy collisions": true,
+      "Scoring": true,
+      "Increasing difficulty": true,
+      "Game-over and restart states": true
+    },
+    "originalFinal": {
+      "Player movement": true,
+      "Projectile shooting": true,
+      "Enemy formations": true,
+      "Projectile collisions": "enemy count 32→32",
+      "Player-enemy collisions": true,
+      "Scoring": "score 0→0",
+      "Increasing difficulty": true,
+      "Game-over and restart states": true
+    },
+    "rescored": "2026-11-20: probe fixed (tools/qa/reprobe.mjs), saved game re-run; original result in originalFinal"
+  },
+  "breakout@claude-code single": {
+    "title": "4. Breakout",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 76803,
+      "readyMs": 80357
+    },
+    "minutes": 1,
+    "final": {
+      "Paddle movement": true,
+      "Ball physics": true,
+      "Wall collisions": true,
+      "Paddle collisions": true,
+      "Brick destruction": true,
+      "Lives and scoring": true,
+      "Win and loss conditions": true,
+      "The game behaves consistently": true
+    },
+    "originalFinal": {
+      "Paddle movement": true,
+      "Ball physics": true,
+      "Wall collisions": true,
+      "Paddle collisions": true,
+      "Brick destruction": "brick alive=false",
+      "Lives and scoring": "score 0→20, lives 3→2",
+      "Win and loss conditions": true,
+      "The game behaves consistently": true
+    },
+    "rescored": "2026-11-20: probe fixed (tools/qa/reprobe.mjs), saved game re-run; original result in originalFinal"
+  },
+  "kanban@claude-code single": {
+    "title": "5. Kanban Task Manager",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 60471,
+      "readyMs": 64059
+    },
+    "minutes": 1,
+    "final": {
+      "A task management application": true,
+      "Task creation": true,
+      "Task deletion": true,
+      "Task editing": true,
+      "Draggable task cards": true,
+      "Multiple task columns": true,
+      "Task assignments": true,
+      "Persistent storage": true,
+      "Real-time collaboration": true,
+      "Multiple users see the same task updates": true,
+      "Refreshing doesn't lose tasks": true
+    }
+  },
+  "pathfinding@claude-code single": {
+    "title": "6. Pathfinding Visualizer",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 167622,
+      "readyMs": 171187
+    },
+    "minutes": 3,
+    "final": {
+      "An interactive grid": true,
+      "Users can place walls and obstacles": true,
+      "Users can select a start point and destination": true,
+      "A* pathfinding": true,
+      "Dijkstra's algorithm": true,
+      "Breadth-First Search": true,
+      "Animated search process": true,
+      "Displays the resulting path": true,
+      "Compares the algorithms' performance": true,
+      "Handles unreachable destinations": true,
+      "Each algorithm returns correct results": true
+    }
+  },
+  "world@claude-code single": {
+    "title": "7. Procedural World Generator",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 105030,
+      "readyMs": 109416
+    },
+    "minutes": 2,
+    "final": {
+      "A random terrain map": true,
+      "Perlin or Simplex noise": "neighbour difference 0.006, range 0.25 (noise should be smooth but varied)",
+      "Mountains": "mountain tiles: 0",
+      "Lakes and rivers": "water 8113, river 0",
+      "Forests": true,
+      "World seeds": true,
+      "Identical seeds produce identical worlds": true,
+      "Users can regenerate worlds": true,
+      "A controllable character": true,
+      "Terrain generation performs efficiently": true
+    }
+  },
+  "chat@claude-code single": {
+    "title": "8. Real-Time Chat Application",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 96973,
+      "readyMs": 97926
+    },
+    "minutes": 2,
+    "final": {
+      "A chat interface": true,
+      "Multiple users": true,
+      "Sending and receiving messages": true,
+      "Persistent message history": true,
+      "Timestamps": true,
+      "Online indicators": true,
+      "Typing indicators": true,
+      "Private chat rooms": true,
+      "Handles simultaneous messages": true,
+      "Handles disconnected users": true,
+      "Messages aren't lost or duplicated": true
+    }
+  },
+  "voxel@claude-code single": {
+    "title": "9. Minecraft-Style Voxel Engine",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 363788,
+      "readyMs": 368669
+    },
+    "minutes": 6,
+    "final": {
+      "A 3D environment": true,
+      "A voxel-based world": true,
+      "Block rendering": true,
+      "Procedural terrain generation": true,
+      "Chunk generation": true,
+      "Chunk loading and unloading": true,
+      "Player movement": true,
+      "Collision detection": true,
+      "Block placement": true,
+      "Block destruction": true,
+      "World persistence": true,
+      "Optimized rendering and chunk management": true,
+      "Stays playable as the world grows": "after flying 30 chunks: 29 chunks loaded, 0.5 fps"
+    }
+  },
+  "physics@claude-code single": {
+    "title": "10. Physics Simulator",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      },
+      {
+        "title": "Make all the pieces work together (integration round 1)",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 7,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 3,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 121873,
+      "readyMs": 607688
+    },
+    "minutes": 10,
+    "final": {
+      "An interactive physics simulation": true,
+      "Gravity": true,
+      "Elastic collisions": true,
+      "Friction": true,
+      "Particle systems": true,
+      "Users can create objects": true,
+      "Users can modify simulation parameters": true,
+      "Interactions between hundreds of objects": true,
+      "Conservation of momentum in appropriate collisions": true,
+      "Numerical stability": true,
+      "Measured simulation performance": true
+    }
+  },
+  "chess@claude-code single": {
+    "title": "11. Chess Engine",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 457766,
+      "readyMs": 461390
+    },
+    "minutes": 8,
+    "final": {
+      "A functional chessboard": true,
+      "Legal move generation": true,
+      "Piece movement": true,
+      "Check detection": true,
+      "Checkmate detection": true,
+      "Stalemate detection": true,
+      "Castling": true,
+      "En passant": true,
+      "Pawn promotion": true,
+      "Board evaluation": true,
+      "Minimax": true,
+      "Alpha-beta pruning": true,
+      "A playable computer opponent": true,
+      "Tested against known chess positions": true,
+      "Illegal moves are never accepted": true
+    }
+  },
+  "visual@claude-code single": {
+    "title": "12. Visual Programming Environment",
+    "team": "architect Claude Code (your subscription), leads Claude Code (your subscription), workers Claude Code (your subscription)",
+    "plan": [
+      "Build it: "
+    ],
+    "tasks": [
+      {
+        "title": "Build it",
+        "status": "merged"
+      }
+    ],
+    "phase": "done",
+    "metrics": {
+      "mode": "single",
+      "modelCalls": 1,
+      "toolCalls": 0,
+      "checkFailures": 0,
+      "reviewRejections": 0,
+      "approvalsAsked": 0,
+      "approvalsDenied": 0,
+      "firstFileMs": 256673,
+      "readyMs": 260258
+    },
+    "minutes": 4,
+    "final": {
+      "Draggable programming nodes": true,
+      "Node connections": true,
+      "Input and output ports": true,
+      "A node execution system": true,
+      "Dependency resolution": true,
+      "Detects circular dependencies": true,
+      "Error handling": true,
+      "Graph visualization": true,
+      "Saving and loading": true,
+      "A working example program built with the node system": true
+    }
   }
- },
- "chat@free-hosted": {
-  "title": "8. Real-Time Chat Application",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Node.js server (server.js) with static files, SSE, API endpoints and persistence: server.js, hive.json, data/messages.json",
-   "Client HTML page (public/index.html) layout and element IDs: public/index.html",
-   "Client JavaScript (public/client.js) for UI interaction and server communication: public/client.js"
-  ],
-  "tasks": [
-   {
-    "title": "Node.js server (server.js) with static files, SSE, API endpoints and persistence",
-    "status": "failed"
-   },
-   {
-    "title": "Client HTML page (public/index.html) layout and element IDs",
-    "status": "failed"
-   },
-   {
-    "title": "Client JavaScript (public/client.js) for UI interaction and server communication",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 0,
-  "final": {
-   "A chat interface": "team run failed: team did not finish: failed No task finished successfully.",
-   "Multiple users": "team run failed: team did not finish: failed No task finished successfully.",
-   "Sending and receiving messages": "team run failed: team did not finish: failed No task finished successfully.",
-   "Persistent message history": "team run failed: team did not finish: failed No task finished successfully.",
-   "Timestamps": "team run failed: team did not finish: failed No task finished successfully.",
-   "Online indicators": "team run failed: team did not finish: failed No task finished successfully.",
-   "Typing indicators": "team run failed: team did not finish: failed No task finished successfully.",
-   "Private chat rooms": "team run failed: team did not finish: failed No task finished successfully.",
-   "Handles simultaneous messages": "team run failed: team did not finish: failed No task finished successfully.",
-   "Handles disconnected users": "team run failed: team did not finish: failed No task finished successfully.",
-   "Messages aren't lost or duplicated": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "voxel@free-hosted": {
-  "title": "9. Minecraft-Style Voxel Engine",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "HTML skeleton and UI: index.html",
-   "Engine core and main loop: engine.js",
-   "Chunk class and mesh generation: chunk.js",
-   "World management and chunk loading: world.js",
-   "Player physics, controls, and interaction: player.js",
-   "Persistence layer for block edits: storage.js",
-   "HUD stats and FPS counter: stats.js"
-  ],
-  "tasks": [
-   {
-    "title": "HTML skeleton and UI",
-    "status": "failed"
-   },
-   {
-    "title": "Engine core and main loop",
-    "status": "failed"
-   },
-   {
-    "title": "Chunk class and mesh generation",
-    "status": "failed"
-   },
-   {
-    "title": "World management and chunk loading",
-    "status": "failed"
-   },
-   {
-    "title": "Player physics, controls, and interaction",
-    "status": "failed"
-   },
-   {
-    "title": "Persistence layer for block edits",
-    "status": "failed"
-   },
-   {
-    "title": "HUD stats and FPS counter",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 4,
-  "final": {
-   "A 3D environment": "team run failed: team did not finish: failed No task finished successfully.",
-   "A voxel-based world": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block rendering": "team run failed: team did not finish: failed No task finished successfully.",
-   "Procedural terrain generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Chunk generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Chunk loading and unloading": "team run failed: team did not finish: failed No task finished successfully.",
-   "Player movement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Collision detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block placement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Block destruction": "team run failed: team did not finish: failed No task finished successfully.",
-   "World persistence": "team run failed: team did not finish: failed No task finished successfully.",
-   "Optimized rendering and chunk management": "team run failed: team did not finish: failed No task finished successfully.",
-   "Stays playable as the world grows": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "physics@free-hosted": {
-  "title": "10. Physics Simulator",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html with canvas and UI controls: index.html",
-   "Implement deterministic physics engine in physics.js: physics.js",
-   "Wire UI controls to the physics engine and run the main loop: ui.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html with canvas and UI controls",
-    "status": "merged"
-   },
-   {
-    "title": "Implement deterministic physics engine in physics.js",
-    "status": "merged"
-   },
-   {
-    "title": "Wire UI controls to the physics engine and run the main loop",
-    "status": "merged"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 1)",
-    "status": "failed"
-   },
-   {
-    "title": "Make all the pieces work together (integration round 2)",
-    "status": "failed"
-   }
-  ],
-  "phase": "done",
-  "minutes": 18,
-  "final": {
-   "An interactive physics simulation": true,
-   "Gravity": "after 0.1 s at g=500: vy=0.00 (expected ~50)",
-   "Elastic collisions": "collided=false kinetic energy 8750→8750",
-   "Friction": "sliding ball vx after 1 s with friction 0.5: 200.0",
-   "Particle systems": "particles never expire",
-   "Users can create objects": "clicking the canvas added no ball",
-   "Users can modify simulation parameters": "3 sliders; params changed=false",
-   "Interactions between hundreds of objects": true,
-   "Conservation of momentum in appropriate collisions": "collided=false momentum -50.0→-50.0",
-   "Numerical stability": true,
-   "Measured simulation performance": true
-  }
- },
- "chess@free-hosted": {
-  "title": "11. Chess Engine",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [
-   "Create index.html skeleton: index.html",
-   "Implement engine.js – board representation and FEN load/export: engine.js",
-   "Implement movegen.js – legal move generation: movegen.js",
-   "Implement check.js – check, checkmate, stalemate detection: check.js",
-   "Implement evaluation.js – material and piece-square evaluation: evaluation.js",
-   "Implement search.js – minimax with alpha-beta pruning: search.js",
-   "Implement ui.js – board rendering, click handling, and integration: ui.js"
-  ],
-  "tasks": [
-   {
-    "title": "Create index.html skeleton",
-    "status": "failed"
-   },
-   {
-    "title": "Implement engine.js – board representation and FEN load/export",
-    "status": "failed"
-   },
-   {
-    "title": "Implement movegen.js – legal move generation",
-    "status": "failed"
-   },
-   {
-    "title": "Implement check.js – check, checkmate, stalemate detection",
-    "status": "failed"
-   },
-   {
-    "title": "Implement evaluation.js – material and piece-square evaluation",
-    "status": "failed"
-   },
-   {
-    "title": "Implement search.js – minimax with alpha-beta pruning",
-    "status": "failed"
-   },
-   {
-    "title": "Implement ui.js – board rendering, click handling, and integration",
-    "status": "failed"
-   }
-  ],
-  "error": "team did not finish: failed No task finished successfully.",
-  "minutes": 2,
-  "final": {
-   "A functional chessboard": "team run failed: team did not finish: failed No task finished successfully.",
-   "Legal move generation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Piece movement": "team run failed: team did not finish: failed No task finished successfully.",
-   "Check detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Checkmate detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Stalemate detection": "team run failed: team did not finish: failed No task finished successfully.",
-   "Castling": "team run failed: team did not finish: failed No task finished successfully.",
-   "En passant": "team run failed: team did not finish: failed No task finished successfully.",
-   "Pawn promotion": "team run failed: team did not finish: failed No task finished successfully.",
-   "Board evaluation": "team run failed: team did not finish: failed No task finished successfully.",
-   "Minimax": "team run failed: team did not finish: failed No task finished successfully.",
-   "Alpha-beta pruning": "team run failed: team did not finish: failed No task finished successfully.",
-   "A playable computer opponent": "team run failed: team did not finish: failed No task finished successfully.",
-   "Tested against known chess positions": "team run failed: team did not finish: failed No task finished successfully.",
-   "Illegal moves are never accepted": "team run failed: team did not finish: failed No task finished successfully."
-  }
- },
- "visual@free-hosted": {
-  "title": "12. Visual Programming Environment",
-  "team": "architect gpt-oss 120B (Groq free tier), leads Nemotron 3 Ultra 550B (OpenRouter free)/Gemma 4 31B (OpenRouter free)/gpt-oss 20B (Groq free tier)/Qwen3.8 27B (Groq free tier), workers North Mini Code 30B (OpenRouter free)",
-  "plan": [],
-  "error": "no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-  "minutes": 0,
-  "final": {
-   "Draggable programming nodes": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Node connections": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Input and output ports": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "A node execution system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Dependency resolution": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Detects circular dependencies": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Error handling": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Graph visualization": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "Saving and loading": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )",
-   "A working example program built with the node system": "team run failed: no plan: failed The free daily limit for this provider is used up (429, per-day). It resets once a day; meanwhile use another free provider (Groq) or a local model. ({\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7pd804redqsjf3f6bfbnae3` service tier `on_demand` on tokens per )"
-  }
- }
 }

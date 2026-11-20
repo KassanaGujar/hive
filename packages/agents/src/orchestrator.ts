@@ -472,7 +472,9 @@ ${ctl.prd.slice(0, 8000)}`
       task.status = 'approved'
       return this.mergeTask(ctl, task)
     }
-    if (ctl.run.metrics?.mode === 'single' && !task.id.startsWith('integrate-')) return this.runSingle(ctl, task, worker, wt)
+    // Integration rounds too: the smoke test that queued them runs again afterwards (QA Physics: an AI review of the
+    // integration round sent it back 3 times, 6 extra calls, and the result scored the same).
+    if (ctl.run.metrics?.mode === 'single') return this.runSingle(ctl, task, worker, wt)
     let notes: string | undefined
     let approved = false
     for (let round = 1; round <= MAX_REVIEW_ROUNDS; round++) {
