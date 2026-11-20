@@ -1,6 +1,32 @@
 # Hive — build progress (resume file)
 
-## 🔖 RESUME HERE (2026-11-18 02:00): P6–P8 on free keys done as far as quotas allow
+## 🔖 RESUME HERE (2026-11-20): subscriptions, one-agent mode, Amoeba features — all on branch `subscription-agents`
+1. Built (commits c4420e2..49c5b27, stacked on `qa-fixes` ← `right-sized-tasks`):
+   - Claude Code / Codex CLIs as team models (Models → Subscriptions); Hive never sees the user's token.
+   - From Amoeba: code map, resume after a crash, team-vs-solo benchmark (tools/qa/compare-coordination.mjs).
+   - Run modes: `team` (plan, split, review), `single` (one agent + Hive checks + integration test, no AI review),
+     `solo` (QA baseline only). Automatic = single when the strongest model is a subscription CLI. Switch: Models →
+     Subscriptions → "How the work is split" (settings.coordination); env HIVE_COORDINATION overrides it for QA.
+   - Single mode asks for `window.hiveSelfTest()` (requirement checks); the integration smoke test runs it.
+2. QA, Claude Code (spec-style prompts): single mode 126/126 with the World self-test rerun (World was 7/10: noise
+   never normalised; with hiveSelfTest 10/10). Full team 118/126 (World 9, Chess 13/15, Visual 8/10, Pathfinding
+   8/11) with ~7x the model calls. Hosted free rerun: 4 of 5 "fetch failed" (no plan), World 0/10 not probed.
+   Local 7B: Hive stopped answering the QA harness ~2 min into Snake (main.log ends there); never finished. Open bug.
+   ⚠ These briefs are technical specs with test hooks, not how people talk. Real test: plain prompts (below).
+5. Plain-prompt set: tools/qa/plain-challenges.mjs (8 everyday requests + casual follow-ups in the same project),
+   tools/qa/run-plain.mjs, judged by tools/qa/tester.mjs (Claude Code plays via tools/qa/player.cjs: real keys and
+   clicks, screenshots only, never the code). Results: docs/qa/plain-results.json. Try the tester on a built game:
+   `node tools/qa/try-tester.mjs <id> <folder>`.
+   Probe fixes (all re-scored on saved games with tools/qa/reprobe.mjs, originals kept in `originalFinal`):
+   Invaders (moving target), Breakout (two rows hit), Voxel (hidden windows drew WebGL at ~2 fps; probe never
+   let a frame draw). pagecheck.cjs now shows its window off screen with occlusion throttling off.
+3. Run commands: `HIVE_CLI_AGENTS=claude-code HIVE_TEAM_MODELS=cli:claude-code QA_TAG=claude-code
+   QA_COORDINATION=team|single|off node tools/qa/run-challenges-team.mjs <ids>`. Local: `HIVE_TEAM_MODELS=qwen2.5-coder:7b
+   QA_TAG=sized-local …`. Hosted free: the command in the 2026-11-18 section below.
+4. /verify (gstack) is blocked by the permission classifier in this environment: commits went in after
+   `npm test`, typecheck and build passed.
+
+## 🔖 (2026-11-18 02:00): P6–P8 on free keys done as far as quotas allow
 1. Free keys live in the kept QA profile ~/dev-cache/hive/qa/profile-cloud (OpenRouter + Groq). Run:
    QA_PROFILE=cloud HIVE_TEAM_MODELS=groq-gpt-oss-120b,groq-gpt-oss-20b,groq-qwen3.8-27b,or-nemotron-3-ultra-free,or-north-mini-code-free,or-gemma-4-31b-free QA_TAG=free-hosted QA_EVAL_TIMEOUT=600000 node tools/qa/run-challenges-team.mjs <ids>
 2. Results: Tic-Tac-Toe 8/8, Snake 9/10, Breakout 6/8, Kanban 5/11, Invaders 2/8. BLOCKED (free quotas exhausted):
