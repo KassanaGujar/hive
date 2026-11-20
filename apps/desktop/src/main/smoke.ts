@@ -41,10 +41,28 @@ export async function smokeTestWeb(dir: string, settleMs = 2500): Promise<string
     )
     if (visible.canvases > 0 && !visible.drawn) problems.push('The <canvas> stays blank — nothing is ever drawn on it.')
     if (visible.canvases === 0 && visible.text === 0) problems.push('The page shows nothing: no <canvas> and no text on screen.')
+    problems.push(...(await runSelfTest(win)))
   } catch (e) {
     problems.push(`Smoke test error: ${(e as Error).message}`)
   } finally {
     win.destroy()
   }
   return [...new Set(problems)]
+}
+
+/** The app's own check of the goal's requirements (window.hiveSelfTest, see SELF_TEST_BRIEF), if it wrote one. */
+async function runSelfTest(win: BrowserWindow): Promise<string[]> {
+  const out = await win.webContents
+    .executeJavaScript(
+      `(async () => {
+        if (typeof window.hiveSelfTest !== 'function') return { none: true }
+        try {
+          const r = await Promise.race([Promise.resolve(window.hiveSelfTest()), new Promise((_, no) => setTimeout(() => no(new Error('took over 10 seconds')), 10000))])
+          return { problems: Array.isArray(r) ? r.map((x) => String(x).slice(0, 300)).slice(0, 20) : ['hiveSelfTest() must return an array of problems, got ' + typeof r] }
+        } catch (e) { return { problems: ['hiveSelfTest() threw: ' + String(e && e.message || e).slice(0, 300)] } }
+      })()`,
+      true
+    )
+    .catch((e: Error) => ({ problems: [`hiveSelfTest() could not run: ${e.message}`] }))
+  return out.none ? [] : out.problems.map((p: string) => `Self-test: ${p}`)
 }

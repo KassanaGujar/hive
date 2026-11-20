@@ -10,8 +10,13 @@ const trace = (m) => process.env.PAGECHECK_TRACE && console.log('[pagecheck]', m
 trace('args ' + JSON.stringify([url, probeFile, outFile, shotFile]))
 process.on('uncaughtException', (e) => { console.error('[pagecheck] crash', e); try { fs.writeFileSync(outFile, JSON.stringify({ result: { probeError: 'checker crashed: ' + e.message }, errors: [] })) } catch {} ; app.exit(1) })
 app.commandLine.appendSwitch('disable-gpu-sandbox')
+// Windows treats an off-screen window as covered and stops drawing it; QA needs real frame rates.
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion')
+app.commandLine.appendSwitch('disable-renderer-backgrounding')
+app.commandLine.appendSwitch('disable-background-timer-throttling')
 app.whenReady().then(async () => {
-  const win = new BrowserWindow({ show: false, width: 1000, height: 760, webPreferences: { backgroundThrottling: false } })
+  // Shown but off screen: hidden windows drew WebGL at ~2 fps (an empty canvas: 2 fps hidden, 144 shown).
+  const win = new BrowserWindow({ show: true, x: -20000, y: -20000, skipTaskbar: true, focusable: false, width: 1000, height: 760, webPreferences: { backgroundThrottling: false } })
   const errors = []
   win.webContents.on('console-message', (e) => {
     const level = e.level ?? e.params?.level

@@ -130,6 +130,19 @@ interface RunCtl {
   integrated?: boolean
 }
 
+/**
+ * Single mode: Hive's checks only catch code that breaks, not code that runs and does the wrong thing (QA World: the
+ * terrain heights were never stretched to their full range, so half the map was water, with no mountains or rivers,
+ * and every check passed). The agent writes a self-test of the goal's requirements; the integration test calls it.
+ */
+export const SELF_TEST_BRIEF = [
+  'For a web page: before you finish, define `window.hiveSelfTest = () => problems` in your code. It checks each',
+  "requirement in the goal against the running app's real state and returns an array of plain sentences, one per",
+  'requirement that is not met (an empty array when all are met). Check outcomes, not that functions exist: counts,',
+  'value ranges, what is on screen, what happens after a simulated input. It may be async. Hive runs it after the page',
+  'loads and sends any problems back to you.'
+].join('\n')
+
 export class Orchestrator {
   private runs = new Map<string, RunCtl>()
   private guard: ResourceGuard
@@ -267,7 +280,7 @@ export class Orchestrator {
     if (mode === 'solo' || mode === 'single') {
       // The whole goal as one task, every file allowed, no architect plan.
       const owner = ctl.workerPool[0].name
-      const description = `${run.goal}${ctl.prd ? `\n\nPlan document:\n${ctl.prd.slice(0, 8000)}` : ''}${presetTasks?.length ? `\n\nSteps:\n${presetTasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}` : ''}`
+      const description = `${run.goal}${ctl.prd ? `\n\nPlan document:\n${ctl.prd.slice(0, 8000)}` : ''}${presetTasks?.length ? `\n\nSteps:\n${presetTasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}` : ''}${mode === 'single' ? `\n\n${SELF_TEST_BRIEF}` : ''}`
       const summary = mode === 'solo' ? 'One agent builds everything (coordination off).' : `One agent (${ctl.workerPool[0].model.name}) builds everything; Hive checks the result.`
       run.plan = { goal: run.goal, summary, tasks: [{ id: mode, title: 'Build it', description, files: [], dependsOn: [], owner }] }
       run.tasks = planToTasks(run.id, run.plan)

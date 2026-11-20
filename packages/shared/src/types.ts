@@ -371,4 +371,7 @@ export interface Settings {
   autosave: boolean
   /** Coding-agent CLIs (Claude Code, Codex) the user turned on, so Hive can use their own subscription. */
   cliAgents?: string[]
+  /** How a run is split up. auto: one agent plus Hive's checks when the strongest model is a subscription CLI, the
+   *  full team otherwise. team: always plan, split, review. single: always one agent plus Hive's checks. */
+  coordination?: 'auto' | 'team' | 'single'
 }

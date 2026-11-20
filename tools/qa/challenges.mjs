@@ -211,8 +211,9 @@ E.save();localStorage.getItem('voxel-edits');const fr=document.createElement('if
 for(let i=0;i<50&&!fr.contentWindow.engine;i++)await new Promise(r=>setTimeout(r,200));const E2=fr.contentWindow.engine;
 if(E2){E2.teleport(bx,by+5,bz);for(let i=0;i<10;i++)E2.update(0.05);E2.load&&E2.load()}R['World persistence']=(E2&&E2.getBlock(bx,by+1,bz)!==0&&E2.getBlock(bx,by,bz)===0)||'edits missing after reload';
 const tri=E.stats().triangles,chunks=E.loadedChunks().length;R['Optimized rendering and chunk management']=(tri/Math.max(1,chunks)<60000&&chunks<=60)||tri+' triangles for '+chunks+' chunks (faces between solid blocks are probably not culled)';
-let frames=0;const tEnd=performance.now()+2000;const tick=()=>{frames++;if(performance.now()<tEnd)requestAnimationFrame(tick)};requestAnimationFrame(tick);
-for(let i=0;i<30;i++){E.teleport(16*(20+i)+8,60,8);E.update(0.05)}await new Promise(r=>setTimeout(r,2100));const fps=frames/2;
+fr.remove();const nextFrame=()=>new Promise(r=>requestAnimationFrame(r));
+for(let i=0;i<30;i++){E.teleport(16*(20+i)+8,60,8);E.update(0.05);await nextFrame()}
+for(let i=0;i<10;i++)await nextFrame();let frames=0;const tEnd=performance.now()+2000;while(performance.now()<tEnd){await nextFrame();frames++}const fps=frames/2;
 R['Stays playable as the world grows']=(E.loadedChunks().length<=60&&fps>=20)||'after flying 30 chunks: '+E.loadedChunks().length+' chunks loaded, '+fps+' fps';
 return R`
   },

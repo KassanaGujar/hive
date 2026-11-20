@@ -1648,8 +1648,24 @@
       "Block destruction": true,
       "World persistence": true,
       "Optimized rendering and chunk management": true,
+      "Stays playable as the world grows": true
+    },
+    "originalFinal": {
+      "A 3D environment": true,
+      "A voxel-based world": true,
+      "Block rendering": true,
+      "Procedural terrain generation": true,
+      "Chunk generation": true,
+      "Chunk loading and unloading": true,
+      "Player movement": true,
+      "Collision detection": true,
+      "Block placement": true,
+      "Block destruction": true,
+      "World persistence": true,
+      "Optimized rendering and chunk management": true,
       "Stays playable as the world grows": "after flying 30 chunks: 29 chunks loaded, 0.5 fps"
-    }
+    },
+    "rescored": "2026-11-20: QA window and probe fixed (hidden Electron windows drew WebGL at ~2 fps; the probe jumped 30 chunks without drawing a frame). Saved game re-run with tools/qa/reprobe.mjs: 13/13. Original result in originalFinal."
   },
   "physics@claude-code single": {
     "title": "10. Physics Simulator",

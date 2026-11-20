@@ -141,10 +141,13 @@ export const orchestrator = new Orchestrator({
   memoryBudgetGB,
   smokeTest: smokeTestWeb,
   runCli,
-  // HIVE_COORDINATION: auto (default), team, single, or off (QA: one agent alone, the baseline)
+  // The Subscriptions tab sets it; HIVE_COORDINATION (auto, team, single, or off: one agent alone, the QA baseline)
+  // wins so QA runs don't depend on what the app was last set to.
   coordination: () => {
     const v = process.env.HIVE_COORDINATION
-    return v === 'off' || v === 'team' || v === 'single' ? v : 'auto'
+    if (v === 'off' || v === 'team' || v === 'single' || v === 'auto') return v
+    const s = getSettings().coordination
+    return s === 'team' || s === 'single' ? s : 'auto'
   },
   fileWritten(runId, agent, taskId, absPath) {
     const rel = path.relative(projectRoot(), absPath).replace(/\\/g, '/')

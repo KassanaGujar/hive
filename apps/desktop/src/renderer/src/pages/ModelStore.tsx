@@ -720,12 +720,24 @@ function InstalledTab({ installed }: { installed: InstalledModel[] }) {
 
 type CliAgentRow = { source: 'claude-code' | 'codex'; name: string; version: string | null; enabled: boolean; installUrl: string }
 
+const COORDINATION: { id: 'auto' | 'single' | 'team'; label: string; help: string }[] = [
+  { id: 'auto', label: 'Automatic', help: 'One agent when your best model is a subscription CLI, the full team otherwise.' },
+  { id: 'single', label: 'One agent', help: 'One agent builds everything. Hive still checks the code and tests that the pieces work together.' },
+  { id: 'team', label: 'Full team', help: 'A planner splits the work, several agents build in parallel, and a reviewer checks each piece.' }
+]
+
 function SubscriptionsTab() {
   const [rows, setRows] = useState<CliAgentRow[] | null>(null)
+  const [coord, setCoord] = useState<'auto' | 'single' | 'team'>('auto')
   const load = () => invoke('models:cliAgents').then(setRows)
   useEffect(() => {
     load()
+    invoke('settings:get').then((s) => setCoord(s.coordination ?? 'auto'))
   }, [])
+  const pick = async (id: 'auto' | 'single' | 'team') => {
+    setCoord(id)
+    await invoke('settings:set', { coordination: id })
+  }
   const toggle = async (r: CliAgentRow) => {
     await invoke('models:setCliAgent', r.source, !r.enabled)
     await load()
@@ -764,6 +776,20 @@ function SubscriptionsTab() {
           ))}
         </div>
       )}
+      <div className="mt-6">
+        <div className="mb-2 font-semibold">How the work is split</div>
+        <div className="flex flex-col gap-2">
+          {COORDINATION.map((c) => (
+            <label key={c.id} className="card flex cursor-pointer items-start gap-3 p-3">
+              <input type="radio" name="coordination" className="mt-1 accent-[var(--accent)]" checked={coord === c.id} onChange={() => pick(c.id)} />
+              <div>
+                <div className="text-[13px] font-medium">{c.label}</div>
+                <div className="text-[12px] text-muted">{c.help}</div>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

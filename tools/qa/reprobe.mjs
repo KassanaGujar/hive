@@ -18,6 +18,10 @@ rmSync(of, { force: true })
 writeFileSync(pf, c.probe)
 spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), pf, of], { timeout: 120000, stdio: 'ignore', env: { ...process.env, PAGECHECK_URL: pathToFileURL(path.join(dir, 'index.html')).href } })
 const out = existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: { _run: 'probe produced no output' }, errors: [] }
+// Scored by the runner, not the probe (same rule as run-challenges-team.mjs, minus the build log).
+if (c.items.includes('The game runs without errors') && out.result) {
+  out.result['The game runs without errors'] = !(out.errors ?? []).length && !out.result.probeError ? true : String((out.errors ?? [])[0] ?? out.result.probeError).slice(0, 200)
+}
 let pass = 0
 for (const item of c.items) {
   const v = out.result?.[item]

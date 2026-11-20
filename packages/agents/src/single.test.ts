@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { AgentRun, InstalledModel } from '@hive/shared'
-import { Orchestrator, type ChatResult, type OrchestratorHost } from './orchestrator'
+import { Orchestrator, SELF_TEST_BRIEF, type ChatResult, type OrchestratorHost } from './orchestrator'
 import { createGitOps } from './gitops'
 
 const model = (id: string, tier: InstalledModel['tier'], source: InstalledModel['source'] = 'hf'): InstalledModel => ({ id, name: id, source, model: '', tier, codingScore: tier === 'top' ? 92 : 60, sizeGB: 0, minRamGB: 0, contextTokens: 200000 })
@@ -56,6 +56,7 @@ describe('one agent with Hive checks (single mode)', () => {
     const id = await orch.start('Build a game')
     const planned = await waitFor(orch, id, (r) => r.phase === 'awaiting-plan-approval', 'plan')
     expect(planned.tasks.map((t) => t.id)).toEqual(['single'])
+    expect(planned.tasks[0].description).toContain(SELF_TEST_BRIEF) // Hive's checks can't see wrong behaviour; the app's self-test can
     expect(planned.agents.filter((a) => a.role === 'worker')).toHaveLength(1)
     await orch.approvePlan(id, true)
     const ready = await waitFor(orch, id, (r) => r.phase === 'awaiting-merge-approval', 'ready')
@@ -80,5 +81,15 @@ describe('one agent with Hive checks (single mode)', () => {
     expect(mode(cli)).toBe('single')
     expect(mode(local)).toBe('team')
     expect(mode(forced)).toBe('team')
+  })
+
+  it('solo (the benchmark baseline) gets no self-test brief', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-solo-'))
+    const orch = new Orchestrator(host(root, { coordination: () => 'off' }))
+    const id = await orch.start('Build a game')
+    const planned = await waitFor(orch, id, (r) => r.phase === 'awaiting-plan-approval', 'plan')
+    expect(planned.tasks[0].description).not.toContain('hiveSelfTest')
+    await orch.approvePlan(id, false)
+    rmSync(root, { recursive: true, force: true })
   })
 })
