@@ -105,8 +105,17 @@ app.whenReady().then(async () => {
     try {
       if (c.act === 'look') return { look: await wc.executeJavaScript(LOOK, true), shot: await shot('look'), errors: errors.splice(0) }
       if (c.act === 'shots') {
+        // press: keep tapping a key the whole time (games you must keep flapping): watching without it lets them die.
+        const press = c.press && { key: c.press.key ?? 'Space', every: Math.max(80, Math.min(c.press.everyMs ?? 300, 3000)) }
+        let tapping = !!press
+        const tapper = (async () => { while (tapping) { await key(press.key); await wait(press.every - 60) } })()
         const files = []
-        for (let i = 0; i < Math.min(c.count ?? 3, 8); i++) { if (i) await wait(Math.min(c.everyMs ?? 400, 3000)); files.push(await shot('series')) }
+        try {
+          for (let i = 0; i < Math.min(c.count ?? 3, 8); i++) { if (i) await wait(Math.min(c.everyMs ?? 400, 3000)); files.push(await shot('series')) }
+        } finally {
+          tapping = false
+          await tapper
+        }
         return { shots: files }
       }
       if (!act[c.act]) return { error: 'unknown action ' + c.act }

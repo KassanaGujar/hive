@@ -65,6 +65,8 @@ You control the page with actions (coordinates are page pixels, the page is abou
   {"act":"key","key":"ArrowLeft|ArrowRight|ArrowUp|ArrowDown|Space|Enter|Escape|Backspace|a..z|0..9","times":1,"holdMs":60,"gapMs":80}
   {"act":"click","x":0,"y":0}   {"act":"drag","from":[x,y],"to":[x,y]}   {"act":"type","text":"..."}
   {"act":"wait","ms":500}   {"act":"shots","count":4,"everyMs":400} (a series of screenshots, to see movement or colour changes)
+  add "press":{"key":"Space","everyMs":350} to a series to keep tapping that key while it films (for games where you
+  must keep tapping to stay alive; try a few speeds, since too fast can hit the ceiling and too slow falls)
   {"act":"reload"} (closes and reopens the page, like coming back later)
 After your actions you get a new screenshot (and any series you asked for). Look at screenshots with the Read tool.
 The page keeps running while you think (a game may be over by the time you look), but the actions in one batch run
