@@ -69,11 +69,31 @@ app.whenReady().then(async () => {
   const act = {
     async key(c) { for (let i = 0; i < Math.min(c.times ?? 1, 60); i++) { await key(c.key, c.holdMs ?? 60); await wait(c.gapMs ?? 80) } },
     async click(c) { mouse('mouseMove', c.x, c.y); mouse('mouseDown', c.x, c.y); await wait(50); mouse('mouseUp', c.x, c.y) },
+    // Synthetic mouse events never start HTML5 drag and drop (tested: a Kanban card stayed put). Like Puppeteer, use
+    // DevTools drag interception: if the press-and-move starts a native drag, replay it as drag events at the target;
+    // otherwise it was a pointer drag (drawing, sliders) and the mouse events already did it.
     async drag(c) {
       const [x0, y0] = c.from, [x1, y1] = c.to
-      mouse('mouseMove', x0, y0); mouse('mouseDown', x0, y0)
-      for (let i = 1; i <= 20; i++) { mouse('mouseMove', x0 + ((x1 - x0) * i) / 20, y0 + ((y1 - y0) * i) / 20); await wait(25) }
-      mouse('mouseUp', x1, y1)
+      const cdp = (method, params) => wc.debugger.sendCommand(method, params)
+      if (!wc.debugger.isAttached()) wc.debugger.attach('1.3')
+      let data = null
+      const onMsg = (_e, method, params) => { if (method === 'Input.dragIntercepted') data = params.data }
+      wc.debugger.on('message', onMsg)
+      await cdp('Input.setInterceptDrags', { enabled: true })
+      const m = (type, x, y, extra = {}) => cdp('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1, ...extra })
+      try {
+        await m('mouseMoved', x0, y0, { buttons: 0 })
+        await m('mousePressed', x0, y0)
+        for (let i = 1; i <= 20 && !data; i++) { await m('mouseMoved', x0 + ((x1 - x0) * i) / 20, y0 + ((y1 - y0) * i) / 20); await wait(25) }
+        if (data) {
+          for (const type of ['dragEnter', 'dragOver']) { await cdp('Input.dispatchDragEvent', { type, x: x1, y: y1, data }); await wait(50) }
+          await cdp('Input.dispatchDragEvent', { type: 'drop', x: x1, y: y1, data })
+        }
+        await m('mouseReleased', x1, y1)
+      } finally {
+        await cdp('Input.setInterceptDrags', { enabled: false }).catch(() => {})
+        wc.debugger.removeListener('message', onMsg)
+      }
     },
     async type(c) { for (const ch of String(c.text).slice(0, 200)) { wc.sendInputEvent({ type: 'char', keyCode: ch }); await wait(20) } },
     async wait(c) { await wait(Math.min(c.ms ?? 500, 10000)) },

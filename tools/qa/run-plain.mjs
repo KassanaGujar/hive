@@ -3,7 +3,7 @@
 // uses the app through the screen only and judges plain checks. Results: docs/qa/plain-results.json.
 //   node tools/qa/run-plain.mjs [id ...]
 // QA_COORDINATION: auto (default: what a user gets), team, single or off. QA_TAG labels the model setup.
-import { writeFileSync, readFileSync, existsSync } from 'node:fs'
+import { writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs'
 import path from 'node:path'
 import { Hive, record, wait, freshDir, OUT, SCRATCH } from './lib.mjs'
 import { PLAIN } from './plain-challenges.mjs'
@@ -59,9 +59,18 @@ async function build(say) {
   }
   if (run?.phase !== 'done') {
     await a.invoke('agents:stop', runId).catch(() => {})
-    throw new Error('did not finish: ' + (run?.phase ?? 'timeout') + ' ' + (run?.error ?? ''))
+    const why = [run?.error, ...(run?.tasks ?? []).flatMap((t) => (t.log ?? []).slice(-2))].filter(Boolean).join(' | ')
+    throw new Error('did not finish: ' + (run?.phase ?? 'timeout') + ' ' + why)
   }
   return run.metrics
+}
+
+// An outage or a used-up plan is not the app failing: stop instead of recording zeros (the first plain run lost
+// 13 of 16 messages to "can't reach the API server" and "you've hit your session limit").
+const OUTAGE = /session limit|usage limit|rate limit|ENOTFOUND|reach the API|ECONNRESET|overloaded|fetch failed/i
+function stop(where, why, from) {
+  console.log(`STOPPED at ${where}: ${String(why).slice(0, 200)}. Earlier results are kept; rerun: node tools/qa/run-plain.mjs ${from.join(' ')}`)
+  return a.kill().then(() => process.exit(3))
 }
 
 for (const c of list) {
@@ -82,12 +91,16 @@ for (const c of list) {
     try {
       entry.metrics = await build(turn.say)
     } catch (e) {
-      entry.error = String(e.message ?? e).slice(0, 300)
+      entry.error = String(e.message ?? e).slice(0, 600)
+      if (OUTAGE.test(entry.error)) await stop(`[${c.id} #${i + 1}] build`, entry.error, list.slice(list.indexOf(c)).map((x) => x.id))
     }
+    // keep every version a person would have seen (the next run of the same id wipes the project folder)
+    cpSync(dir, `${SCRATCH}/kept-plain/${c.id}@${TAG.replace(/\s+/g, '-')}/after-message-${i + 1}`, { recursive: true, filter: (p) => !/[\\/](\.git|\.hive|node_modules)([\\/]|$)/.test(p) })
     entry.buildMinutes = Math.round((Date.now() - t0) / 60000)
     const st = await a.invoke('run:start')
     if (st.previewUrl) {
       const t = await playtest(st.previewUrl, said, checks, { shotsDir: `${SCRATCH}/plain-shots/${c.id}-${i + 1}`, notes })
+      if (t.outage) await stop(`[${c.id} #${i + 1}] play-test`, t.outage, list.slice(list.indexOf(c)).map((x) => x.id))
       entry.verdicts = t.verdicts
       entry.tester = t.notes
       entry.pageErrors = t.errors

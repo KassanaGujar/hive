@@ -8,6 +8,7 @@ import readline from 'node:readline'
 import { REPO } from './lib.mjs'
 
 const ROUNDS = Number(process.env.QA_TESTER_ROUNDS ?? 5)
+const OUTAGE = /session limit|usage limit|rate limit|ENOTFOUND|reach the API|ECONNRESET|overloaded/i
 const win = process.platform === 'win32'
 
 function startPlayer(url, shots) {
@@ -95,6 +96,7 @@ export async function playtest(url, said, checks, { shotsDir, notes } = {}) {
       const last = round === ROUNDS ? '\nThis is your last turn: give your verdicts now.' : ''
       const prompt = `${brief(said, checks, notes)}\n\n${history ? `What you did so far:\n${history}\n` : ''}Round ${round} of ${ROUNDS}. Current screenshot: ${look.shot}\n${screen}${errors.length ? `\nConsole errors so far: ${errors.slice(0, 5).join(' | ')}` : ''}${last}`
       const ans = await askClaude(prompt, shotsDir)
+      if (ans.error && OUTAGE.test(ans.error)) return { outage: ans.error, verdicts: {}, notes: '', errors }
       if (ans.verdicts) { result = ans; break }
       if (!Array.isArray(ans.actions)) { history += `Round ${round}: (your answer could not be used: ${ans.error ?? 'no actions'})\n`; continue }
       const done = []
