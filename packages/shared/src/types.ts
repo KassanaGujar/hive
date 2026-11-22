@@ -380,4 +380,7 @@ export interface Settings {
   /** After the build passes Hive's checks, Claude plays the web app like a person and sends back what doesn't work
    *  (Claude Code only). Default on. */
   playTest?: boolean
+  /** Safe mode for Run (off by default). Node programs may only touch the project folder, can't start other programs
+   *  and get no network unless allowNetwork; every program is stopped after timeLimitMin minutes (default 10). */
+  safeRun?: { on: boolean; timeLimitMin?: number; allowNetwork?: boolean }
 }

@@ -126,6 +126,10 @@ function TopBar() {
   const run = useStore((s) => s.run)
   const root = useStore((s) => s.root)!
   const running = run.status === 'running'
+  const settings = useStore((s) => s.settings)
+  const safe = settings?.safeRun
+  const setSafe = async (patch: Partial<NonNullable<typeof safe>>) =>
+    useStore.setState({ settings: await invoke('settings:set', { safeRun: { on: false, ...safe, ...patch } }) })
   return (
     <div className="flex h-10 items-center gap-2 border-b border-line bg-panel px-3">
       <img src={icon} alt="" className="h-5 w-5" />
@@ -137,6 +141,14 @@ function TopBar() {
         <button className="btn" onClick={() => openPreview(run.previewUrl!)}>
           Preview
         </button>
+      )}
+      <label className="flex items-center gap-1 text-[12px] text-muted" title="Safe mode: Node programs can only touch this project's files, can't start other programs, and get no network. Every program stops after 10 minutes. Applies from the next Run.">
+        <input type="checkbox" checked={!!safe?.on} onChange={(e) => setSafe({ on: e.target.checked })} /> Safe mode
+      </label>
+      {safe?.on && (
+        <label className="flex items-center gap-1 text-[12px] text-muted" title="Let programs use the network while safe mode is on (needed for servers and online APIs).">
+          <input type="checkbox" checked={!!safe.allowNetwork} onChange={(e) => setSafe({ allowNetwork: e.target.checked })} /> Network
+        </label>
       )}
       {running ? (
         <>

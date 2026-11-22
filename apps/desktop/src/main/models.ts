@@ -1,4 +1,6 @@
-import { cliModels } from './cliAgents'
+import { cliModels, runCli } from './cliAgents'
+import { cliInvocation, flattenMessages, isCliSource, parseCliOutput, type CliSource } from '@hive/agents'
+import { tmpdir } from 'node:os'
 import { app } from 'electron'
 import { Agent as UndiciAgent, fetch as undiciFetch } from 'undici'
 import { setModelFetch } from '@hive/models'
@@ -284,12 +286,37 @@ setModelFetch(((url: string, init?: RequestInit) => undiciFetch(url, { ...(init 
 const FIRST_TOKEN_TIMEOUT_MS = Number(process.env.HIVE_FIRST_TOKEN_TIMEOUT_MS ?? 120_000)
 const STALL_TIMEOUT_MS = Number(process.env.HIVE_STALL_TIMEOUT_MS ?? 120_000)
 
+/**
+ * Ask AI through a subscription CLI (Claude Code, Codex): no tools, the answer arrives in one piece. It used to throw
+ * "works in the AI team only", though Ask AI lists the model. Automatic means Sonnet here: Ask AI replies are code
+ * (Haiku is for the team's short planning calls).
+ */
+const CLI_CHAT_TIMEOUT_MS = 10 * 60_000
+async function cliChat(m: InstalledModel, messages: ChatMessage[], signal: AbortSignal): Promise<string> {
+  const source = m.source as CliSource
+  const model = m.model === 'auto' && source === 'claude-code' ? 'sonnet' : m.model
+  const r = await runCli(cliInvocation(source, 'ask', flattenMessages(messages), model), tmpdir(), signal, CLI_CHAT_TIMEOUT_MS)
+  const out = parseCliOutput(source, r.code, r.stdout, r.stderr)
+  if (!out.ok) throw new Error(out.error ?? `${m.name} did not answer.`)
+  return out.text
+}
+
 export async function chatStream(modelId: string, messages: ChatMessage[], tools?: ToolSpec[]): Promise<string> {
   const m = await findModel(modelId)
-  const ep = endpointFor(m)
   const streamId = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
   const ctl = new AbortController()
   streams.set(streamId, ctl)
+  if (isCliSource(m.source)) {
+    void cliChat(m, messages, ctl.signal)
+      .then((text) => {
+        emit('chat:chunk', { streamId, chunk: { text } })
+        emit('chat:chunk', { streamId, chunk: { done: true } })
+      })
+      .catch((e) => emit('chat:chunk', { streamId, chunk: { done: true }, error: ctl.signal.aborted ? undefined : (e as Error).message }))
+      .finally(() => streams.delete(streamId))
+    return streamId
+  }
+  const ep = endpointFor(m)
   // A provider that accepts the request but never answers would otherwise leave the chat waiting forever.
   let timedOut: string | null = null
   let idle: ReturnType<typeof setTimeout> | undefined
@@ -327,5 +354,6 @@ export function abortStream(id: string) {
 
 export async function chatOnceById(modelId: string, messages: ChatMessage[]) {
   const m = await findModel(modelId)
+  if (isCliSource(m.source)) return cliChat(m, messages, new AbortController().signal)
   return (await chatOnce(endpointFor(m), messages)).text
 }

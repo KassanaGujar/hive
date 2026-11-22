@@ -1,4 +1,5 @@
 import type { RunConfig } from '@hive/shared'
+export { safeCommand, type SafeLimit } from './safeRun'
 
 /** What the project-detector needs to know about a folder; kept abstract so it is unit-testable. */
 export interface ProjectProbe {

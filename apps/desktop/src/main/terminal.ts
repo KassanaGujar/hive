@@ -110,6 +110,14 @@ export function writeTerminal(id: string, data: string) {
   terms.get(id)?.p.write(data)
 }
 
+/** Show a line from Hive itself in a terminal (not sent to the program). */
+export function printTerminal(id: string, text: string) {
+  const entry = terms.get(id)
+  const data = `\x1b[36m[Hive] ${text}\x1b[0m\r\n`
+  if (entry) entry.buffer = (entry.buffer + data).slice(-20000)
+  emit('term:data', { id, data })
+}
+
 export function resizeTerminal(id: string, cols: number, rows: number) {
   try {
     terms.get(id)?.p.resize(Math.max(cols, 2), Math.max(rows, 2))

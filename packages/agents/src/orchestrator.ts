@@ -607,12 +607,17 @@ ${ctl.prd.slice(0, 8000)}`
       if (!res.toolCalls?.length) {
         // A one-file task answered with the file itself (code block / raw HTML) instead of a tool call.
         const pasted = task.files.length === 1 ? fileFromReply(text, task.files[0]) : null
-        if (pasted) {
-          await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: task.files[0], content: pasted })
-          this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, task.files[0]))
-          writes++
-          this.log(ctl, worker.name, task.id, `→ write_file ${task.files[0]} (from the code in its reply)`)
-          messages.push({ role: 'user', content: `Saved that as ${task.files[0]}. If it is complete, call report_done; otherwise write the full file again.` })
+        // Several files: a local 7B fixing three files pasted them all, four times over, ~20 minutes a reply.
+        const saved = pasted ? { [task.files[0]]: pasted } : task.files.length > 1 ? filesFromReply(text, task.files) : {}
+        if (Object.keys(saved).length) {
+          for (const [file, content] of Object.entries(saved)) {
+            await executeTool({ root: wt, runCommand: async () => '' }, 'write_file', { path: file, content })
+            this.host.fileWritten?.(ctl.run.id, worker.name, task.id, path.join(wt, file))
+            writes++
+            this.log(ctl, worker.name, task.id, `→ write_file ${file} (from the code in its reply)`)
+          }
+          const names = Object.keys(saved).join(', ')
+          messages.push({ role: 'user', content: `Saved that as ${names}. If the task is complete, call report_done; otherwise write the remaining files with write_file.` })
           continue
         }
         if (++nudges > 3) return text.slice(0, 500) || 'Finished.'
@@ -1200,6 +1205,39 @@ export function fileFromReply(text: string, file: string): string | null {
   if (match && match.body.trim().length > 20) return match.body
   if (ext === 'html' && /^\s*(<!doctype html|<html)/i.test(text) && /<\/html>/i.test(text)) return text.slice(text.search(/<!doctype html|<html/i), text.search(/<\/html>/i) + 7)
   return null
+}
+
+/**
+ * The files a several-file task pasted into its reply instead of calling write_file. A block belongs to a file when its
+ * fence names it ("```js game.js"), else when the text just before it names one of the task's files, else when its
+ * language fits exactly one of them. The first block for a file wins; blocks nobody can place are left alone.
+ */
+export function filesFromReply(text: string, files: string[]): Record<string, string> {
+  const lang: Record<string, string[]> = { html: ['html', 'htm'], js: ['javascript', 'js'], css: ['css'], py: ['python', 'py'], json: ['json'], ts: ['typescript', 'ts'] }
+  const extOf = (f: string) => f.split('.').pop()!.toLowerCase()
+  const lastNamed = (s: string) => {
+    let best: string | undefined
+    let at = -1
+    for (const f of files) {
+      const i = s.toLowerCase().lastIndexOf(f.toLowerCase())
+      if (i > at) (at = i), (best = f)
+    }
+    return best
+  }
+  const out: Record<string, string> = {}
+  let prevEnd = 0
+  for (const m of text.matchAll(/```([^\n`]*)\n([\s\S]*?)```/g)) {
+    const fence = m[1].trim().toLowerCase()
+    const body = m[2]
+    const before = text.slice(prevEnd, m.index)
+    prevEnd = m.index! + m[0].length
+    if (body.trim().length <= 20) continue
+    const tag = fence.split(/\s+/)[0]
+    const byLang = files.filter((f) => (lang[extOf(f)] ?? [extOf(f)]).includes(tag))
+    const file = lastNamed(fence) ?? lastNamed(before) ?? (byLang.length === 1 ? byLang[0] : undefined)
+    if (file && !(file in out)) out[file] = body
+  }
+  return out
 }
 
 /** Current contents of the task's files, so small models edit instead of overwriting blindly. */

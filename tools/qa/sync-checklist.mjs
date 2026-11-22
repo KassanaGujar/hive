@@ -28,6 +28,27 @@ function match(phase, section, text) {
     const [ph, nm] = ALIAS[text].includes('|') ? ALIAS[text].split('|') : [phase, ALIAS[text]]
     return results.find((r) => r.phase === ph && r.name === nm) ?? null
   }
+  if (section) {
+    // A challenge is run in several setups ("1. Snake Game (AI team claude-code) — …", "(qwen2.5-coder-7b-solo, click-through)").
+    // The item asks whether Hive can build it: a passing setup wins (its name stays in the note), else the plain result.
+    const all = [match1(phase, section, text, false), ...variantMatches(phase, section, text)].filter(Boolean)
+    return all.filter((r) => r.status === 'PASS').at(-1) ?? all[0] ?? null
+  }
+  return match1(phase, section, text, false)
+}
+
+function variantMatches(phase, section, text) {
+  const out = []
+  const prefix = section + ' ('
+  const variants = new Set(results.filter((r) => r.phase === phase && r.name.startsWith(prefix) && / — /.test(r.name)).map((r) => r.name.split(' — ')[0]))
+  for (const v of variants) {
+    const r = match1(phase, v, text, true)
+    if (r) out.push(r)
+  }
+  return out.sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? '')))
+}
+
+function match1(phase, section, text) {
   const tw = words(text)
   let best = null, score = 0
   for (const r of results) {
@@ -66,6 +87,8 @@ for (let i = 0; i < lines.length; i++) {
   if (mark === '!') note = ` — fixed: ${FIXED[r.name]}`
   else if (mark === 'F' || mark === '~') note = ` — ${r.detail.slice(0, 220)}`
   else if (r.detail && /\d/.test(r.detail)) note = ` — ${r.detail.slice(0, 160)}`
+  const setup = section && /^[^—]*?\(([^)]+)\) — /.exec(r.name)?.[1]
+  if (setup) note += ` (${setup})`
   lines[i] = `- [${mark}] ${text}${note}`
   counts[phase] ??= { x: 0, '!': 0, F: 0, '~': 0 }
   counts[phase][mark]++

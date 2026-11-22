@@ -1,11 +1,11 @@
 import { createServer, type Server } from 'node:http'
 import { promises as fs, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { detectProject, RUNTIME_DOWNLOADS } from '@hive/editor'
+import { detectProject, RUNTIME_DOWNLOADS, safeCommand } from '@hive/editor'
 import type { RunConfig, RunState } from '@hive/shared'
 import { emit } from './ipc'
 import { abs, projectRoot } from './project'
-import { createTerminal, killTerminal, whichSync, clearWhichCache, prefetchTools } from './terminal'
+import { createTerminal, killTerminal, printTerminal, whichSync, clearWhichCache, prefetchTools } from './terminal'
 import { recordFeed } from './feed'
 import { getSettings } from './store'
 
@@ -63,12 +63,16 @@ export async function startRun(dir?: string): Promise<RunState> {
     recordFeed({ actor: actor(), kind: 'run.started', summary: `started the site at ${url}` })
     return state
   }
+  const safe = getSettings().safeRun
+  const wrapped = safe?.on ? safeCommand(cfg.command, cfg.cwd, { allowNetwork: !!safe.allowNetwork }) : null
   const termId = createTerminal({
     cwd: cfg.cwd,
-    command: cfg.command,
+    command: wrapped?.command ?? cfg.command,
     env: { ...cfg.env, ...(cfg.port ? { PORT: String(cfg.port) } : {}) },
     onExit: (code) => {
+      clearTimeout(safeTimer)
       if (state.terminalId !== termId) return
+      if (stoppedByLimit === termId) return
       const failed = code !== 0
       setState({ ...state, status: failed ? 'failed' : 'exited', exitCode: code, message: failed ? `Exited with code ${code}. See the Run terminal for details.` : 'Finished.' })
       if (failed) recordFeed({ actor: actor(), kind: 'run.failed', summary: `run failed (exit ${code}): ${cfg.command}` })
@@ -76,8 +80,27 @@ export async function startRun(dir?: string): Promise<RunState> {
   })
   setState({ status: 'running', config: cfg, terminalId: termId, previewUrl: cfg.port ? `http://localhost:${cfg.port}` : undefined })
   recordFeed({ actor: actor(), kind: 'run.started', summary: `ran ${cfg.command}` })
+  if (wrapped) {
+    const min = safe!.timeLimitMin ?? 10
+    const label = Number.isInteger(min) ? `${min} min` : `${Math.round(min * 60)} s`
+    const what = wrapped.limits.includes('files')
+      ? `files outside the project, other programs${wrapped.limits.includes('network') ? ', network' : ''} blocked; stops after ${label}`
+      : `only the ${label} time limit applies (Hive can lock down plain "node" programs, not this command)`
+    printTerminal(termId, `Safe mode: ${what}.`)
+    safeTimer = setTimeout(() => {
+      if (state.terminalId !== termId || state.status !== 'running') return
+      stoppedByLimit = termId
+      printTerminal(termId, `Stopped after ${label} (safe mode time limit).`)
+      killTerminal(termId)
+      setState({ ...state, status: 'failed', message: `Stopped after ${label} (safe mode time limit).` })
+      recordFeed({ actor: actor(), kind: 'run.failed', summary: `stopped after ${label} (safe mode time limit): ${cfg.command}` })
+    }, min * 60_000)
+  }
   return state
 }
+
+let safeTimer: ReturnType<typeof setTimeout> | undefined
+let stoppedByLimit: string | undefined
 
 /** Called by the renderer when the run terminal prints a localhost URL. */
 export function setPreviewUrl(url: string) {
@@ -85,6 +108,7 @@ export function setPreviewUrl(url: string) {
 }
 
 export async function stopRun(silent = false): Promise<RunState> {
+  clearTimeout(safeTimer)
   if (state.terminalId) killTerminal(state.terminalId)
   if (staticServer) {
     staticServer.close()

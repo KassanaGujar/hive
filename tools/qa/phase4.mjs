@@ -179,6 +179,9 @@ await check(P, "Execution doesn't expose other users' project files", async () =
   // Teammates' projects never exist on this machine; the relay stores only encrypted data.
   return 'nothing to expose: each person runs locally, teammates only receive the shared project files'
 })
+// The four sandbox checks run with safe mode on (the Run bar's "Safe mode" switch); a 6 s limit stands in for the
+// default 10 minutes so the 8 s program below has to be stopped.
+await a.invoke('settings:set', { safeRun: { on: true, timeLimitMin: 0.1, allowNetwork: false } })
 await check(P, 'Attempts to access unauthorized filesystem locations', async () => {
   const r = await runProject('fsescape', { 'hive.json': '{"command":"node read.js"}', 'read.js': `try{console.log("READ:"+require('fs').readFileSync(${JSON.stringify(secret)},'utf8'))}catch(e){console.log("DENIED:"+e.code)}\n` })
   await finished()
@@ -186,28 +189,39 @@ await check(P, 'Attempts to access unauthorized filesystem locations', async () 
   // Hive's own file API refuses paths outside the project:
   const api = await a.eval(`try{await h.invoke('fs:read','../../../../hive-qa-secret.txt');return 'allowed'}catch(e){return 'refused: '+e.message}`)
   if (o.includes('READ:outside')) throw new Error(`a program you run can read any file your account can (${secret}). Hive's own file API: ${api}`)
-  return 'program denied: ' + o
+  if (!o.includes('DENIED:ERR_ACCESS_DENIED')) throw new Error('program did not report a denied read: ' + o.slice(-200))
+  return 'program denied (ERR_ACCESS_DENIED); Hive file API ' + api.slice(0, 40)
 })
 await check(P, 'Attempts to access unauthorized network resources', async () => {
   const r = await runProject('net', { 'hive.json': '{"command":"node net.js"}', 'net.js': "fetch('https://example.com').then(r=>console.log('NET:'+r.status)).catch(e=>console.log('BLOCKED:'+e.message))\n" })
   await finished(20000)
   const o = await r.out()
   if (o.includes('NET:200')) throw new Error('programs have full network access (no network policy for Run)')
-  return o
+  if (!o.includes('BLOCKED:')) throw new Error('program did not report a blocked request: ' + o.slice(-200))
+  return o.match(/BLOCKED:.*/)?.[0] ?? o
 })
 await check(P, 'Attempts to escape the execution sandbox', async () => {
   const r = await runProject('escape', { 'hive.json': '{"command":"node esc.js"}', 'esc.js': "console.log('WHOAMI:'+require('child_process').execSync('whoami').toString().trim())\n" })
   await finished()
   const o = await r.out()
   if (o.includes('WHOAMI:')) throw new Error('no sandbox: programs can start other processes as the user (' + o.match(/WHOAMI:\S+/)?.[0] + ')')
-  return o
+  if (!o.includes('ERR_ACCESS_DENIED')) throw new Error('program did not report a denied process start: ' + o.slice(-200))
+  return 'starting another program: ERR_ACCESS_DENIED'
 })
 await check(P, 'Resource limits and execution timeouts', async () => {
   // Run: none. AI agents' commands: execCapture timeout + command policy. Check the agent side exists:
   const r = await runProject('long', { 'hive.json': '{"command":"node long.js"}', 'long.js': 'setTimeout(()=>console.log("finished after 8s"),8000)\n' })
   const s = await finished(12000)
-  if ((await r.out()).includes('finished after 8s')) throw new Error('Run has no time or memory limit (by design for dev servers); only AI-agent commands have a timeout + allow/approve/block policy')
-  return s.status
+  if ((await r.out()).includes('finished after 8s')) throw new Error('safe mode did not stop the program at its time limit')
+  return `${s.status}: ${s.message}`
+})
+await check(P, 'Safe mode off: programs run normally again', async () => {
+  await a.invoke('settings:set', { safeRun: { on: false, timeLimitMin: 0.1, allowNetwork: false } })
+  const r = await runProject('unsafe', { 'hive.json': '{"command":"node ok.js"}', 'ok.js': "console.log('PLAIN:'+require('child_process').execSync('echo hi').toString().trim())\n" })
+  await finished()
+  const o = await r.out()
+  if (!o.includes('PLAIN:hi')) throw new Error('with safe mode off the program was still restricted: ' + o.slice(-200))
+  return 'child process allowed again'
 })
 const errs = a.errors
 record(P, 'No uncaught errors in the app during Phase 4', errs.length ? 'FAIL' : 'PASS', errs.slice(0, 3).join(' | '))

@@ -208,7 +208,7 @@ describe('router runs disjoint tasks at once', () => {
 })
 
 import { normalizeWriteArgs } from './tools'
-import { fileFromReply, withRetry } from './orchestrator'
+import { fileFromReply, filesFromReply, withRetry } from './orchestrator'
 describe('worker robustness (Snake test failures)', () => {
   it('accepts write_file argument-name variants and defaults the path for one-file tasks', () => {
     expect(normalizeWriteArgs({ file: 'style.css', content: 'x' })).toEqual({ path: 'style.css', content: 'x' })
@@ -219,6 +219,23 @@ describe('worker robustness (Snake test failures)', () => {
     expect(fileFromReply('Here is game.js:\n```javascript\nconst canvas = document.getElementById("c")\n```', 'game.js')).toContain('getElementById')
     expect(fileFromReply('<!DOCTYPE html><html><body>hi there friends</body></html> done', 'index.html')).toBe('<!DOCTYPE html><html><body>hi there friends</body></html>')
     expect(fileFromReply('I finished the task.', 'game.js')).toBeNull()
+  })
+  it('saves each file a several-file task pastes into its reply (local 7B fix-up round lost 80 min to this)', () => {
+    const reply = [
+      '### Step 1: Fix the canvas id in `index.html`',
+      '```html\n<!DOCTYPE html>\n<html><body><canvas id="gameCanvas"></canvas><script src="game.js"></script></body></html>\n```',
+      'Now update **game.js**:',
+      '```javascript\nconst canvas = document.getElementById("gameCanvas")\nwindow.game = {}\n```',
+      'And a helper you might like:',
+      '```javascript\nfunction unused() { return 42 + 1 }\n```'
+    ].join('\n')
+    const got = filesFromReply(reply, ['game.js', 'index.html', 'style.css'])
+    expect(Object.keys(got).sort()).toEqual(['game.js', 'index.html'])
+    expect(got['index.html']).toContain('gameCanvas')
+    expect(got['game.js']).toContain('window.game') // named in the text before it; the unnamed extra block is not the file
+    expect(filesFromReply('```js game.js\nconst a = 1; const b = 2; const c = 3\n```', ['game.js', 'ui.js'])).toEqual({ 'game.js': 'const a = 1; const b = 2; const c = 3\n' })
+    expect(filesFromReply('```javascript\nconst a = 1; const b = 2; const c = 3\n```', ['game.js', 'ui.js'])).toEqual({}) // two .js files: can't tell which
+    expect(filesFromReply('All fixed, nothing to change.', ['game.js', 'index.html'])).toEqual({})
   })
   it('retries transient model errors like "fetch failed", not real ones', async () => {
     let n = 0

@@ -112,6 +112,35 @@ describe('one agent with Hive checks (single mode)', () => {
     rmSync(root, { recursive: true, force: true })
   }, 120_000)
 
+  it('a fix-up round that pastes several files instead of calling write_file still gets them saved', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-paste-'))
+    let smoke = 0
+    const chat: OrchestratorHost['chat'] = async (_m, msgs) => {
+      const fixing = msgs.some((m) => m.content.includes('Make all the pieces work together'))
+      const tools = msgs.filter((m) => m.role === 'tool').length
+      const user = msgs.filter((m) => m.role === 'user').length
+      if (!fixing) {
+        if (tools === 0) return call('write_file', { path: 'index.html', content: '<canvas id="game"></canvas><script src="game.js"></script>\n' })
+        if (tools === 1) return call('write_file', { path: 'game.js', content: 'document.getElementById("gameCanvas").getContext("2d")\n' })
+        return call('report_done', { summary: 'built' })
+      }
+      if (user === 1) return { text: 'Fix `index.html`:\n```html\n<canvas id="gameCanvas"></canvas><script src="game.js"></script>\n```\nand game.js:\n```javascript\ndocument.getElementById("gameCanvas").getContext("2d") // fixed\n```' }
+      return call('report_done', { summary: 'fixed' })
+    }
+    const orch = new Orchestrator(host(root, { chat, coordination: () => 'single', smokeTest: async () => (smoke++ === 0 ? ['Uncaught TypeError: null (game.js:1)'] : []) }))
+    const id = await orch.start('Build a game')
+    await waitFor(orch, id, (r) => r.phase === 'awaiting-plan-approval', 'plan')
+    await orch.approvePlan(id, true)
+    const ready = await waitFor(orch, id, (r) => r.phase === 'awaiting-merge-approval', 'ready')
+    const fix = ready.tasks.find((t) => t.id === 'integrate-1')!
+    expect(fix.log.join('\n')).toContain('write_file index.html (from the code in its reply)')
+    await orch.approveMerge(id, true)
+    await waitFor(orch, id, (r) => r.phase === 'done', 'done')
+    expect(readFileSync(path.join(root, 'index.html'), 'utf8')).toContain('id="gameCanvas"')
+    expect(readFileSync(path.join(root, 'game.js'), 'utf8')).toContain('// fixed')
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+
   it('no play-test without Claude Code in the team', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'hive-noplay-'))
     let plays = 0
