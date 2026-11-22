@@ -94,7 +94,7 @@ export async function playtest(url, said, checks, { shotsDir, notes } = {}) {
       const look = await p.send({ act: 'look' })
       errors.push(...(look.errors ?? []))
       if (look.error && round === 1) { errors.push(look.error); break } // no page: don't spend model calls on nothing
-      const screen = look.look ? `Page title: ${look.look.title}\nText on screen:\n${look.look.text}\nThings you can see (kind, text, centre x,y, size):\n${look.look.elements.map((e) => `  ${e.kind} "${e.text}" at ${e.x},${e.y} (${e.w}x${e.h})`).join('\n')}` : `The page could not be read: ${look.error}`
+      const screen = look.look ? `Page title: ${look.look.title}\nText on screen:\n${look.look.text}\nThings you can see (kind, text, centre x,y, size):\n${look.look.elements.map((e) => `  ${e.kind} "${e.text}" at ${e.x},${e.y} (${e.w}x${e.h})`).join('\n')}${look.look.popups?.length ? `\nPop-up messages the page showed since your last look (already closed with OK): ${look.look.popups.join(' | ')}` : ''}` : `The page could not be read: ${look.error}`
       const last = round === ROUNDS ? '\nThis is your last turn: give your verdicts now.' : ''
       const prompt = `${brief(said, checks, notes)}\n\n${history ? `What you did so far:\n${history}\n` : ''}Round ${round} of ${ROUNDS}. Current screenshot: ${look.shot}\n${screen}${errors.length ? `\nConsole errors so far: ${errors.slice(0, 5).join(' | ')}` : ''}${last}`
       const ans = await askClaude(prompt, shotsDir)

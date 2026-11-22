@@ -50,6 +50,16 @@ app.whenReady().then(async () => {
     if (level === 'error' || level === 3) errors.push(String(msg).slice(0, 300))
   })
   wc.on('render-process-gone', () => errors.push('the page crashed'))
+  // A person sees alert()/confirm() pop-ups; an off-screen window hides them and leaves a frozen-looking page.
+  // Report them to the tester instead (confirm answers OK, prompt answers empty).
+  const dialogs = []
+  wc.on('console-message', (e) => {
+    const msg = String(e.message ?? e.params?.message ?? '')
+    if (msg.startsWith('@@dialog ')) dialogs.push(msg.slice(9, 300))
+  })
+  wc.on('dom-ready', () => {
+    wc.executeJavaScript(`for (const k of ['alert', 'confirm', 'prompt']) window[k] = (m) => { console.log('@@dialog ' + k + ': ' + m); return k === 'confirm' ? true : k === 'prompt' ? '' : undefined }`).catch(() => {})
+  })
   const shot = async (label) => {
     const file = path.join(shots, `${String(++n).padStart(3, '0')}-${label}.png`)
     // Screenshot pixels = page pixels, so a tester can click what it sees (Windows display scaling made them 1.27x).
@@ -103,7 +113,7 @@ app.whenReady().then(async () => {
   await wait(1500)
   const run = async (c) => {
     try {
-      if (c.act === 'look') return { look: await wc.executeJavaScript(LOOK, true), shot: await shot('look'), errors: errors.splice(0) }
+      if (c.act === 'look') return { look: { ...(await wc.executeJavaScript(LOOK, true)), popups: dialogs.splice(0) }, shot: await shot('look'), errors: errors.splice(0) }
       if (c.act === 'shots') {
         // press: keep tapping a key the whole time (games you must keep flapping): watching without it lets them die.
         const press = c.press && { key: c.press.key ?? 'Space', every: Math.max(80, Math.min(c.press.everyMs ?? 300, 3000)) }
