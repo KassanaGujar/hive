@@ -529,23 +529,59 @@
      "reviewRejections": 0,
      "approvalsAsked": 0,
      "approvalsDenied": 0,
-     "firstFileMs": 57620,
-     "readyMs": 61130
+     "firstFileMs": 57711,
+     "readyMs": 61301
     },
     "buildMinutes": 1,
     "verdicts": {
      "I can type in the bill and choose a tip, and it shows the tip and the total": {
       "pass": true,
-      "why": "Typed 50 into the bill field, clicked the 20% tip button, and the app immediately showed Tip amount $10.00 and Total $60.00 (plus combined totals), confirming input and selection drive visible output."
+      "why": "Typed 85.50 into the bill field, clicked the 18% tip button, and the screen updated to show Tip amount $15.39 and Total bill $100.89."
      },
      "The tip and total are correct": {
       "pass": true,
-      "why": "With bill=$50 and tip=20%, tip = 50*0.20 = $10.00 and total = $60.00, matching exactly what was displayed for both per-person and combined figures (1 person split)."
+      "why": "18% of 85.50 = 15.39 exactly, matching the displayed tip amount; 85.50 + 15.39 = 100.89, matching the displayed total bill."
      }
     },
-    "tester": "A simple, clean tip calculator: enter a bill amount, pick a tip percpercentage (presets or custom), and optionally split between multiple people; it instantly shows tip and total per person and combined. Math checked out correctly for a $50 bill at 20% tip.",
+    "tester": "A simple tip calculator: enter a bill amount, pick a tip percentage (or custom), optionally split between people, and it shows tip amount, total bill, and per-person share. All math checked out correctly for the 85.50 bill at 18% tip.",
     "pageErrors": [],
     "score": "2/2"
+   },
+   {
+    "say": "can it split it between my friends too",
+    "metrics": {
+     "mode": "single",
+     "modelCalls": 2,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 61732,
+     "readyMs": 144879
+    },
+    "buildMinutes": 2,
+    "verdicts": {
+     "I can type in the bill and choose a tip, and it shows the tip and the total": {
+      "pass": true,
+      "why": "Typed 85.50 into bill field, clicked 18% tip button (highlighted green), and the summary showed Tip amount $15.39 and Total bill $100.89."
+     },
+     "The tip and total are correct": {
+      "pass": true,
+      "why": "85.50 × 0.18 = 15.39 and 85.50 + 15.39 = 100.89, exactly matching the displayed values."
+     },
+     "I can say how many people there are and it shows what each person pays": {
+      "pass": true,
+      "why": "Clicked the + button three times to set split to 4, and a 'Per person' row appeared showing $25.22."
+     },
+     "The amount per person is correct": {
+      "pass": true,
+      "why": "100.89 ÷ 4 = 25.2225, which rounds to $25.22 as displayed."
+     }
+    },
+    "tester": "The app is a clean dark-themed tip calculator with bill input, preset/custom tip percentage buttons, and a +/- people-split control, all math checked out correctly for this bill/tip/split combination.",
+    "pageErrors": [],
+    "score": "4/4"
    }
   ]
  },
@@ -555,43 +591,57 @@
   "turns": [
    {
     "say": "make an animal quiz for my class",
-    "error": "did not finish: failed No task finished successfully.",
-    "buildMinutes": 4,
+    "metrics": {
+     "mode": "single",
+     "modelCalls": 1,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 71175,
+     "readyMs": 75534
+    },
+    "buildMinutes": 1,
     "verdicts": {
      "It asks questions about animals with answers to pick from": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Saw Question 1 of 8 ('King of the Jungle') and Question 2 of 8 ('fastest land animal'), each with 4 clickable multiple-choice buttons."
      },
      "It tells me whether I got each one right": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicking the wrong answer (Horse) turned it red, highlighted the correct answer (Cheetah) in green, and showed red text 'Not quite!'. Clicking the correct answer (Lion) highlighted it green with a distinct style."
      }
     },
-    "score": "0/2"
+    "tester": "Animal Quiz is a simple 8-question multiple-choice quiz with a pastel card UI; selecting an answer immediately colors it green/red and shows feedback text, then a Next button advances to the following question.",
+    "pageErrors": [],
+    "score": "2/2"
    },
    {
     "say": "show a score at the end and let them try again",
-    "error": "did not finish: failed No task finished successfully.",
+    "error": "did not finish: failed No task finished successfully. | [architect] Round 3: No files were produced. Build the goal: create the files with write_file. | [bee] No files were produced.",
     "buildMinutes": 4,
     "verdicts": {
      "It asks questions about animals with answers to pick from": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Saw 8 numbered questions (e.g. 'Question 1 of 8: Which animal is known as the King of the Jungle?') each with 4 clickable answer options like Tiger, Lion, Elephant, Gorilla."
      },
      "It tells me whether I got each one right": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Picking Lion (correct) turned it green with 'Correct! 🎉' text; picking Horse on question 2 (wrong) turned Horse red and Cheetah green with 'Not quite!' text shown."
      },
      "At the end it shows my score": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After finishing all 8 questions, the screen showed 'Quiz Complete!' with 'You scored 2 out of 8.' and a trophy icon."
      },
      "I can try again from the start": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicking 'Try Again' on the score screen returned to 'Question 1 of 8' with the same first question and all answers unselected/reset, confirmed in the final screenshot."
      }
     },
-    "score": "0/4"
+    "tester": "Animal Quiz is an 8-question multiple-choice quiz with pastel styling; each answer choice gives instant green/red feedback, and finishing shows a 'Quiz Complete' score screen with a working Try Again button that resets to question 1.",
+    "pageErrors": [],
+    "score": "4/4"
    }
   ]
  },
@@ -601,63 +651,87 @@
   "turns": [
    {
     "say": "make the snake game",
-    "error": "no plan: failed Claude Code (your subscription): API Error: Can't reach the API server — check your internet or DNS (ENOTFOUND)",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 11,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 2,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 47596,
+     "readyMs": 210811
+    },
     "buildMinutes": 4,
     "verdicts": {
      "I can steer the snake with the arrow keys": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After starting a run and pressing ArrowDown, the snake's body changed from a straight horizontal bar to an L-shape (screenshot 016), showing the direction changed from the arrow key press."
      },
      "Eating food makes the snake longer": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Across five rounds I tried to steer the snake into the red food square, but every attempt ended in Game Over with Score: 0 and a snake that never grew beyond its starting size. I never saw the snake actually eat the food, so I can't confirm growth happens."
      },
      "Running into the wall or into myself ends the game": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "In every round, continued movement led to a 'Game Over' screen with a Restart button appearing over the canvas, consistent with a wall or self collision ending the game."
      },
      "There is a score": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "\"Score: 0\" is displayed under the title on every screenshot, both during play and after game over."
      },
      "I can play again after losing": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After round 1 ended in Game Over, I clicked the Restart button (at 500,428) and round 2's screenshots (e.g. 009) showed active gameplay again with the snake moving and no Game Over overlay, confirming restart works."
      }
     },
-    "score": "0/5"
+    "tester": "It's a simple dark-themed Snake game with a title, a live score counter, and a 400x400 bordered canvas; the snake is a green block and food a red square, and losing shows a 'Game Over' panel with a Restart button. I was never able to successfully guide the snake onto the food in five tries, so growth-on-eating remains unverified even though the rest of the game loop (steering, collision, score, restart) worked as expected.",
+    "pageErrors": [],
+    "score": "4/5"
    },
    {
     "say": "oh but make all the blocks change colours like a jeb_ sheep from minecraft",
-    "error": "no plan: failed Claude Code (your subscription): API Error: Can't reach the API server — check your internet or DNS (ENOTFOUND)",
-    "buildMinutes": 4,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 102327,
+     "readyMs": 135421
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "I can steer the snake with the arrow keys": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "I pressed Up then Left repeatedly while the snake was mid-board, but every screenshot taken afterward already showed the Game Over panel, so I never actually saw the snake's path bend on screen — the crash is equally consistent with it having ignored the turn and run into the right-hand wall on its original course."
      },
      "Eating food makes the snake longer": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Across all 5 rounds and multiple restarts I was never able to land the snake's head on the red food square; the score stayed at 0 and the snake stayed at its starting 3-segment length in every screenshot, so growth-on-eating was never actually observed."
      },
      "Running into the wall or into myself ends the game": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Multiple times after letting the snake move for a bit (with or without key presses), the board was replaced by a 'Game Over' heading and a Restart button, confirming a collision ends the game."
      },
      "There is a score": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "A 'Score: 0' counter is displayed under the title at all times, both during play and on the Game Over screen."
      },
      "I can play again after losing": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicking the Restart button on the Game Over screen repeatedly brought back a fresh 3-segment snake in the center of the board and resumed live movement, with the Game Over panel disappearing each time."
      },
      "The snake's blocks keep cycling through rainbow colours": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Across successive screenshots of the same snake (without restarting), the three body segments changed colour combinations each frame — e.g. green/yellow/cyan, then cyan/magenta/orange, then olive/grey/purple, then pink/green/yellow — clearly showing continuous colour cycling like a jeb_ sheep."
      }
     },
-    "score": "0/6"
+    "tester": "It's a dark-themed Snake game with a title, score counter, and a 400x400 bordered canvas where the snake's three visible blocks continuously cycle through different bright colors every frame while food stays a static red square. Core loop (movement, wall/self collision ending the game, score display, restart) all worked as used, but across 5 rounds of trying different angles I could never actually land the snake on the food, so growth-on-eating is still unverified, and I couldn't get clean visual proof that arrow-key turns (vs. just running into a wall) were what ended the round.",
+    "pageErrors": [],
+    "score": "4/6"
    }
   ]
  },
@@ -667,59 +741,83 @@
   "turns": [
    {
     "say": "can you make tic tac toe so me and my brother can play on the same computer",
-    "error": "no plan: failed Claude Code (your subscription): API Error: Can't reach the API server — check your internet or DNS (ENOTFOUND)",
-    "buildMinutes": 4,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 9,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 1,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 44243,
+     "readyMs": 98980
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "We take turns putting X and O on the board by clicking": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicked alternately and the grid filled in the exact alternating X,O,X,O,X,O,X,O,X pattern matching click order, shown clearly in the draw-game screenshot."
      },
      "It says who won when someone gets three in a row": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After playing X across the top row, the screenshot showed 'Player X wins!' with the three X's filled in the top row."
      },
      "It notices when the game is a draw": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Filled the whole board with no three-in-a-row for either side and the screenshot showed 'It's a draw!'."
      },
      "We can start a new game": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicked Reset after the 'Player X wins!' state, then played a fresh 9-move game to a clean draw with no leftover marks from the previous game, proving the board was cleared and a new game started."
      }
     },
-    "score": "0/4"
+    "tester": "It's a simple single-page Tic-Tac-Toe: a 3x3 grid of click-to-place cells, a status line above showing whose turn/result it is, and a Reset button below. Turn alternation, win detection, draw detection, and reset all worked as expected in testing.",
+    "pageErrors": [],
+    "score": "4/4"
    },
    {
     "say": "can it keep score of whos winning",
-    "error": "no plan: failed Claude Code (your subscription): API Error: Can't reach the API server — check your internet or DNS (ENOTFOUND)",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 9,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 76895,
+     "readyMs": 148870
+    },
     "buildMinutes": 3,
     "verdicts": {
      "We take turns putting X and O on the board by clicking": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicked 5 cells in sequence (top-left, mid-left, top-mid, mid-mid, top-right) and they alternated X, O, X, O, X correctly, filling the clicked cells."
      },
      "It says who won when someone gets three in a row": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After completing the top row with X, the status line changed to 'Player X wins!'"
      },
      "It notices when the game is a draw": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Could not get a game into a draw state to test this. After the first win, the Reset button was clicked repeatedly (3 separate attempts across the session) but the board never cleared the X-wins state, so no fresh game could be played out to a draw."
      },
      "We can start a new game": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Clicked Reset three times across the session (coordinates 508,561, matching the visible Reset button) and the board still shows the exact same finished game (X X X / O O _ / _ _ _) with 'Player X wins!' still displayed every time. Reset does not clear the board."
      },
      "A scoreboard counts wins and goes up after someone wins": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Player X's score went from 0 to 1 immediately after the top-row win was detected, shown in the Player X/Player O/Ties scoreboard."
      },
      "Starting a new game keeps the score": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Since clicking Reset never actually starts a new game (board stays stuck on the finished game), there's no real 'new game' to check score persistence against - the score just never had a reason to change."
      }
     },
-    "score": "0/6"
+    "tester": "This is a single-page Tic-Tac-Toe with a 3x3 grid, a status line, and a scoreboard (Player X/Player O/Ties) with its own Reset Scores button plus a game Reset button. Turn-taking, win detection, and score incrementing on a win all worked, but the game-board Reset button is broken - it never clears the board after a game ends, which also blocked testing draw detection and new-game score persistence.",
+    "pageErrors": [],
+    "score": "3/6"
    }
   ]
  },
@@ -737,26 +835,58 @@
      "reviewRejections": 0,
      "approvalsAsked": 0,
      "approvalsDenied": 0,
-     "firstFileMs": 233804,
-     "readyMs": 273556
+     "firstFileMs": 60714,
+     "readyMs": 88832
     },
-    "buildMinutes": 5,
+    "buildMinutes": 2,
     "verdicts": {
      "I can add a homework item": {
       "pass": true,
-      "why": "Filled Subject, Task, and Date fields and clicked Add; 'Math - Finish worksheet (2026-11-25)' appeared in the list below."
+      "why": "Typed 'Math worksheet' title and 'Math' subject, clicked Add, and the item appeared in the list."
      },
      "I can mark an item as done or remove it": {
       "pass": true,
-      "why": "Clicked the checkbox and the item text got a strikethrough (marked done); then clicked Delete and the item disappeared from the list entirely."
+      "why": "Clicked the checkbox on the item; it became checked with strikethrough text, and it correctly still shows when filtering by 'Done'."
      }
     },
-    "tester": "A simple homework tracker: enter Subject, Task, and a date, click Add to list it, check the box to mark done (strikethrough), and click Delete to remove it. Both core actions worked as expected.",
+    "tester": "A simple homework tracker with Title/Subject/Date fields and an Add button, plus All/Pending/Done filter tabs; each item has a checkbox to mark done (strikethrough) and a Delete button.",
     "pageErrors": [],
     "score": "2/2"
    },
    {
     "say": "let me drag stuff over to a done pile when i finish it",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 11,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 1,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 55667,
+     "readyMs": 448499
+    },
+    "buildMinutes": 8,
+    "verdicts": {
+     "I can add a homework item": {
+      "pass": true,
+      "why": "Typed 'Math worksheet' / 'Math' into the Title/Subject fields and clicked Add; the item appeared in the list."
+     },
+     "I can mark an item as done or remove it": {
+      "pass": true,
+      "why": "Clicking the checkbox checked it and applied strikethrough to 'Math worksheet' and 'Math' text; Delete button is also present and available."
+     },
+     "I can drag an item into a done area": {
+      "pass": true,
+      "why": "Dragging the item downward moved it into a dashed-border 'Done' drop zone, which now displays the 'Done' header with the Math worksheet item inside it."
+     }
+    },
+    "tester": "The app is a simple homework tracker with Title/Subject/Date inputs, All/Pending/Done filter tabs, and a dashed drop zone; adding, checking off (strikethrough), and dragging into the Done zone all worked as expected.",
+    "pageErrors": [],
+    "score": "3/3"
+   },
+   {
+    "say": "it forgot everything when i closed it. make it remember",
     "metrics": {
      "mode": "team",
      "modelCalls": 7,
@@ -765,65 +895,31 @@
      "reviewRejections": 0,
      "approvalsAsked": 0,
      "approvalsDenied": 0,
-     "firstFileMs": 66530,
-     "readyMs": 152394
+     "firstFileMs": 140902,
+     "readyMs": 312853
     },
-    "buildMinutes": 3,
-    "verdicts": {
-     "I can add a homework item": {
-      "pass": false,
-      "why": "Filled Subject=Math, Task=Worksheet, Date=12/01/2026 (valid date) and clicked Add multiple times across two rounds; nothing ever appeared in the To Do list. Console shows 'Uncaught ReferenceError: addHomework is not defined', confirming the Add button's handler is broken."
-     },
-     "I can mark an item as done or remove it": {
-      "pass": false,
-      "why": "No item could ever be created (Add is broken), so there was nothing in To Do or Done to check off, strikethrough, or delete."
-     },
-     "I can drag an item into a done area": {
-      "pass": false,
-      "why": "No item exists in the To Do list to drag, since adding items is broken; the Done column stayed empty throughout."
-     }
-    },
-    "tester": "The page shows a homework form (Subject, Task, Date, Add button) above two empty columns labeled To Do and Done. The Add button is non-functional due to a JS error (addHomework is not defined), so no items can ever be created, making the done/delete and drag-to-done features impossible to test.",
-    "pageErrors": [
-     "Uncaught ReferenceError: addHomework is not defined"
-    ],
-    "score": "0/3"
-   },
-   {
-    "say": "it forgot everything when i closed it. make it remember",
-    "metrics": {
-     "mode": "team",
-     "modelCalls": 9,
-     "toolCalls": 0,
-     "checkFailures": 0,
-     "reviewRejections": 2,
-     "approvalsAsked": 0,
-     "approvalsDenied": 0,
-     "firstFileMs": 122365,
-     "readyMs": 660302
-    },
-    "buildMinutes": 11,
+    "buildMinutes": 5,
     "verdicts": {
      "I can add a homework item": {
       "pass": true,
-      "why": "Filled Subject=Math, Task=Worksheet 3, Date=12/01/2026 and clicked Add; a new card 'Math - Worksheet 3 (2026-12-01)' appeared in the To Do column with a Delete button."
+      "why": "Added 'Math worksheet' (Math) and 'Essay draft' (English) via the Title/Subject/date fields and Add button; both appeared in the list."
      },
      "I can mark an item as done or remove it": {
-      "pass": false,
-      "why": "A Delete button was visible on the item, but there is no 'mark done' control, and I never got to confirm Delete actually works before the item was lost on reload — not verified as working."
+      "pass": true,
+      "why": "Clicking the checkbox on Math worksheet checked it and applied strikethrough; a Delete button is also present on each item."
      },
      "I can drag an item into a done area": {
-      "pass": false,
-      "why": "Dragged the item from (262,270) in To Do to (754,270) in the Done column; screenshots after the drag show the item still sitting in To Do and the Done column still empty, so the drag had no effect."
+      "pass": true,
+      "why": "Dragging the 'Essay draft' row into the dashed Done dropzone caused it to become checked/strikethrough and land inside the Done zone alongside Math worksheet, with a 'Saved' indicator confirming the action took effect."
      },
      "My items are still there after closing and reopening the page": {
-      "pass": false,
-      "why": "Before reload the To Do column showed the 'Math - Worksheet 3' item; after using Reload (closing and reopening), both To Do and Done columns are empty — the item was not remembered."
+      "pass": true,
+      "why": "After reload, both 'Math worksheet' and 'Essay draft' were still present with their checked/strikethrough done state preserved and still sitting in the Done dropzone."
      }
     },
-    "tester": "The app lets you add a homework item via the form and shows it as a card in the To Do column with a Delete button, but drag-and-drop to the Done column does nothing and nothing persists across a reload — items vanish entirely when the page is reopened.",
+    "tester": "The app lets you add homework with title/subject/date, check items off (strikethrough) or delete them, drag items into a dashed 'Done' zone which also marks them done, and persists everything across reloads via what looks like localStorage ('Saved' indicator, 'Clear saved data' button).",
     "pageErrors": [],
-    "score": "1/4"
+    "score": "4/4"
    }
   ]
  },
@@ -833,54 +929,78 @@
   "turns": [
    {
     "say": "make that game where you bounce a ball with a paddle and break bricks",
-    "error": "did not finish: failed No task finished successfully.",
-    "buildMinutes": 1,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 13,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 104124,
+     "readyMs": 175778
+    },
+    "buildMinutes": 3,
     "verdicts": {
      "I can move the paddle": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Paddle stayed at the exact same pixel position in every screenshot across drags left and right and repeated arrow-key presses, including after a fresh reload."
      },
      "The ball bounces off the paddle and the walls": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "The ball never moved from its single fixed spot next to the paddle in any screenshot, even after pressing Space to launch it and waiting between frames."
      },
      "Bricks disappear when the ball hits them": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "The brick layout (and Score: 30) never changed across any input sequence, including after reloading the page, so no hit/removal was ever observed."
      },
      "I lose a life or the game when the ball falls past the paddle": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Lives stayed at 1 throughout; the ball never moved at all, so it could never fall past the paddle to trigger a life loss."
      }
     },
+    "tester": "The page shows a Breakout game (bricks, paddle, ball, Score/Lives readout) but the canvas is completely frozen — Score: 30 and Lives: 1 with the same ball/paddle/brick positions from the very first screenshot through every later attempt, even after full page reloads, so no interaction of any kind produced a visible change.",
+    "pageErrors": [],
     "score": "0/4"
    },
    {
     "say": "make the bricks explode into little pieces when you hit them",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 90916,
+     "readyMs": 125101
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "I can move the paddle": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Clicking the canvas, clicking directly on the paddle, dragging the paddle, pressing ArrowLeft/ArrowRight repeatedly, and pressing Space all produced zero change in paddle position across many screenshots; paddle stayed in the exact same spot every time, even right after a full page reload."
      },
      "The ball bounces off the paddle and the walls": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "The ball's position never changed in any screenshot across all rounds (same spot touching the paddle edge), so no bounce of any kind was observed."
      },
      "Bricks disappear when the ball hits them": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "The brick grid (3 rows x 4 columns) is identical pixel-for-pixel in every screenshot from round 1 through round 3, including after reload; no bricks were removed."
      },
      "I lose a life or the game when the ball falls past the paddle": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Lives stayed at 1 and Score stayed at 30 throughout every screenshot, including after reload, with the ball never moving toward or past the paddle, so this could not be triggered or observed."
      },
      "Bricks burst into small pieces when they are hit": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Since no brick was ever hit or removed in any screenshot, no explosion/particle effect was ever seen."
      }
     },
+    "tester": "The page displays a static Breakout layout (bricks, paddle, ball, Score: 30 / Lives: 1) that never changes no matter what input is given — clicks, drags, arrow keys, Space, and even a full reload all leave every pixel identical. The game appears completely non-interactive/frozen, matching the prior tester's report exactly.",
+    "pageErrors": [],
     "score": "0/5"
    }
   ]
@@ -891,55 +1011,79 @@
   "turns": [
    {
     "say": "make a game like flappy bird but its a cat",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 44225,
+     "readyMs": 110615
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "Pressing a key or clicking makes the cat flap upwards": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "In every round, tapping Space made the orange cat sprite rise, visible across consecutive screenshots (e.g. 010 and 013-series)."
      },
      "The cat falls when I do nothing": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Between taps the cat consistently descended under gravity, and without enough taps it fell to the ground and ended the game in all 5 rounds."
      },
      "There are gaps to fly through and the score goes up when I get through one": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Across 5 separate attempts (including survival windows of 6-9+ seconds), no pipes or gaps ever spawned in the play area - only background clouds and ground were visible - and the score counter stayed at 0 the entire time."
      },
      "Hitting something ends the game and I can try again": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After falling to the ground, a 'Game Over - Click to Restart' overlay appeared (see 033-look.png), and clicking it restarted the game (used successfully to begin rounds 2-4)."
      }
     },
-    "score": "0/4"
+    "tester": "Flappy Cat is a simple canvas game with an orange cat sprite, cloud background, and a score counter; flapping and gravity/falling work and game-over/restart works, but no pipe obstacles ever spawned in any test run, so the core scoring/obstacle mechanic appears broken or missing.",
+    "pageErrors": [],
+    "score": "3/4"
    },
    {
     "say": "its way too hard, make it easier",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 70518,
+     "readyMs": 110650
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "Pressing a key or clicking makes the cat flap upwards": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After clicking/pressing Space the cat sprite rose from its falling position before resuming its descent, visible across multiple screenshot series (e.g. 002, 009→011 transitions)."
      },
      "The cat falls when I do nothing": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "With no input the cat descends steadily frame to frame (e.g. series 002→007 and 017→020 show the cat drifting from mid-screen down to the ground) until it lands and triggers Game Over."
      },
      "There are gaps to fly through and the score goes up when I get through one": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Across 3 restart cycles and roughly 20 screenshots, including a sustained tap-to-survive run of ~2.5s, no pipes or gaps ever appeared on screen and the score stayed at 0 the entire time. This matches the previously reported bug: the core obstacle/scoring mechanic is still missing."
      },
      "Hitting something ends the game and I can try again": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "The cat repeatedly fell to the ground and the 'Game Over - Click to Restart' screen appeared; clicking the canvas or pressing Space successfully restarted the game each time, resetting score to 0 and the cat to its start position."
      },
      "It is clearly easier than before (bigger gaps, slower, or gentler falling)": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "On the default Easy difficulty the cat falls slowly and gently (taking several seconds to drift from mid-screen to the ground), giving ample reaction time; Easy is explicitly selected and offered alongside a harder Normal option, consistent with the requested difficulty reduction."
      }
     },
-    "score": "0/5"
+    "tester": "Flappy Cat's core flap/fall/collision/restart loop and the new Easy/Normal difficulty selector all work correctly, and Easy mode feels noticeably gentler. However, the game still never spawns any pipe obstacles, so there is nothing to score points on and the game can only end by drifting into the ground — the central gameplay mechanic remains broken.",
+    "pageErrors": [],
+    "score": "4/5"
    }
   ]
  },
@@ -949,47 +1093,71 @@
   "turns": [
    {
     "say": "make a drawing app for my little sister",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 19,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 5,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 39635,
+     "readyMs": 871242
+    },
+    "buildMinutes": 15,
     "verdicts": {
      "I can draw by dragging the mouse": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Multiple drag strokes left visible black lines on the canvas (e.g. 002-series.png and 011-look.png both show drawn lines)."
      },
      "I can pick different colours": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Clicking the colour swatch opened a colour picker (gradient box, hue slider, RGB fields all showing 0,0,0/black), but across three separate attempts clicking different points in the hue slider and gradient box, the swatch stayed solid black and every subsequent stroke drawn was still black, never a different colour."
      },
      "I can clear the picture": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After drawing two lines (007-series.png), clicking the Clear button emptied the canvas completely (009-series.png shows a blank white canvas)."
      }
     },
-    "score": "0/3"
+    "tester": "A simple drawing app with a colour swatch, brush-size slider, Clear and Save buttons over a white canvas. Freehand drawing and clearing both worked as expected, but the colour picker never actually changed the drawing colour in testing.",
+    "pageErrors": [],
+    "score": "2/3"
    },
    {
     "say": "add a rainbow brush",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 19,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 6,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 64731,
+     "readyMs": 826516
+    },
+    "buildMinutes": 14,
     "verdicts": {
      "I can draw by dragging the mouse": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Dragging from (300,400) to (600,450) produced a visible black line on the canvas in round 1."
      },
      "I can pick different colours": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Opened the colour picker popup (gradient + RGB fields), clicked a red swatch, and also typed #ff0000 into the hex field and pressed Enter. In every case the swatch stayed black (#000000) and subsequent strokes still drew in black, not red — the colour never actually changed."
      },
      "I can clear the picture": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After drawing a black line, clicking Clear wiped the canvas back to blank white (confirmed in round 1 and again in round 3)."
      },
      "There is a rainbow brush that draws in changing colours": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicked the 🌈 Rainbow button (it became the selected/outlined tool) and dragged across the canvas; the resulting stroke visibly transitioned from red to orange/yellow to green along its length."
      }
     },
-    "score": "0/4"
+    "tester": "It's a kid-friendly drawing app with a colour swatch, size slider, Clear/Save buttons, and Brush/Rainbow mode toggle over a big white canvas. Freehand drawing, clearing, and the rainbow multi-colour brush all work, but the colour picker is still broken — picking any colour or typing a hex value never changes the actual drawing colour, so you're stuck with black in normal brush mode.",
+    "pageErrors": [],
+    "score": "3/4"
    }
   ]
  },
@@ -999,43 +1167,67 @@
   "turns": [
    {
     "say": "i need a tip calculator for when we go out to eat",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 42717,
+     "readyMs": 71591
+    },
+    "buildMinutes": 1,
     "verdicts": {
      "I can type in the bill and choose a tip, and it shows the tip and the total": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Typed 50 into Bill amount, clicked the 20% preset button (it highlighted blue), clicked Calculate, and the page displayed Tip: $10.00, Total: $60.00, and Each person pays: $60.00."
      },
      "The tip and total are correct": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "With bill $50 and tip 20%, tip = 50*0.20 = $10.00 (matches shown), total = 50+10 = $60.00 (matches shown), and with 1 person each person pays $60.00 (matches shown)."
      }
     },
-    "score": "0/2"
+    "tester": "A simple tip calculator with a bill amount field, tip % field with quick-select buttons (10/15/18/20%), number of people field, and a Calculate button that outputs tip, total, and per-person amounts. All values matched expected math for a $50 bill at 20% tip.",
+    "pageErrors": [],
+    "score": "2/2"
    },
    {
     "say": "can it split it between my friends too",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 48511,
+     "readyMs": 157952
+    },
+    "buildMinutes": 3,
     "verdicts": {
      "I can type in the bill and choose a tip, and it shows the tip and the total": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Entered bill 50 and tip 20 into the input fields, clicked Calculate, and it displayed Tip: $10.00 and Total: $60.00"
      },
      "The tip and total are correct": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "$50 at 20% = $10 tip and $60 total, matching the displayed values exactly"
      },
      "I can say how many people there are and it shows what each person pays": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Entered 4 in the people field and after calculating it displayed Per person: $15.00"
      },
      "The amount per person is correct": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "$60 total split 4 ways = $15.00 per person, matching the displayed value exactly"
      }
     },
-    "score": "0/4"
+    "tester": "A simple single-screen tip calculator with bill, tip %, and people inputs and a Calculate button; entering $50, 20%, and 4 people correctly produced Tip $10.00, Total $60.00, and Per person $15.00.",
+    "pageErrors": [],
+    "score": "4/4"
    }
   ]
  },
@@ -1045,43 +1237,235 @@
   "turns": [
    {
     "say": "make an animal quiz for my class",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 9,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 63561,
+     "readyMs": 111674
+    },
+    "buildMinutes": 2,
     "verdicts": {
      "It asks questions about animals with answers to pick from": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Screen shows 'Which of these animals is a mammal?' with four clickable answer options (Dolphin, Shark, Salmon, Octopus)."
      },
      "It tells me whether I got each one right": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "After clicking the wrong answer (Shark), it turned red/highlighted and the correct answer (Dolphin) turned green immediately, and the score updated to 0/1, confirming per-question feedback."
      }
     },
-    "score": "0/2"
+    "tester": "A simple single-page animal quiz with multiple-choice questions; selecting an answer instantly colors it red or green (and reveals the correct one) and updates a running score before moving to the next question via a Next button.",
+    "pageErrors": [],
+    "score": "2/2"
    },
    {
     "say": "show a score at the end and let them try again",
-    "error": "no plan: failed Claude Code (your subscription): You've hit your session limit · resets 11:30pm (America/New_York)",
-    "buildMinutes": 0,
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 9,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 1,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 62924,
+     "readyMs": 170064
+    },
+    "buildMinutes": 3,
     "verdicts": {
      "It asks questions about animals with answers to pick from": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Saw multiple multiple-choice questions about animals: mammal identification (Dolphin/Shark/Salmon/Octopus), herbivore definition, and polar bear habitat, each with 4 clickable answer options."
      },
      "It tells me whether I got each one right": {
-      "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "pass": true,
+      "why": "Clicking the correct answer (Dolphin) turned it green and score went from 0 to 1/1; clicking a wrong answer (Carnivore) turned it red while the correct answer (Herbivore) turned green and score became 1/2."
      },
      "At the end it shows my score": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "After 5 rounds of clicking through questions, I only reached question 3 of the quiz (polar bear habitat) with Score: 1/2 showing mid-quiz; I never reached an end-of-quiz screen or final score display."
      },
      "I can try again from the start": {
       "pass": false,
-      "why": "nothing to open: Hive could not tell how to run this project. Add an index.html, main.py, package.json, or a hive.json with a \"command\"."
+      "why": "Never reached the end of the quiz, so no 'try again' or restart button was ever shown or tested."
      }
     },
-    "score": "0/4"
+    "tester": "The app is a clean single-page animal quiz with 4-option multiple choice questions; answers correctly highlight green/red instantly and a running score updates live, but the quiz has more than 3 questions and I was unable to click through to the end to confirm a final score screen or restart option.",
+    "pageErrors": [],
+    "score": "2/4"
+   }
+  ]
+ },
+ "tictactoe@claude-code play team": {
+  "team": "architect Claude Code (your subscription), workers Claude Code (your subscription)",
+  "coordination": "team",
+  "turns": [
+   {
+    "say": "can you make tic tac toe so me and my brother can play on the same computer",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 49506,
+     "readyMs": 160653
+    },
+    "buildMinutes": 3,
+    "verdicts": {
+     "We take turns putting X and O on the board by clicking": {
+      "pass": true,
+      "why": "Clicking cells alternated X, then O, then X, etc., shown clearly in all screenshots (e.g. 001/003/006), with a 'Player X' turn indicator updating between moves."
+     },
+     "It says who won when someone gets three in a row": {
+      "pass": true,
+      "why": "After completing a left-column X,X,X in round 1, screenshot 003-look.png displayed 'Player X wins!' above the board."
+     },
+     "It notices when the game is a draw": {
+      "pass": true,
+      "why": "Playing a full board with no three-in-a-row (round 2) resulted in the message 'It's a draw!' shown in 004/005/006 screenshots."
+     },
+     "We can start a new game": {
+      "pass": true,
+      "why": "Clicking Reset cleared the board back to all-empty with 'Player X' turn indicator, confirmed before the round 2 draw sequence and consistent across rounds."
+     }
+    },
+    "tester": "A simple, clean 3x3 Tic-Tac-Toe board with a turn indicator ('Player X'/'Player O'), click-to-place squares, and a Reset button; it correctly announces wins and draws and resets cleanly for a new game.",
+    "pageErrors": [],
+    "score": "4/4"
+   },
+   {
+    "say": "can it keep score of whos winning",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 7,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 0,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 49630,
+     "readyMs": 157222
+    },
+    "buildMinutes": 3,
+    "verdicts": {
+     "We take turns putting X and O on the board by clicking": {
+      "pass": true,
+      "why": "Clicking squares alternately placed X then O then X etc., with the turn indicator reading 'Player X' before a move and switching correctly; board filled in alternating pattern as expected."
+     },
+     "It says who won when someone gets three in a row": {
+      "pass": true,
+      "why": "After X completed the top row, the screen displayed 'Player X wins!' clearly above the board (seen in rounds 1 and 3)."
+     },
+     "It notices when the game is a draw": {
+      "pass": true,
+      "why": "Final screenshot shows a full board (X,O,X / X,X,O / O,X,O, no three-in-a-row) with the message 'It's a draw!' displayed."
+     },
+     "We can start a new game": {
+      "pass": true,
+      "why": "Clicking Reset cleared the board back to empty squares and reset the turn indicator to 'Player X', confirmed in round 2's screenshot."
+     },
+     "A scoreboard counts wins and goes up after someone wins": {
+      "pass": true,
+      "why": "Scoreboard showed 0-0 initially, went to 1-0 after X's first win (round 1), and 2-0 after X's second win (round 3), visible in the blue score badge."
+     },
+     "Starting a new game keeps the score": {
+      "pass": true,
+      "why": "After Reset in round 2, the board cleared but the scoreboard still read 1-0, and it remained 2-0 through subsequent resets/draws in later rounds."
+     }
+    },
+    "tester": "A clean, minimal Tic-Tac-Toe app: 3x3 clickable grid, turn indicator, win/draw messages, a persistent X-O scoreboard above the title, and a Reset button. Everything a casual player would expect worked correctly — turns, win detection, draw detection, and score tracking across resets.",
+    "pageErrors": [],
+    "score": "6/6"
+   }
+  ]
+ },
+ "breakout@claude-code play team": {
+  "team": "architect Claude Code (your subscription), workers Claude Code (your subscription)",
+  "coordination": "team",
+  "turns": [
+   {
+    "say": "make that game where you bounce a ball with a paddle and break bricks",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 19,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 1,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 60733,
+     "readyMs": 931346
+    },
+    "buildMinutes": 16,
+    "verdicts": {
+     "I can move the paddle": {
+      "pass": true,
+      "why": "Pressing ArrowLeft drove the paddle to the far left edge (~x=147) and ArrowRight drove it all the way to the far right edge (~x=867) of the court, a clear, large, responsive movement."
+     },
+     "The ball bounces off the paddle and the walls": {
+      "pass": true,
+      "why": "After launching, the ball was seen heading straight down-right directly at the paddle (x=819,y=585, paddle at x=867,y=713); a few frames later it was far up near the bricks on the opposite side having just broken one (score 0→10), which is only possible if it bounced off the paddle in between. Across many launches the ball also stayed contained inside the playfield walls every time except when it passed the bottom (the documented miss condition), never clipping through a side or top wall, consistent with the same reflect-on-collision logic used for bricks (clearly observed working)."
+     },
+     "Bricks disappear when the ball hits them": {
+      "pass": true,
+      "why": "Directly watched individual bricks vanish from the grid (e.g. the bottom-right brick in round 4, and others across rounds) in lockstep with the score counter increasing by 10 each time (0→10→20→30), with the ball changing direction right at the gap left behind."
+     },
+     "I lose a life or the game when the ball falls past the paddle": {
+      "pass": true,
+      "why": "Watched Lives drop from 3→2→1→0 across multiple missed balls, and on the final miss the screen switched to a 'Game Over' message with a Restart button, exactly as described in the on-screen instructions."
+     }
+    },
+    "tester": "It's a clean, dark-themed Breakout clone: a paddle you steer with arrow keys/A-D under a grid of white brick rows, you launch the ball with Space/Click/Enter, breaking bricks scores points, and missing the ball costs a life until Game Over, with a restart option. Everything the on-screen help text promises was actually observed working during play.",
+    "pageErrors": [],
+    "score": "4/4"
+   },
+   {
+    "say": "make the bricks explode into little pieces when you hit them",
+    "metrics": {
+     "mode": "team",
+     "modelCalls": 13,
+     "toolCalls": 0,
+     "checkFailures": 0,
+     "reviewRejections": 3,
+     "approvalsAsked": 0,
+     "approvalsDenied": 0,
+     "firstFileMs": 78890,
+     "readyMs": 689675
+    },
+    "buildMinutes": 12,
+    "verdicts": {
+     "I can move the paddle": {
+      "pass": true,
+      "why": "Pressing ArrowLeft repeatedly moved the paddle from center to the far-left wall, and ArrowRight moved it all the way to the far-right wall, visible across multiple screenshots."
+     },
+     "The ball bounces off the paddle and the walls": {
+      "pass": true,
+      "why": "The ball reversed direction after reaching the top brick rows/corners (e.g. moving up-right then down-left after a collision) and never passed through the canvas edges, staying in play across long diagonal runs — consistent bounce physics on every surface it touched."
+     },
+     "Bricks disappear when the ball hits them": {
+      "pass": true,
+      "why": "Watched the brick grid shrink (missing bricks at specific grid cells) in lockstep with the score counter climbing 0 → 10 → 20 → 30 as the ball struck them."
+     },
+     "I lose a life or the game when the ball falls past the paddle": {
+      "pass": true,
+      "why": "Lives counter dropped 3 → 2 → 1 → 0 each time the ball passed the paddle without being hit, ending in a 'Game Over' screen with a Restart button."
+     },
+     "Bricks burst into small pieces when they are hit": {
+      "pass": true,
+      "why": "At the moment a brick vanished, a cluster of small diamond/square fragments appeared at that spot and visibly scattered/faded over the next few frames, distinct from the brick just disappearing."
+     }
+    },
+    "tester": "This is a dark-themed Breakout clone where arrow keys/A-D steer the paddle, Space/click/Enter launches the ball, and hitting bricks scores points while shattering them into small fading fragments. Missing the ball costs a life, and losing all three ends the game with a Game Over screen and restart option, all matching the on-screen instructions.",
+    "pageErrors": [],
+    "score": "5/5"
    }
   ]
  }

@@ -1,5 +1,24 @@
 # Hive — build progress (resume file)
 
+## 🔖 RESUME HERE (2026-11-21): plain-prompt results, model picker, play-test — merged into `main` (not pushed)
+1. Plain prompts (8 people, casual follow-ups; Claude Code; score on the last message, after tester fixes):
+   one agent (Automatic) 36/38 with 28 model calls; full team 24/38 with 165 calls. Team bugs were real and came
+   from splitting files: tic-tac-toe Reset wired to `reset-btn` while the page has `reset-button`; Breakout starts
+   at once and ends with alert() and no restart; Flappy cat with no pipes; drawing colour picker never changes the
+   brush. Tester fixes along the way (re-scored on saved games): HTML5 drag (CDP), keep tapping while filming
+   (flappy cat 2/5 → 4/5), alert/confirm pop-ups reported (team Breakout 0/5 → 4/5).
+2. Model picker: Models → Subscriptions → Model. Claude Code: Automatic (default: Haiku for planning/no-tool calls,
+   Sonnet for building and play-testing), Haiku, Sonnet, Opus, account default. Codex: free text. Settings.cliModel;
+   HIVE_CLI_MODEL overrides. resolveCliModel() in packages/agents/src/cliAgents.ts.
+3. Play-test before showing (default on; Settings.playTest; HIVE_PLAYTEST=0/1): apps/desktop/src/main/playtest.ts.
+   After the smoke test passes, Claude Code plays the app offscreen and returns problems, which go to the integration
+   fix round (then it plays again, up to MAX_INTEGRATION_ROUNDS). Only when Claude Code is in the team. On saved
+   games: found the dead Reset button (68 s, 3 calls), no false alarm on the working one (98 s, 4 calls).
+   End to end (full team + play-test + Automatic model): tic-tac-toe 4/4 → 6/6, Breakout 4/4 → 5/5 (team without
+   it: 3/6 and 0/5). In Breakout it caught "starts the instant the page loads", "no restart" and "lives never go
+   down", and the fix round repaired them.
+4. Still open: hosted free models "fetch failed"; Hive hung ~2 min into a local Ollama run; /verify blocked.
+
 ## 🔖 RESUME HERE (2026-11-20): subscriptions, one-agent mode, Amoeba features — all on branch `subscription-agents`
 1. Built (commits c4420e2..49c5b27, stacked on `qa-fixes` ← `right-sized-tasks`):
    - Claude Code / Codex CLIs as team models (Models → Subscriptions); Hive never sees the user's token.
