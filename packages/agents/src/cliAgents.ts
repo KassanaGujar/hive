@@ -18,21 +18,38 @@ export interface CliInvocation {
   input: string
 }
 
+export type CliMode = 'task' | 'ask' | 'look'
+
 /**
- * The command that runs one task (mode "task": may edit files in cwd) or answers one prompt (mode "ask": no tools).
- * Neither mode can run shell commands: Hive runs the checks itself after the agent stops.
+ * Which model a call uses. '' = the account's default. 'auto' (Claude Code) sizes it to the job so small calls don't
+ * spend a big model's usage: planning and other no-tool questions on Haiku, building and play-testing on Sonnet.
+ * Anything else (haiku, sonnet, opus or a full model id) is passed through.
  */
-export function cliInvocation(source: CliSource, mode: 'task' | 'ask', prompt: string, model?: string): CliInvocation {
+export function resolveCliModel(source: CliSource, mode: CliMode, model?: string): string | undefined {
+  if (!model) return undefined
+  if (model !== 'auto') return model
+  if (source !== 'claude-code') return undefined
+  return mode === 'ask' ? 'haiku' : 'sonnet'
+}
+
+/**
+ * The command that runs one task (mode "task": may edit files in cwd), answers one prompt (mode "ask": no tools), or
+ * looks at files in cwd such as screenshots (mode "look": Read only). None can run shell commands: Hive runs the
+ * checks itself after the agent stops.
+ */
+export function cliInvocation(source: CliSource, mode: CliMode, prompt: string, model?: string): CliInvocation {
+  const use = resolveCliModel(source, mode, model)
   if (source === 'claude-code') {
     const args = ['-p', '--output-format', 'json', '--no-session-persistence', '--strict-mcp-config', '--setting-sources', 'project']
     if (mode === 'task') args.push('--permission-mode', 'acceptEdits', '--allowedTools', 'Read,Edit,Write,Glob,Grep', '--disallowedTools', 'Bash,WebFetch,WebSearch')
+    else if (mode === 'look') args.push('--allowedTools', 'Read', '--disallowedTools', 'Bash,Edit,Write,Glob,Grep,WebFetch,WebSearch')
     else args.push('--disallowedTools', 'Bash,Read,Edit,Write,Glob,Grep,WebFetch,WebSearch')
-    if (model) args.push('--model', model)
+    if (use) args.push('--model', use)
     return { command: 'claude', args, input: prompt }
   }
   // codex exec: "-" reads the prompt from stdin; workspace-write keeps edits inside the worktree.
   const args = ['exec', '--skip-git-repo-check', '--sandbox', mode === 'task' ? 'workspace-write' : 'read-only', '--json']
-  if (model) args.push('--model', model)
+  if (use) args.push('--model', use)
   args.push('-')
   return { command: 'codex', args, input: prompt }
 }

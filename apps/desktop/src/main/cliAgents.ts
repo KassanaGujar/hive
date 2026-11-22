@@ -65,13 +65,19 @@ export async function cliModels(): Promise<InstalledModel[]> {
   const on = enabledCliAgents()
   if (!on.length) return []
   const versions = await detectCliAgents()
-  const overrides = getSettings().tierOverrides
+  const { tierOverrides: overrides } = getSettings()
   return on
     .filter((s) => versions[s])
     .map((s) => {
       const id = `cli:${s}`
-      return { id, name: `${NAMES[s].name} (your subscription)`, source: s, model: '', tier: overrides[id] ?? 'top', codingScore: 92, sizeGB: 0, minRamGB: 0, contextTokens: 200000 }
+      return { id, name: `${NAMES[s].name} (your subscription)`, source: s, model: cliModelFor(s), tier: overrides[id] ?? 'top', codingScore: 92, sizeGB: 0, minRamGB: 0, contextTokens: 200000 }
     })
+}
+
+/** The chosen model for a CLI (see Settings.cliModel). HIVE_CLI_MODEL overrides it for QA runs. */
+export function cliModelFor(s: CliSource): string {
+  if (process.env.HIVE_CLI_MODEL !== undefined) return process.env.HIVE_CLI_MODEL
+  return getSettings().cliModel?.[s] ?? (s === 'claude-code' ? 'auto' : '')
 }
 
 /** Run one CLI call; stops the whole process tree on abort or timeout. */

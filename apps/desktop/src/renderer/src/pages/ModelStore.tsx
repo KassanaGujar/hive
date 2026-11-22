@@ -726,17 +726,43 @@ const COORDINATION: { id: 'auto' | 'single' | 'team'; label: string; help: strin
   { id: 'team', label: 'Full team', help: 'A planner splits the work, several agents build in parallel, and a reviewer checks each piece.' }
 ]
 
+// Claude Code's model per call. Automatic keeps small jobs off the big models: they use up a plan's usage fastest.
+const CLAUDE_MODELS: { id: string; label: string }[] = [
+  { id: 'auto', label: 'Automatic: light model to plan, Sonnet to build (saves usage)' },
+  { id: 'haiku', label: 'Haiku: lightest, uses the least usage' },
+  { id: 'sonnet', label: 'Sonnet: balanced' },
+  { id: 'opus', label: 'Opus: strongest, uses the most usage' },
+  { id: '', label: "Your account's default" }
+]
+
 function SubscriptionsTab() {
   const [rows, setRows] = useState<CliAgentRow[] | null>(null)
   const [coord, setCoord] = useState<'auto' | 'single' | 'team'>('auto')
+  const [models, setModels] = useState<Partial<Record<'claude-code' | 'codex', string>>>({})
+  const [playTest, setPlayTest] = useState(true)
   const load = () => invoke('models:cliAgents').then(setRows)
   useEffect(() => {
     load()
-    invoke('settings:get').then((s) => setCoord(s.coordination ?? 'auto'))
+    invoke('settings:get').then((s) => {
+      setCoord(s.coordination ?? 'auto')
+      setModels(s.cliModel ?? {})
+      setPlayTest(s.playTest ?? true)
+    })
   }, [])
   const pick = async (id: 'auto' | 'single' | 'team') => {
     setCoord(id)
     await invoke('settings:set', { coordination: id })
+  }
+  const modelOf = (s: 'claude-code' | 'codex') => models[s] ?? (s === 'claude-code' ? 'auto' : '')
+  const setModel = async (s: 'claude-code' | 'codex', m: string) => {
+    const next = { ...models, [s]: m }
+    setModels(next)
+    await invoke('settings:set', { cliModel: next })
+    refreshModels()
+  }
+  const togglePlayTest = async () => {
+    setPlayTest(!playTest)
+    await invoke('settings:set', { playTest: !playTest })
   }
   const toggle = async (r: CliAgentRow) => {
     await invoke('models:setCliAgent', r.source, !r.enabled)
@@ -762,6 +788,27 @@ function SubscriptionsTab() {
                 <div className="text-[12px] text-muted">
                   {r.version ? `Installed (${r.version}). Sign in once by running it in a terminal.` : 'Not installed on this PC.'}
                 </div>
+                {r.version && r.enabled && (
+                  <label className="mt-2 flex items-center gap-2 text-[12px]">
+                    Model
+                    {r.source === 'claude-code' ? (
+                      <select className="input py-1 text-[12px]" value={modelOf(r.source)} onChange={(e) => setModel(r.source, e.target.value)}>
+                        {CLAUDE_MODELS.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        className="input py-1 text-[12px]"
+                        placeholder="Your account's default"
+                        defaultValue={modelOf(r.source)}
+                        onBlur={(e) => e.target.value.trim() !== modelOf(r.source) && setModel(r.source, e.target.value.trim())}
+                      />
+                    )}
+                  </label>
+                )}
               </div>
               {r.version ? (
                 <label className="flex items-center gap-2 text-[13px]">
@@ -790,6 +837,16 @@ function SubscriptionsTab() {
           ))}
         </div>
       </div>
+      <label className="card mt-6 flex cursor-pointer items-start gap-3 p-3">
+        <input type="checkbox" className="mt-1 accent-[var(--accent)]" checked={playTest} onChange={togglePlayTest} />
+        <div>
+          <div className="text-[13px] font-medium">Play-test before showing me</div>
+          <div className="text-[12px] text-muted">
+            Claude uses the finished app like you would (clicks, keys, screenshots) and sends back anything that doesn't
+            work before you see it. Catches more bugs; each check uses a little of your plan. Claude Code only.
+          </div>
+        </div>
+      </label>
     </div>
   )
 }

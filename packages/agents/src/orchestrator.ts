@@ -91,6 +91,12 @@ export interface OrchestratorHost {
    * problems found; [] = looks fine; null = this kind of project can't be smoke-tested.
    */
   smokeTest?(dir: string): Promise<string[] | null>
+  /**
+   * Optional play-test after the smoke test passes: a subscription CLI uses the app like the person who asked for it
+   * (clicks, keys, screenshots) and lists what doesn't do what they asked. [] = it does; null = not tested (not a web
+   * page, turned off, or the tester itself failed).
+   */
+  playTest?(dir: string, goal: string, model: InstalledModel, signal: AbortSignal): Promise<string[] | null>
   /** Called whenever an agent writes a file (absolute path), so the UI can show it live. */
   fileWritten?(runId: string, agent: string, taskId: string, absPath: string): void
   /** Run a coding-agent CLI (Claude Code, Codex) signed in with the user's own subscription. Desktop only. */
@@ -903,10 +909,22 @@ ${ctl.prd.slice(0, 8000)}`
   private async integrate(ctl: RunCtl) {
     const dir = ctl.intWorktree!
     this.log(ctl, 'architect', undefined, 'Integration check: testing the merged app…')
-    const problems = await this.host.smokeTest!(dir)
+    let problems = await this.host.smokeTest!(dir)
     if (problems === null) {
       ctl.integrated = true
       return
+    }
+    if (problems.length === 0) {
+      // Loading without errors isn't the same as working: QA found a Reset button wired to the wrong id and a game
+      // that was over before anyone could press a key, both passing every code check. Use it like a person first.
+      const tester = this.host.playTest && this.teamModels(ctl).find((m) => m.source === 'claude-code')
+      if (tester && !ctl.abort.signal.aborted) {
+        this.log(ctl, 'architect', undefined, 'The app loads. Play-testing it like a person would…')
+        const found = await this.host.playTest!(dir, ctl.run.goal, tester, ctl.abort.signal)
+        if (found === null) this.log(ctl, 'architect', undefined, 'Play-test could not run; skipping it.')
+        else if (found.length) problems = found.map((p) => `Play-test: ${p}`)
+        else this.log(ctl, 'architect', undefined, 'Play-test passed: it does what was asked.')
+      }
     }
     if (problems.length === 0) {
       this.log(ctl, 'architect', undefined, 'Integration check passed: the merged app loads without errors.')
@@ -933,7 +951,7 @@ ${ctl.prd.slice(0, 8000)}`
       title: `Make all the pieces work together (integration round ${round})`,
       description: [
         `The team built these files in parallel and they don't work together yet. Fix that so the app does what the goal says: ${ctl.run.goal}`,
-        `Problems found when loading the app:`,
+        `Problems found when loading and using the app:`,
         ...problems.map((p) => `- ${p}`),
         `You may rewrite any file, merge files, or remove broken parts. Make it simple and complete.`,
         `For a web page: index.html must contain everything it needs (e.g. a <canvas>), load scripts as plain <script src> tags (no import/export), and share state through globals.`

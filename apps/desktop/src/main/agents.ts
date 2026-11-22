@@ -10,6 +10,7 @@ import { execCapture } from './terminal'
 import { recordFeed } from './feed'
 import { memoryBudgetGB } from './hardware'
 import { smokeTestWeb } from './smoke'
+import { playTestWeb } from './playtest'
 import path from 'node:path'
 import { afterModelError, capacityOf, classifyModelError, limitsFromError, offloadMessage, replyTokensFor, slowLocalModel, streamChat } from '@hive/models'
 import { loadedModels } from './ollama'
@@ -140,6 +141,12 @@ export const orchestrator = new Orchestrator({
   },
   memoryBudgetGB,
   smokeTest: smokeTestWeb,
+  // Models → Subscriptions turns it off; HIVE_PLAYTEST=0/1 wins for QA runs.
+  playTest: (dir, goal, model, signal) => {
+    const env = process.env.HIVE_PLAYTEST
+    const on = env === '0' ? false : env === '1' ? true : getSettings().playTest ?? true
+    return on ? playTestWeb(dir, goal, model, signal, runCli) : Promise.resolve(null)
+  },
   runCli,
   // The Subscriptions tab sets it; HIVE_COORDINATION (auto, team, single, or off: one agent alone, the QA baseline)
   // wins so QA runs don't depend on what the app was last set to.

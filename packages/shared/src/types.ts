@@ -374,4 +374,10 @@ export interface Settings {
   /** How a run is split up. auto: one agent plus Hive's checks when the strongest model is a subscription CLI, the
    *  full team otherwise. team: always plan, split, review. single: always one agent plus Hive's checks. */
   coordination?: 'auto' | 'team' | 'single'
+  /** Model per subscription CLI. '' = the account's default; 'auto' (Claude Code's default) = light model for
+   *  planning, Sonnet for building; or haiku / sonnet / opus / a full model id. */
+  cliModel?: Partial<Record<'claude-code' | 'codex', string>>
+  /** After the build passes Hive's checks, Claude plays the web app like a person and sends back what doesn't work
+   *  (Claude Code only). Default on. */
+  playTest?: boolean
 }

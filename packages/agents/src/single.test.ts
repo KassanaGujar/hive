@@ -83,6 +83,48 @@ describe('one agent with Hive checks (single mode)', () => {
     expect(mode(forced)).toBe('team')
   })
 
+  it('play-tests the app like a person and sends back what does not work, then plays it again', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-play-'))
+    const { writeFileSync } = await import('node:fs')
+    const builds: string[] = []
+    const runCli: OrchestratorHost['runCli'] = async (inv, cwd) => {
+      builds.push(inv.input)
+      writeFileSync(path.join(cwd, 'game.js'), `const build = ${builds.length}\n`)
+      return { code: 0, stdout: '{"type":"result","is_error":false,"result":"built"}', stderr: '' }
+    }
+    const plays: { goal: string; tester: string }[] = []
+    const playTest: OrchestratorHost['playTest'] = async (_dir, goal, tester) => {
+      plays.push({ goal, tester: tester.id })
+      return plays.length === 1 ? ['Clicking Reset does not clear the board'] : []
+    }
+    const orch = new Orchestrator(host(root, { models: () => [model('cli:claude-code', 'top', 'claude-code')], runCli, smokeTest: async () => [], playTest }))
+    const id = await orch.start('make tic tac toe')
+    await waitFor(orch, id, (r) => r.phase === 'awaiting-plan-approval', 'plan')
+    await orch.approvePlan(id, true)
+    const ready = await waitFor(orch, id, (r) => r.phase === 'awaiting-merge-approval', 'ready')
+    expect(plays).toEqual([
+      { goal: 'make tic tac toe', tester: 'cli:claude-code' },
+      { goal: 'make tic tac toe', tester: 'cli:claude-code' }
+    ])
+    const fix = ready.tasks.find((t) => t.id === 'integrate-1')!
+    expect(fix.status).toBe('merged')
+    expect(builds.at(-1)).toContain('Play-test: Clicking Reset does not clear the board')
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+
+  it('no play-test without Claude Code in the team', async () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'hive-noplay-'))
+    let plays = 0
+    const chat: OrchestratorHost['chat'] = async (_m, msgs) => (msgs.some((m) => m.role === 'tool') ? call('report_done', { summary: 'ok' }) : call('write_file', { path: 'game.js', content: 'const a = 1\n' }))
+    const orch = new Orchestrator(host(root, { chat, coordination: () => 'single', smokeTest: async () => [], playTest: async () => (plays++, ['x']) }))
+    const id = await orch.start('Build a game')
+    await waitFor(orch, id, (r) => r.phase === 'awaiting-plan-approval', 'plan')
+    await orch.approvePlan(id, true)
+    await waitFor(orch, id, (r) => r.phase === 'awaiting-merge-approval', 'ready')
+    expect(plays).toBe(0)
+    rmSync(root, { recursive: true, force: true })
+  }, 120_000)
+
   it('solo (the benchmark baseline) gets no self-test brief', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'hive-solo-'))
     const orch = new Orchestrator(host(root, { coordination: () => 'off' }))

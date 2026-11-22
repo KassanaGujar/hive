@@ -23,6 +23,29 @@ describe('cli agents', () => {
     expect(ask.args.join(' ')).toMatch(/--disallowedTools .*Edit.*Write/)
   })
 
+  it('picks the model: account default, a chosen one, or sized to the job', () => {
+    const model = (mode: 'task' | 'ask' | 'look', m?: string) => {
+      const a = cliInvocation('claude-code', mode, 'x', m).args
+      return a.includes('--model') ? a[a.indexOf('--model') + 1] : undefined
+    }
+    expect(model('task')).toBeUndefined()
+    expect(model('task', '')).toBeUndefined()
+    expect(model('ask', 'opus')).toBe('opus')
+    // automatic: quick questions on the light model, building and play-testing on Sonnet
+    expect(model('ask', 'auto')).toBe('haiku')
+    expect(model('task', 'auto')).toBe('sonnet')
+    expect(model('look', 'auto')).toBe('sonnet')
+    // codex has no size aliases: automatic means its own default
+    expect(cliInvocation('codex', 'task', 'x', 'auto').args).not.toContain('--model')
+  })
+
+  it('looks at screenshots with Read only', () => {
+    const a = cliInvocation('claude-code', 'look', 'x').args.join(' ')
+    expect(a).toContain('--allowedTools Read')
+    expect(a).toMatch(/--disallowedTools Bash,Edit,Write/)
+    expect(a).not.toContain('acceptEdits')
+  })
+
   it('runs codex exec sandboxed, prompt on stdin', () => {
     const inv = cliInvocation('codex', 'task', 'do it')
     expect(inv.command).toBe('codex')
