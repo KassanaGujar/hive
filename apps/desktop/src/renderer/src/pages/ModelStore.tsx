@@ -36,11 +36,11 @@ export function ModelStore() {
   }, [])
 
   const tabs: [Tab, string][] = [
-    ['local', 'Run on this PC'],
-    ['hf', 'Search Hugging Face'],
+    ['local', 'On this PC'],
+    ['hf', 'Hugging Face'],
     ['online', 'Free online'],
-    ['own', 'Your own keys'],
-    ['subs', 'Your subscriptions'],
+    ['own', 'Your keys'],
+    ['subs', 'Subscriptions'],
     ['installed', `Installed (${models.length})`]
   ]
 
@@ -53,9 +53,9 @@ export function ModelStore() {
             ? `This PC has ${hw.totalRamGB} GB of memory${hw.gpuName ? ` and a ${hw.gpuName}${hw.vramGB ? ` with ${hw.vramGB} GB` : ''}` : ', no separate graphics card'}, and ${fmtGB(hw.freeDiskGB)} of free disk. Each model shows how well it fits.`
             : 'Checking this PC…'}
         </p>
-        <div className="mb-5 flex gap-5 border-b border-line">
+        <div className="mb-5 flex gap-5 overflow-x-auto border-b border-line [scrollbar-width:none]" role="tablist">
           {tabs.map(([t, label]) => (
-            <button key={t} onClick={() => setTab(t)} className={`-mb-px border-b-2 pb-2 text-[13px] font-medium transition-colors ${tab === t ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
+            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`-mb-px shrink-0 border-b-2 pb-2 text-[13px] font-medium whitespace-nowrap transition-colors ${tab === t ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
               {label}
             </button>
           ))}
@@ -185,7 +185,8 @@ function LocalTab({ catalog, hw, installed }: { catalog: Catalog; hw: Hardware; 
         {families.map((f) => (
           <section key={f}>
             <h2 className="display mb-2.5 text-[15px] font-semibold">{f}</h2>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {/* sized by the pane, not the window: the store opens in an editor tab beside two side panels */}
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3">
               {shown
                 .filter((m) => m.family === f)
                 .sort((a, b) => a.sizeGB - b.sizeGB)
@@ -205,14 +206,13 @@ function LocalCard({ m, hw, installed }: { m: CatalogEntry; hw: Hardware; instal
   const fit = FIT[label]
   return (
     <div className="card flex flex-col gap-2 p-3.5">
-      <div className="flex items-start gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="font-semibold">{m.name}</div>
-          <div className="text-[11.5px] text-muted">
-            Needs about {m.minRamGB} GB of memory. Coding score {m.codingScore}.
-          </div>
+      <div>
+        <div className="font-semibold">{m.name}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] text-muted">
+          <span className={`rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold ${fit.cls}`}>{fit.text}</span>
+          <span>Needs about {m.minRamGB} GB of memory</span>
+          <span>Coding score {m.codingScore}</span>
         </div>
-        <span className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold ${fit.cls}`}>{fit.text}</span>
       </div>
       {m.description && <div className="text-[12px] text-muted">{m.description}</div>}
       <div className="mt-auto pt-1">

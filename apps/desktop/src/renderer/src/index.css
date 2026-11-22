@@ -96,6 +96,12 @@ body {
 button {
   cursor: pointer;
 }
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'],
+progress {
+  accent-color: var(--accent);
+}
 button:disabled {
   cursor: default;
   opacity: 0.45;
@@ -105,13 +111,37 @@ button:disabled {
   outline-offset: 1px;
 }
 
-/* controls: 7px corners; cards: 12px; docked panes: square */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* controls: 7px corners; cards: 12px; docked panes: square. A button label never wraps: the row wraps instead. */
 .btn {
-  @apply inline-flex items-center gap-1.5 rounded-[7px] border border-line bg-raise px-2.5 py-1 text-[12px] font-medium text-fg transition-colors hover:border-muted/60;
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-[7px] border border-line bg-raise px-2.5 py-1 text-[12px] font-medium whitespace-nowrap text-fg hover:border-muted/60;
+  transition: border-color 150ms ease, transform 140ms var(--ease-out);
 }
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 rounded-[7px] bg-accent px-3 py-1 text-[12px] font-semibold text-accent-fg transition-[filter] hover:brightness-105 active:brightness-95;
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-[7px] bg-accent px-3 py-1 text-[12px] font-semibold whitespace-nowrap text-accent-fg hover:brightness-105;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: filter 150ms ease, transform 140ms var(--ease-out);
+}
+/* the press answers the click */
+.btn:active:not(:disabled),
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+/* honey at half opacity reads as mud on propolis: a disabled primary steps back to a plain control instead */
+.btn-primary:disabled {
+  @apply bg-panel2 text-muted;
+  box-shadow: none;
+  opacity: 1;
+  filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:active:not(:disabled),
+  .btn-primary:active:not(:disabled) {
+    transform: none;
+  }
 }
 .btn-ghost {
   @apply inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-muted transition-colors hover:bg-panel2 hover:text-fg;
@@ -139,6 +169,77 @@ button:disabled {
 }
 .chip-on {
   @apply border-transparent bg-accent text-accent-fg;
+}
+
+/* Welcome: the start actions as comb cells (150 wide, pointy-top; the third tucks into the notch below) */
+.comb {
+  display: grid;
+  grid-template-columns: repeat(2, 150px);
+  column-gap: 6px;
+}
+.comb-cell {
+  position: relative;
+  display: flex;
+  width: 150px;
+  height: 173px;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+  /* the hexagon is the hit area, not the box around it */
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  transition: transform 140ms var(--ease-out);
+}
+.comb-cell:nth-child(3) {
+  grid-column: 1 / span 2;
+  justify-self: center;
+  margin-top: -38px;
+}
+.comb-cell:active {
+  transform: scale(0.97);
+}
+.comb-cell:focus-visible {
+  outline: none;
+}
+.comb-wax {
+  fill: var(--panel);
+}
+.comb-edge {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 150ms ease;
+}
+.comb-honey {
+  fill: var(--accent);
+  opacity: 0.14;
+  transform-box: fill-box;
+  transform: translateY(100%);
+  transition: transform 360ms var(--ease-out);
+}
+.comb-cell:focus-visible .comb-edge {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.comb-cell:focus-visible .comb-honey {
+  transform: translateY(70%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .comb-cell:hover .comb-edge {
+    stroke: var(--accent);
+  }
+  .comb-cell:hover .comb-honey {
+    transform: translateY(70%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .comb-honey,
+  .comb-cell {
+    transition: none;
+  }
+  .comb-cell:active {
+    transform: none;
+  }
 }
 
 /* honeycomb cells (agents) */
@@ -206,4 +307,10 @@ button:disabled {
   box-sizing: border-box;
   padding: 6px 8px;
   height: 100%;
+  background: var(--bg);
+}
+/* xterm paints its viewport black and keeps it after a theme switch, framing a light terminal in black.
+   The terminal themes use the page background, so let it show through. */
+.xterm .xterm-viewport {
+  background-color: transparent !important;
 }

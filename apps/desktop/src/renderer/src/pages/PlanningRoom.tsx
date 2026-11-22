@@ -92,13 +92,13 @@ export function PlanningRoom() {
         <ChatChannel channel="planning" onSend={onSend} />
       </div>
       <div className="min-w-0 flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line bg-bg/95 px-5 py-2 backdrop-blur">
-          <div className="flex-1 text-[15px] font-bold">Plan</div>
+        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-line bg-bg/95 px-5 py-2 backdrop-blur">
+          <div className="display flex-1 text-[15px] font-bold">Plan</div>
           <button className="btn" disabled={busy || unread === 0} onClick={update} title="Planner reads new messages and updates the doc">
             {busy ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} Update plan {unread ? `(${unread} new)` : ''}
           </button>
-          <button className="btn" onClick={exportMd}>
-            <FileDown size={12} /> Export PLAN.md
+          <button className="btn" onClick={exportMd} title="Save the plan as PLAN.md in the project">
+            <FileDown size={12} /> Export
           </button>
           <button className="btn-primary" onClick={sendToAgents}>
             <Send size={12} /> Send to agents
@@ -126,15 +126,19 @@ export function PlanningRoom() {
               })}
             </div>
           )}
+          {items.length === 0 && proposals.length === 0 && (
+            <p className="mb-5 max-w-md text-muted">
+              Nothing planned yet. Pitch ideas in the team chat and press Update plan, or add items yourself with the + next to each heading.
+            </p>
+          )}
           {PLAN_SECTIONS.map((sec) => (
             <div key={sec.id} className="mb-5">
               <div className="mb-1 flex items-center gap-2">
                 <h3 className="text-[13px] font-bold">{sec.title}</h3>
-                <button className="btn-ghost" onClick={() => add(sec.id)} title="Add item">
+                <button className="btn-ghost" onClick={() => add(sec.id)} title={`Add to ${sec.title}`} aria-label={`Add to ${sec.title}`}>
                   <Plus size={12} />
                 </button>
               </div>
-              {items.filter((i) => i.section === sec.id).length === 0 && <div className="text-[12px] text-muted italic">empty</div>}
               {items
                 .filter((i) => i.section === sec.id)
                 .map((i) => (

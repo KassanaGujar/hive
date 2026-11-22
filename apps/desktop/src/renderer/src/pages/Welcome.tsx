@@ -26,25 +26,26 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
     toast(`${name} moved to the Recycle Bin`, 'ok')
   }
   return (
-    <div className="flex h-full items-center justify-center bg-bg">
-      <div className="w-[520px]">
-        <div className="mb-8 flex items-center gap-3">
-          <img src={icon} alt="" className="h-14 w-14" />
+    <div className="flex h-full items-center justify-center overflow-auto bg-bg px-4 py-10">
+      <div className="w-full max-w-[520px]">
+        <div className="mb-6 flex items-center gap-3">
+          <img src={icon} alt="" className="h-12 w-12" />
           <div>
-            <div className="display text-[28px] leading-none font-bold">Hive</div>
-            <div className="text-muted">
-              Hi {settings.profile?.avatar} {settings.profile?.name}. What are we building?
-            </div>
+            <h1 className="display text-[30px] leading-none font-bold">Hive</h1>
+            <p className="mt-1 text-[14px] text-muted">
+              Hi {settings.profile?.name}. What are we building?
+            </p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <Big icon={<FolderPlus />} label="New project" onClick={safe(newProjectFlow)} />
-          <Big icon={<FolderOpen />} label="Open folder" onClick={safe(openFolderFlow)} />
-          <Big icon={<Users />} label="Join with invite" onClick={onJoin} />
+        {/* the start actions are cells of a comb, laid like the agents' honeycomb: two above, one tucked below */}
+        <div className="comb" role="group" aria-label="Start">
+          <Cell icon={<FolderPlus />} label="New project" onClick={safe(newProjectFlow)} />
+          <Cell icon={<FolderOpen />} label="Open folder" onClick={safe(openFolderFlow)} />
+          <Cell icon={<Users />} label="Join with invite" onClick={onJoin} />
         </div>
         {settings.recentProjects.length > 0 && (
-          <div className="mt-8">
-            <div className="label mb-2">Recent</div>
+          <div className="mt-6">
+            <h2 className="label mb-2">Recent</h2>
             {settings.recentProjects.map((p) => (
               <div key={p} className="group flex items-center rounded hover:bg-panel2" data-project={p}>
                 <button className="min-w-0 flex-1 truncate px-2 py-1.5 text-left" onClick={safe(() => openProject(p))} title={p}>
@@ -65,11 +66,29 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
   )
 }
 
-function Big({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+/** Pointy-top hexagon, 100 wide in a 100×115.5 box. */
+const HEX = '50,1 99,29 99,86.5 50,114.5 1,86.5 1,29'
+
+function Cell({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+  const clip = `hex-${label.replace(/\W/g, '')}`
   return (
-    <button onClick={onClick} className="card flex flex-col items-center gap-2 p-5 text-[13px] font-medium hover:border-accent">
-      <span className="text-accent">{icon}</span>
-      {label}
+    <button onClick={onClick} className="comb-cell">
+      <svg viewBox="0 0 100 115.5" aria-hidden="true" className="absolute inset-0 h-full w-full overflow-visible">
+        <defs>
+          <clipPath id={clip}>
+            <polygon points={HEX} />
+          </clipPath>
+        </defs>
+        <polygon points={HEX} className="comb-wax" />
+        <g clipPath={`url(#${clip})`}>
+          <rect x="0" y="0" width="100" height="115.5" className="comb-honey" />
+        </g>
+        <polygon points={HEX} className="comb-edge" />
+      </svg>
+      <span className="relative flex flex-col items-center gap-2 text-[13px] font-semibold">
+        <span className="text-accent">{icon}</span>
+        {label}
+      </span>
     </button>
   )
 }
