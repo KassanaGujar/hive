@@ -87,8 +87,8 @@ export function PlanningRoom() {
   const unread = unreadPlanning(s).length
 
   return (
-    <div className="flex h-full">
-      <div className="flex w-[38%] min-w-72 flex-col border-r border-line bg-panel">
+    <div className="planning-room flex h-full">
+      <div className="planning-chat flex w-[38%] min-w-72 flex-col border-r border-line bg-panel">
         <ChatChannel channel="planning" onSend={onSend} />
       </div>
       <div className="min-w-0 flex-1 overflow-auto">

@@ -229,7 +229,8 @@ function Comb({ agents }: { agents: AgentInfo[] }) {
   // planners sit on the top row, workers nest half a cell over on the row below
   return (
     <div className="flex justify-center py-1">
-      <svg width={width} height={workers.length ? 116 : 68} viewBox={`0 0 ${width} ${workers.length ? 116 : 68}`} role="img" aria-label="AI team status">
+      {/* drawn 1.3x: at 1x the model name in each cell was 7.5 px, too small to read */}
+      <svg width={width * 1.3} height={(workers.length ? 116 : 68) * 1.3} style={{ maxWidth: '100%', height: 'auto' }} viewBox={`0 0 ${width} ${workers.length ? 116 : 68}`} role="img" aria-label="AI team status">
         {top.map((a, i) => (
           <Cell key={a.name} a={a} x={(width - top.length * W) / 2 + i * W - 3} y={2} />
         ))}

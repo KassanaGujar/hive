@@ -196,7 +196,7 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
     <div className="flex min-h-0 flex-1 flex-col border-t border-line">
       <div className="label px-3 pt-2">{channel === 'project' ? 'Project chat' : 'Team chat'}</div>
       <div className="min-h-0 flex-1 overflow-auto px-3 py-2">
-        {msgs.length === 0 && <div className="text-muted">{channel === 'planning' ? 'Pitch ideas here. The Planner turns them into the plan on the right.' : 'Say hi. Use @name to mention someone and path:line to link code.'}</div>}
+        {msgs.length === 0 && <div className="text-muted">{channel === 'planning' ? 'Pitch ideas here. The Planner turns them into the plan.' : 'Say hi. Use @name to mention someone and path:line to link code.'}</div>}
         {msgs.map((m) => (
           <div key={m.id} className="mb-2">
             <div className="text-[11px]">

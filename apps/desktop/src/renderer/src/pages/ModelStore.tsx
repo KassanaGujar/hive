@@ -53,9 +53,10 @@ export function ModelStore() {
             ? `This PC has ${hw.totalRamGB} GB of memory${hw.gpuName ? ` and a ${hw.gpuName}${hw.vramGB ? ` with ${hw.vramGB} GB` : ''}` : ', no separate graphics card'}, and ${fmtGB(hw.freeDiskGB)} of free disk. Each model shows how well it fits.`
             : 'Checking this PC…'}
         </p>
-        <div className="mb-5 flex gap-5 overflow-x-auto border-b border-line [scrollbar-width:none]" role="tablist">
+        {/* no -mb-px overlap: inside a scrolling row it made a 1 px vertical scroll and stray arrows beside the tabs */}
+        <div className="mb-5 flex gap-5 overflow-x-auto overflow-y-hidden border-b border-line [scrollbar-width:none]" role="tablist">
           {tabs.map(([t, label]) => (
-            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`-mb-px shrink-0 border-b-2 pb-2 text-[13px] font-medium whitespace-nowrap transition-colors ${tab === t ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
+            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`shrink-0 border-b-2 pb-2 text-[13px] font-medium whitespace-nowrap transition-colors ${tab === t ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
               {label}
             </button>
           ))}
@@ -151,7 +152,8 @@ function PullControls({ pullName, sizeGB, hw, installed, tooBig }: { pullName: s
             </button>
           </>
         ) : (
-          <button className="btn-primary" disabled={tooBig || noDisk} title={noDisk ? 'Not enough free disk space' : tooBig ? 'Needs more memory than this PC has' : undefined} onClick={() => invoke('ollama:pull', pullName)}>
+          // a plain button: a honey Download on all 65 cards meant 65 competing main actions
+          <button className="btn" disabled={tooBig || noDisk} title={noDisk ? 'Not enough free disk space' : tooBig ? 'Needs more memory than this PC has' : undefined} onClick={() => invoke('ollama:pull', pullName)}>
             <Download size={12} /> Download {fmtGB(sizeGB)}
           </button>
         )}

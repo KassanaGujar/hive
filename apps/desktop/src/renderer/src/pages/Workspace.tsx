@@ -16,9 +16,22 @@ import icon from '../assets/icon.png'
 
 export function Workspace() {
   const s = useStore()
-  const [sideW, setSideW] = useState(260)
-  const [rightW, setRightW] = useState(380)
-  const [bottomH, setBottomH] = useState(240)
+  // Sized to the window: fixed 260 + 380 px panels left a 1024 px window with a sliver of editor, a wrapped top bar
+  // and a scrolling tab strip; a 240 px terminal hid half the Models list and the Planning room.
+  const [sideW, setSideW] = useState(() => clamp(Math.round(window.innerWidth * 0.17), 190, 260))
+  const [rightW, setRightW] = useState(() => clamp(Math.round(window.innerWidth * 0.26), 290, 380))
+  const [bottomH, setBottomH] = useState(() => clamp(Math.round(window.innerHeight * 0.2), 120, 200))
+  useEffect(() => {
+    // keep at least ~440 px for the editor when the window shrinks
+    const fit = () => {
+      const spare = window.innerWidth - 88 - 440
+      setSideW((w) => Math.max(160, Math.min(w, Math.round(spare * 0.4))))
+      setRightW((w) => Math.max(260, Math.min(w, Math.round(spare * 0.6))))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
 
   useEffect(() => {
     const off = on('menu:action', ({ action }) => {
@@ -86,7 +99,7 @@ export function Workspace() {
         {/* centre */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <TopBar />
-          <div className="min-h-0 flex-1">
+          <div className="editor-pane-host min-h-0 flex-1">
             <EditorArea />
           </div>
           {s.bottomOpen && (
@@ -132,21 +145,21 @@ function TopBar() {
     useStore.setState({ settings: await invoke('settings:set', { safeRun: { on: false, ...safe, ...patch } }) })
   return (
     <div className="flex h-10 items-center gap-2 border-b border-line bg-panel px-3">
-      <img src={icon} alt="" className="h-5 w-5" />
-      <button className="display rounded-md px-1 text-[14px] font-semibold text-fg hover:bg-panel2" onClick={closeProject} title="Close this project">
+      <img src={icon} alt="" className="h-5 w-5 shrink-0" />
+      <button className="display min-w-0 truncate rounded-md px-1 text-[14px] font-semibold text-fg hover:bg-panel2" onClick={closeProject} title={`${root} (click to close this project)`}>
         {root.split(/[\\/]/).pop()}
       </button>
-      <div className="flex-1" />
+      <div className="min-w-2 flex-1" />
       {run.previewUrl && (
         <button className="btn" onClick={() => openPreview(run.previewUrl!)}>
           Preview
         </button>
       )}
-      <label className="flex items-center gap-1 text-[12px] text-muted" title="Safe mode: Node programs can only touch this project's files, can't start other programs, and get no network. Every program stops after 10 minutes. Applies from the next Run.">
+      <label className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[12px] text-muted" title="Safe mode: Node programs can only touch this project's files, can't start other programs, and get no network. Every program stops after 10 minutes. Applies from the next Run.">
         <input type="checkbox" checked={!!safe?.on} onChange={(e) => setSafe({ on: e.target.checked })} /> Safe mode
       </label>
       {safe?.on && (
-        <label className="flex items-center gap-1 text-[12px] text-muted" title="Let programs use the network while safe mode is on (needed for servers and online APIs).">
+        <label className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[12px] text-muted" title="Let programs use the network while safe mode is on (needed for servers and online APIs).">
           <input type="checkbox" checked={!!safe.allowNetwork} onChange={(e) => setSafe({ allowNetwork: e.target.checked })} /> Network
         </label>
       )}

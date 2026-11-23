@@ -28,7 +28,8 @@ export function Welcome({ onJoin }: { onJoin: () => void }) {
   return (
     <div className="flex h-full items-center justify-center overflow-auto bg-bg px-4 py-10">
       <div className="w-full max-w-[520px]">
-        <div className="mb-6 flex items-center gap-3">
+        {/* centred as one block: left-aligned in a 520 px column, the comb sat visibly left of the window's centre */}
+        <div className="mb-6 flex items-center justify-center gap-3">
           <img src={icon} alt="" className="h-12 w-12" />
           <div>
             <h1 className="display text-[30px] leading-none font-bold">Hive</h1>

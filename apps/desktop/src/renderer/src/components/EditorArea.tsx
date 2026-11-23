@@ -42,7 +42,7 @@ function TabBar({ group }: { group: number }) {
   const { activate, closeTab, splitRight, groups } = useStore.getState()
   if (!g) return null
   return (
-    <div className="flex h-9 shrink-0 items-stretch overflow-x-auto border-b border-line bg-panel">
+    <div className="flex h-9 shrink-0 items-stretch overflow-x-auto overflow-y-hidden border-b border-line bg-panel [scrollbar-width:thin]">
       {g.tabs.map((id) => {
         const t = tabs[id]
         if (!t) return null

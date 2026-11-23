@@ -176,6 +176,7 @@ button:disabled {
   display: grid;
   grid-template-columns: repeat(2, 150px);
   column-gap: 6px;
+  justify-content: center;
 }
 .comb-cell {
   position: relative;
@@ -239,6 +240,24 @@ button:disabled {
   }
   .comb-cell:active {
     transform: none;
+  }
+}
+
+/* Planning room: side by side when there's room; stacked (chat above the plan) when the editor pane is narrow, where
+   a 288 px chat column left the plan two words wide. */
+.editor-pane-host {
+  container-type: inline-size;
+}
+@container (max-width: 640px) {
+  .planning-room {
+    flex-direction: column;
+  }
+  .planning-chat {
+    width: 100%;
+    min-width: 0;
+    height: 42%;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
   }
 }
 
