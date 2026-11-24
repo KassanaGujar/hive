@@ -16,7 +16,28 @@ export const fwd = (p) => p.replace(/\\/g, '/')
 
 const RESULTS = path.join(OUT, 'results.jsonl')
 /** Record one checklist item. status: PASS | FAIL | BLOCKED */
+/**
+ * A subscription that runs out mid-run ("You've hit your session limit") used to turn every later check into a FAIL
+ * that tested nothing (13 Phase 9 items). Once an AI answer says so, later failures are recorded as BLOCKED with this
+ * reason, and checks not yet run are skipped. sync-checklist keeps the last real result for those items.
+ */
+export const OUT_OF_USAGE_RE = /(hit|reached) your [\w -]*limit|usage limit|out of (free )?(daily )?quota/i
+export const OUT_OF_USAGE_PREFIX = 'AI subscription out of usage'
+let outOfUsage = null
+/** Call with any AI error or reply text. */
+export function noteAiError(text) {
+  if (!outOfUsage && text && OUT_OF_USAGE_RE.test(String(text))) {
+    outOfUsage = String(text).slice(0, 160)
+    console.log(`  !! ${OUT_OF_USAGE_PREFIX}: ${outOfUsage}. Remaining AI checks are marked BLOCKED, not FAIL.`)
+  }
+}
 export function record(phase, name, status, detail = '') {
+  // a rerun of selected checks (QA_ONLY) must not write rows built from checks it skipped
+  if (process.env.QA_ONLY && !new RegExp(process.env.QA_ONLY, 'i').test(name)) return true
+  if (status === 'FAIL' && outOfUsage) {
+    status = 'BLOCKED'
+    detail = `${OUT_OF_USAGE_PREFIX} (${outOfUsage}); not a real result. ${detail}`
+  }
   const row = { phase, name, status, detail: String(detail).slice(0, 600), at: new Date().toISOString() }
   appendFileSync(RESULTS, JSON.stringify(row) + '\n')
   console.log(`${status.padEnd(7)} [${phase}] ${name}${detail ? ' — ' + row.detail : ''}`)
@@ -25,6 +46,7 @@ export function record(phase, name, status, detail = '') {
 /** Run a check; throwing or returning false is a FAIL. A string return is the detail. */
 export async function check(phase, name, fn, timeoutMs = Number(process.env.QA_CHECK_TIMEOUT ?? 600000)) {
   if (process.env.QA_ONLY && !new RegExp(process.env.QA_ONLY, 'i').test(name)) return true // rerun selected checks only
+  if (outOfUsage) return record(phase, name, 'BLOCKED', `${OUT_OF_USAGE_PREFIX} (${outOfUsage}); skipped`)
   try {
     let timer
     const r = await Promise.race([fn(), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`check did not finish within ${Math.round(timeoutMs / 1000)} s`)), timeoutMs) })]).finally(() => clearTimeout(timer))
@@ -125,16 +147,19 @@ export class Hive {
   get warnings() { return this.cdp.warnings }
   get infos() { return this.cdp.infos }
   /** Run async JS in the page. `H` = __hive handle, `h` = IPC bridge, `w(ms)` = sleep. */
-  async eval(body) {
+  /** `timeoutMs`: for calls that legitimately take long (an AI writing a whole app). The 5-minute default cut a 15-minute
+   *  AI request short, then the retry sent the same AI request again and the run died (Phase 9 pathfinding). */
+  async eval(body, { timeoutMs } = {}) {
     const expr = `(async()=>{const H=window.__hive,h=window.hive,w=(ms)=>new Promise(r=>setTimeout(r,ms));${body}})()`
     const t0 = Date.now()
     if (process.env.QA_TRACE) console.log(`  > [${this.name}] ${body.replace(/\s+/g, ' ').slice(0, 90)}`)
     let r
     try {
-      r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })
+      r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }, timeoutMs)
     } catch (e) {
-      // The DevTools socket can die silently (Chromium restarts its network service under load). Reconnect once.
-      if (!/no answer within/.test(e.message)) throw e
+      // The DevTools socket can die silently (Chromium restarts its network service under load). Reconnect once,
+      // but never resend a long call: it may still be running (an AI request), and a second one doubles the cost.
+      if (!/no answer within/.test(e.message) || timeoutMs) throw e
       console.log(`  ! [${this.name}] no answer; reconnecting and retrying: ${body.replace(/\s+/g, ' ').slice(0, 70)}`)
       await this.connect()
       r = await this.cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })

@@ -169,6 +169,13 @@ await check(P, 'Modify code while a previous version is running; running program
   assert(o2.includes('version v2'), 'restart did not pick up the new code')
   return 'old run kept v1; Restart picked up v2'
 })
+await check(P, 'A missing package is named when Run fails', async () => {
+  await runProject('missingpkg', { 'hive.json': '{"command":"node m.js"}', 'm.js': "require('left-pad-ultra-9000')\n" })
+  const s = await finished()
+  assert(s.status === 'failed', 'did not fail: ' + JSON.stringify(s))
+  assert(/left-pad-ultra-9000/.test(s.message ?? '') && /npm install left-pad-ultra-9000/.test(s.message ?? ''), 'message does not name the package: ' + s.message)
+  return s.message
+})
 record(P, 'Execution output is displayed correctly', 'PASS', 'output captured from the Run terminal stream in every test above (stdout, stderr, interactive input)')
 record(P, 'Errors include useful file names and line numbers', lineInfo.startsWith('file') ? 'PASS' : 'FAIL', lineInfo)
 

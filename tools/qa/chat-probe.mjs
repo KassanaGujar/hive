@@ -32,6 +32,10 @@ const post = (base, p, body) => fetch(base + p, { method: 'POST', headers: { 'co
 const get = (base, p) => fetch(base + p).then((r) => r.json())
 
 export async function testChatServer(app, dir) {
+  // Each run tags its own messages: the history file syncs between teammates, so Omar's server started with Tess's
+  // test messages already in it and every count was off (11/11 for Tess, 4/11 for Omar on identical files).
+  const T = Date.now().toString(36)
+  const HELLO = `hello ben ${T}`, SECRET = `only for secret ${T}`, BURST = `burst-${T}-`
   const R = {}
   const errors = []
   const start = async () => {
@@ -52,24 +56,24 @@ export async function testChatServer(app, dir) {
     const online = await get(base, '/online?room=lobby').catch(() => [])
     R['Multiple users'] = (Array.isArray(online) && online.includes('Ana') && online.includes('Ben')) || 'online list ' + JSON.stringify(online)
     R['Online indicators'] = (ben.events.some((e) => e.type === 'presence' && (e.online ?? []).includes('Ana'))) || 'no presence event listing Ana'
-    const sent = await post(base, '/send', { user: 'Ana', room: 'lobby', text: 'hello ben' })
-    await until(() => ben.events.some((e) => e.type === 'message' && e.message?.text === 'hello ben'), 3000)
-    const got = ben.events.find((e) => e.type === 'message' && e.message?.text === 'hello ben')
-    R['Sending and receiving messages'] = (!!got && sent?.text === 'hello ben') || 'Ben did not receive the message'
+    const sent = await post(base, '/send', { user: 'Ana', room: 'lobby', text: HELLO })
+    await until(() => ben.events.some((e) => e.type === 'message' && e.message?.text === HELLO), 3000)
+    const got = ben.events.find((e) => e.type === 'message' && e.message?.text === HELLO)
+    R['Sending and receiving messages'] = (!!got && sent?.text === HELLO) || 'Ben did not receive the message'
     R['Timestamps'] = (typeof sent?.ts === 'number' && Math.abs(sent.ts - Date.now()) < 60000 && got?.message?.ts === sent.ts) || 'ts ' + sent?.ts
     await post(base, '/typing', { user: 'Ben', room: 'lobby' })
     await until(() => ana.events.some((e) => e.type === 'typing' && e.user === 'Ben'), 3000)
     R['Typing indicators'] = ana.events.some((e) => e.type === 'typing' && e.user === 'Ben') || 'no typing event'
-    await post(base, '/send', { user: 'Cy', room: 'secret', text: 'only for secret' })
+    await post(base, '/send', { user: 'Cy', room: 'secret', text: SECRET })
     await wait(800)
-    const leaked = [...ana.events, ...ben.events].some((e) => e.message?.text === 'only for secret')
-    const cyGot = cy.events.some((e) => e.message?.text === 'only for secret')
-    R['Private chat rooms'] = (!leaked && cyGot && !cy.events.some((e) => e.message?.text === 'hello ben')) || `leaked to lobby=${leaked}, room member got it=${cyGot}`
-    await Promise.all(Array.from({ length: 50 }, (_, i) => post(base, '/send', { user: i % 2 ? 'Ana' : 'Ben', room: 'lobby', text: `burst-${i}` })))
+    const leaked = [...ana.events, ...ben.events].some((e) => e.message?.text === SECRET)
+    const cyGot = cy.events.some((e) => e.message?.text === SECRET)
+    R['Private chat rooms'] = (!leaked && cyGot && !cy.events.some((e) => e.message?.text === HELLO)) || `leaked to lobby=${leaked}, room member got it=${cyGot}`
+    await Promise.all(Array.from({ length: 50 }, (_, i) => post(base, '/send', { user: i % 2 ? 'Ana' : 'Ben', room: 'lobby', text: BURST + i })))
     await wait(1500)
-    const burstSeen = ben.events.filter((e) => e.type === 'message' && /^burst-/.test(e.message?.text ?? '')).map((e) => e.message.text)
+    const burstSeen = ben.events.filter((e) => e.type === 'message' && (e.message?.text ?? '').startsWith(BURST)).map((e) => e.message.text)
     const hist = await get(base, '/history?room=lobby')
-    const burstHist = hist.filter((m) => /^burst-/.test(m.text)).map((m) => m.text)
+    const burstHist = hist.filter((m) => String(m.text).startsWith(BURST)).map((m) => m.text)
     const ids = hist.map((m) => m.id)
     R['Handles simultaneous messages'] = (new Set(burstSeen).size === 50 && burstHist.length === 50) || `live ${new Set(burstSeen).size}/50, history ${burstHist.length}/50`
     R["Messages aren't lost or duplicated"] = (burstSeen.length === 50 && new Set(ids).size === ids.length && burstHist.length === 50) || `live copies ${burstSeen.length} (unique ${new Set(burstSeen).size}), duplicate ids ${ids.length - new Set(ids).size}`
@@ -81,7 +85,7 @@ export async function testChatServer(app, dir) {
     // restart the server: history must survive
     const base2 = await start()
     const hist2 = base2 ? await get(base2, '/history?room=lobby') : []
-    R['Persistent message history'] = (existsSync(`${dir}/data/messages.json`) && hist2.some((m) => m.text === 'hello ben') && hist2.length === hist.length) || `after restart: ${hist2.length} messages (before ${hist.length})`
+    R['Persistent message history'] = (existsSync(`${dir}/data/messages.json`) && hist2.some((m) => m.text === HELLO) && hist2.length === hist.length) || `after restart: ${hist2.length} messages (before ${hist.length})`
   } catch (e) {
     R.probeError = String(e.message ?? e)
   }

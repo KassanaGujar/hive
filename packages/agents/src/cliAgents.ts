@@ -96,7 +96,8 @@ export function parseCliOutput(source: CliSource, code: number, stdout: string, 
 
 /** Errors that mean the subscription itself is used up or signed out: move to another model, like a free quota. */
 export function cliErrorKind(error: string): 'quota' | 'signed-out' | null {
-  if (/usage limit|rate.?limit|limit reached|quota|too many requests|429/i.test(error)) return 'quota'
+  // Claude Code also says "You've hit your session limit" / "5-hour limit" / "weekly limit"
+  if (/usage limit|rate.?limit|limit reached|quota|too many requests|429|(hit|reached) your [\w -]*limit/i.test(error)) return 'quota'
   if (/not (logged|signed) in|login|authenticat|unauthori[sz]ed|401|invalid api key/i.test(error)) return 'signed-out'
   return null
 }

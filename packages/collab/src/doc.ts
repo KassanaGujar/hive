@@ -98,15 +98,32 @@ function lineChanges(a: string[], b: string[]) {
 }
 
 /**
+ * An AI reply's code block often ends with an extra blank line or two. Treated as an edit, that "changed" the end of
+ * the file in every proposal, so two people accepting AI changes to different functions conflicted. The file keeps
+ * its own ending; only blank lines and spaces at the very end are affected.
+ */
+export function keepEnding(base: string, proposed: string): string {
+  const tail = (s: string) => /[\s]*$/.exec(s)![0]
+  const newlines = (s: string) => (s.match(/\n/g) ?? []).length
+  // only trims extra blank lines the reply added; a proposal that drops the ending is the AI's choice
+  if (newlines(tail(proposed)) <= newlines(tail(base))) return proposed
+  const body = proposed.slice(0, proposed.length - tail(proposed).length)
+  return body ? body + tail(base) : proposed
+}
+
+/**
  * Apply the change base → proposed on top of current: a line-based 3-way merge for AI proposals made
  * against an older copy. Returns the merged text, or false when both sides changed the same lines.
  */
 export function applyChangeOnto(base: string, proposed: string, current: string): string | false {
+  proposed = keepEnding(base, proposed)
   if (current === base) return proposed
   if (current === proposed || base === proposed) return current
   const B = base.split('\n')
-  const mine = lineChanges(B, proposed.split('\n'))
   const theirs = lineChanges(B, current.split('\n'))
+  // the same edit on both sides (a teammate already made it, or a second Accept of the same idea) is applied once
+  const same = (x: { start: number; end: number; lines: string[] }, y: typeof x) => x.start === y.start && x.end === y.end && x.lines.join('\n') === y.lines.join('\n')
+  const mine = lineChanges(B, proposed.split('\n')).filter((x) => !theirs.some((y) => same(x, y)))
   // conflict: ranges overlap, or both insert at the same spot
   for (const x of mine)
     for (const y of theirs) {

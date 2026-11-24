@@ -15,7 +15,7 @@ function pty() {
   return ptyMod!
 }
 
-const terms = new Map<string, { p: IPty; onExit?: (code: number) => void; buffer: string }>()
+const terms = new Map<string, { p: IPty; onExit?: (code: number, output: string) => void; buffer: string }>()
 let counter = 0
 
 export function defaultShell(): { file: string; args: string[] } {
@@ -79,7 +79,7 @@ export function clearWhichCache() {
   whichCache.clear()
 }
 
-export function createTerminal(opts: { cwd?: string; command?: string; env?: Record<string, string>; onExit?: (code: number) => void } = {}): string {
+export function createTerminal(opts: { cwd?: string; command?: string; env?: Record<string, string>; onExit?: (code: number, output: string) => void } = {}): string {
   const id = `t${++counter}`
   const cwd = opts.cwd ?? currentProject() ?? os.homedir()
   const { file, args } = opts.command ? shellCommandArgs(opts.command) : defaultShell()
@@ -98,7 +98,7 @@ export function createTerminal(opts: { cwd?: string; command?: string; env?: Rec
     emit('term:data', { id, data })
   })
   // Run's status follows the real exit; the terminal itself closes once node-pty has flushed the last output.
-  if (entry.onExit) onExitSoon(p, (code) => entry.onExit?.(code))
+  if (entry.onExit) onExitSoon(p, (code) => entry.onExit?.(code, stripAnsi(entry.buffer)))
   p.onExit(({ exitCode }) => {
     emit('term:exit', { id, code: exitCode })
     terms.delete(id)

@@ -3,7 +3,7 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { createServer } from 'node:http'
-import { Hive, check, record, assert, until, wait, freshDir, openFile, startRelay, share, join, OUT } from './lib.mjs'
+import { Hive, check, record, assert, until, wait, freshDir, openFile, startRelay, share, join, OUT, noteAiError } from './lib.mjs'
 const P = 'P3'
 const MODEL_HINT = process.env.QA_MODEL ?? 'qwen2.5-coder'
 const base = freshDir('p3')
@@ -37,6 +37,7 @@ async function ask(prompt, ctxFiles = [], { app = a, mdl = model, timeoutMs = 30
     return {text,err,bases}`)
   const ms = Date.now() - t0
   timings.push(ms)
+  noteAiError(r.err ?? (r.text.length < 300 ? r.text : null))
   const visible = r.text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
   const proposals = (await app.eval(`return H.chat.parseProposals(${JSON.stringify(visible)})`)).map((p) => ({ ...p, base: r.bases?.[p.path] }))
   transcript.push({ prompt, ctxFiles, ms, err: r.err, reply: visible.slice(0, 4000) })
@@ -219,8 +220,17 @@ await check(P, 'AI references nonexistent files or dependencies', async () => {
   await a.invoke('run:start')
   await until(async () => (await a.invoke('run:state')).status !== 'running', 45000)
   const s = await a.invoke('run:state')
+  // Two good outcomes. A careful model refuses to depend on a made-up package (Claude Code called it a supply-chain
+  // risk and used padStart): then the program must work. A model that uses it: Run must fail and name the package.
+  // Bad: the code needs the package and still "Finished", or the failure doesn't say why.
+  const usesIt = /left-pad-ultra-9000/.test((read('uses-lib.js') ?? '').replace(/\/\/.*|\/\*[\s\S]*?\*\//g, ''))
+  if (!usesIt) {
+    assert(s.status === 'exited' && s.exitCode === 0, 'AI avoided the package but the program failed: ' + JSON.stringify(s))
+    return 'the AI declined the made-up package and wrote it without one; the program runs'
+  }
   assert(s.status === 'failed', 'ran without the package?! ' + JSON.stringify(s))
-  return 'Run fails with Node\'s "Cannot find module" in the terminal + "' + s.message + '". Hive does not warn about missing packages before running.'
+  assert(/left-pad-ultra-9000/.test(s.message ?? '') && /npm install/.test(s.message ?? ''), 'failure does not name the missing package: ' + s.message)
+  return 'Run fails and says: ' + s.message
 })
 
 // --- provider failure modes, with a fake OpenAI-compatible server

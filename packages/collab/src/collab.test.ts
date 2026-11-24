@@ -97,6 +97,19 @@ describe('applyChangeOnto (accepting an AI proposal made against an older copy)'
   it('is a plain replace when nothing changed meanwhile', () => {
     expect(applyChangeOnto(base, 'x', base)).toBe('x')
   })
+  it('two AI replies that each add a blank line at the end still both land (Claude Code did this; the second Accept was refused)', () => {
+    const p1 = base.replace('return 2', "return 'B'") + '\n'
+    const p2 = base.replace('return 3', "return 'C'") + '\n\n'
+    const after1 = applyChangeOnto(base, p1, base) as string
+    expect(after1).toBe(base.replace('return 2', "return 'B'")) // the file keeps its own ending
+    expect(applyChangeOnto(base, p2, after1)).toBe(base.replace('return 2', "return 'B'").replace('return 3', "return 'C'"))
+  })
+  it('the same change made on both sides is applied once, not refused', () => {
+    const both = base.replace('return 1', 'return 10')
+    expect(applyChangeOnto(base, both, both)).toBe(both)
+    const ai = base.replace('return 1', 'return 10').replace('return 3', 'return 30')
+    expect(applyChangeOnto(base, ai, both)).toBe(ai)
+  })
 })
 
 describe('invite links', () => {

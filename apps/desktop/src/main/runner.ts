@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import { promises as fs, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { detectProject, RUNTIME_DOWNLOADS, safeCommand } from '@hive/editor'
+import { detectProject, RUNTIME_DOWNLOADS, runFailureHint, safeCommand } from '@hive/editor'
 import type { RunConfig, RunState } from '@hive/shared'
 import { emit } from './ipc'
 import { abs, projectRoot } from './project'
@@ -69,12 +69,14 @@ export async function startRun(dir?: string): Promise<RunState> {
     cwd: cfg.cwd,
     command: wrapped?.command ?? cfg.command,
     env: { ...cfg.env, ...(cfg.port ? { PORT: String(cfg.port) } : {}) },
-    onExit: (code) => {
+    onExit: (code, output) => {
       clearTimeout(safeTimer)
       if (state.terminalId !== termId) return
       if (stoppedByLimit === termId) return
       const failed = code !== 0
-      setState({ ...state, status: failed ? 'failed' : 'exited', exitCode: code, message: failed ? `Exited with code ${code}. See the Run terminal for details.` : 'Finished.' })
+      // say what is missing when the output tells us (a package that was never installed), not just the exit code
+      const hint = failed ? runFailureHint(output) : null
+      setState({ ...state, status: failed ? 'failed' : 'exited', exitCode: code, message: failed ? (hint ?? `Exited with code ${code}. See the Run terminal for details.`) : 'Finished.' })
       if (failed) recordFeed({ actor: actor(), kind: 'run.failed', summary: `run failed (exit ${code}): ${cfg.command}` })
     }
   })

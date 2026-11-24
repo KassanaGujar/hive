@@ -19,7 +19,9 @@ if (existsSync(`${OUT}/results.jsonl`)) {
     ;(history.get(k) ?? history.set(k, []).get(k)).push(r)
   }
 }
-const results = [...history.values()].map((list) => ({ ...list.at(-1), everFailed: list.some((r) => r.status === 'FAIL') }))
+// a run cut short by an AI subscription running out is not a result: keep the last real one for that item
+const real = (r) => !(r.status === 'BLOCKED' && String(r.detail).startsWith('AI subscription out of usage'))
+const results = [...history.values()].map((list) => ({ ...(list.filter(real).at(-1) ?? list.at(-1)), everFailed: list.some((r) => r.status === 'FAIL') }))
 
 /** Best result for a checklist line within its phase (word overlap; challenge items are "<title> — <item>"). */
 function match(phase, section, text) {

@@ -118,3 +118,5 @@ export function languageFor(path: string): string {
 
 /** Folders never synced, indexed or shown by default. */
 export const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', 'out', 'build', '.next', 'target', '__pycache__', '.venv', 'venv', '.hive'])
+
+export { runFailureHint } from './runHint'

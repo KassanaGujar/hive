@@ -1,6 +1,6 @@
 import { MonacoBinding } from 'y-monaco'
 import * as Y from 'yjs'
-import { setText, applyChangeOnto } from '@hive/collab'
+import { setText, applyChangeOnto, keepEnding } from '@hive/collab'
 import { invoke, on } from './api'
 import { getModel, monaco, uriFor } from './monaco'
 import { useStore } from '../store'
@@ -189,6 +189,7 @@ async function currentText(path: string) {
  * Returns false (nothing changed) when both changed the same lines.
  */
 export async function applyProposal(path: string, base: string, proposed: string): Promise<{ ok: boolean; merged?: boolean }> {
+  proposed = keepEnding(base, proposed)
   const current = await currentText(path)
   if (current === base || current === '') {
     await applyContent(path, proposed)

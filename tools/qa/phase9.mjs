@@ -4,7 +4,7 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import { Hive, check, record, assert, until, wait, freshDir, openFile, startRelay, share, join, OUT, REPO } from './lib.mjs'
+import { Hive, check, record, assert, until, wait, freshDir, openFile, startRelay, share, join, OUT, REPO, noteAiError } from './lib.mjs'
 import { CHALLENGES } from './challenges.mjs'
 import { testChatServer } from './chat-probe.mjs'
 const P = 'P9'
@@ -48,8 +48,11 @@ async function ask(app, dir, prompt) {
     const off=h.on('chat:chunk',(c)=>{if(id===null){early.push(c);return}if(c.streamId!==id)return;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true});
     id=await h.invoke('chat:stream',${JSON.stringify(model)},msgs);
     for(const c of early){if(c.streamId!==id)continue;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true}
-    const end=Date.now()+900000;while(!done&&!err&&Date.now()<end)await w(300);off();return {text,err,bases}`)
+    const end=Date.now()+900000;while(!done&&!err&&Date.now()<end)await w(300);off();return {text,err,bases}`, { timeoutMs: 960000 })
   const proposals = (await app.eval(`return H.chat.parseProposals(${JSON.stringify(r.text.replace(/<think>[\s\S]*?<\/think>/g, ''))})`)).map((p) => ({ ...p, base: r.bases?.[p.path] }))
+  noteAiError(r.err ?? ((r.text ?? '').length < 300 ? r.text : null)) // a short non-answer, not code that mentions limits
+  // "wrote nothing" used to hide why: say whether the AI failed, timed out, or answered without files
+  if (r.err || !proposals.length) console.log(`  ! [${app.name}] AI gave no files: ${r.err ?? 'no error'}; reply starts: ${JSON.stringify((r.text ?? '').slice(0, 160))}`)
   return { ...r, proposals }
 }
 async function acceptOwned(app, proposals, allowed) {
@@ -91,7 +94,11 @@ for (const pair of PAIRS) {
   let rounds = 1
   for (let r = 2; r <= 3 && failing.length; r++) {
     rounds = r
-    const fix = `I ran our app. Failing: \n${failing.map((f) => `- ${f}: ${resT.result?.[f] ?? '?'}`).join('\n')}\n${(resT.errors ?? []).slice(0, 4).join('\n')}\nFix it by changing ONLY the files you own (see CONTRACT.md). Output complete files.`
+    // Both AIs used to answer "I can't find a defect in my file" for three rounds while the bug sat where the halves
+    // meet (Chess: rules.js was a class, engine.js copied only own properties, so window.chess.load was missing).
+    // Like real teammates: a problem at the boundary is yours to fix on your side, adapting to the code as it IS.
+    const probeErr = resT.result?.probeError ? `\nTest error: ${String(resT.result.probeError).split('\n')[0]}` : ''
+    const fix = `I ran our app. Failing: \n${failing.map((f) => `- ${f}: ${resT.result?.[f] ?? '?'}`).join('\n')}\n${(resT.errors ?? []).slice(0, 4).join('\n')}${probeErr}\nFix it by changing ONLY the files you own (see CONTRACT.md). If the problem is where your code meets your teammate's, treat it as yours: read their file as it actually is (not as the contract describes it) and change your side so the two work together. Don't answer that your file has no defect; the app is broken, so change something that makes it work. Output complete files.`
     const [fa, fb] = await Promise.all([ask(tess, tdir, fix + `\n${pair.a.task}`), ask(omar, odir, fix + `\n${pair.b.task}`)])
     await acceptOwned(tess, fa.proposals, filesOf(pair.a.files))
     await acceptOwned(omar, fb.proposals, filesOf(pair.b.files))

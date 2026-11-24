@@ -66,6 +66,12 @@ describe('cli agents', () => {
     expect(cliErrorKind(crash.error!)).toBe('signed-out')
   })
 
+  it("knows Claude Code's newer limit messages mean out of usage (a QA run failed 13 tests on them)", () => {
+    for (const msg of ["You've hit your session limit · resets 9:10pm (America/New_York)", "You've hit your 5-hour limit · resets 4:10pm (America/New_York)", "You've reached your weekly limit · resets Mon 9am"])
+      expect(cliErrorKind(msg)).toBe('quota')
+    expect(cliErrorKind('Syntax error: unexpected token in line limit.js')).toBeNull()
+  })
+
   it('parses codex JSON lines, keeping the last agent message', () => {
     const out = [
       '{"type":"thread.started"}',
