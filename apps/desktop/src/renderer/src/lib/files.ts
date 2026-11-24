@@ -231,10 +231,14 @@ async function reloadFromDisk(path: string) {
 
 export function startDiskReload() {
   // Agents write inside .hive (not watched): refresh open copies and, if following, show the file.
-  const offAgents = on('agents:file', async ({ path }) => {
+  const offAgents = on('agents:file', async ({ path, agent, taskId, runId }) => {
     await reloadFromDisk(path)
     const st = useStore.getState()
-    if (st.followAgents) st.openFile(path)
+    // The live view keeps the files of the newest build, one tile per file, newest first.
+    const live = [{ path, agent, taskId, runId, at: Date.now() }, ...st.live.filter((f) => f.path !== path && f.runId === runId)].slice(0, 12)
+    // Following along means watching every file being written; the first write of a build switches to the live view.
+    const firstOfRun = !st.live.some((f) => f.runId === runId)
+    st.set({ live, ...(st.followAgents && firstOfRun ? { codeView: 'live' as const } : {}) })
   })
   const offDisk = on('fs:changed', async (e) => {
     if (e.kind !== 'change' || bindings.has(e.path)) return

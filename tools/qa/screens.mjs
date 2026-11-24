@@ -23,6 +23,12 @@ for (const t of ['dark', 'light']) {
   await a.openProject(dir)
   await a.eval(`H.store.getState().openFile('game.js');return 1`).catch(() => {})
   await shot(`${t}-workspace`)
+  // live view, fed as if three agents just wrote these files (caught mid-typing, then finished)
+  await a.eval(`const n=Date.now();H.store.getState().set({codeView:'live',live:[{path:'game.js',agent:'bee',runId:'r1',at:n},{path:'index.html',agent:'wasp',runId:'r1',at:n},{path:'style.css',agent:'ant',runId:'r1',at:n}]});return 1`)
+  await wait(150)
+  await a.shot(`${out}/${t}-live-typing.png`)
+  await shot(`${t}-live`)
+  await a.eval(`H.store.getState().set({codeView:'files'});return 1`)
   for (const page of ['chat', 'team', 'models', 'history', 'people']) {
     await a.eval(`H.store.getState().set({page:'${page}'});return 1`)
     await shot(`${t}-${page}`)

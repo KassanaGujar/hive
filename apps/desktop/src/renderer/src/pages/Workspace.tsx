@@ -13,6 +13,7 @@ import { AgentsPanel } from '../panels/AgentsPanel'
 import { FeedPanel } from '../panels/FeedPanel'
 import { TeamPanel } from '../panels/TeamPanel'
 import { ChatRoom } from './ChatRoom'
+import { LiveGrid } from '../components/LiveGrid'
 import { ModelStore } from './ModelStore'
 import icon from '../assets/icon.png'
 import { Avatar } from '../components/Avatar'
@@ -112,9 +113,7 @@ export function Workspace() {
 
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               <TopBar />
-              <div className="editor-pane-host min-h-0 flex-1">
-                <EditorArea />
-              </div>
+              <div className="editor-pane-host min-h-0 flex-1">{s.codeView === 'live' ? <LiveGrid /> : <EditorArea />}</div>
               {s.bottomOpen && (
                 <>
                   <Resizer dir="y" onDrag={(d) => setBottomH((h) => clamp(h - d, 100, 700))} />
@@ -193,6 +192,8 @@ function TopBar() {
   const settings = useStore((s) => s.settings)
   const safe = settings?.safeRun
   const askOpen = useStore((s) => s.right === 'chat')
+  const codeView = useStore((s) => s.codeView)
+  const liveCount = useStore((s) => s.live.length)
   const setSafe = async (patch: Partial<NonNullable<typeof safe>>) =>
     useStore.setState({ settings: await invoke('settings:set', { safeRun: { on: false, ...safe, ...patch } }) })
   return (
@@ -200,6 +201,14 @@ function TopBar() {
       <button className="display min-w-0 truncate rounded-md px-1 text-[14px] font-semibold text-fg hover:bg-panel2" onClick={closeProject} title={`${root} (click to close this project)`}>
         {root.split(/[\\/]/).pop()}
       </button>
+      <div className="seg shrink-0" role="group" aria-label="Code view">
+        <button aria-pressed={codeView === 'live'} onClick={() => useStore.getState().set({ codeView: 'live' })} title="Every file the AI team is writing, with their cursors">
+          Live{liveCount ? ` (${liveCount})` : ''}
+        </button>
+        <button aria-pressed={codeView === 'files'} onClick={() => useStore.getState().set({ codeView: 'files' })} title="Your files and tabs">
+          Files
+        </button>
+      </div>
       <div className="min-w-2 flex-1" />
       {run.previewUrl && (
         <button className="btn" onClick={() => openPreview(run.previewUrl!)}>

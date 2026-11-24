@@ -36,6 +36,14 @@ export type SidePanel = 'explorer' | 'search' | 'git'
 export type RightPanel = 'chat' | 'agents' | 'changes' | 'team'
 /** Top-level pages of a project, one job each (the rail on the left). */
 export type Page = 'code' | 'chat' | 'team' | 'models' | 'history' | 'people'
+/** A file an AI agent just wrote (newest first), for the Code page's live view. */
+export interface LiveFile {
+  path: string
+  agent: string
+  taskId?: string
+  runId: string
+  at: number
+}
 
 export interface Toast {
   id: number
@@ -53,6 +61,9 @@ interface State {
   focusedGroup: number
   dirty: Set<string>
   page: Page
+  /** Code page: every file the agents are writing at once (live), or the editor with tabs (files). */
+  codeView: 'live' | 'files'
+  live: LiveFile[]
   side: SidePanel | null
   right: RightPanel | null
   bottomOpen: boolean
@@ -99,6 +110,8 @@ export const useStore = create<State>((set, get) => ({
   focusedGroup: 0,
   dirty: new Set(),
   page: 'code',
+  codeView: 'files',
+  live: [],
   side: 'explorer',
   right: null,
   bottomOpen: true,
