@@ -259,7 +259,7 @@ export class ProjectSession {
       id: memberId(),
       name: profile?.name ?? 'Friend',
       color: profile?.color ?? COLORS[0],
-      avatar: profile?.avatar ?? '🐝'
+      avatar: profile?.avatar ?? 'hexagon'
     }
     this.provider?.destroy()
     const p = new HiveProvider(this.doc, {
@@ -285,7 +285,7 @@ export class ProjectSession {
       useStore.getState().set({ members: m })
       for (const x of m) {
         const before = prev.find((y) => y.id === x.id)
-        if (x.id !== me.id && x.online && before && !before.online) useStore.getState().toast(`${x.avatar} ${x.name} is here`)
+        if (x.id !== me.id && x.online && before && !before.online) useStore.getState().toast(`${x.name} is here`)
       }
     })
     p.on('synced', (hadOffline: boolean) => {

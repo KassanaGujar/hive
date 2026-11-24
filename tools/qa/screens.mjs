@@ -23,13 +23,11 @@ for (const t of ['dark', 'light']) {
   await a.openProject(dir)
   await a.eval(`H.store.getState().openFile('game.js');return 1`).catch(() => {})
   await shot(`${t}-workspace`)
-  for (const [name, call] of [['models', 'openModelStore'], ['planning', 'openPlanning']]) {
-    await a.eval(`H.actions.${call}?.();return 1`).catch((e) => console.log(name, e.message))
-    await shot(`${t}-${name}`)
-    await a.cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 })
-    await a.cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 })
-    await wait(400)
+  for (const page of ['chat', 'team', 'models', 'history', 'people']) {
+    await a.eval(`H.store.getState().set({page:'${page}'});return 1`)
+    await shot(`${t}-${page}`)
   }
+  await a.eval(`H.store.getState().set({page:'code'});return 1`)
   await a.cdp.send('Emulation.setDeviceMetricsOverride', { width: 1024, height: 700, deviceScaleFactor: 1, mobile: false })
   await shot(`${t}-workspace-small`)
   await a.cdp.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })

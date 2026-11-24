@@ -43,7 +43,7 @@ export function JoinDialog({ initial, onClose }: { initial: string; onClose: () 
       await ProjectSession.prepareJoin(dir, info)
       await openProject(dir)
       if (relay !== settings.relayUrl && codeOnly) useStore.getState().set({ settings: await invoke('settings:set', { relayUrl: relay }) })
-      useStore.getState().set({ right: 'team' })
+      useStore.getState().set({ page: 'people' })
       useStore.getState().toast(`Joined ${info.projectName}. Files are syncing…`, 'ok')
       onClose()
     } catch (e) {

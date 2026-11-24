@@ -34,8 +34,9 @@ export function App() {
       on('agents:update', (run) => useStore.getState().upsertRun(run)),
       on('agents:approval', (req) => {
         const s = useStore.getState()
-        s.set({ approvals: [...s.approvals, req], right: 'agents' })
-        s.toast(`${req.agent} needs your OK to run a command`, 'info')
+        // the AI team page shows it and the rail badge counts it; don't pull the person off the page they're on
+        s.set({ approvals: [...s.approvals, req] })
+        s.toast(`${req.agent} needs your OK to run a command`, 'info', { label: 'Review', run: () => useStore.getState().set({ page: 'team' }) })
       }),
       on('app:openInvite', ({ link }) => setJoinLink(link)),
       on('updater:ready', ({ version, manual }) =>

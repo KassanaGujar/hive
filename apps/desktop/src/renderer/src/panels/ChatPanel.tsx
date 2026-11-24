@@ -55,7 +55,7 @@ export function ChatPanel() {
       on('chat:chunk', ({ streamId: id, chunk, error }) => {
         if (id !== streamIdRef.current) return
         if (chunk.text) setMsgs((m) => [...m.slice(0, -1), { ...m[m.length - 1], content: m[m.length - 1].content + chunk.text }])
-        if (error) setMsgs((m) => [...m.slice(0, -1), { ...m[m.length - 1], content: m[m.length - 1].content + `\n\n⚠ ${error}` }])
+        if (error) setMsgs((m) => [...m.slice(0, -1), { ...m[m.length - 1], content: m[m.length - 1].content + `\n\nError: ${error}` }])
         if (chunk.done) setStreamId(null)
       }),
     []
@@ -85,13 +85,13 @@ export function ChatPanel() {
       streamIdRef.current = id
       setStreamId(id)
     } catch (e) {
-      setMsgs((m) => [...m.slice(0, -1), { role: 'assistant', content: `⚠ ${(e as Error).message}` }])
+      setMsgs((m) => [...m.slice(0, -1), { role: 'assistant', content: `Error: ${(e as Error).message}` }])
     }
   }
 
   const review = async (path: string, content: string) => {
     const original = monaco.editor.getModel(uriFor(path))?.getValue() ?? (await invoke('fs:read', path).catch(() => ''))
-    useStore.getState().openTab({ id: `proposal:${path}:${Date.now()}`, kind: 'diff', title: `✨ ${path.split('/').pop()}`, path, original, modified: content, proposal: true })
+    useStore.getState().openTab({ id: `proposal:${path}:${Date.now()}`, kind: 'diff', title: `Proposed: ${path.split('/').pop()}`, path, original, modified: content, proposal: true })
   }
 
   if (!models.length)

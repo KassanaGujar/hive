@@ -8,9 +8,6 @@ import { refreshTree, renameFile, deleteFile } from '../lib/actions'
 import { disposeModel, renameModel } from '../lib/monaco'
 import { session } from '../collab/session'
 
-const FILE_ICON: Record<string, string> = {
-  ts: '🟦', tsx: '🟦', js: '🟨', jsx: '🟨', json: '🧾', md: '📝', html: '🌐', css: '🎨', py: '🐍', go: '🐹', rs: '🦀', java: '☕', c: '©', cpp: '➕', png: '🖼', jpg: '🖼', svg: '🖼'
-}
 const TINT: Record<string, string> = { ts: '#6aa7e8', tsx: '#6aa7e8', js: '#e8c14a', jsx: '#e8c14a', mjs: '#e8c14a', html: '#f08a5d', css: '#63cdc4', scss: '#63cdc4', py: '#86d07d', go: '#63cdc4', rs: '#e0946a', java: '#e0946a', json: '#c9a86a', md: '#a69a86' }
 function FileIcon({ name }: { name: string }) {
   const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : ''

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Columns2, Plus, X } from 'lucide-react'
+import { Columns2, Eye, Plus, X } from 'lucide-react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
@@ -20,8 +20,8 @@ const mirrorTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 function themeFor(dark: boolean) {
   return dark
-    ? { background: '#16130f', foreground: '#f1e8d9', cursor: '#f7ab0a', selectionBackground: '#f7ab0a55', yellow: '#f7ab0a', green: '#86d07d', cyan: '#63cdc4', red: '#ff7565', blue: '#8fb7e8', magenta: '#d6a3e0', brightBlack: '#7d7262' }
-    : { background: '#ffffff', foreground: '#221c14', cursor: '#f0a400', selectionBackground: '#f0a40040' }
+    ? { background: '#05070c', foreground: '#eef2fa', cursor: '#f5b521', selectionBackground: '#7fb4ff55', yellow: '#f5b521', green: '#5fd38d', cyan: '#7fd8ff', red: '#ff6b5e', blue: '#7fb4ff', magenta: '#c9a3ff', brightBlack: '#56688f' }
+    : { background: '#ffffff', foreground: '#0b1a36', cursor: '#0b1a36', selectionBackground: '#2f6fd630' }
 }
 
 /** Turn "src/app.ts:12:5" style text into clickable links that open the file. */
@@ -167,7 +167,7 @@ export function TerminalPanel() {
 
   const openRemote = (key: string) => {
     const id = `remote:${key}`
-    if (!tabs.some((t) => t.id === id)) setTabs((t) => [...t, { id, title: `👀 ${key}`, remoteKey: key }])
+    if (!tabs.some((t) => t.id === id)) setTabs((t) => [...t, { id, title: `Watching ${key}`, remoteKey: key }])
     setActive([id])
   }
 
@@ -195,7 +195,7 @@ export function TerminalPanel() {
         <div className="flex-1" />
         {remote.map((k) => (
           <button key={k} className="btn-ghost text-[11px]" onClick={() => openRemote(k)} title="Watch a teammate's terminal">
-            👀 {k}
+            <Eye size={12} /> {k}
           </button>
         ))}
       </div>

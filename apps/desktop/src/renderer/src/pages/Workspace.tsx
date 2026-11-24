@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Bot, Boxes, Files, GitBranch, History, LayoutList, MessageSquare, Moon, Play, RotateCw, Search, Square, Sun, Users } from 'lucide-react'
-import { useStore, type RightPanel, type SidePanel } from '../store'
+import { Bot, Boxes, Code2, Files, GitBranch, History, MessageSquare, MessagesSquare, Moon, Play, RotateCw, Search, Square, Sun, Users } from 'lucide-react'
+import { useStore, type Page } from '../store'
 import { invoke, on } from '../lib/api'
-import { closeProject, newProjectFlow, openFolderFlow, openModelStore, openPlanning, openPreview, refreshModels, runProject } from '../lib/actions'
+import { closeProject, newProjectFlow, openFolderFlow, openPreview, refreshModels, runProject } from '../lib/actions'
 import { Explorer } from '../components/Explorer'
 import { SearchPanel } from '../components/SearchPanel'
 import { GitPanel } from '../components/GitPanel'
@@ -12,7 +12,10 @@ import { ChatPanel } from '../panels/ChatPanel'
 import { AgentsPanel } from '../panels/AgentsPanel'
 import { FeedPanel } from '../panels/FeedPanel'
 import { TeamPanel } from '../panels/TeamPanel'
+import { ChatRoom } from './ChatRoom'
+import { ModelStore } from './ModelStore'
 import icon from '../assets/icon.png'
+import { Avatar } from '../components/Avatar'
 
 export function Workspace() {
   const s = useStore()
@@ -62,75 +65,123 @@ export function Workspace() {
     }
   }, [])
 
-  const toggleSide = (p: SidePanel) => s.set({ side: s.side === p ? null : p })
-  const toggleRight = (p: RightPanel) => s.set({ right: s.right === p ? null : p, unread: p === 'changes' ? 0 : s.unread })
   const pendingApprovals = s.approvals.length
   const activeRuns = s.runs.filter((r) => ['planning', 'working', 'merging', 'awaiting-plan-approval', 'awaiting-merge-approval'].includes(r.phase)).length
+  const go = (page: Page) => s.set({ page, unread: page === 'history' ? 0 : s.unread })
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex min-h-0 flex-1">
-        {/* activity bar */}
-        <div className="flex w-11 flex-col items-center gap-1 border-r border-line bg-panel py-2">
-          <Act icon={<Files size={18} />} label="Files" active={s.side === 'explorer'} onClick={() => toggleSide('explorer')} />
-          <Act icon={<Search size={18} />} label="Search" active={s.side === 'search'} onClick={() => toggleSide('search')} />
-          <Act icon={<GitBranch size={18} />} label="Git" active={s.side === 'git'} onClick={() => toggleSide('git')} />
-          <Act icon={<Boxes size={18} />} label="Models" onClick={openModelStore} />
-          <Act icon={<LayoutList size={18} />} label="Planning room" onClick={openPlanning} />
+        {/* One rail, one page at a time: every part of Hive is a click away and no page carries another's job. */}
+        <nav className="rail" aria-label="Pages">
+          <img src={icon} alt="Hive" className="mb-3 h-7 w-7" />
+          <RailItem icon={<Code2 />} label="Code" page="code" current={s.page} go={go} />
+          <RailItem icon={<MessagesSquare />} label="Chat" page="chat" current={s.page} go={go} />
+          <RailItem icon={<Bot />} label="AI team" page="team" current={s.page} go={go} badge={pendingApprovals || activeRuns} />
+          <RailItem icon={<Boxes />} label="Models" page="models" current={s.page} go={go} />
+          <RailItem icon={<History />} label="History" page="history" current={s.page} go={go} badge={s.unread} />
+          <RailItem icon={<Users />} label="People" page="people" current={s.page} go={go} />
           <div className="flex-1" />
-          <Act
-            icon={s.settings?.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            label="Toggle theme"
+          <button
+            className="rail-item"
+            aria-label="Switch light or dark"
+            title="Switch light or dark"
             onClick={async () => s.set({ settings: await invoke('settings:set', { theme: s.settings?.theme === 'dark' ? 'light' : 'dark' }) })}
-          />
-        </div>
+          >
+            {s.settings?.theme === 'dark' ? <Sun /> : <Moon />}
+          </button>
+        </nav>
 
-        {s.side && (
+        {s.page === 'code' && (
           <>
-            <div className="flex min-w-0 flex-col border-r border-line bg-panel" style={{ width: sideW }}>
-              {s.side === 'explorer' && <Explorer />}
-              {s.side === 'search' && <SearchPanel />}
-              {s.side === 'git' && <GitPanel />}
-            </div>
-            <Resizer dir="x" onDrag={(d) => setSideW((w) => clamp(w + d, 160, 600))} />
-          </>
-        )}
+            {s.side && (
+              <>
+                <div className="flex min-w-0 flex-col border-r border-line bg-panel" style={{ width: sideW }}>
+                  <div className="flex shrink-0 gap-1 border-b border-line px-2 pt-2" role="tablist" aria-label="Side panel">
+                    <SideTab label="Files" icon={<Files size={14} />} on={s.side === 'explorer'} pick={() => s.set({ side: 'explorer' })} />
+                    <SideTab label="Search" icon={<Search size={14} />} on={s.side === 'search'} pick={() => s.set({ side: 'search' })} />
+                    <SideTab label="Git" icon={<GitBranch size={14} />} on={s.side === 'git'} pick={() => s.set({ side: 'git' })} />
+                  </div>
+                  {s.side === 'explorer' && <Explorer />}
+                  {s.side === 'search' && <SearchPanel />}
+                  {s.side === 'git' && <GitPanel />}
+                </div>
+                <Resizer dir="x" onDrag={(d) => setSideW((w) => clamp(w + d, 160, 600))} />
+              </>
+            )}
 
-        {/* centre */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <TopBar />
-          <div className="editor-pane-host min-h-0 flex-1">
-            <EditorArea />
-          </div>
-          {s.bottomOpen && (
-            <>
-              <Resizer dir="y" onDrag={(d) => setBottomH((h) => clamp(h - d, 100, 700))} />
-              <div className="shrink-0 overflow-hidden border-t border-line" style={{ height: bottomH }}>
-                <TerminalPanel />
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+              <TopBar />
+              <div className="editor-pane-host min-h-0 flex-1">
+                <EditorArea />
               </div>
-            </>
-          )}
-        </div>
-
-        {s.right && (
-          <>
-            <Resizer dir="x" onDrag={(d) => setRightW((w) => clamp(w - d, 280, 800))} />
-            <div className="flex min-w-0 flex-col border-l border-line bg-panel" style={{ width: rightW }}>
-              {s.right === 'chat' && <ChatPanel />}
-              {s.right === 'agents' && <AgentsPanel />}
-              {s.right === 'changes' && <FeedPanel />}
-              {s.right === 'team' && <TeamPanel />}
+              {s.bottomOpen && (
+                <>
+                  <Resizer dir="y" onDrag={(d) => setBottomH((h) => clamp(h - d, 100, 700))} />
+                  <div className="shrink-0 overflow-hidden border-t border-line" style={{ height: bottomH }}>
+                    <TerminalPanel />
+                  </div>
+                </>
+              )}
             </div>
+
+            {s.right === 'chat' && (
+              <>
+                <Resizer dir="x" onDrag={(d) => setRightW((w) => clamp(w - d, 280, 800))} />
+                <div className="flex min-w-0 flex-col border-l border-line bg-panel" style={{ width: rightW }}>
+                  <ChatPanel />
+                </div>
+              </>
+            )}
           </>
         )}
-        <div className="flex w-11 flex-col items-center gap-1 border-l border-line bg-panel py-2">
-          <Act icon={<MessageSquare size={18} />} label="Ask AI" active={s.right === 'chat'} onClick={() => toggleRight('chat')} />
-          <Act icon={<Bot size={18} />} label="AI team" active={s.right === 'agents'} badge={pendingApprovals || activeRuns || 0} onClick={() => toggleRight('agents')} />
-          <Act icon={<History size={18} />} label="History" active={s.right === 'changes'} badge={s.unread} onClick={() => toggleRight('changes')} />
-          <Act icon={<Users size={18} />} label="People" active={s.right === 'team'} onClick={() => toggleRight('team')} />
-        </div>
+        {s.page === 'chat' && (
+          <div className="editor-pane-host min-w-0 flex-1">
+            <ChatRoom />
+          </div>
+        )}
+        {s.page === 'team' && <FullPage title="AI team"><AgentsPanel /></FullPage>}
+        {s.page === 'models' && (
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <ModelStore />
+          </div>
+        )}
+        {s.page === 'history' && <FullPage title="History"><FeedPanel /></FullPage>}
+        {s.page === 'people' && <FullPage title="People"><TeamPanel /></FullPage>}
       </div>
       <StatusBar />
+    </div>
+  )
+}
+
+function RailItem({ icon, label, page, current, go, badge }: { icon: React.ReactNode; label: string; page: Page; current: Page; go: (p: Page) => void; badge?: number }) {
+  const on = page === current
+  return (
+    <button className="rail-item" aria-current={on ? 'page' : undefined} onClick={() => go(page)}>
+      {icon}
+      <span className="rail-label">{label}</span>
+      {!!badge && <span className="rail-badge">{badge}</span>}
+    </button>
+  )
+}
+
+function SideTab({ label, icon, on, pick }: { label: string; icon: React.ReactNode; on: boolean; pick: () => void }) {
+  return (
+    <button role="tab" aria-selected={on} onClick={pick} className={`-mb-px flex items-center gap-1.5 border-b-2 px-2 pb-1.5 text-[12px] font-semibold ${on ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
+      {icon}
+      {label}
+    </button>
+  )
+}
+
+/** A page that is one panel: a bold heading and the panel, at a readable width. */
+function FullPage({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0 flex-1 overflow-auto bg-bg">
+      <div className="mx-auto flex h-full max-w-[880px] flex-col px-8 pt-8">
+        <h1 className="display mb-4 text-[30px] leading-none">{title}</h1>
+        <div className="full-page min-h-0 flex-1">{children}</div>
+      </div>
     </div>
   )
 }
@@ -141,11 +192,11 @@ function TopBar() {
   const running = run.status === 'running'
   const settings = useStore((s) => s.settings)
   const safe = settings?.safeRun
+  const askOpen = useStore((s) => s.right === 'chat')
   const setSafe = async (patch: Partial<NonNullable<typeof safe>>) =>
     useStore.setState({ settings: await invoke('settings:set', { safeRun: { on: false, ...safe, ...patch } }) })
   return (
     <div className="flex h-10 items-center gap-2 border-b border-line bg-panel px-3">
-      <img src={icon} alt="" className="h-5 w-5 shrink-0" />
       <button className="display min-w-0 truncate rounded-md px-1 text-[14px] font-semibold text-fg hover:bg-panel2" onClick={closeProject} title={`${root} (click to close this project)`}>
         {root.split(/[\\/]/).pop()}
       </button>
@@ -163,6 +214,9 @@ function TopBar() {
           <input type="checkbox" checked={!!safe.allowNetwork} onChange={(e) => setSafe({ allowNetwork: e.target.checked })} /> Network
         </label>
       )}
+      <button className={askOpen ? 'btn border-accent text-fg' : 'btn'} aria-pressed={askOpen} onClick={() => useStore.getState().set({ right: askOpen ? null : 'chat' })} title="Ask AI about this code">
+        <MessageSquare size={13} /> Ask AI
+      </button>
       {running ? (
         <>
           <button className="btn" onClick={() => invoke('run:restart')} title="Restart">
@@ -188,7 +242,7 @@ function StatusBar() {
   const dot = s.collabStatus === 'online' ? 'bg-ok' : s.collabStatus === 'solo' ? 'bg-muted' : s.collabStatus === 'error' ? 'bg-bad' : 'bg-warn'
   return (
     <div className="flex h-7 items-center gap-4 border-t border-line bg-panel px-3 text-[11.5px] text-muted">
-      <button className="flex items-center gap-1.5 hover:text-fg" onClick={() => s.set({ right: 'team' })} title={s.collabError}>
+      <button className="flex items-center gap-1.5 hover:text-fg" onClick={() => s.set({ page: 'people' })} title={s.collabError}>
         <span className={`h-2 w-2 rounded-full ${dot}`} />
         {statusText}
       </button>
@@ -202,25 +256,11 @@ function StatusBar() {
         </span>
       ))}
       <div className="flex-1" />
-      <span>
-        {s.settings?.profile?.avatar} {s.settings?.profile?.name}
+      <span className="flex items-center gap-1.5">
+        <Avatar name={s.settings?.profile?.name} color={s.settings?.profile?.color} avatar={s.settings?.profile?.avatar} size={14} />
+        {s.settings?.profile?.name}
       </span>
     </div>
-  )
-}
-
-function Act({ icon, label, active, onClick, badge }: { icon: React.ReactNode; label: string; active?: boolean; onClick: () => void; badge?: number }) {
-  return (
-    <button
-      title={label}
-      aria-label={label}
-      onClick={onClick}
-      className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${active ? 'bg-panel2 text-accent' : 'text-muted hover:bg-panel2/60 hover:text-fg'}`}
-    >
-      {icon}
-      {active && <span className="absolute top-2 -left-[5px] h-5 w-[3px] rounded-full bg-accent" />}
-      {!!badge && <span className="absolute -top-0.5 -right-0.5 min-w-4 rounded-full bg-accent px-1 text-center text-[9px] font-bold text-accent-fg">{badge}</span>}
-    </button>
   )
 }
 

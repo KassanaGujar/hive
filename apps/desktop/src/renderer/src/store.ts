@@ -34,6 +34,8 @@ export interface Group {
 
 export type SidePanel = 'explorer' | 'search' | 'git'
 export type RightPanel = 'chat' | 'agents' | 'changes' | 'team'
+/** Top-level pages of a project, one job each (the rail on the left). */
+export type Page = 'code' | 'chat' | 'team' | 'models' | 'history' | 'people'
 
 export interface Toast {
   id: number
@@ -50,6 +52,7 @@ interface State {
   groups: Group[]
   focusedGroup: number
   dirty: Set<string>
+  page: Page
   side: SidePanel | null
   right: RightPanel | null
   bottomOpen: boolean
@@ -95,8 +98,9 @@ export const useStore = create<State>((set, get) => ({
   groups: [{ tabs: [], active: null }],
   focusedGroup: 0,
   dirty: new Set(),
+  page: 'code',
   side: 'explorer',
-  right: 'agents',
+  right: null,
   bottomOpen: true,
   run: { status: 'idle' },
   models: [],
@@ -196,7 +200,7 @@ export const useStore = create<State>((set, get) => ({
     const i = s.feed.findIndex((f) => f.id === ev.id)
     const feed = i >= 0 ? s.feed.map((f) => (f.id === ev.id ? ev : f)) : [ev, ...s.feed]
     feed.sort((a, b) => b.at - a.at)
-    set({ feed: feed.slice(0, 1000), unread: countUnread && i < 0 && s.right !== 'changes' ? s.unread + 1 : s.unread })
+    set({ feed: feed.slice(0, 1000), unread: countUnread && i < 0 && s.page !== 'history' ? s.unread + 1 : s.unread })
   }
 }))
 

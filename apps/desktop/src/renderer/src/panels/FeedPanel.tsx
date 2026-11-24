@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
-import { feedIcon } from '@hive/collab'
+import { Bot, FilePen, FilePlus, FileText, FileX, GitCommit, Play, UserRound, XCircle } from 'lucide-react'
 import type { FeedEvent } from '@hive/shared'
+
+/** Drawn icon per kind of change (no emoji). */
+function FeedIcon({ kind }: { kind: FeedEvent['kind'] }) {
+  const Icon = kind === 'file.deleted' ? FileX : kind === 'file.created' ? FilePlus : kind.startsWith('file.') ? FilePen : kind === 'git.commit' ? GitCommit : kind.startsWith('agent.') ? Bot : kind === 'run.failed' ? XCircle : kind.startsWith('run.') ? Play : kind.startsWith('member.') ? UserRound : FileText
+  const tone = kind.startsWith('agent.') ? 'text-wing' : kind === 'run.failed' || kind === 'file.deleted' ? 'text-bad' : 'text-muted'
+  return <Icon size={13} className={tone} />
+}
 import { timeAgo } from '../lib/api'
 import { useStore } from '../store'
 
@@ -49,7 +56,7 @@ export function FeedPanel() {
         {list.map((ev) => (
           <button key={ev.id} onClick={() => open(ev)} className="mb-1 block w-full rounded-md px-2 py-1.5 text-left hover:bg-panel2">
             <div className="flex items-start gap-2">
-              <span className="w-4 text-center">{feedIcon(ev.kind)}</span>
+              <span className="flex w-4 justify-center pt-0.5"><FeedIcon kind={ev.kind} /></span>
               <div className="min-w-0 flex-1">
                 <div className="truncate">
                   <b className={ev.actorType === 'agent' ? 'text-accent' : ''}>{ev.actor}</b> {ev.summary}

@@ -4,6 +4,7 @@ import type { ChatMsg } from '@hive/collab'
 import { invoke, timeAgo } from '../lib/api'
 import { useStore } from '../store'
 import { session, memberId } from '../collab/session'
+import { Avatar } from '../components/Avatar'
 
 /** Invite, members (roles, remove), relay settings and the project chat. */
 export function TeamPanel() {
@@ -112,8 +113,8 @@ export function TeamPanel() {
             <div className="label mb-1">People ({members.length}/10)</div>
             {members.map((m) => (
               <div key={m.id} className="flex items-center gap-2 rounded px-1 py-1 hover:bg-panel2">
-                <span className="relative text-lg">
-                  {m.avatar}
+                <span className="relative">
+                  <Avatar name={m.name} color={m.color} avatar={m.avatar} size={20} />
                   <span className={`absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full ring-2 ring-panel ${m.online ? 'bg-ok' : 'bg-muted'}`} />
                 </span>
                 <span className="flex-1 truncate" style={{ color: m.color }}>
@@ -143,7 +144,6 @@ export function TeamPanel() {
           </button>
         )}
       </div>
-      <ChatChannel channel="project" />
     </div>
   )
 }
@@ -159,7 +159,8 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
 
   useEffect(() => {
     if (!s) return
-    const update = () => setMsgs(s.parts.chat.toArray().filter((m) => m.channel === channel))
+    // The group chat on the Chat page is the planning channel; older project-chat messages show there too.
+    const update = () => setMsgs(s.parts.chat.toArray().filter((m) => m.channel === channel || (channel === 'planning' && m.channel === 'project')))
     update()
     s.parts.chat.observe(update)
     const notify = (e: import('yjs').YArrayEvent<ChatMsg>, tr: import('yjs').Transaction) => {
@@ -194,9 +195,9 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
 
   return (
     <div className="flex min-h-0 flex-1 flex-col border-t border-line">
-      <div className="label px-3 pt-2">{channel === 'project' ? 'Project chat' : 'Team chat'}</div>
+      <div className="label px-3 pt-2">{channel === 'project' ? 'Project chat' : 'Group chat'}</div>
       <div className="min-h-0 flex-1 overflow-auto px-3 py-2">
-        {msgs.length === 0 && <div className="text-muted">{channel === 'planning' ? 'Pitch ideas here. The Planner turns them into the plan.' : 'Say hi. Use @name to mention someone and path:line to link code.'}</div>}
+        {msgs.length === 0 && <div className="text-muted">{channel === 'planning' ? 'Talk it through here. The Planner turns what you agree on into the plan.' : 'Say hi. Use @name to mention someone and path:line to link code.'}</div>}
         {msgs.map((m) => (
           <div key={m.id} className="mb-2">
             <div className="text-[11px]">
@@ -216,7 +217,7 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
           <div className="absolute bottom-full left-2 mb-1 rounded-md border border-line bg-panel py-1 shadow-lg">
             {suggestions.map((m) => (
               <button key={m.id} className="block w-full px-3 py-0.5 text-left hover:bg-panel2" onClick={() => setText(text.replace(/@\w*$/, `@${m.name} `))}>
-                {m.avatar} {m.name}
+                <span className="inline-flex items-center gap-1.5"><Avatar name={m.name} color={m.color} avatar={m.avatar} size={13} />{m.name}</span>
               </button>
             ))}
           </div>
@@ -224,7 +225,7 @@ export function ChatChannel({ channel, onSend }: { channel: ChatMsg['channel']; 
         <div className="flex gap-2">
           <input
             className="input"
-            placeholder={channel === 'planning' ? 'Pitch an idea…' : 'Message the team…'}
+            placeholder="Message the group…"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && send()}

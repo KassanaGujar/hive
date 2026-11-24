@@ -6,6 +6,7 @@ import { AVATARS, COLORS, fmtGB, invoke } from '../lib/api'
 import { useStore } from '../store'
 import { refreshModels } from '../lib/actions'
 import icon from '../assets/icon.png'
+import { Avatar } from '../components/Avatar'
 
 type Step = 'profile' | 'machine' | 'model' | 'done'
 
@@ -40,11 +41,11 @@ export function SetupWizard() {
               <input className="input text-[14px]" autoFocus value={name} placeholder="What should friends see?" onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <div className="label mb-1">Avatar</div>
-              <div className="flex flex-wrap gap-1">
+              <div className="label mb-1">Badge</div>
+              <div className="flex flex-wrap gap-1.5">
                 {AVATARS.map((a) => (
-                  <button key={a} onClick={() => setAvatar(a)} className={`h-9 w-9 rounded-md text-xl ${a === avatar ? 'bg-accent/30 ring-2 ring-accent' : 'bg-panel2'}`}>
-                    {a}
+                  <button key={a} onClick={() => setAvatar(a)} aria-label={a} aria-pressed={a === avatar} className={`flex h-10 w-10 items-center justify-center rounded-lg ${a === avatar ? 'bg-panel2 ring-2 ring-accent' : 'hover:bg-panel2'}`}>
+                    <Avatar name={name} color={color} avatar={a} size={26} title={a} />
                   </button>
                 ))}
               </div>
@@ -68,7 +69,7 @@ export function SetupWizard() {
         {step === 'model' && <ModelStep onNext={() => setStep('done')} />}
         {step === 'done' && (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="text-4xl">🎉</div>
+            <img src={icon} alt="" className="h-14 w-14" />
             <div className="text-[15px] font-semibold">You're set up.</div>
             <div className="text-muted">Start a new project, or join a friend's with their invite code.</div>
             <button

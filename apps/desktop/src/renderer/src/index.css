@@ -7,9 +7,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Hive's look comes from the hive itself: propolis-dark surfaces (warm umber, never blue-black),
- * wax-cream text, honey as the one accent, and a cool "wing" teal reserved for AI agents.
- * The single showpiece is the honeycomb of agents; everything else stays quiet.
+ * Bold and modern: black page, navy panels, gold for the one main action and highlights, sky blue reserved for the
+ * AI agents (their cursors, their cells). Heavy display type for headings. No emoji anywhere: icons and drawn badges.
  */
 @theme {
   --color-bg: var(--bg);
@@ -31,39 +30,41 @@
 }
 
 :root {
-  /* light: plain paper with honey; warmth lives in the accent, not the page */
+  /* light: white page, navy ink, gold accent */
   --bg: #ffffff;
-  --panel: #f6f5f2;
-  --panel2: #eceae5;
+  --panel: #eef2f8;
+  --panel2: #e2e8f2;
   --raise: #ffffff;
-  --line: #dcd8cf;
-  --fg: #221c14;
-  --muted: #6d6456;
-  --accent: #f0a400;
-  --accent-fg: #221600;
-  --wing: #0f8f88;
-  --ok: #2c8a3f;
+  --line: #cfd8e6;
+  --fg: #0b1a36;
+  --muted: #55668a;
+  --accent: #e0a000;
+  --accent-fg: #0b1a36;
+  --wing: #2f6fd6;
+  --ok: #1f8a4c;
   --warn: #a86700;
-  --bad: #c43b2e;
-  --shadow: 0 8px 30px rgba(60, 40, 0, 0.14);
+  --bad: #c8372d;
+  --navy: #0c1630;
+  --shadow: 0 10px 30px rgba(11, 26, 54, 0.14);
 }
 
 .dark {
-  /* dark: propolis */
-  --bg: #16130f;
-  --panel: #1d1915;
-  --panel2: #29231c;
-  --raise: #2f2820;
-  --line: #3a3228;
-  --fg: #f1e8d9;
-  --muted: #a69a86;
-  --accent: #f7ab0a;
-  --accent-fg: #201500;
-  --wing: #63cdc4;
-  --ok: #86d07d;
-  --warn: #ffb648;
-  --bad: #ff7565;
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  /* dark: black page, navy panels */
+  --bg: #05070c;
+  --panel: #0c1630;
+  --panel2: #12203f;
+  --raise: #172a50;
+  --line: #1f3158;
+  --fg: #eef2fa;
+  --muted: #8b9cc0;
+  --accent: #f5b521;
+  --accent-fg: #05070c;
+  --wing: #7fb4ff;
+  --ok: #5fd38d;
+  --warn: #ffbf4d;
+  --bad: #ff6b5e;
+  --navy: #0c1630;
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
 }
 
 html,
@@ -158,7 +159,8 @@ button:disabled {
 }
 .display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 .pane-title {
   font-family: var(--font-display);
@@ -241,6 +243,93 @@ button:disabled {
   .comb-cell:active {
     transform: none;
   }
+}
+
+/* Page rail: icon over a short label, gold bar on the current page. Navy in both themes so the frame reads bold. */
+.rail {
+  display: flex;
+  width: 68px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 0 10px;
+  background: var(--navy);
+  color: #8b9cc0;
+}
+.rail-item {
+  position: relative;
+  display: flex;
+  width: 58px;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-radius: 10px;
+  padding: 8px 0 6px;
+  color: inherit;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+.rail-item svg {
+  width: 19px;
+  height: 19px;
+}
+.rail-label {
+  font-size: 10.5px;
+  font-weight: 650;
+  line-height: 1;
+}
+.rail-item:hover {
+  color: #eef2fa;
+  background: rgb(255 255 255 / 0.06);
+}
+.rail-item[aria-current='page'] {
+  color: #f5b521;
+  background: rgb(245 181 33 / 0.1);
+}
+.rail-item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 3px;
+  background: #f5b521;
+}
+.rail-item:active {
+  transform: scale(0.96);
+}
+.rail-badge {
+  position: absolute;
+  top: 3px;
+  right: 9px;
+  min-width: 16px;
+  border-radius: 8px;
+  padding: 1px 4px;
+  background: #f5b521;
+  color: #05070c;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 14px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-item {
+    transition: none;
+  }
+  .rail-item:active {
+    transform: none;
+  }
+}
+
+/* Panels shown as whole pages drop their own docked chrome (the page heading replaces it) */
+.full-page > div {
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+.full-page .pane-title {
+  visibility: hidden;
 }
 
 /* Planning room: side by side when there's room; stacked (chat above the plan) when the editor pane is narrow, where

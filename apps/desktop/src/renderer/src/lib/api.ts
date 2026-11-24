@@ -29,4 +29,5 @@ export function fmtBytes(b: number) {
 }
 
 export const COLORS = ['#f5b400', '#3ccf7a', '#5aa9ff', '#ff6b8b', '#b98cff', '#ff9f43', '#2ed1c4', '#e86bff']
-export const AVATARS = ['🐝', '🦊', '🐼', '🐙', '🦉', '🐸', '🐯', '🦄', '🐧', '🐨', '🦖', '🐳']
+/** Badge ids (see components/Avatar): drawn icons, never emoji. */
+export const AVATARS = ['zap', 'rocket', 'leaf', 'flame', 'star', 'code', 'compass', 'anchor', 'feather', 'mountain', 'music', 'hexagon']

@@ -8,7 +8,7 @@ import { session } from '../collab/session'
 import { ChatChannel } from '../panels/TeamPanel'
 import { AUTO_EVERY, resolveProposal, runPlanner, undoPlannerEdit, unreadPlanning } from '../collab/planner'
 
-/** F7: team chat on the left, the living plan doc on the right. */
+/** The group chat beside the living plan doc (shown inside the Chat page). */
 export function PlanningRoom() {
   const s = session()
   const toast = useStore((st) => st.toast)
@@ -64,8 +64,8 @@ export function PlanningRoom() {
       const prd = planToMarkdown(items, `${s.root.split(/[\\/]/).pop() ?? 'Project'} — plan`)
       await applyContent('PLAN.md', prd) // through live sync, so teammates get it too
       await invoke('agents:start', goal, tasks.map((t) => ({ title: t.text, description: [t.owner && `owner: ${t.owner}`].filter(Boolean).join('') })), prd)
-      useStore.getState().set({ right: 'agents' })
-      toast('Sent to the agents. Approve their plan in the Agents panel.', 'ok')
+      useStore.getState().set({ page: 'team' })
+      toast('Sent to the agents. Approve their plan on the AI team page.', 'ok')
     } catch (e) {
       toast((e as Error).message, 'error')
     }
@@ -128,7 +128,7 @@ export function PlanningRoom() {
           )}
           {items.length === 0 && proposals.length === 0 && (
             <p className="mb-5 max-w-md text-muted">
-              Nothing planned yet. Pitch ideas in the team chat and press Update plan, or add items yourself with the + next to each heading.
+              Nothing planned yet. Talk it through in the group chat and press Update plan, or add items yourself with the + next to each heading.
             </p>
           )}
           {PLAN_SECTIONS.map((sec) => (

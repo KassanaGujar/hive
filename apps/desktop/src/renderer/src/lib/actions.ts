@@ -113,9 +113,9 @@ export function openPreview(url: string) {
 }
 
 export function openModelStore() {
-  useStore.getState().openTab({ id: 'models', kind: 'models', title: 'Models' })
+  useStore.getState().set({ page: 'models' })
 }
 
 export function openPlanning() {
-  useStore.getState().openTab({ id: 'planning', kind: 'planning', title: 'Planning room' })
+  useStore.getState().set({ page: 'chat' })
 }

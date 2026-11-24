@@ -68,12 +68,3 @@ export function shouldCoalesce(last: FeedEvent | undefined, ev: FeedEvent): bool
   )
 }
 
-export function feedIcon(kind: FeedKind): string {
-  if (kind.startsWith('file.')) return kind === 'file.deleted' ? '🗑' : kind === 'file.created' ? '✚' : '✎'
-  if (kind === 'git.commit') return '⎇'
-  if (kind.startsWith('agent.')) return '🐝'
-  if (kind === 'run.failed') return '✖'
-  if (kind.startsWith('run.')) return '▶'
-  if (kind.startsWith('member.')) return '👤'
-  return '📝'
-}
