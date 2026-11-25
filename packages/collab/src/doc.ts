@@ -98,6 +98,25 @@ function lineChanges(a: string[], b: string[]) {
 }
 
 /**
+ * Accept was refused because someone changed the same lines after the AI read the file (two people asking the AI to
+ * change one function). Instead of leaving the second person stuck, ask the AI to redo its change on the file as it is
+ * now, keeping the other change. The reply is a normal proposal for `path`.
+ */
+export function redoPrompt(path: string, base: string, proposed: string, current: string): string {
+  const block = (s: string) => '```' + path + '\n' + s + (s.endsWith('\n') ? '' : '\n') + '```'
+  return [
+    `You proposed a change to ${path}, but someone else changed the same part of the file before it was applied.`,
+    `The file as you saw it:`,
+    block(base),
+    `Your proposed version:`,
+    block(proposed),
+    `The file as it is now (with the other person's change):`,
+    block(current),
+    `Make your change again on top of the file as it is now. Keep the other person's change too, combining the two where they touch the same code. Output the complete file in one \`\`\`${path} code block and nothing else.`
+  ].join('\n\n')
+}
+
+/**
  * An AI reply's code block often ends with an extra blank line or two. Treated as an edit, that "changed" the end of
  * the file in every proposal, so two people accepting AI changes to different functions conflicted. The file keeps
  * its own ending; only blank lines and spaces at the very end are affected.

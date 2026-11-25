@@ -57,7 +57,7 @@ async function ask(app, dir, prompt) {
 }
 async function acceptOwned(app, proposals, allowed) {
   const ok = proposals.filter((p) => allowed.some((f) => p.path === f || p.path.endsWith('/' + f)))
-  for (const p of ok) await app.eval(`const __r=await H.files.applyProposal(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??(await h.invoke('fs:read',${JSON.stringify(p.path)}).catch(()=>'')),${JSON.stringify(p.content)});if(!__r.ok)throw new Error('Accept refused: '+${JSON.stringify(p.path)}+' changed in the same place since the AI read it');return 1`)
+  for (const p of ok) await app.eval(`const __r=await H.files.applyProposal(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??(await h.invoke('fs:read',${JSON.stringify(p.path)}).catch(()=>'')),${JSON.stringify(p.content)});let __x=__r;if(!__r.ok)__x=await H.files.redoOnLatest(${JSON.stringify(p.path)},${JSON.stringify(p.base ?? null)}??'',${JSON.stringify(p.content)},${JSON.stringify(model)});if(!__x.ok)throw new Error('Accept refused, and Apply to latest version failed ('+(__x.error??'same place changed again')+'): '+${JSON.stringify(p.path)}+' changed in the same place since the AI read it');return 1`)
   await wait(1500)
   return ok.map((p) => p.path)
 }
@@ -69,10 +69,16 @@ async function probe(app, c, dir, tag) {
   writeFileSync(pf, c.probe)
   spawnSync(process.execPath, [path.join(REPO, 'node_modules/electron/cli.js'), path.join(REPO, 'tools/qa/pagecheck.cjs'), pf, of, `${OUT}/collab-${c.id}-${tag}.png`], { timeout: 120000, stdio: 'ignore', env: { ...process.env, PAGECHECK_URL: st.previewUrl } })
   await app.invoke('run:stop')
-  return existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: {}, errors: ['probe produced no output'] }
+  const out = existsSync(of) ? JSON.parse(readFileSync(of, 'utf8')) : { result: {}, errors: ['probe produced no output'] }
+  // the page script can't judge this one itself: it comes from the page's errors (the other runners did this, Phase 9
+  // didn't, so Snake's last item was "?" even with no errors at all)
+  if (c.items.includes('The game runs without errors') && out.result)
+    out.result['The game runs without errors'] = !(out.errors ?? []).length && !out.result.probeError ? true : String((out.errors ?? [])[0] ?? out.result.probeError).slice(0, 200)
+  return out
 }
 const filesOf = (s) => s.split(/,| and /).map((x) => x.trim()).filter(Boolean)
-const results = process.env.QA_SKIP_PAIRS && existsSync(`${OUT}/phase9.json`) ? JSON.parse(readFileSync(`${OUT}/phase9.json`, 'utf8')) : {}
+// rerunning some pairs (or none) keeps the other pairs' last results, so the summary checks count all of them
+const results = (process.env.QA_SKIP_PAIRS || only.length) && existsSync(`${OUT}/phase9.json`) ? JSON.parse(readFileSync(`${OUT}/phase9.json`, 'utf8')) : {}
 for (const pair of PAIRS) {
   const c = C[pair.challenge]
   const tdir = freshDir(`p9-${pair.id}-tess`) + '/proj'
@@ -99,8 +105,13 @@ for (const pair of PAIRS) {
     // Like real teammates: a problem at the boundary is yours to fix on your side, adapting to the code as it IS.
     const probeErr = resT.result?.probeError ? `\nTest error: ${String(resT.result.probeError).split('\n')[0]}` : ''
     const fix = `I ran our app. Failing: \n${failing.map((f) => `- ${f}: ${resT.result?.[f] ?? '?'}`).join('\n')}\n${(resT.errors ?? []).slice(0, 4).join('\n')}${probeErr}\nFix it by changing ONLY the files you own (see CONTRACT.md). If the problem is where your code meets your teammate's, treat it as yours: read their file as it actually is (not as the contract describes it) and change your side so the two work together. Don't answer that your file has no defect; the app is broken, so change something that makes it work. Output complete files.`
-    const [fa, fb] = await Promise.all([ask(tess, tdir, fix + `\n${pair.a.task}`), ask(omar, odir, fix + `\n${pair.b.task}`)])
+    // Take turns, like teammates fixing a shared bug: asked at the same moment, each side adapted to the OTHER's old
+    // code and the mismatch just moved (Pathfinding: ui.js switched to passing its own grid while algorithms.js
+    // switched to the contract's shape). Tess fixes first; Omar then sees her updated files before changing his.
+    const fa = await ask(tess, tdir, fix + `\n${pair.a.task}`)
     await acceptOwned(tess, fa.proposals, filesOf(pair.a.files))
+    await wait(2500)
+    const fb = await ask(omar, odir, fix + `\nTess has just made her fix (her files above are the updated ones). Change your files only where they still don't fit hers.\n${pair.b.task}`)
     await acceptOwned(omar, fb.proposals, filesOf(pair.b.files))
     await wait(2500)
     resT = await probe(tess, c, tdir, 'r' + r)
@@ -155,8 +166,10 @@ await check(P, 'Collaborators integrate code written in separate files', async (
   return `${ok}/${Object.keys(results).length} pair challenges integrated into a fully working app`
 })
 await check(P, "Collaborators debug each other's code", async () => {
-  await tess.invoke('fs:write', 'render.js', "function draw(p) { return 'player at ' + p.y + ',' + p.x }\nmodule.exports = { draw }\n")
-  await until(async () => (await doc(omar, 'render.js')).includes('p.y +'), 8000)
+  // Tess edits like a person, through the editor. A raw fs:write is Hive's own internal write, which the watcher
+  // ignores on purpose, so it never reached Omar and his AI had nothing to fix ("player at 2,1" for days).
+  await tess.eval(`await H.files.applyContent('render.js', ${JSON.stringify("function draw(p) { return 'player at ' + p.y + ',' + p.x }\nmodule.exports = { draw }\n")});return 1`)
+  assert(await until(async () => (await doc(omar, 'render.js')).includes('p.y +'), 8000), "Tess's change never reached Omar")
   const r = await ask(omar, odir, "Tess's draw() prints the coordinates in the wrong order (should be x then y). Fix render.js.")
   await acceptOwned(omar, r.proposals, ['render.js'])
   await until(() => readFileSync(gdir + '/render.js', 'utf8').includes('p.x + '), 8000)

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Columns2, RotateCw, X } from 'lucide-react'
 import { monaco } from '../lib/monaco'
-import { ensureModel, attachEditor, applyProposal, startDiskReload } from '../lib/files'
+import { ensureModel, attachEditor, applyProposal, redoOnLatest, startDiskReload } from '../lib/files'
 import { useStore, type Tab } from '../store'
 import { languageFor } from '@hive/editor'
 import { ModelStore } from '../pages/ModelStore'
@@ -228,6 +228,22 @@ function DiffView({ tab }: { tab: Extract<Tab, { kind: 'diff' }> }) {
     }
   }, [tab.id])
 
+  // Accept was refused (the same lines changed after the AI read the file): offer to redo the change on top
+  const [clash, setClash] = useState(false)
+  const [redoing, setRedoing] = useState(false)
+  const redo = async () => {
+    const st = useStore.getState()
+    const modelId = st.chatModel ?? st.models[0]?.id
+    if (!modelId) return st.toast('Pick a model in Ask AI first.', 'error')
+    const m = (window as any).__hiveDiff?.[tab.id] as monaco.editor.ITextModel | undefined
+    setRedoing(true)
+    const r = await redoOnLatest(tab.path, tab.original, m?.getValue() ?? tab.modified, modelId).finally(() => setRedoing(false))
+    if (!r.ok) return st.toast(`Couldn't redo the change on the latest ${tab.path}${r.error ? `: ${r.error}` : ''}. Copy the parts you want from the right side.`, 'error')
+    st.toast(`Redid the AI's change on the latest ${tab.path}, keeping the other edit`, 'ok')
+    st.openFile(tab.path)
+    st.closeTab(tab.id)
+  }
+
   const decide = async (accept: boolean) => {
     const st = useStore.getState()
     if (accept) {
@@ -235,7 +251,8 @@ function DiffView({ tab }: { tab: Extract<Tab, { kind: 'diff' }> }) {
       const r = await applyProposal(tab.path, tab.original, m?.getValue() ?? tab.modified)
       if (!r.ok) {
         // keep the tab open so nothing is lost
-        st.toast(`${tab.path} changed in the same place since the AI read it. Ask again, or copy the parts you want from the right side.`, 'error')
+        setClash(true)
+        st.toast(`Someone changed the same part of ${tab.path} after the AI read it. Press "Apply to latest version" to have the AI redo its change on top.`, 'error')
         return
       }
       st.toast(r.merged ? `Applied the AI's changes to ${tab.path}, keeping the edits made since` : `Applied changes to ${tab.path}`, 'ok')
@@ -255,9 +272,15 @@ function DiffView({ tab }: { tab: Extract<Tab, { kind: 'diff' }> }) {
             <button className="btn" onClick={() => decide(false)}>
               Reject
             </button>
-            <button className="btn-primary" onClick={() => decide(true)}>
-              Accept
-            </button>
+            {clash ? (
+              <button className="btn-primary" disabled={redoing} onClick={redo} title="The AI redoes its change on the file as it is now, keeping the other edit">
+                {redoing ? 'Redoing…' : 'Apply to latest version'}
+              </button>
+            ) : (
+              <button className="btn-primary" onClick={() => decide(true)}>
+                Accept
+              </button>
+            )}
           </>
         )}
       </div>

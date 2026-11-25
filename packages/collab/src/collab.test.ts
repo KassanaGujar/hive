@@ -4,7 +4,7 @@ import { applyPlannerEdits, humanEdit, planToMarkdown, undoEdit, type PlanItem }
 import { diffPreview, makeFeedEvent, shouldCoalesce } from './feed'
 import { decrypt, encrypt, importKey, newRoomKey } from './crypto'
 import { newInviteCode, parseInvite, inviteLink } from './invite'
-import { setText, applyChangeOnto } from './doc'
+import { setText, applyChangeOnto, redoPrompt } from './doc'
 
 describe('planner edits', () => {
   it('adds items traced to their messages and dedupes', () => {
@@ -109,6 +109,17 @@ describe('applyChangeOnto (accepting an AI proposal made against an older copy)'
     expect(applyChangeOnto(base, both, both)).toBe(both)
     const ai = base.replace('return 1', 'return 10').replace('return 3', 'return 30')
     expect(applyChangeOnto(base, ai, both)).toBe(ai)
+  })
+})
+
+describe('redoPrompt (Accept refused because someone changed the same lines)', () => {
+  it('gives the AI the three versions and asks for the whole current file with its change on top', () => {
+    const p = redoPrompt('game.js', 'move(x)\n', 'move(x + 1)\n', 'move(min(x, 100))\n')
+    expect(p).toContain('```game.js\nmove(x)\n```') // what it saw
+    expect(p).toContain('```game.js\nmove(x + 1)\n```') // what it proposed
+    expect(p).toContain('```game.js\nmove(min(x, 100))\n```') // the file now
+    expect(p).toMatch(/keep.*(teammate|other).*change/i)
+    expect(p).toMatch(/complete/i)
   })
 })
 

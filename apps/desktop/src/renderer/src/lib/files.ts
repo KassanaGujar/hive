@@ -1,6 +1,7 @@
 import { MonacoBinding } from 'y-monaco'
 import * as Y from 'yjs'
-import { setText, applyChangeOnto, keepEnding } from '@hive/collab'
+import { setText, applyChangeOnto, keepEnding, redoPrompt } from '@hive/collab'
+import { parseProposals, stripThinking } from '@hive/models'
 import { invoke, on } from './api'
 import { getModel, monaco, uriFor } from './monaco'
 import { useStore } from '../store'
@@ -200,6 +201,27 @@ export async function applyProposal(path: string, base: string, proposed: string
   if (merged === false) return { ok: false }
   await applyContent(path, merged)
   return { ok: true, merged: true }
+}
+
+/**
+ * "Apply to latest version": Accept was refused because the same lines changed meanwhile. Ask the AI (the model the
+ * chat uses) to redo its change on the file as it is now, keeping the other change, then apply that. Returns the same
+ * shape as applyProposal; ok is false when the AI gave no usable file or the file changed yet again.
+ */
+export async function redoOnLatest(path: string, base: string, proposed: string, modelId: string): Promise<{ ok: boolean; merged?: boolean; error?: string }> {
+  const current = await currentText(path)
+  let reply: string
+  try {
+    reply = await invoke('chat:once', modelId, [
+      { role: 'system', content: 'You are a careful programmer merging two changes to one file.' },
+      { role: 'user', content: redoPrompt(path, base, proposed, current) }
+    ])
+  } catch (e) {
+    return { ok: false, error: (e as Error).message }
+  }
+  const next = parseProposals(stripThinking(reply)).find((p) => p.path === path)?.content
+  if (!next) return { ok: false, error: 'The AI did not send back the file.' }
+  return applyProposal(path, current, next)
 }
 
 /** Apply new content to a file (AI proposal accepted, etc.), keeping undo history. */
