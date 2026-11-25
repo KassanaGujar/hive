@@ -24,7 +24,7 @@ async function ask(prompt, ctxFiles = [], { app = a, mdl = model, timeoutMs = 30
   const r = await app.eval(`
     const ctx=${JSON.stringify(ctxFiles)};
     let user='';const bases={};
-    for(const f of ctx){const t=await h.invoke('fs:read',f);bases[f]=t;user+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
+    for(const f of ctx){const t=H.monaco.editor.getModel(H.monaco.Uri.parse('hive:///'+f))?.getValue()??H.session()?.parts?.files?.get(f)?.toString()??await h.invoke('fs:read',f);bases[f]=t;user+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
     user+=${JSON.stringify(prompt)};
     const msgs=[{role:'system',content:H.chat.SYSTEM},{role:'user',content:user}];
     let text='',err=null,done=false,id=null;const early=[];

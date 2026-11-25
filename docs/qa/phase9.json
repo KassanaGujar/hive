@@ -7,23 +7,12 @@
    "index.html",
    "ui.js"
   ],
-  "rounds": 3,
-  "passT": 0,
-  "passO": 0,
+  "rounds": 1,
+  "passT": 10,
+  "passO": 10,
   "total": 10,
-  "failing": {
-   "Create a playable Snake game": "no canvas or snake does not move on its own",
-   "Directional movement": "?",
-   "Food generation": "?",
-   "Snake growth": "?",
-   "Wall collision": "?",
-   "Self-collision": "?",
-   "Score tracking": "?",
-   "Game-over functionality": "?",
-   "Restart functionality": "?",
-   "The game runs without errors": "?"
-  },
-  "sameFiles": true
+  "failing": {},
+  "sameFiles": false
  },
  "chess": {
   "tessFiles": [
@@ -34,54 +23,26 @@
    "engine.js",
    "ui.js"
   ],
-  "rounds": 3,
-  "passT": 0,
-  "passO": 0,
+  "rounds": 1,
+  "passT": 15,
+  "passO": 15,
   "total": 15,
-  "failing": {
-   "A functional chessboard": "64 squares, pieces shown=false",
-   "Legal move generation": "?",
-   "Piece movement": "?",
-   "Check detection": "?",
-   "Checkmate detection": "?",
-   "Stalemate detection": "?",
-   "Castling": "?",
-   "En passant": "?",
-   "Pawn promotion": "?",
-   "Board evaluation": "?",
-   "Minimax": "?",
-   "Alpha-beta pruning": "?",
-   "A playable computer opponent": "?",
-   "Tested against known chess positions": "?",
-   "Illegal moves are never accepted": "?"
-  },
+  "failing": {},
   "sameFiles": true
  },
  "voxel": {
-  "tessFiles": [],
+  "tessFiles": [
+   "terrain.js"
+  ],
   "omarFiles": [
    "index.html",
    "player.js"
   ],
-  "rounds": 3,
-  "passT": 0,
-  "passO": 0,
+  "rounds": 2,
+  "passT": 13,
+  "passO": 13,
   "total": 13,
-  "failing": {
-   "A 3D environment": "window.engine missing (Three.js may have failed to load)",
-   "A voxel-based world": "?",
-   "Block rendering": "?",
-   "Procedural terrain generation": "?",
-   "Chunk generation": "?",
-   "Chunk loading and unloading": "?",
-   "Player movement": "?",
-   "Collision detection": "?",
-   "Block placement": "?",
-   "Block destruction": "?",
-   "World persistence": "?",
-   "Optimized rendering and chunk management": "?",
-   "Stays playable as the world grows": "?"
-  },
+  "failing": {},
   "sameFiles": true
  },
  "chat": {
@@ -93,22 +54,11 @@
    "public/index.html",
    "public/client.js"
   ],
-  "rounds": 3,
-  "passT": 1,
-  "passO": 1,
+  "rounds": 1,
+  "passT": 11,
+  "passO": 11,
   "total": 11,
-  "failing": {
-   "Multiple users": "online list []",
-   "Sending and receiving messages": "?",
-   "Persistent message history": "?",
-   "Timestamps": "?",
-   "Online indicators": "no presence event listing Ana",
-   "Typing indicators": "?",
-   "Private chat rooms": "?",
-   "Handles simultaneous messages": "?",
-   "Handles disconnected users": "?",
-   "Messages aren't lost or duplicated": "?"
-  },
+  "failing": {},
   "sameFiles": true
  },
  "physics": {
@@ -119,23 +69,12 @@
    "index.html",
    "view.js"
   ],
-  "rounds": 3,
-  "passT": 1,
-  "passO": 1,
+  "rounds": 1,
+  "passT": 11,
+  "passO": 11,
   "total": 11,
-  "failing": {
-   "Gravity": "?",
-   "Elastic collisions": "?",
-   "Friction": "?",
-   "Particle systems": "?",
-   "Users can create objects": "?",
-   "Users can modify simulation parameters": "?",
-   "Interactions between hundreds of objects": "?",
-   "Conservation of momentum in appropriate collisions": "?",
-   "Numerical stability": "?",
-   "Measured simulation performance": "?"
-  },
-  "sameFiles": true
+  "failing": {},
+  "sameFiles": false
  },
  "pathfinding": {
   "tessFiles": [
@@ -143,25 +82,14 @@
   ],
   "omarFiles": [
    "index.html",
-   "ui.js",
-   "style.css"
+   "style.css",
+   "ui.js"
   ],
-  "rounds": 3,
-  "passT": 1,
-  "passO": 1,
+  "rounds": 1,
+  "passT": 11,
+  "passO": 11,
   "total": 11,
-  "failing": {
-   "An interactive grid": "0 cells",
-   "Users can place walls and obstacles": "clicking a cell did not toggle a wall",
-   "A* pathfinding": "?",
-   "Dijkstra's algorithm": "?",
-   "Breadth-First Search": "?",
-   "Animated search process": "?",
-   "Displays the resulting path": "?",
-   "Compares the algorithms' performance": "?",
-   "Handles unreachable destinations": "?",
-   "Each algorithm returns correct results": "?"
-  },
-  "sameFiles": true
+  "failing": {},
+  "sameFiles": false
  }
 }

@@ -2270,5 +2270,28 @@
    "Restart functionality": "team run failed: no Hive window on port 9460",
    "The game runs without errors": "no Hive window on port 9460"
   }
+ },
+ "snake@local-repro2": {
+  "title": "1. Snake Game",
+  "team": "architect Qwen2.5 Coder 7B, leads Qwen2.5 Coder 7B, workers Qwen2.5 Coder 7B",
+  "plan": [
+   "Set up HTML structure: index.html",
+   "Add basic styling: style.css",
+   "Define game state; Initialize the snake; Place food on the grid; Implement the game loop; Control snake direction; Imple: game.js"
+  ],
+  "error": "no Hive window on port 9460",
+  "minutes": 178,
+  "final": {
+   "Create a playable Snake game": "team run failed: no Hive window on port 9460",
+   "Directional movement": "team run failed: no Hive window on port 9460",
+   "Food generation": "team run failed: no Hive window on port 9460",
+   "Snake growth": "team run failed: no Hive window on port 9460",
+   "Wall collision": "team run failed: no Hive window on port 9460",
+   "Self-collision": "team run failed: no Hive window on port 9460",
+   "Score tracking": "team run failed: no Hive window on port 9460",
+   "Game-over functionality": "team run failed: no Hive window on port 9460",
+   "Restart functionality": "team run failed: no Hive window on port 9460",
+   "The game runs without errors": "no Hive window on port 9460"
+  }
  }
 }

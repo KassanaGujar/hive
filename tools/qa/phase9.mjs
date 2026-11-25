@@ -38,11 +38,14 @@ const PAIRS = [
     b: { who: 'omar', files: 'index.html, ui.js and style.css', task: 'You own ONLY index.html, ui.js and style.css. index.html loads algorithms.js then ui.js. ui.js builds the 20x30 grid of .cell divs, wall/start/end editing, animates visitedOrder with class "visited" and the path with class "path", shows a "No path" message and a comparison panel, and defines window.pf = {reset, setWall, setStart, setEnd, run(alg,{animate}), compare()} using window.Algorithms.' } }
 ].filter((p) => !process.env.QA_SKIP_PAIRS && (!only.length || only.includes(p.id)))
 
+// Files go to the AI the way Ask AI sends them: the live editor text first, then the shared copy, then disk. Reading
+// disk alone showed Omar's AI the file from before Tess's change (disk is written a moment later), so it found no bug.
 async function ask(app, dir, prompt) {
   const files = (await app.invoke('fs:hashTree')) ?? {}
-  const ctxFiles = Object.keys(files).filter((f) => /\.(html|js|css|json)$/.test(f) && !f.startsWith('.'))
+  // CONTRACT.md included: the brief says to read it, and without it Claude refused to guess the other half's API
+  const ctxFiles = Object.keys(files).filter((f) => /\.(html|js|css|json|md)$/.test(f) && !f.startsWith('.'))
   const r = await app.eval(`
-    const files=${JSON.stringify(ctxFiles)};let ctx='';const bases={};for(const f of files){const t=await h.invoke('fs:read',f);bases[f]=t;if(t.length<40000)ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
+    const files=${JSON.stringify(ctxFiles)};let ctx='';const bases={};for(const f of files){const t=H.monaco.editor.getModel(H.monaco.Uri.parse('hive:///'+f))?.getValue()??H.session()?.parts?.files?.get(f)?.toString()??await h.invoke('fs:read',f);bases[f]=t;if(t.length<40000)ctx+='Open file: '+f+'\\n\\x60\\x60\\x60'+f+'\\n'+t+'\\n\\x60\\x60\\x60\\n\\n'}
     const msgs=[{role:'system',content:H.chat.SYSTEM},{role:'user',content:ctx+${JSON.stringify(prompt)}}];
     let text='',err=null,done=false,id=null;const early=[];
     const off=h.on('chat:chunk',(c)=>{if(id===null){early.push(c);return}if(c.streamId!==id)return;if(c.chunk.text)text+=c.chunk.text;if(c.error)err=c.error;if(c.chunk.done)done=true});
@@ -89,7 +92,7 @@ for (const pair of PAIRS) {
   const odir = freshDir(`p9-${pair.id}-omar`)
   await join(omar, odir, inv)
   await until(() => existsSync(odir + '/CONTRACT.md'), 15000)
-  const brief = (part) => `We are two people building this together. Read CONTRACT.md for who owns which files.\n${part.task}\nOutput the COMPLETE content of every file you own. Do not output files you don't own.\n\nFull brief for the whole app:\n${c.brief}`
+  const brief = (part) => `We are two people building this together. CONTRACT.md (above) says who owns which files and how they connect.\n${part.task}\nWrite your files now, against the contract: don't wait for your teammate's files, they are being written at the same time.\nOutput the COMPLETE content of every file you own. Do not output files you don't own.\n\nFull brief for the whole app:\n${c.brief}`
   const [ra, rb] = await Promise.all([ask(tess, tdir, brief(pair.a)), ask(omar, odir, brief(pair.b))])
   const accA = await acceptOwned(tess, ra.proposals, filesOf(pair.a.files))
   const accB = await acceptOwned(omar, rb.proposals, filesOf(pair.b.files))
@@ -166,18 +169,26 @@ await check(P, 'Collaborators integrate code written in separate files', async (
   return `${ok}/${Object.keys(results).length} pair challenges integrated into a fully working app`
 })
 await check(P, "Collaborators debug each other's code", async () => {
+  const trail = [`start tess=${JSON.stringify(await doc(tess, 'render.js'))} omar=${JSON.stringify(await doc(omar, 'render.js'))}`]
   // Tess edits like a person, through the editor. A raw fs:write is Hive's own internal write, which the watcher
   // ignores on purpose, so it never reached Omar and his AI had nothing to fix ("player at 2,1" for days).
   await tess.eval(`await H.files.applyContent('render.js', ${JSON.stringify("function draw(p) { return 'player at ' + p.y + ',' + p.x }\nmodule.exports = { draw }\n")});return 1`)
   assert(await until(async () => (await doc(omar, 'render.js')).includes('p.y +'), 8000), "Tess's change never reached Omar")
+  trail.push(`after Tess's edit tess=${JSON.stringify(await doc(tess, 'render.js'))} omar=${JSON.stringify(await doc(omar, 'render.js'))}`)
   const r = await ask(omar, odir, "Tess's draw() prints the coordinates in the wrong order (should be x then y). Fix render.js.")
+  trail.push(`Omar's AI was shown: ${JSON.stringify(r.bases?.['render.js'])}`)
   await acceptOwned(omar, r.proposals, ['render.js'])
+  trail.push(`after accept tess=${JSON.stringify(await doc(tess, 'render.js'))} omar=${JSON.stringify(await doc(omar, 'render.js'))}`)
   await until(() => readFileSync(gdir + '/render.js', 'utf8').includes('p.x + '), 8000)
   const out = nodeRun(gdir, "console.log(require('./render').draw({x:1,y:2}))")
-  assert(out === 'player at 1,2', out)
+  // a bare "[eval]:1" said nothing; show what the AI sent and what ended up in the file
+  assert(out === 'player at 1,2', `${out.split('\n').find((l) => /Error/.test(l)) ?? out}\nAI proposed: ${JSON.stringify(r.proposals.find((p) => p.path === 'render.js')?.content ?? r.text.slice(0, 300))}\nfile now: ${JSON.stringify(readFileSync(gdir + '/render.js', 'utf8'))}\n${trail.join('\n')}`)
 })
 await check(P, 'Collaborators review AI-generated code', async () => {
-  const ev = await tess.eval(`return H.store.getState().feed.filter(e=>e.actor==='Omar'&&e.files?.includes('render.js')).map(e=>({diff:!!e.diff,summary:e.summary}))`)
+  // History entries sync like everything else: give Omar's a moment to arrive (an immediate look passed or failed by timing)
+  const omarsEntries = () => tess.eval(`return H.store.getState().feed.filter(e=>e.actor==='Omar'&&e.files?.includes('render.js')).map(e=>({diff:!!e.diff,summary:e.summary}))`)
+  await until(async () => (await omarsEntries()).length > 0, 8000)
+  const ev = await omarsEntries()
   assert(ev.length, "Omar's AI change is not in Tess's History panel")
   assert(ev.some((e) => e.diff), 'no diff to review')
   return "Tess sees Omar's AI change with its diff in History. Note: the entry doesn't say it came from AI."

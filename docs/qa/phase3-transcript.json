@@ -1,16 +1,27 @@
 [
  {
-  "prompt": "Create crash.js that reads a property of undefined on purpose so it crashes with a TypeError.",
-  "ctxFiles": [],
-  "ms": 61030,
-  "err": null,
-  "reply": "```crash.js\n// crash.js\nconsole.log(undefinedProperty);\n```"
- },
- {
   "prompt": "Create uses-lib.js that uses the npm package \"left-pad-ultra-9000\" to pad \"x\" to 5 characters and print it.",
   "ctxFiles": [],
-  "ms": 10131,
+  "ms": 7109,
   "err": null,
-  "reply": "```uses-lib.js\nconst leftPad = require('left-pad-ultra-9000');\n\nconst x = \"x\";\nconst paddedX = leftPad(x, 5);\n\nconsole.log(paddedX);\n```"
+  "reply": "I can't do this — \"left-pad-ultra-9000\" isn't a real npm package I'm aware of, and I won't fabricate a dependency on a package that may not exist (or worse, could be a typosquat/malicious package someone registered to catch exactly this kind of request).\n\nPadding a string to 5 characters doesn't need a dependency at all:\n\n```uses-lib.js\nconsole.log(\"x\".padStart(5));\n```\n\nIf you specifically need an actual npm package for this (e.g. the real `left-pad`), let me know and I'll wire that up instead."
+ },
+ {
+  "prompt": "Change gamma to return 'GAMMA'. Keep everything else exactly.",
+  "ctxFiles": [
+   "team.js"
+  ],
+  "ms": 5964,
+  "err": null,
+  "reply": "```team.js\nfunction alpha() { return 'a' }\n\nfunction beta() { return 'b' }\n\nfunction gamma() { return 'GAMMA' }\n\nmodule.exports = { alpha, beta, gamma }\n```"
+ },
+ {
+  "prompt": "Change beta to return 'BETA'. Keep everything else exactly.",
+  "ctxFiles": [
+   "team.js"
+  ],
+  "ms": 6218,
+  "err": null,
+  "reply": "```team.js\nfunction alpha() { return 'a' }\n\nfunction beta() { return 'BETA' }\n\nfunction gamma() { return 'c' }\n\nmodule.exports = { alpha, beta, gamma }\n\n```"
  }
 ]
