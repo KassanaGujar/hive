@@ -1,5 +1,20 @@
 # Hive — build progress (resume file)
 
+## 🔖 RESUME HERE (2026-11-25): QA checklist at 0 failing — 299 of 314 pass, 15 blocked
+1. Blocked: 14 Phase 10 items need two real first-time users (can't be automated); 1 Phase 1 item (browser
+   back/forward) doesn't apply to a desktop app. Everything else passes, with Claude Code as the AI.
+2. Rule followed (user's ask): every failure gets a cause and a countermeasure, then a rerun. App fixes this round:
+   AI end-of-file blank lines no longer cause false merge conflicts; "Apply to latest version" when Accept is refused;
+   Run names a missing package; Claude's "session/5-hour/weekly limit" counts as out of usage; Ask AI works with
+   Claude Code; safe mode for Run. Harness fixes: usage-limit runs are BLOCKED not FAIL (checklist keeps the last
+   real result), long AI calls never resent, pair fix rounds take turns, AIs get CONTRACT.md and live file text,
+   checks explain failures in words an AI can act on.
+3. Local qwen2.5-coder:7b on the GTX 1660 Ti: no longer freezes, but still can't finish Snake in 3 h (~5 tok/s,
+   6k-token replies that paste code instead of calling tools). Not fixed; a hardware/model limit.
+4. Rerun a phase with Claude: `HIVE_CLI_AGENTS=claude-code QA_MODEL=cli:claude-code node tools/qa/phase9.mjs [pair]`
+   (QA_ONLY=regex reruns selected checks; QA_SKIP_PAIRS=1 runs only the general checks). Then
+   `node tools/qa/sync-checklist.mjs`.
+
 ## 🔖 RESUME HERE (2026-11-21): plain-prompt results, model picker, play-test — merged into `main` (not pushed)
 1. Plain prompts (8 people, casual follow-ups; Claude Code; score on the last message, after tester fixes):
    one agent (Automatic) 36/38 with 28 model calls; full team 24/38 with 165 calls. Team bugs were real and came
