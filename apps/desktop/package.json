@@ -1,7 +1,7 @@
 {
   "name": "@hive/desktop",
   "productName": "Hive",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Free AI coding app for friends: a team of free models builds software together.",
   "author": "KassanaGujar",
   "license": "MIT",
